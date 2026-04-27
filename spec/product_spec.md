@@ -26,6 +26,12 @@ Contest Lock
 Entries lock at kickoff of the first game of the slate (typically
 Thursday Night Football).
 After lock: - lineups cannot be edited - contest scoring begins
+Contest Viability
+A contest must have at least 4 paid entries to run.
+If a contest has fewer than 4 paid entries at lock time, the contest is canceled and entry fees are refunded as site credit.
+MVP contests use dynamic prize pools only. Guaranteed prize pools are out of scope for MVP.
+Detailed design:
+See /spec/features/contest_viability.md
 ---
 4. Scoring System
 Placement Distance Scoring
@@ -168,6 +174,7 @@ Press and hold the ≡ icon to drag players into your rankings.
 10. Contest Lock State
 Once the contest locks: - lineup editing disabled - leaderboard becomes
 available
+At lock time, the system also checks contest viability. If the minimum paid entry threshold is not met, the contest is canceled instead of scored.
 ---
 11. Live Leaderboard
 Leaderboard updates during games.
@@ -207,6 +214,7 @@ See /spec/features/results_reveal.md
 ---
 13. Contest Rules
 For MVP: Single entry per user
+Contest must reach at least 4 paid entries by lock time to run.
 Future: Multi-entry contests
 ---
 14. Data Model (Initial)
@@ -222,6 +230,8 @@ platform_fee_amount
 prize_pool
 payout_structure
 entries_count
+min_entries_to_run
+contest_status
 lock_time
 Entry
 entry_id
@@ -241,11 +251,11 @@ final_rank
 15. Future Features
 Leaderboard: - movement indicators - friend leaderboard
 Lobby: - sorting - search - filters
-Contest: - multi-entry contests - variable payout ladders - variable platform fees
+Contest: - multi-entry contests - variable payout ladders - variable platform fees - guaranteed prize pools - private/capped contests
 ---
 16. Anchor Statement
 We've locked the MVP game structure, contest lobby with a featured
 contest, manual contest ordering, contest entry screen layout, lineup
 builder interaction model, live leaderboard behavior, Results Reveal pointer,
-30% platform fee, 70% prize pool, default Top 3 payout structure, and true shared tie handling with pooled payout splits.
-Next we will define contest sizing and viability rules, including minimum entries and whether contests run, cancel, or convert if they do not fill.
+30% platform fee, 70% prize pool, default Top 3 payout structure, true shared tie handling with pooled payout splits, and contest viability rules requiring at least 4 paid entries to run.
+Next we will define wallet, site credit, and refund handling for canceled contests.
