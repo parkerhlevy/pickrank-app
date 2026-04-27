@@ -64,7 +64,7 @@ Example:
 FEATURED CONTEST  
 Week 7 QB Passing Yards  
 Entries lock: Thu 8:15 PM ET
-$12,450  
+$8,715  
 Prize Pool
 1,284 Entries
 Enter Contest
@@ -77,7 +77,7 @@ Entry Count
 Example:
 Week 7 RB Rushing Yards  
 Entries lock: Thu 8:15 PM ET
-Prize Pool: $4,200  
+Prize Pool: $2,940  
 842 Entries
 Contest Ordering
 Ordering is manually controlled.
@@ -100,17 +100,39 @@ Week 7 QB Passing Yards
 Entries lock: Thu 8:15 PM ET
 15 Quarterbacks  
 Rank QBs by passing yards
-Prize Pool: $12,450  
+Prize Pool: $8,715  
 1,284 Entries
 Projected Payouts
-1st: $6,000  
-2nd: $3,000  
-3rd: $1,500
+1st: $4,357.50  
+2nd: $2,614.50  
+3rd: $1,743.00
 Enter Contest
 Post Entry State
 Primary button becomes: Edit Lineup
 ---
-8. Lineup Builder
+8. Platform Fee & Payout Model
+Platform Fee
+PickRank applies a platform fee before contest payouts.
+Default MVP platform fee: 30% of total entry fees.
+Prize Pool
+Prize pool equals 70% of total entry fees.
+total_entry_fees = entry_fee * entries_count
+platform_fee = total_entry_fees * 0.30
+prize_pool = total_entry_fees * 0.70
+Default Payout Structure
+Payouts are calculated as percentages of the prize pool:
+1st place: 50%
+2nd place: 30%
+3rd place: 20%
+Payout Guardrail
+Total payouts must never exceed the available prize pool.
+Rounding should be deterministic and should preserve total payout accuracy.
+Tie Handling
+If a tie affects paid positions, affected payout slots are combined and split evenly among tied entries.
+Detailed design:
+See /spec/features/tie_handling.md
+---
+9. Lineup Builder
 This is a dedicated editing screen separate from other app content.
 Default Player Order
 Players appear in alphabetical order by last name.
@@ -143,11 +165,11 @@ Cancel
 First-Time Hint
 Press and hold the ≡ icon to drag players into your rankings.
 ---
-9. Contest Lock State
+10. Contest Lock State
 Once the contest locks: - lineup editing disabled - leaderboard becomes
 available
 ---
-10. Live Leaderboard
+11. Live Leaderboard
 Leaderboard updates during games.
 Refresh interval: ~60 seconds
 Display Format
@@ -170,7 +192,7 @@ Leaderboard Restrictions (MVP)
 No: - leaderboard search - rank movement indicators - projections - stat
 breakdowns
 ---
-11. Results Reveal
+12. Results Reveal
 
 Purpose: Deliver the core reward moment after contest completion.
 
@@ -183,18 +205,22 @@ Displays:
 Detailed design:
 See /spec/features/results_reveal.md
 ---
-12. Contest Rules
+13. Contest Rules
 For MVP: Single entry per user
 Future: Multi-entry contests
 ---
-13. Data Model (Initial)
+14. Data Model (Initial)
 Contest
 contest_id
 contest_name
 stat_type
 slate_players[]
 entry_fee
+total_entry_fees
+platform_fee_percentage
+platform_fee_amount
 prize_pool
+payout_structure
 entries_count
 lock_time
 Entry
@@ -203,21 +229,23 @@ user_id
 contest_id
 player_rankings[]
 score
+final_rank
+final_rank_display
+is_tied
+payout_amount
 Player Result
 player_id
 final_stat
 final_rank
 ---
-14. Future Features
+15. Future Features
 Leaderboard: - movement indicators - friend leaderboard
 Lobby: - sorting - search - filters
-Contest: - multi-entry contests - payout ladder
+Contest: - multi-entry contests - variable payout ladders - variable platform fees
 ---
-15. Anchor Statement
+16. Anchor Statement
 We've locked the MVP game structure, contest lobby with a featured
 contest, manual contest ordering, contest entry screen layout, lineup
-builder interaction model (drag handle, floating save button,
-alphabetical default lineup), and a live leaderboard that updates during
-games and opens centered on the user's position.
-Next we will design the Results Reveal experience and finalize how final
-standings and winnings are presented.
+builder interaction model, live leaderboard behavior, Results Reveal pointer,
+30% platform fee, 70% prize pool, default Top 3 payout structure, and true shared tie handling with pooled payout splits.
+Next we will define contest sizing and viability rules, including minimum entries and whether contests run, cancel, or convert if they do not fill.
