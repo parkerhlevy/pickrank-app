@@ -170,12 +170,18 @@ Leaderboard Restrictions (MVP)
 No: - leaderboard search - rank movement indicators - projections - stat
 breakdowns
 ---
-11. Results Reveal (Next Design Phase)
-After all games finish:
-Leaderboard becomes final.
-A results reveal screen will show: - final position - final score -
-winnings - player-by-player breakdown
-This screen will deliver the core reward moment.
+11. Results Reveal
+
+Purpose: Deliver the core reward moment after contest completion.
+
+Displays:
+- final position
+- final score
+- winnings
+- player-by-player breakdown
+
+Detailed design:
+See /spec/features/results_reveal.md
 ---
 12. Contest Rules
 For MVP: Single entry per user
