@@ -7,7 +7,14 @@ Define how PickRank sources NFL player stats, determines final player rankings, 
 Locked for MVP direction. Specific data provider selection remains open.
 
 ## Anchor
-MVP stat finalization requires a trusted external NFL stats provider, uses official final passing yards to rank slate quarterbacks, allows tied player stat ranks, waits until all slate games are final before scoring, applies a defined stat correction window before payouts, and does not show live scoring during games.
+MVP stat finalization requires a trusted external NFL stats provider, uses official final passing yards to rank slate quarterbacks, allows tied player stat ranks without additional QB stat tie-breakers, waits until all slate games are final before scoring, applies a defined stat correction window before payouts, and does not show live scoring during games.
+
+---
+
+## Important Distinction
+This document covers **player stat ties**: two or more quarterbacks finishing with the same final passing yards.
+
+It does not define entry score ties, such as two users finishing with the same total contest score. Entry score ties, leaderboard placement, and payout splits are handled in `/spec/features/tie_handling.md`.
 
 ---
 
@@ -108,7 +115,7 @@ Example:
 
 Player stat ties are allowed.
 
-If two or more quarterbacks finish with the same passing yards, they share the same actual rank.
+If two or more quarterbacks finish with the same passing yards, they share the same actual rank group.
 
 Use competition ranking for actual player ranks.
 
@@ -120,6 +127,44 @@ Example:
 | Player B | 288 | T-2 |
 | Player C | 288 | T-2 |
 | Player D | 241 | 4 |
+
+### No QB stat tie-breaker
+For MVP, do not break tied QB passing-yard ranks using:
+
+- completions
+- attempts
+- touchdowns
+- interceptions
+- passer rating
+- rushing yards
+- team result
+- game start time
+- alphabetical order
+- manual judgment
+- random draw
+
+Reason:
+
+- users are predicting passing yards only
+- adding another stat would create a hidden game mechanic
+- official equal passing-yard outcomes should remain equal
+- tied rank ranges create fair scoring without extra rules
+
+### Actual rank range
+If multiple quarterbacks tie, the tied players occupy a rank range.
+
+Example:
+
+- Player B and Player C tie for 2nd
+- They occupy rank positions 2 and 3
+- Their actual rank range is `2-3`
+- The next player is ranked 4th
+
+Store:
+
+- `actual_rank_min = 2`
+- `actual_rank_max = 3`
+- `actual_rank_display = T-2`
 
 ### Scoring against tied actual ranks
 If a player has a tied actual rank, score that player using the closest occupied actual rank in the tied group.
@@ -145,6 +190,33 @@ Example:
 - User ranks Player B 1st → distance 1
 
 This prevents penalizing users for correctly placing a player within an official stat tie group.
+
+### Multiple tie groups
+Multiple player stat tie groups may exist in the same contest.
+
+Example:
+
+| QB | Passing Yards | Actual Rank Range | Display |
+|---|---:|---:|---:|
+| Player A | 325 | 1-1 | 1 |
+| Player B | 288 | 2-3 | T-2 |
+| Player C | 288 | 2-3 | T-2 |
+| Player D | 241 | 4-4 | 4 |
+| Player E | 200 | 5-7 | T-5 |
+| Player F | 200 | 5-7 | T-5 |
+| Player G | 200 | 5-7 | T-5 |
+| Player H | 188 | 8-8 | 8 |
+
+Each tied player uses its own actual rank range for scoring distance.
+
+### All players tied
+If all slate players finish with the same passing yards:
+
+- all players share `T-1`
+- actual rank range is `1-slate_size`
+- every user receives distance 0 for every player
+- all entries will likely tie on total score
+- entry score tie handling then applies via `/spec/features/tie_handling.md`
 
 ---
 
@@ -257,7 +329,7 @@ If a quarterback in the slate does not play:
 
 - final passing yards = `0`
 - player remains in final ranking
-- user still receives scoring based on actual final rank
+- user still receives scoring based on actual final rank or tied actual rank range
 
 If multiple players finish with `0` passing yards:
 
@@ -398,6 +470,7 @@ Build for MVP:
 - frozen contest slate
 - final passing yards ranking
 - tied player stat rank handling
+- no QB stat tie-breaker beyond passing yards
 - DNP as official stat value, usually 0
 - all-games-final requirement
 - finalization validation checks
@@ -412,6 +485,7 @@ Do not build for MVP:
 - multi-provider stat comparison UI
 - user-facing stat disputes
 - automated clawbacks after payout
+- QB passing-yard tie-breakers using secondary stats
 - alternate stat categories beyond initial QB passing yards unless explicitly added later
 
 ---
@@ -426,5 +500,6 @@ Potential future additions:
 - live stat tracking
 - live leaderboard
 - additional stat categories
+- optional player stat tie-breakers for non-MVP contest formats
 - automated finality confidence checks
 - provider reconciliation reporting
