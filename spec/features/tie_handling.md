@@ -1,20 +1,47 @@
 # Tie Handling
 
 ## Purpose
-Define how PickRank handles ties in contest scoring, leaderboard placement, and payouts.
+Define how PickRank handles entry score ties in contest scoring, leaderboard placement, and payouts.
 
 ## Status
 Locked for MVP.
 
 ## Anchor
-MVP tie handling uses true shared placements, `T-` display, skipped placement ranking, pooled payout splitting, no secondary tie-breaker, and deterministic cent rounding by lowest `entry_id`.
+MVP entry score tie handling uses true shared placements, `T-` display, skipped placement ranking, pooled payout splitting, no secondary entry score tie-breaker, and deterministic cent rounding by lowest `entry_id`.
+
+## Important Distinction
+This document covers **entry score ties**: two or more contest entries finishing with the same total score.
+
+It does not define player stat ties, such as two quarterbacks finishing with the same passing yards. Player stat ties are handled in `/spec/features/stat_finalization.md`.
 
 ## Summary
-PickRank contests allow true ties. Entries with the same final score share the same leaderboard rank.
+PickRank contests allow true entry score ties. Entries with the same final score share the same leaderboard rank.
 
-MVP does not use secondary tie-breakers such as exact-pick count, entry timestamp, uniqueness, closest miss distance, or random draw.
+MVP does not use secondary entry score tie-breakers such as exact-pick count, entry timestamp, lineup uniqueness, closest aggregate miss distance, or random draw.
 
 If a tie affects paid positions, the affected prize slots are pooled and split evenly across the tied entries.
+
+## No Secondary Entry Score Tie-Breaker
+For MVP, tied entries remain tied.
+
+Do not break entry score ties using:
+
+- most exact player placements
+- closest aggregate miss distance
+- earliest entry payment
+- earliest lineup save
+- fewest edits
+- lineup uniqueness
+- random draw
+- account age
+- external manual judgment
+
+Reason:
+
+- shared ties are simpler to explain
+- pooled payout splitting is fair and transparent
+- avoids hidden rules users did not optimize for
+- reduces legal/compliance ambiguity around arbitrary tie-breaks
 
 ## Leaderboard Tie Rules
 
@@ -249,7 +276,7 @@ Use this user-facing rule copy in contest rules or help text:
 > If two or more entries finish with the same final score, they share the same placement. If the tie affects paid positions, the prizes for those positions are combined and split evenly among all tied entries.
 
 ## Non-MVP / Future Considerations
-Do not build secondary tie-breakers for MVP.
+Do not build secondary entry score tie-breakers for MVP.
 
 Potential future tie-breaker concepts, if needed later:
 
