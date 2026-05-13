@@ -115,6 +115,10 @@ Projected Payouts
 Enter Contest
 Post Entry State
 Primary button becomes: Edit Lineup
+Payment UX:
+Users see a payment review step before entry confirmation. Site credit and cash balance are applied before external payment. Entries are created only after payment succeeds.
+Detailed design:
+See /spec/features/payment_wallet_ux.md
 ---
 8. Platform Fee & Payout Model
 Platform Fee
@@ -137,6 +141,10 @@ Tie Handling
 If a tie affects paid positions, affected payout slots are combined and split evenly among tied entries.
 Detailed design:
 See /spec/features/tie_handling.md
+Wallet + Site Credit:
+PickRank uses separate cash and site credit balances. Contest winnings are credited to cash balance. Canceled-contest refunds are credited as site credit. Site credit cannot be withdrawn. External payment infrastructure and a cash withdrawal path are required before public real-money launch.
+Detailed design:
+See /spec/features/wallet_site_credit.md
 ---
 9. Lineup Builder
 This is a dedicated editing screen separate from other app content.
@@ -247,15 +255,30 @@ Player Result
 player_id
 final_stat
 final_rank
+Wallet Balance
+user_id
+cash_balance
+site_credit_balance
+updated_at
+Wallet Ledger Transaction
+transaction_id
+user_id
+transaction_type
+balance_type
+amount
+contest_id
+entry_id
+external_payment_id
+external_payout_id
+created_at
+metadata
 ---
 15. Future Features
 Leaderboard: - movement indicators - friend leaderboard
 Lobby: - sorting - search - filters
 Contest: - multi-entry contests - variable payout ladders - variable platform fees - guaranteed prize pools - private/capped contests
+Payments: - standalone deposits - expanded wallet history - payment provider reconciliation dashboard - tax reporting flows - chargeback tooling
 ---
 16. Anchor Statement
-We've locked the MVP game structure, contest lobby with a featured
-contest, manual contest ordering, contest entry screen layout, lineup
-builder interaction model, live leaderboard behavior, Results Reveal pointer,
-30% platform fee, 70% prize pool, default Top 3 payout structure, true shared tie handling with pooled payout splits, and contest viability rules requiring at least 4 paid entries to run.
-Next we will define wallet, site credit, and refund handling for canceled contests.
+We've locked the MVP game structure, scoring, leaderboard behavior, tie handling, payout structure, 30% platform fee, contest viability rules, wallet/site credit system, and payment UX direction including external payment infrastructure and required cash withdrawals before public real-money launch.
+Next we will define the contest state machine and lifecycle system.
