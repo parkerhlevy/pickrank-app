@@ -4,10 +4,10 @@
 Define how PickRank handles user balances, contest entry fees, payouts, and canceled-contest refunds.
 
 ## Status
-Locked for MVP.
+Locked for MVP direction. External payment provider and withdrawal provider still need vendor selection.
 
 ## Anchor
-MVP wallet handling uses separate cash and site credit balances, charges entry fees before slate access, pays contest winnings to cash balance, refunds canceled contests as site credit, and does not allow site credit withdrawal.
+MVP wallet handling uses separate cash and site credit balances, charges entry fees before slate access, pays contest winnings to cash balance, refunds canceled contests as site credit, requires external payment infrastructure for real-money entry fees, and requires a cash withdrawal path before public real-money launch.
 
 ---
 
@@ -23,6 +23,8 @@ Cash balance represents withdrawable user funds, including contest winnings.
 
 Site credit represents non-withdrawable platform credit, primarily issued when a contest is canceled for not meeting the minimum entry threshold.
 
+Real-money payments and withdrawals should be handled through external provider infrastructure. PickRank should not manually process payment cards, bank payouts, or withdrawal operations without a provider.
+
 ---
 
 ## User Balance Structure
@@ -37,9 +39,9 @@ Cash balance may include:
 Cash balance may be used for:
 
 - entering contests
-- future withdrawal flows
+- withdrawal flows
 
-Cash balance may be withdrawn only through a compliant withdrawal process.
+Cash balance may be withdrawn only through a compliant provider-backed withdrawal process.
 
 ### Site credit balance
 Site credit may include:
@@ -89,6 +91,11 @@ Example:
 
 ### Partial balance use
 Users may combine site credit, cash balance, and external payment to cover one entry fee.
+
+### External payment requirement
+If site credit and cash balance do not fully cover the entry fee, the remaining amount must be paid through an external payment provider.
+
+Provider selection is still open and must be resolved before real-money contest launch.
 
 ### Ledger requirement
 Every entry fee transaction must create ledger records showing:
@@ -149,6 +156,13 @@ Payouts are calculated after:
 Contest winnings are credited to cash balance.
 
 Winnings are not credited as site credit.
+
+### Withdrawal requirement
+Users must have a way to withdraw cash balance winnings before public real-money launch.
+
+MVP should include at least a basic provider-backed withdrawal path.
+
+Site credit is never withdrawable.
 
 ### Payout ledger entries
 Each payout must create a ledger record with:
@@ -221,12 +235,14 @@ MVP should show:
 
 - Cash balance
 - Site credit balance
+- Withdraw entry point for cash balance, once provider path is available
 
 ### Entry screen display
 Before entering a contest, show:
 
 - entry fee
 - available site credit
+- cash balance applied, if any
 - amount due today, if any
 
 Example:
@@ -234,7 +250,8 @@ Example:
 ```text
 Entry fee: $5
 Site credit applied: $2
-Amount due today: $3
+Cash balance applied: $1
+Amount due today: $2
 ```
 
 ### Canceled contest message
@@ -270,6 +287,7 @@ Use this copy:
 - `contest_id`
 - `entry_id`
 - `external_payment_id`
+- `external_payout_id`
 - `created_at`
 - `metadata`
 
@@ -291,6 +309,9 @@ Use this copy:
 - `entry_fee_cash_debit`
 - `entry_fee_external_payment`
 - `contest_payout`
+- `cash_withdrawal_requested`
+- `cash_withdrawal_completed`
+- `cash_withdrawal_failed`
 - `contest_canceled_refund`
 - `manual_adjustment`
 
@@ -302,6 +323,7 @@ Use this copy:
 - Entry creation should not succeed unless the full entry fee is covered.
 - Payouts should not run more than once for the same contest entry.
 - Canceled-contest refunds should not run more than once for the same contest entry.
+- Withdrawals should not run more than once for the same withdrawal request.
 
 ---
 
@@ -314,6 +336,7 @@ Build for MVP:
 - cash balance application to entry fees
 - external payment fallback
 - contest payout to cash balance
+- provider-backed cash withdrawal path before real-money launch
 - canceled-contest refund to site credit
 - append-only wallet ledger
 - wallet balance display in Profile
@@ -321,8 +344,6 @@ Build for MVP:
 
 Do not build for MVP:
 
-- withdrawals
-- deposits as a standalone wallet action
 - peer-to-peer transfers
 - gift credits
 - promo code system
@@ -330,7 +351,7 @@ Do not build for MVP:
 - bonus cash
 - multi-currency support
 - crypto payments
-- tax reporting flows
+- tax reporting flows beyond provider/legal requirements
 - chargeback management UI
 - full payment operations dashboard
 
@@ -340,8 +361,7 @@ Do not build for MVP:
 
 Potential future additions:
 
-- withdrawals from cash balance
-- deposit funds into cash balance
+- deposits into cash balance as standalone wallet action
 - promotional credit campaigns
 - expiring site credits
 - admin wallet adjustment tools
@@ -350,6 +370,20 @@ Potential future additions:
 - tax document generation
 - suspicious wallet activity monitoring
 - state-by-state payment restrictions
+
+---
+
+## Open Decisions
+Need to decide:
+
+1. payment processor
+2. payout / withdrawal provider
+3. whether users can deposit to cash balance or only pay per entry
+4. KYC / identity verification requirements
+5. minimum withdrawal amount
+6. withdrawal timing and fees
+7. chargeback handling process
+8. payment provider support for skill-based contests
 
 ---
 
