@@ -51,6 +51,10 @@ Score Calculation
 distance = abs(user_rank - actual_rank)  
 points = scoring_table[distance]
 Total score = sum of all player points.
+Player Stat Ties
+If multiple players finish with the same final stat, they share an actual rank range. A user receives distance 0 if the player is placed anywhere inside that tied actual rank range.
+Detailed design:
+See /spec/features/stat_finalization.md
 ---
 5. Navigation Structure
 Bottom navigation tabs:
@@ -271,6 +275,9 @@ Player Result
 player_id
 final_stat
 final_rank
+actual_rank_min
+actual_rank_max
+actual_rank_display
 Wallet Balance
 user_id
 cash_balance
@@ -296,13 +303,22 @@ to_status
 trigger
 created_at
 metadata
+Contest Stat Snapshot
+snapshot_id
+contest_id
+provider_name
+provider_snapshot_time
+created_at
+status
+metadata
 ---
 15. Future Features
 Leaderboard: - movement indicators - friend leaderboard - live scoring leaderboard
 Lobby: - sorting - search - filters
 Contest: - multi-entry contests - variable payout ladders - variable platform fees - guaranteed prize pools - private/capped contests - admin lifecycle dashboard - dispute workflow
 Payments: - standalone deposits - expanded wallet history - payment provider reconciliation dashboard - tax reporting flows - chargeback tooling
+Stats: - provider redundancy - stat dispute workflow - live stat tracking - additional stat categories
 ---
 16. Anchor Statement
-We've locked the MVP game structure, scoring, leaderboard behavior, tie handling, payout structure, 30% platform fee, contest viability rules, wallet/site credit system, payment UX direction, and contest lifecycle state machine from draft through paid_out.
-Next we will define contest data provider requirements and stat finalization rules.
+We've locked the MVP game structure, scoring, leaderboard behavior, tie handling, payout structure, 30% platform fee, contest viability rules, wallet/site credit system, payment UX direction, contest lifecycle state machine, and stat finalization rules including tied player stat handling and a 24-hour payout confirmation window.
+Next we will define the contest admin/setup flow for creating and publishing weekly contests.
