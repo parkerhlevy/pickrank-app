@@ -16,6 +16,11 @@ The highest total score wins the contest.
 Lobby → Contest Entry → Lineup Builder → Contest Lock → Live Leaderboard
 → Final Results Reveal
 This loop repeats weekly during the NFL season.
+Lifecycle System
+Contest progression is controlled by explicit states:
+draft → scheduled → open → locked → canceled / live → finalizing → final → paid_out
+Detailed design:
+See /spec/features/contest_lifecycle.md
 ---
 3. Contest Structure
 Contest Type (MVP)
@@ -185,9 +190,9 @@ available
 At lock time, the system also checks contest viability. If the minimum paid entry threshold is not met, the contest is canceled instead of scored.
 ---
 11. Live Leaderboard
-Leaderboard updates during games.
-Refresh interval: ~60 seconds
-Display Format
+MVP does not show live scoring during games.
+Leaderboard is unavailable or placeholder-only until final results are calculated.
+Display Format once final:
 Rank  
 Username  
 Points
@@ -196,7 +201,7 @@ Example:
 2 QBWizard 65 pts  
 3 StatMaster 64 pts
 User Position
-Leaderboard opens centered on the user's position.
+Final leaderboard opens centered on the user's position.
 Example:
 176 GridironPro 43 pts  
 177 QBWizard 43 pts  
@@ -205,7 +210,7 @@ Example:
 User row highlighted.
 Leaderboard Restrictions (MVP)
 No: - leaderboard search - rank movement indicators - projections - stat
-breakdowns
+breakdowns - live score updates
 ---
 12. Results Reveal
 
@@ -238,19 +243,30 @@ platform_fee_amount
 prize_pool
 payout_structure
 entries_count
+paid_entries_count
 min_entries_to_run
 contest_status
+entry_open_time
 lock_time
+finalized_at
+paid_out_at
+canceled_at
+cancel_reason
+state_version
 Entry
 entry_id
 user_id
 contest_id
 player_rankings[]
+entry_status
+payment_status
+lineup_status
 score
 final_rank
 final_rank_display
 is_tied
 payout_amount
+payout_status
 Player Result
 player_id
 final_stat
@@ -272,13 +288,21 @@ external_payment_id
 external_payout_id
 created_at
 metadata
+Contest State Event
+event_id
+contest_id
+from_status
+to_status
+trigger
+created_at
+metadata
 ---
 15. Future Features
-Leaderboard: - movement indicators - friend leaderboard
+Leaderboard: - movement indicators - friend leaderboard - live scoring leaderboard
 Lobby: - sorting - search - filters
-Contest: - multi-entry contests - variable payout ladders - variable platform fees - guaranteed prize pools - private/capped contests
+Contest: - multi-entry contests - variable payout ladders - variable platform fees - guaranteed prize pools - private/capped contests - admin lifecycle dashboard - dispute workflow
 Payments: - standalone deposits - expanded wallet history - payment provider reconciliation dashboard - tax reporting flows - chargeback tooling
 ---
 16. Anchor Statement
-We've locked the MVP game structure, scoring, leaderboard behavior, tie handling, payout structure, 30% platform fee, contest viability rules, wallet/site credit system, and payment UX direction including external payment infrastructure and required cash withdrawals before public real-money launch.
-Next we will define the contest state machine and lifecycle system.
+We've locked the MVP game structure, scoring, leaderboard behavior, tie handling, payout structure, 30% platform fee, contest viability rules, wallet/site credit system, payment UX direction, and contest lifecycle state machine from draft through paid_out.
+Next we will define contest data provider requirements and stat finalization rules.
