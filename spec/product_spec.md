@@ -37,6 +37,10 @@ If a contest has fewer than 4 paid entries at lock time, the contest is canceled
 MVP contests use dynamic prize pools only. Guaranteed prize pools are out of scope for MVP.
 Detailed design:
 See /spec/features/contest_viability.md
+Contest Admin Setup
+Weekly contests are created through an internal admin setup flow with validation before publish.
+Detailed design:
+See /spec/features/contest_admin_setup.md
 ---
 4. Scoring System
 Placement Distance Scoring
@@ -257,6 +261,12 @@ paid_out_at
 canceled_at
 cancel_reason
 state_version
+visibility_status
+is_featured
+display_order
+created_by_admin_id
+published_by_admin_id
+published_at
 Entry
 entry_id
 user_id
@@ -311,14 +321,23 @@ provider_snapshot_time
 created_at
 status
 metadata
+Contest Validation Result
+validation_id
+contest_id
+status
+errors[]
+warnings[]
+validated_at
+validated_by_admin_id
 ---
 15. Future Features
 Leaderboard: - movement indicators - friend leaderboard - live scoring leaderboard
 Lobby: - sorting - search - filters
 Contest: - multi-entry contests - variable payout ladders - variable platform fees - guaranteed prize pools - private/capped contests - admin lifecycle dashboard - dispute workflow
 Payments: - standalone deposits - expanded wallet history - payment provider reconciliation dashboard - tax reporting flows - chargeback tooling
-Stats: - provider redundancy - stat dispute workflow - live stat tracking - additional stat categories
+Stats: - provider redundancy - stat dispute workflow - live stat tracking - additional stat categories - optional QB stat tie-breaker testing using interceptions, rushing yards, TDs, or other secondary stats
+Admin: - automated weekly contest generation - bulk contest creation - role-based permissions - clone previous contest workflow
 ---
 16. Anchor Statement
-We've locked the MVP game structure, scoring, leaderboard behavior, tie handling, payout structure, 30% platform fee, contest viability rules, wallet/site credit system, payment UX direction, contest lifecycle state machine, and stat finalization rules including tied player stat handling and a 24-hour payout confirmation window.
-Next we will define the contest admin/setup flow for creating and publishing weekly contests.
+We've locked the MVP game structure, scoring, leaderboard behavior, tie handling, payout structure, 30% platform fee, contest viability rules, wallet/site credit system, payment UX direction, contest lifecycle state machine, stat finalization rules, and internal contest admin/setup flow.
+Next we will define the user account, profile, and authentication requirements for MVP.
