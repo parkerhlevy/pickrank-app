@@ -29,6 +29,10 @@ Backend Architecture
 MVP backend uses server-authoritative contest state, eligibility checks, atomic entry/payment creation, append-only wallet ledger events, persisted scoring, and idempotent refunds/payouts.
 Detailed design:
 See /spec/features/backend_data_architecture.md
+Frontend Navigation
+MVP frontend uses bottom-tab navigation with public browsing, auth-gated paid entry, eligibility-gated payment, entry-gated lineup access, final-only leaderboard/results, and internal admin setup screens.
+Detailed design:
+See /spec/features/frontend_navigation.md
 ---
 3. Contest Structure
 Contest Type (MVP)
@@ -74,6 +78,8 @@ Contests
 Leaderboard
 How It Works
 Profile
+Detailed screen map:
+See /spec/features/frontend_navigation.md
 ---
 6. Account + Authentication
 Users must have a verified account before entering paid contests.
@@ -284,7 +290,29 @@ Entry Player Score
 Notification Event
 Admin Audit Event
 ---
-17. Future Features
+17. Frontend Screen Map
+Detailed MVP frontend routes and navigation guards are defined in:
+See /spec/features/frontend_navigation.md
+
+Core routes:
+/contests
+/contests/:contest_id
+/auth
+/contests/:contest_id/payment
+/entries/:entry_id/lineup
+/entries/:entry_id/results
+/contests/:contest_id/leaderboard
+/profile
+/profile/wallet
+/profile/wallet/withdraw
+/how-it-works
+/admin/contests
+/admin/contests/new
+/admin/contests/:contest_id/edit
+/admin/contests/:contest_id/validate
+/admin/contests/:contest_id/preview
+---
+18. Future Features
 Leaderboard: - movement indicators - friend leaderboard - live scoring leaderboard
 Lobby: - sorting - search - filters
 Contest: - multi-entry contests - variable payout ladders - variable platform fees - guaranteed prize pools - private/capped contests - admin lifecycle dashboard - dispute workflow
@@ -294,7 +322,8 @@ Admin: - automated weekly contest generation - bulk contest creation - role-base
 Account: - social login - avatars - public user stats - friend leaderboard - referral system - responsible gaming controls - self-exclusion tooling - enhanced KYC/location verification
 Compliance: - geolocation provider integration - tax document dashboard - jurisdiction-specific terms - compliance admin dashboard - responsible play limits
 Backend: - worker queues - event bus - admin audit viewer - analytics warehouse - fraud/risk scoring - provider redundancy system
+Frontend: - live contest tracker - private leagues tab - friends/social tab - user history - wallet transaction history - support/dispute center
 ---
-18. Anchor Statement
-We've locked the MVP product rules, compliance direction, account requirements, contest lifecycle, stat finalization, admin setup, wallet/payment behavior, and backend data architecture with server-authoritative state, atomic entry/payment creation, append-only wallet ledger, and idempotent refunds/payouts.
-Next we will define the MVP frontend screen map and navigation architecture.
+19. Anchor Statement
+We've locked the MVP product rules, compliance direction, account requirements, contest lifecycle, stat finalization, admin setup, wallet/payment behavior, backend data architecture, and frontend screen map/navigation architecture.
+Next we will define the MVP implementation roadmap and build phases.
