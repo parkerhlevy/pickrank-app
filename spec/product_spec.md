@@ -25,6 +25,10 @@ Contest progression is controlled by explicit states:
 draft → scheduled → open → locked → canceled / live → finalizing → final → paid_out
 Detailed design:
 See /spec/features/contest_lifecycle.md
+Backend Architecture
+MVP backend uses server-authoritative contest state, eligibility checks, atomic entry/payment creation, append-only wallet ledger events, persisted scoring, and idempotent refunds/payouts.
+Detailed design:
+See /spec/features/backend_data_architecture.md
 ---
 3. Contest Structure
 Contest Type (MVP)
@@ -254,143 +258,31 @@ For MVP: Single entry per user
 Contest must reach at least 4 paid entries by lock time to run.
 Future: Multi-entry contests
 ---
-16. Data Model (Initial)
+16. Backend Data Model
+Detailed MVP backend object and service design is defined in:
+See /spec/features/backend_data_architecture.md
+
+Core object groups:
 User
-user_id
-email
-email_verified
-username
-display_name
-date_of_birth
-age_confirmed
-terms_accepted_at
-privacy_policy_accepted_at
-account_status
-created_at
-updated_at
-last_login_at
 User Eligibility
-user_id
-jurisdiction
-eligibility_status
-eligibility_checked_at
-age_gate_status
-kyc_status
-kyc_provider_id
-restriction_reason
-updated_at
 Compliance Eligibility Event
-event_id
-user_id
-event_type
-jurisdiction
-eligibility_status
-age_gate_status
-kyc_status
-self_exclusion_status
-restriction_reason
-source
-created_at
-metadata
 Jurisdiction Rule
-jurisdiction_code
-paid_entry_status
-withdrawal_status
-minimum_age
-kyc_required_for_entry
-kyc_required_for_withdrawal
-last_legal_review_at
-status
+Responsible Play Status
 Contest
-contest_id
-contest_name
-stat_type
-slate_players[]
-entry_fee
-total_entry_fees
-platform_fee_percentage
-platform_fee_amount
-prize_pool
-payout_structure
-entries_count
-paid_entries_count
-min_entries_to_run
-contest_status
-entry_open_time
-lock_time
-finalized_at
-paid_out_at
-canceled_at
-cancel_reason
-state_version
-visibility_status
-is_featured
-display_order
-created_by_admin_id
-published_by_admin_id
-published_at
-Entry
-entry_id
-user_id
-contest_id
-player_rankings[]
-entry_status
-payment_status
-lineup_status
-score
-final_rank
-final_rank_display
-is_tied
-payout_amount
-payout_status
-Player Result
-player_id
-final_stat
-final_rank
-actual_rank_min
-actual_rank_max
-actual_rank_display
-Wallet Balance
-user_id
-cash_balance
-site_credit_balance
-updated_at
-Wallet Ledger Transaction
-transaction_id
-user_id
-transaction_type
-balance_type
-amount
-contest_id
-entry_id
-external_payment_id
-external_payout_id
-created_at
-metadata
+Contest Slate Player
 Contest State Event
-event_id
-contest_id
-from_status
-to_status
-trigger
-created_at
-metadata
-Contest Stat Snapshot
-snapshot_id
-contest_id
-provider_name
-provider_snapshot_time
-created_at
-status
-metadata
 Contest Validation Result
-validation_id
-contest_id
-status
-errors[]
-warnings[]
-validated_at
-validated_by_admin_id
+Entry
+Entry Lineup
+Entry Payment Breakdown
+Wallet Balance
+Wallet Ledger Transaction
+Contest Stat Snapshot
+Player Contest Result
+Entry Scoring Result
+Entry Player Score
+Notification Event
+Admin Audit Event
 ---
 17. Future Features
 Leaderboard: - movement indicators - friend leaderboard - live scoring leaderboard
@@ -401,7 +293,8 @@ Stats: - provider redundancy - stat dispute workflow - live stat tracking - addi
 Admin: - automated weekly contest generation - bulk contest creation - role-based permissions - clone previous contest workflow
 Account: - social login - avatars - public user stats - friend leaderboard - referral system - responsible gaming controls - self-exclusion tooling - enhanced KYC/location verification
 Compliance: - geolocation provider integration - tax document dashboard - jurisdiction-specific terms - compliance admin dashboard - responsible play limits
+Backend: - worker queues - event bus - admin audit viewer - analytics warehouse - fraud/risk scoring - provider redundancy system
 ---
 18. Anchor Statement
-We've locked the MVP game structure, scoring, leaderboard behavior, tie handling, payout structure, 30% platform fee, contest viability rules, wallet/site credit system, payment UX direction, contest lifecycle state machine, stat finalization rules, internal contest admin/setup flow, user account/profile/auth requirements, and compliance/eligibility/responsible play requirements.
-Next we will define the MVP data model and backend architecture requirements.
+We've locked the MVP product rules, compliance direction, account requirements, contest lifecycle, stat finalization, admin setup, wallet/payment behavior, and backend data architecture with server-authoritative state, atomic entry/payment creation, append-only wallet ledger, and idempotent refunds/payouts.
+Next we will define the MVP frontend screen map and navigation architecture.
