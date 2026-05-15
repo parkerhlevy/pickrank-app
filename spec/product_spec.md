@@ -44,6 +44,10 @@ See /spec/features/qa_acceptance_criteria.md
 Open Questions + Decision Log
 MVP open questions and launch-critical unresolved decisions are tracked in:
 See /spec/features/open_questions_decision_log.md
+Technical Stack Recommendation
+MVP recommended stack is Next.js, TypeScript, Supabase/Postgres/Auth, Vercel, Tailwind/shadcn, Vitest, Playwright, and a GitHub-first AI build workflow using Codex or Claude Code with Cursor for local review.
+Detailed design:
+See /spec/features/technical_stack_recommendation.md
 ---
 3. Contest Structure
 Contest Type (MVP)
@@ -382,7 +386,23 @@ State-by-state legal/payment review
 KYC provider
 Beta scope details
 ---
-21. Future Features
+21. Technical Stack Recommendation
+Detailed MVP stack and AI build workflow recommendation is defined in:
+See /spec/features/technical_stack_recommendation.md
+
+Recommended stack:
+Next.js
+TypeScript
+Supabase Postgres
+Supabase Auth
+Vercel
+Tailwind + shadcn/ui
+Vitest
+Playwright
+Codex or Claude Code for GitHub-connected implementation
+Cursor for local review/editing
+---
+22. Future Features
 Leaderboard: - movement indicators - friend leaderboard - live scoring leaderboard
 Lobby: - sorting - search - filters
 Contest: - multi-entry contests - variable payout ladders - variable platform fees - guaranteed prize pools - private/capped contests - admin lifecycle dashboard - dispute workflow
@@ -394,6 +414,6 @@ Compliance: - geolocation provider integration - tax document dashboard - jurisd
 Backend: - worker queues - event bus - admin audit viewer - analytics warehouse - fraud/risk scoring - provider redundancy system
 Frontend: - live contest tracker - private leagues tab - friends/social tab - user history - wallet transaction history - support/dispute center
 ---
-22. Anchor Statement
-We've locked the MVP product rules, compliance direction, account requirements, contest lifecycle, stat finalization, admin setup, wallet/payment behavior, backend data architecture, frontend screen map/navigation architecture, implementation roadmap/build phases, QA acceptance criteria, and open questions/decision log.
-Next we will define the MVP technical stack recommendation.
+23. Anchor Statement
+We've locked the MVP product rules, compliance direction, account requirements, contest lifecycle, stat finalization, admin setup, wallet/payment behavior, backend data architecture, frontend screen map/navigation architecture, implementation roadmap/build phases, QA acceptance criteria, open questions/decision log, and MVP technical stack recommendation including GitHub-first AI build workflow.
+Next we will define the Phase 0 implementation plan, then switch to a new implementation chat before actual build execution.
