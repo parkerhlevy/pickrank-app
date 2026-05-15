@@ -11,6 +11,10 @@ Core Mechanic
 Users rank a slate of players by projected stat outcome. Points are
 awarded based on how close their rankings are to the final results.
 The highest total score wins the contest.
+Compliance Direction
+PickRank is framed as a paid skill-based contest, not sports betting. Public real-money launch requires legal/payment-provider review, supported jurisdiction definition, age/eligibility controls, and responsible play requirements.
+Detailed design:
+See /spec/features/compliance_eligibility_responsible_play.md
 ---
 2. Core Game Loop
 Lobby → Contest Entry → Lineup Builder → Contest Lock → Live Leaderboard
@@ -73,7 +77,13 @@ MVP uses email-based authentication, unique username/display name, basic Profile
 Detailed design:
 See /spec/features/account_profile_auth.md
 ---
-7. Contest Lobby
+7. Compliance + Eligibility
+Paid contest entry must be blocked unless the user is eligible by account status, age, jurisdiction, verification status, and responsible play restrictions.
+MVP supports configurable jurisdiction rules, age gates, KYC placeholders, self-exclusion placeholders, eligibility event logging, and legal/provider review gates.
+Detailed design:
+See /spec/features/compliance_eligibility_responsible_play.md
+---
+8. Contest Lobby
 Layout
 Featured Contest  
 ↓  
@@ -110,7 +120,7 @@ Purpose: - promote specific contests - manage liquidity - highlight new
 formats
 Future additions: - sorting - search - filters
 ---
-8. Contest Entry Screen
+9. Contest Entry Screen
 Layout
 Contest Title  
 Lock Time
@@ -139,7 +149,7 @@ Users see a payment review step before entry confirmation. Site credit and cash 
 Detailed design:
 See /spec/features/payment_wallet_ux.md
 ---
-9. Platform Fee & Payout Model
+10. Platform Fee & Payout Model
 Platform Fee
 PickRank applies a platform fee before contest payouts.
 Default MVP platform fee: 30% of total entry fees.
@@ -165,7 +175,7 @@ PickRank uses separate cash and site credit balances. Contest winnings are credi
 Detailed design:
 See /spec/features/wallet_site_credit.md
 ---
-10. Lineup Builder
+11. Lineup Builder
 This is a dedicated editing screen separate from other app content.
 Default Player Order
 Players appear in alphabetical order by last name.
@@ -198,12 +208,12 @@ Cancel
 First-Time Hint
 Press and hold the ≡ icon to drag players into your rankings.
 ---
-11. Contest Lock State
+12. Contest Lock State
 Once the contest locks: - lineup editing disabled - leaderboard becomes
 available
 At lock time, the system also checks contest viability. If the minimum paid entry threshold is not met, the contest is canceled instead of scored.
 ---
-12. Live Leaderboard
+13. Live Leaderboard
 MVP does not show live scoring during games.
 Leaderboard is unavailable or placeholder-only until final results are calculated.
 Display Format once final:
@@ -226,7 +236,7 @@ Leaderboard Restrictions (MVP)
 No: - leaderboard search - rank movement indicators - projections - stat
 breakdowns - live score updates
 ---
-13. Results Reveal
+14. Results Reveal
 
 Purpose: Deliver the core reward moment after contest completion.
 
@@ -239,12 +249,12 @@ Displays:
 Detailed design:
 See /spec/features/results_reveal.md
 ---
-14. Contest Rules
+15. Contest Rules
 For MVP: Single entry per user
 Contest must reach at least 4 paid entries by lock time to run.
 Future: Multi-entry contests
 ---
-15. Data Model (Initial)
+16. Data Model (Initial)
 User
 user_id
 email
@@ -269,6 +279,28 @@ kyc_status
 kyc_provider_id
 restriction_reason
 updated_at
+Compliance Eligibility Event
+event_id
+user_id
+event_type
+jurisdiction
+eligibility_status
+age_gate_status
+kyc_status
+self_exclusion_status
+restriction_reason
+source
+created_at
+metadata
+Jurisdiction Rule
+jurisdiction_code
+paid_entry_status
+withdrawal_status
+minimum_age
+kyc_required_for_entry
+kyc_required_for_withdrawal
+last_legal_review_at
+status
 Contest
 contest_id
 contest_name
@@ -360,7 +392,7 @@ warnings[]
 validated_at
 validated_by_admin_id
 ---
-16. Future Features
+17. Future Features
 Leaderboard: - movement indicators - friend leaderboard - live scoring leaderboard
 Lobby: - sorting - search - filters
 Contest: - multi-entry contests - variable payout ladders - variable platform fees - guaranteed prize pools - private/capped contests - admin lifecycle dashboard - dispute workflow
@@ -368,7 +400,8 @@ Payments: - standalone deposits - expanded wallet history - payment provider rec
 Stats: - provider redundancy - stat dispute workflow - live stat tracking - additional stat categories - optional QB stat tie-breaker testing using interceptions, rushing yards, TDs, or other secondary stats
 Admin: - automated weekly contest generation - bulk contest creation - role-based permissions - clone previous contest workflow
 Account: - social login - avatars - public user stats - friend leaderboard - referral system - responsible gaming controls - self-exclusion tooling - enhanced KYC/location verification
+Compliance: - geolocation provider integration - tax document dashboard - jurisdiction-specific terms - compliance admin dashboard - responsible play limits
 ---
-17. Anchor Statement
-We've locked the MVP game structure, scoring, leaderboard behavior, tie handling, payout structure, 30% platform fee, contest viability rules, wallet/site credit system, payment UX direction, contest lifecycle state machine, stat finalization rules, internal contest admin/setup flow, and user account/profile/auth requirements.
-Next we will define compliance, eligibility, and responsible play requirements for paid skill-based contests.
+18. Anchor Statement
+We've locked the MVP game structure, scoring, leaderboard behavior, tie handling, payout structure, 30% platform fee, contest viability rules, wallet/site credit system, payment UX direction, contest lifecycle state machine, stat finalization rules, internal contest admin/setup flow, user account/profile/auth requirements, and compliance/eligibility/responsible play requirements.
+Next we will define the MVP data model and backend architecture requirements.
