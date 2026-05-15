@@ -33,6 +33,10 @@ Frontend Navigation
 MVP frontend uses bottom-tab navigation with public browsing, auth-gated paid entry, eligibility-gated payment, entry-gated lineup access, final-only leaderboard/results, and internal admin setup screens.
 Detailed design:
 See /spec/features/frontend_navigation.md
+Implementation Roadmap
+MVP should be built in phases, starting with playable test/free-entry contests before real-money payments and withdrawals.
+Detailed design:
+See /spec/features/implementation_roadmap.md
 ---
 3. Contest Structure
 Contest Type (MVP)
@@ -312,7 +316,30 @@ Core routes:
 /admin/contests/:contest_id/validate
 /admin/contests/:contest_id/preview
 ---
-18. Future Features
+18. Implementation Roadmap
+Detailed MVP build phases are defined in:
+See /spec/features/implementation_roadmap.md
+
+Recommended order:
+0. Project Foundation
+1. App Shell + Navigation
+2. Auth + Profile
+3. Contest Lobby + Detail
+4. Admin Contest Setup
+5. Entry + Lineup Builder without real money
+6. Contest Lifecycle Jobs
+7. Scoring Engine + Manual/Test Stats
+8. Results Reveal + Final Leaderboard
+9. Wallet Ledger Foundation
+10. Eligibility + Compliance Gates
+11. External Sports Data Provider
+12. Payment Provider Integration
+13. Withdrawal Provider Integration
+14. Notifications
+15. Internal QA + Simulation Testing
+16. Beta Launch Preparation
+---
+19. Future Features
 Leaderboard: - movement indicators - friend leaderboard - live scoring leaderboard
 Lobby: - sorting - search - filters
 Contest: - multi-entry contests - variable payout ladders - variable platform fees - guaranteed prize pools - private/capped contests - admin lifecycle dashboard - dispute workflow
@@ -324,6 +351,6 @@ Compliance: - geolocation provider integration - tax document dashboard - jurisd
 Backend: - worker queues - event bus - admin audit viewer - analytics warehouse - fraud/risk scoring - provider redundancy system
 Frontend: - live contest tracker - private leagues tab - friends/social tab - user history - wallet transaction history - support/dispute center
 ---
-19. Anchor Statement
-We've locked the MVP product rules, compliance direction, account requirements, contest lifecycle, stat finalization, admin setup, wallet/payment behavior, backend data architecture, and frontend screen map/navigation architecture.
-Next we will define the MVP implementation roadmap and build phases.
+20. Anchor Statement
+We've locked the MVP product rules, compliance direction, account requirements, contest lifecycle, stat finalization, admin setup, wallet/payment behavior, backend data architecture, frontend screen map/navigation architecture, and implementation roadmap/build phases.
+Next we will define the MVP QA test plan and acceptance criteria.
