@@ -41,6 +41,9 @@ QA Acceptance Criteria
 MVP QA must verify the full contest loop, money-adjacent logic, scoring, eligibility, wallet ledger, refunds, payouts, and results display before beta or real-money launch.
 Detailed design:
 See /spec/features/qa_acceptance_criteria.md
+Open Questions + Decision Log
+MVP open questions and launch-critical unresolved decisions are tracked in:
+See /spec/features/open_questions_decision_log.md
 ---
 3. Contest Structure
 Contest Type (MVP)
@@ -362,7 +365,24 @@ Results reveal
 Leaderboard
 Provider/stat finalization
 ---
-20. Future Features
+20. Open Questions + Decision Log
+Detailed MVP open questions and decision status are tracked in:
+See /spec/features/open_questions_decision_log.md
+
+Primary open decisions:
+Payment provider
+Withdrawal provider
+Sports data provider
+Auth provider
+Backend/database stack
+Frontend framework
+First launch surface
+Hosting/deployment stack
+State-by-state legal/payment review
+KYC provider
+Beta scope details
+---
+21. Future Features
 Leaderboard: - movement indicators - friend leaderboard - live scoring leaderboard
 Lobby: - sorting - search - filters
 Contest: - multi-entry contests - variable payout ladders - variable platform fees - guaranteed prize pools - private/capped contests - admin lifecycle dashboard - dispute workflow
@@ -374,6 +394,6 @@ Compliance: - geolocation provider integration - tax document dashboard - jurisd
 Backend: - worker queues - event bus - admin audit viewer - analytics warehouse - fraud/risk scoring - provider redundancy system
 Frontend: - live contest tracker - private leagues tab - friends/social tab - user history - wallet transaction history - support/dispute center
 ---
-21. Anchor Statement
-We've locked the MVP product rules, compliance direction, account requirements, contest lifecycle, stat finalization, admin setup, wallet/payment behavior, backend data architecture, frontend screen map/navigation architecture, implementation roadmap/build phases, and QA acceptance criteria.
-Next we will define the MVP open questions and decision log.
+22. Anchor Statement
+We've locked the MVP product rules, compliance direction, account requirements, contest lifecycle, stat finalization, admin setup, wallet/payment behavior, backend data architecture, frontend screen map/navigation architecture, implementation roadmap/build phases, QA acceptance criteria, and open questions/decision log.
+Next we will define the MVP technical stack recommendation.
