@@ -37,6 +37,10 @@ Implementation Roadmap
 MVP should be built in phases, starting with playable test/free-entry contests before real-money payments and withdrawals.
 Detailed design:
 See /spec/features/implementation_roadmap.md
+QA Acceptance Criteria
+MVP QA must verify the full contest loop, money-adjacent logic, scoring, eligibility, wallet ledger, refunds, payouts, and results display before beta or real-money launch.
+Detailed design:
+See /spec/features/qa_acceptance_criteria.md
 ---
 3. Contest Structure
 Contest Type (MVP)
@@ -339,7 +343,26 @@ Recommended order:
 15. Internal QA + Simulation Testing
 16. Beta Launch Preparation
 ---
-19. Future Features
+19. QA Acceptance Criteria
+Detailed MVP QA plan is defined in:
+See /spec/features/qa_acceptance_criteria.md
+
+Launch-blocking test areas:
+Account/auth
+Contest admin setup
+Contest lobby/detail
+Entry/payment
+Lineup builder
+Contest lifecycle
+Scoring
+Tie handling
+Wallet ledger
+Eligibility/compliance
+Results reveal
+Leaderboard
+Provider/stat finalization
+---
+20. Future Features
 Leaderboard: - movement indicators - friend leaderboard - live scoring leaderboard
 Lobby: - sorting - search - filters
 Contest: - multi-entry contests - variable payout ladders - variable platform fees - guaranteed prize pools - private/capped contests - admin lifecycle dashboard - dispute workflow
@@ -351,6 +374,6 @@ Compliance: - geolocation provider integration - tax document dashboard - jurisd
 Backend: - worker queues - event bus - admin audit viewer - analytics warehouse - fraud/risk scoring - provider redundancy system
 Frontend: - live contest tracker - private leagues tab - friends/social tab - user history - wallet transaction history - support/dispute center
 ---
-20. Anchor Statement
-We've locked the MVP product rules, compliance direction, account requirements, contest lifecycle, stat finalization, admin setup, wallet/payment behavior, backend data architecture, frontend screen map/navigation architecture, and implementation roadmap/build phases.
-Next we will define the MVP QA test plan and acceptance criteria.
+21. Anchor Statement
+We've locked the MVP product rules, compliance direction, account requirements, contest lifecycle, stat finalization, admin setup, wallet/payment behavior, backend data architecture, frontend screen map/navigation architecture, implementation roadmap/build phases, and QA acceptance criteria.
+Next we will define the MVP open questions and decision log.
