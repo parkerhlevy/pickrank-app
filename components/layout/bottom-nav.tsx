@@ -1,10 +1,10 @@
 import Link from 'next/link';
-import { Trophy, ListOrdered, HelpCircle, UserCircle } from 'lucide-react';
+import { Trophy, ListOrdered, Wallet, UserCircle } from 'lucide-react';
 
 const navItems = [
   { href: '/contests', label: 'Contests', icon: Trophy },
   { href: '/leaderboard', label: 'Leaderboard', icon: ListOrdered },
-  { href: '/how-it-works', label: 'How It Works', icon: HelpCircle },
+  { href: '/wallet', label: 'Wallet', icon: Wallet },
   { href: '/profile', label: 'Profile', icon: UserCircle },
 ];
 
