@@ -6,6 +6,18 @@ PickRank is a skill-based NFL pick-order contest app.
 
 The product is being built from the specs in `/spec`. The goal is to keep the implementation aligned with the MVP plan while allowing coding agents to implement small, reviewable slices.
 
+## Operating Model
+
+GitHub and this repo are the permanent project record for PickRank. Product specs, implementation plans, code, tests, QA plans, and final technical decisions belong here.
+
+The local Codex workspace is a temporary workbench. Use it to inspect, edit, test, and verify changes before they go back to GitHub.
+
+The intended app surface is cloud-based: Replit, Vercel, or another deployment environment where the app/site can run and be shared.
+
+Avoid local-only complexity unless it directly helps get PickRank working in GitHub and cloud deployment.
+
+Explain results in business-friendly language first: what changed, why it matters, what passed, and what Parker needs to do next. Add technical detail only when it helps the decision or next step.
+
 ## Current Repo State
 
 The app currently has a Phase 0 foundation:
