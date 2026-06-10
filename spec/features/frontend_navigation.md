@@ -645,11 +645,31 @@ Public.
 - How contests work
 - How to build a lineup
 - How scoring works
+- Worked scoring example
 - How ties work
 - Prize pools and platform fee
 - Canceled contests and site credit
 - Responsible play
 - Eligibility note
+
+### Worked scoring example requirement
+
+How It Works must include at least one concrete example showing:
+
+- a user-ranked quarterback
+- that quarterback's actual weekly passing-yards rank
+- the rank distance
+- the points awarded under the MVP placement distance scoring table
+- how individual player points roll up into the user's total score
+
+Example:
+
+```text
+If you rank Patrick Mahomes 1st and he finishes 9th in passing yards, he is 8 spots off.
+Under MVP scoring, 4+ spots off earns 0 points for that player.
+```
+
+Keep this example near the scoring table so users can understand the point system without opening a contest result.
 
 ---
 

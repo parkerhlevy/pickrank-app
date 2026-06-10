@@ -4,6 +4,7 @@ out
 .env.local
 .env*.local
 .vercel
+.cache
 coverage
 playwright-report
 test-results

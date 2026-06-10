@@ -373,7 +373,7 @@ FAIL if failed payment creates any contest entry state.
 
 ### Expected result
 
-- lineup has all 15 QBs
+- lineup has 10 selected QBs from the 15-QB slate
 - no duplicates
 - no missing players
 - lineup source is `randomized_default`

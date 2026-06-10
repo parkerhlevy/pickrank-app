@@ -94,9 +94,10 @@ Can wait until after MVP.
 | Product type | locked | Skill-based NFL prediction contest |
 | MVP stat category | locked | QB Passing Yards |
 | Slate size | locked | 15 quarterbacks |
-| User task | locked | Rank QBs by passing yards |
+| User task | locked | Pick and rank the top 10 QBs by passing yards from the 15-QB slate |
 | Scoring model | locked | Placement distance scoring |
 | Scoring table | locked | Exact 15, 1 off 7, 2 off 5, 3 off 3, 4+ off 0 |
+| Alternate scoring model testing | revisit_after_testing | Test low-score total rank differential once real NFL/stat-provider data is available |
 | Single-entry MVP | locked | One entry per user per contest |
 | No live scoring | locked | Final results only after games complete |
 
@@ -234,6 +235,57 @@ Use manual/test stats for early build. Select provider before realistic beta or 
 
 ### Decision needed before
 External-stat beta or real-money launch.
+
+---
+
+## 3a. Alternate scoring model testing
+
+| Field | Value |
+|---|---|
+| Status | revisit_after_testing |
+| Launch classification | post_mvp |
+| Owner | TBD |
+| Related specs | product_spec.md, stat_finalization.md, results_reveal.md |
+
+### Question
+Should PickRank eventually use, offer, or simulate a low-score differential scoring model instead of the MVP points table?
+
+### Candidate model
+Use the same 15-player weekly slate and the user's 10 submitted ranked QBs, but score each selected player by raw rank differential against the full 15-QB slate:
+
+```text
+differential = abs(user_rank - actual_rank)
+total_score = sum(differential for the 10 selected players)
+```
+
+Lowest total score wins because the score represents total miss distance across the lineup.
+
+Example:
+
+```text
+User ranks Patrick Mahomes 1st.
+Mahomes finishes 9th in weekly passing yards.
+Differential = abs(1 - 9) = 8.
+The entry receives 8 points for that player.
+```
+
+Player stat ties should use the same tied actual rank range logic as MVP scoring. If a quarterback finishes in a tied passing-yards rank group, a user receives a differential of `0` when their submitted rank is anywhere inside that tied actual rank range. If the submitted rank is outside the tied range, the differential is the shortest distance to either edge of the tied range.
+
+Unselected QBs are not directly scored. Their impact is indirect: leaving out a QB who finishes high removes the user's chance to earn a low differential on that QB.
+
+### Testing intent
+Do not replace MVP scoring yet. Keep MVP placement distance scoring as the locked product rule.
+
+When real NFL/stat-provider data is available, run simulations comparing:
+
+- MVP point-table scoring, where highest score wins
+- total rank differential scoring, where lowest score wins
+- leaderboard spread and tie frequency
+- whether casual users understand the scoring more easily
+- whether the model rewards selected-lineup accuracy better than the MVP table
+
+### Decision needed before
+Only needed before changing scoring rules or adding alternate contest formats.
 
 ---
 

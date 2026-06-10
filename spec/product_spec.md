@@ -57,7 +57,7 @@ See /spec/features/phase_0_implementation_plan.md
 Contest Type (MVP)
 Stat Category: QB Passing Yards  
 Slate Size: 15 quarterbacks  
-User Task: Rank QBs by passing yards
+User Task: Pick and rank the top 10 QBs by passing yards from the 15-QB slate
 Contest Lock
 Entries lock at kickoff of the first game of the slate (typically
 Thursday Night Football).
@@ -85,7 +85,8 @@ Exact      15
 Score Calculation
 distance = abs(user_rank - actual_rank)  
 points = scoring_table[distance]
-Total score = sum of all player points.
+Total score = sum of points from the user's 10 selected QBs.
+Actual rank is always measured against the full 15-QB slate, not only against the user's selected 10.
 Player Stat Ties
 If multiple players finish with the same final stat, they share an actual rank range. A user receives distance 0 if the player is placed anywhere inside that tied actual rank range.
 Detailed design:
@@ -282,6 +283,7 @@ See /spec/features/results_reveal.md
 For MVP: Single entry per user
 Contest must reach at least 4 paid entries by lock time to run.
 Future: Multi-entry contests
+Future scoring test: evaluate a low-score total rank differential model after real NFL data is available. In that model, each selected player receives `abs(user_rank - actual_rank)` points, all 10 selected player differentials are summed, and the lowest total score wins. Actual rank is measured against the full 15-QB slate. Player stat ties use the same tied actual rank range logic as MVP scoring. This is not the locked MVP scoring rule.
 ---
 16. Backend Data Model
 Detailed MVP backend object and service design is defined in:
@@ -427,7 +429,7 @@ Leaderboard: - movement indicators - friend leaderboard - live scoring leaderboa
 Lobby: - sorting - search - filters
 Contest: - multi-entry contests - variable payout ladders - variable platform fees - guaranteed prize pools - private/capped contests - admin lifecycle dashboard - dispute workflow
 Payments: - standalone deposits - expanded wallet history - payment provider reconciliation dashboard - tax reporting flows - chargeback tooling
-Stats: - provider redundancy - stat dispute workflow - live stat tracking - additional stat categories - optional QB stat tie-breaker testing using interceptions, rushing yards, TDs, or other secondary stats
+Stats: - provider redundancy - stat dispute workflow - live stat tracking - additional stat categories - optional QB stat tie-breaker testing using interceptions, rushing yards, TDs, or other secondary stats - alternate low-score total rank differential scoring simulations
 Admin: - automated weekly contest generation - bulk contest creation - role-based permissions - clone previous contest workflow
 Account: - social login - avatars - public user stats - friend leaderboard - referral system - responsible gaming controls - self-exclusion tooling - enhanced KYC/location verification
 Compliance: - geolocation provider integration - tax document dashboard - jurisdiction-specific terms - compliance admin dashboard - responsible play limits

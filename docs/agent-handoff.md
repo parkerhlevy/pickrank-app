@@ -41,6 +41,12 @@ npm run typecheck
 npm run test
 ```
 
+For cloud deployment instructions, see:
+
+```text
+docs/deployment.md
+```
+
 The local app should run at:
 
 ```text
@@ -129,21 +135,22 @@ The MVP includes:
 - Auth/profile requirements
 - Compliance and responsible play requirements
 
-## Suggested Next Implementation Slice
+## Suggested Next Slice
 
 Next recommended slice:
 
 ```text
-Create consistent placeholder pages for all MVP routes and add route/nav tests.
+Deploy the current Phase 0 app to a shareable Vercel URL.
 ```
 
 Definition of done:
 
-- All MVP placeholder pages render
-- Bottom nav links only to intended primary routes
-- Route smoke tests pass
-- Typecheck passes
-- No generated files are committed accidentally
+- Vercel project is connected to `parkerhlevy/pickrank-app`
+- Framework is detected as Next.js
+- Production build passes
+- Public URL opens the PickRank homepage
+- Core placeholder routes open
+- No generated files or secrets are committed accidentally
 
 ## Generated Files to Avoid Committing
 
