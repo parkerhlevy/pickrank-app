@@ -1,22 +1,144 @@
+import Link from 'next/link';
+import { ArrowLeft, CheckCircle2, Clock, DollarSign, ListOrdered, Users } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { demoLineup, openContests } from '@/lib/phase-0-demo';
 
-export default function ContestDetailPage({ params }: { params: { contestId: string } }) {
+export default async function ContestDetailPage({ params }: { params: Promise<{ contestId: string }> }) {
+  const { contestId } = await params;
+  const contest = openContests.find((item) => item.id === contestId) ?? openContests[0];
+
   return (
-    <div className="space-y-4">
-      <div>
-        <h1 className="text-2xl font-bold">Contest Overview</h1>
-        <p className="text-muted-foreground">Contest ID: {params.contestId}</p>
+    <div className="space-y-6">
+      <div className="space-y-4">
+        <Button asChild variant="ghost" size="sm" className="-ml-3 justify-start">
+          <Link href="/contests">
+            <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
+            Contests
+          </Link>
+        </Button>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="space-y-2">
+            <span className="inline-flex rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
+              {contest.status}
+            </span>
+            <h1 className="text-3xl font-bold tracking-tight">{contest.title}</h1>
+            <p className="text-muted-foreground">{contest.task}</p>
+          </div>
+          <Link href="/how-it-works" className="shrink-0 text-sm font-medium text-primary">
+            How It Works
+          </Link>
+        </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Phase 0 placeholder</CardTitle>
-          <CardDescription>Real contest entry and lineup editing will be implemented in later phases.</CardDescription>
+          <CardTitle>Contest Details</CardTitle>
+          <CardDescription>Public overview only. Payment review and entry creation are future work.</CardDescription>
         </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">No payment, wallet, scoring, or entry logic exists here yet.</p>
+        <CardContent className="grid grid-cols-2 gap-3 text-sm">
+          <DetailStat icon={DollarSign} label="Prize Pool" value={contest.prizePool} />
+          <DetailStat icon={Users} label="Entries" value={contest.entries} />
+          <DetailStat icon={DollarSign} label="Entry Fee" value={contest.entryFee} />
+          <DetailStat icon={Clock} label="Lock Time" value={contest.lockTime.replace('Locks ', '')} />
         </CardContent>
       </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Contest Criteria</CardTitle>
+          <CardDescription>Rules for whether the contest runs after entries lock.</CardDescription>
+        </CardHeader>
+        <CardContent className="text-sm text-muted-foreground">
+          <p>{contest.minimum}. If the contest does not meet the minimum at lock, it is canceled in a future phase.</p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Projected Payouts</CardTitle>
+          <CardDescription>Projected from the current placeholder prize pool. Final payout logic is not implemented.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {contest.payoutRows.map((row) => (
+            <div key={row.place} className="flex items-center justify-between rounded-lg border bg-muted/35 px-3 py-2">
+              <span className="font-medium">{row.place}</span>
+              <span className="font-semibold">{row.value}</span>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Scoring Summary</CardTitle>
+          <CardDescription>{contest.slate}. Actual ranks are measured against the full slate.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm">
+          <div className="flex items-start gap-2">
+            <CheckCircle2 className="mt-0.5 h-4 w-4 text-primary" aria-hidden="true" />
+            <p>Select and rank your top 10 quarterbacks by {contest.statCategory.toLowerCase()}.</p>
+          </div>
+          <div className="flex items-start gap-2">
+            <ListOrdered className="mt-0.5 h-4 w-4 text-primary" aria-hidden="true" />
+            <p>Your score is based on rank differential against the official final stat ranking. Lower is better.</p>
+          </div>
+          <p className="rounded-lg bg-muted p-3 text-muted-foreground">Results appear only after final stat review in a future phase.</p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Build Your Lineup</CardTitle>
+          <CardDescription>Visual preview for the future lineup builder. Saving is not wired yet.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="rounded-lg border bg-muted/35 p-3 text-sm">
+            <p className="font-medium">5/10 ranked</p>
+            <p className="text-muted-foreground">Rank the top 10 quarterbacks by passing yards.</p>
+          </div>
+          <div className="space-y-2">
+            {demoLineup.map((name, index) => (
+              <div key={name} className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm">
+                <span className="font-medium">
+                  {index + 1}. {name}
+                </span>
+                <span className="text-muted-foreground">Mock slate</span>
+              </div>
+            ))}
+          </div>
+          <Button className="w-full" disabled>
+            Save Lineup
+          </Button>
+        </CardContent>
+      </Card>
+
+      <div className="sticky bottom-20 rounded-lg border bg-background p-3 shadow-lg">
+        <Button className="w-full" disabled>
+          Enter Contest - Payment Review Not Implemented
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function DetailStat({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-lg border bg-muted/35 p-3">
+      <div className="mb-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+        <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+        {label}
+      </div>
+      <p className="font-semibold">{value}</p>
     </div>
   );
 }
