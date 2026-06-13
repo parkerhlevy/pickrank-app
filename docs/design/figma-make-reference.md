@@ -23,15 +23,6 @@ The screenshots are visual reference only. Product behavior remains governed by:
 | Profile | `docs/design/references/pickrank-make-05-profile.jpg` |
 | Browser viewport | `docs/design/references/figma-make-current-viewport.jpg` |
 
-## Brand Assets
-
-Current app assets are cropped from Parker's selected Concept 9 direction in the logo sheet:
-
-- `public/brand/pickrank-wordmark.png`
-- `public/brand/pickrank-app-icon.png`
-
-Use these as working assets for the first brand pass. Replace them with clean exported source assets when final logo files are available.
-
 ## Keep As Visual Direction
 
 - Mobile-first centered app shell.
