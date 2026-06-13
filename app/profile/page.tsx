@@ -1,4 +1,4 @@
-import { ShieldCheck, UserCircle } from 'lucide-react';
+import { ShieldCheck, UserCircle, WalletCards } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,6 +27,31 @@ export default function ProfilePage() {
         <CardContent className="pt-5">
           <Button asChild className="w-full">
             <Link href="/auth">Go to Auth Preview</Link>
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <WalletCards className="h-5 w-5 text-primary" aria-hidden="true" />
+            <CardTitle>Wallet & Balances</CardTitle>
+          </div>
+          <CardDescription>Design-only wallet summary. Payment and ledger behavior are not wired.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="metric-tile">
+              <p className="text-sm text-muted-foreground">Cash Balance</p>
+              <p className="text-xl font-bold">$0.00</p>
+            </div>
+            <div className="metric-tile">
+              <p className="text-sm text-muted-foreground">Site Credit</p>
+              <p className="text-xl font-bold">$0.00</p>
+            </div>
+          </div>
+          <Button asChild variant="secondary" className="w-full">
+            <Link href="/wallet">View Wallet Details</Link>
           </Button>
         </CardContent>
       </Card>

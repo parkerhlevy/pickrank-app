@@ -2,13 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Trophy, ListOrdered, Wallet, UserCircle } from 'lucide-react';
+import { Home, ListOrdered, Trophy, UserCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
+  { href: '/', label: 'Home', icon: Home },
   { href: '/contests', label: 'Contests', icon: Trophy },
   { href: '/leaderboard', label: 'Leaderboard', icon: ListOrdered },
-  { href: '/wallet', label: 'Wallet', icon: Wallet },
   { href: '/profile', label: 'Profile', icon: UserCircle },
 ];
 
@@ -20,7 +20,9 @@ export function BottomNav() {
       <div className="mx-auto grid max-w-md grid-cols-4 px-2 py-2.5">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href || (item.href === '/contests' && pathname.startsWith('/contests'));
+          const isActive =
+            pathname === item.href ||
+            (item.href === '/contests' && pathname.startsWith('/contests'));
 
           return (
             <Link
