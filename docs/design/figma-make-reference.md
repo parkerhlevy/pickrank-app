@@ -61,17 +61,33 @@ Use the screenshots to improve the existing Phase 0 routes only:
 
 Keep bottom navigation as:
 
+- Home
 - Contests
 - Leaderboard
-- Wallet
 - Profile
 
 Make How It Works accessible from major pages through header links or contextual CTAs, not bottom navigation.
 
+## Brand Assets
+
+The current working logo files come from Parker's six individual logo exports from June 13, 2026.
+
+App-facing files:
+
+- `public/brand/pickrank-wordmark-dark.png`
+- `public/brand/pickrank-wordmark-light.png`
+- `public/brand/pickrank-app-icon.png`
+
+Source exports are stored in:
+
+- `public/brand/source/`
+
+Use the dark wordmark for the current dark hero surface. Avoid using the full generated hero concept in production UI because it includes generated player/phone imagery and is better treated as visual reference only.
+
 ## Parker Review Notes After First Visual Pass
 
 - Overall direction is positive. Continue with the current clean dark-blue/light-card visual system, while adding real logo assets when selected.
-- Navigation needs a follow-up decision. There is currently no obvious way back to `/` from the bottom navigation. Consider replacing `Wallet` with `Home` in the bottom nav and moving wallet information under `Profile`, or adding another clear home affordance that does not crowd the page headers.
+- Navigation decision made after review: bottom nav is `Home`, `Contests`, `Leaderboard`, `Profile`; Wallet content lives under Profile with `/wallet` still available as a secondary route.
 - How It Works should include a concrete rank-differential example so users can understand scoring without knowing the model in advance.
 - Build Your Lineup should sit behind the payment/entry component in the eventual user flow. Keep it visual-only in Phase 0, but do not make it feel available before entry/payment review.
 - Reconsider How It Works link placement per page. It can stay prominent on Home, Contests, Contest Details, Wallet, and Auth, but it feels cramped in the Leaderboard and Profile hero blocks.
