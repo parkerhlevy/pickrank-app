@@ -53,7 +53,7 @@ export default function ContestsPage() {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <CardTitle className="text-base">{contest.title}</CardTitle>
-                  <CardDescription>{contest.lockTime}</CardDescription>
+                  <CardDescription>{formatLockTime(contest.lockTime)}</CardDescription>
                 </div>
                 <span className="status-pill">{contest.status}</span>
               </div>
@@ -85,10 +85,14 @@ function ContestStats({
     <div className={compact ? 'grid grid-cols-2 gap-3 text-sm' : 'grid grid-cols-2 gap-3 text-sm'}>
       <Stat icon={DollarSign} label="Prize Pool" value={contest.prizePool} />
       <Stat icon={Users} label="Entries" value={contest.entries} />
-      <Stat icon={Clock} label="Lock Time" value={contest.lockTime} />
+      <Stat icon={Clock} label="Lock Time" value={formatLockTime(contest.lockTime)} />
       <Stat icon={DollarSign} label="Entry Fee" value={contest.entryFee} />
     </div>
   );
+}
+
+function formatLockTime(lockTime: string) {
+  return lockTime.replace(/^Locks\s+/, '');
 }
 
 function Stat({

@@ -66,7 +66,9 @@ export default async function ContestDetailPage({ params }: { params: Promise<{ 
       <Card>
         <CardHeader>
           <CardTitle>Scoring Summary</CardTitle>
-          <CardDescription>{contest.slate}. Actual ranks are measured against the full slate.</CardDescription>
+          <CardDescription>
+            {contest.slate}. Rank differential compares each saved spot against the official final rank.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <div className="flex items-start gap-2">
@@ -78,6 +80,9 @@ export default async function ContestDetailPage({ params }: { params: Promise<{ 
             <p>Your score is based on rank differential against the official final stat ranking. Lower is better.</p>
           </div>
           <p className="rounded-lg bg-slate-100 p-3 text-muted-foreground">Results appear only after final stat review in a future phase.</p>
+          <Button asChild variant="secondary" className="w-full">
+            <Link href="/how-it-works#rank-differential-example">See Scoring Example</Link>
+          </Button>
         </CardContent>
       </Card>
 

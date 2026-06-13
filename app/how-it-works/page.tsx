@@ -18,7 +18,9 @@ export default function HowItWorksPage() {
     {
       icon: BarChart3,
       title: 'Compare final stats',
-      description: 'Your final score is based on rank differential against the official final ranking for the contest stat.',
+      description:
+        'After final stats are reviewed, each saved rank is compared with the official final rank. Add those differences across your lineup. Lower total differential wins.',
+      href: '#rank-differential-example',
     },
     {
       icon: Trophy,
@@ -51,13 +53,18 @@ export default function HowItWorksPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">{step.description}</p>
+                {step.href ? (
+                  <Link href={step.href} className="mt-3 inline-flex text-sm font-bold text-primary">
+                    View example
+                  </Link>
+                ) : null}
               </CardContent>
             </Card>
           );
         })}
       </div>
 
-      <Card>
+      <Card id="rank-differential-example">
         <CardHeader>
           <CardTitle>Scoring Snapshot</CardTitle>
           <CardDescription>Differential scoring direction from the simulation work.</CardDescription>
