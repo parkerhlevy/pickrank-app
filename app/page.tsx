@@ -12,14 +12,16 @@ export default function HomePage() {
     <div className="space-y-6">
       <section className="brand-panel space-y-5">
         <div className="flex items-center justify-between gap-3">
-          <Image
-            src="/brand/pickrank-wordmark-dark.png"
-            alt="PickRank"
-            width={220}
-            height={78}
-            className="h-auto w-[178px] sm:w-[210px]"
-            priority
-          />
+          <div className="rounded-md bg-white/95 px-2 py-1 shadow-sm">
+            <Image
+              src="/brand/pickrank-wordmark-clean.png"
+              alt="PickRank"
+              width={220}
+              height={78}
+              className="h-auto w-[168px] sm:w-[200px]"
+              priority
+            />
+          </div>
           <Link href="/how-it-works" className="inline-flex items-center gap-1 text-sm font-bold text-blue-200">
             How it works
             <ArrowRight className="h-4 w-4" aria-hidden="true" />

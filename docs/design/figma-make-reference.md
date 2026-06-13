@@ -70,12 +70,13 @@ Make How It Works accessible from major pages through header links or contextual
 
 ## Brand Assets
 
-The current working logo files come from Parker's individual logo exports from June 13, 2026. Prefer the transparent PNG set for implementation because it works across dark and light surfaces.
+The current working logo files come from Parker's individual logo exports from June 13, 2026. The latest downloaded PNGs looked transparent in preview, but arrived as RGB files with the checkerboard baked in. App-facing wordmark files have been regenerated as RGBA assets for implementation.
 
 App-facing files:
 
 - `public/brand/pickrank-wordmark-dark.png`
 - `public/brand/pickrank-wordmark-light.png`
+- `public/brand/pickrank-wordmark-clean.png`
 - `public/brand/pickrank-app-icon.png`
 
 Source exports are stored in:
@@ -90,7 +91,7 @@ Transparent source exports:
 - `public/brand/source/pickrank-app-icon-dark-transparent.png`
 - `public/brand/source/pickrank-hero-concept-transparent.png`
 
-Use the football wordmark for the current dark hero surface. Avoid using the full generated hero concept in production UI because it includes generated player/phone imagery and is better treated as visual reference only.
+Use the app-facing wordmark on a deliberate light chip when placed on the current dark hero surface because the `PICK` lettering is navy. Avoid using the full generated hero concept in production UI because it includes generated player/phone imagery and is better treated as visual reference only.
 
 ## Parker Review Notes After First Visual Pass
 
