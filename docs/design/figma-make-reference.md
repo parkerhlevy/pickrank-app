@@ -70,7 +70,7 @@ Make How It Works accessible from major pages through header links or contextual
 
 ## Brand Assets
 
-The current working logo files come from Parker's six individual logo exports from June 13, 2026.
+The current working logo files come from Parker's individual logo exports from June 13, 2026. Prefer the transparent PNG set for implementation because it works across dark and light surfaces.
 
 App-facing files:
 
@@ -82,7 +82,15 @@ Source exports are stored in:
 
 - `public/brand/source/`
 
-Use the dark wordmark for the current dark hero surface. Avoid using the full generated hero concept in production UI because it includes generated player/phone imagery and is better treated as visual reference only.
+Transparent source exports:
+
+- `public/brand/source/pickrank-wordmark-football-transparent.png`
+- `public/brand/source/pickrank-wordmark-transparent.png`
+- `public/brand/source/pickrank-monogram-transparent.png`
+- `public/brand/source/pickrank-app-icon-dark-transparent.png`
+- `public/brand/source/pickrank-hero-concept-transparent.png`
+
+Use the football wordmark for the current dark hero surface. Avoid using the full generated hero concept in production UI because it includes generated player/phone imagery and is better treated as visual reference only.
 
 ## Parker Review Notes After First Visual Pass
 
