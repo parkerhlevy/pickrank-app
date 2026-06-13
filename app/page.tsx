@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, BookOpen, ShieldCheck, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,14 +12,33 @@ export default function HomePage() {
     <div className="space-y-6">
       <section className="brand-panel space-y-5">
         <div className="flex items-center justify-between gap-3">
-          <p className="text-sm font-bold text-white">Pick<span className="text-blue-400">Rank</span></p>
+          <div className="rounded-md bg-white px-2 py-1 shadow-sm">
+            <Image
+              src="/brand/pickrank-wordmark.png"
+              alt="PickRank"
+              width={150}
+              height={54}
+              className="h-auto w-[150px]"
+              priority
+            />
+          </div>
           <Link href="/how-it-works" className="inline-flex items-center gap-1 text-sm font-bold text-blue-200">
             How it works
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
         </div>
         <div className="space-y-2">
-          <h1 className="text-4xl font-black leading-tight text-white">PickRank</h1>
+          <div className="flex items-center gap-3">
+            <Image
+              src="/brand/pickrank-app-icon.png"
+              alt=""
+              width={52}
+              height={52}
+              className="h-[52px] w-[52px] rounded-xl shadow-lg"
+              priority
+            />
+            <h1 className="text-4xl font-black leading-tight text-white">PickRank</h1>
+          </div>
           <p className="text-2xl font-black leading-tight text-white">See it. Rank it. Prove it.</p>
           <p className="text-sm leading-6 text-slate-300">
             PickRank is a skill-based ranking contest where players compete by ordering a slate around one stat category.
