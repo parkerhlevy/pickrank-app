@@ -1,17 +1,19 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.ts";
+@source "../app";
+@source "../components";
+@source "../lib";
 
 :root {
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
+  --background: 210 33% 98%;
+  --foreground: 219 45% 10%;
   --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
-  --primary: 221.2 83.2% 53.3%;
+  --card-foreground: 219 45% 10%;
+  --primary: 220 88% 53%;
   --primary-foreground: 210 40% 98%;
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-  --border: 214.3 31.8% 91.4%;
+  --muted: 214 38% 94%;
+  --muted-foreground: 216 14% 43%;
+  --border: 214 27% 88%;
   --radius: 0.5rem;
 }
 
@@ -20,6 +22,64 @@
 }
 
 body {
-  background: linear-gradient(180deg, hsl(214 60% 97%) 0%, hsl(var(--background)) 260px);
+  min-height: 100vh;
+  background:
+    linear-gradient(180deg, hsl(218 47% 12%) 0, hsl(218 34% 17%) 132px, hsl(var(--background)) 132px),
+    hsl(var(--background));
   color: hsl(var(--foreground));
+}
+
+.screen-header {
+  border: 1px solid hsl(222 47% 11% / 0.1);
+  border-radius: var(--radius);
+  background: hsl(0 0% 100%);
+  padding: 1rem;
+  box-shadow: 0 1px 2px hsl(222 47% 11% / 0.06);
+}
+
+.brand-panel {
+  overflow: hidden;
+  border: 1px solid hsl(215 28% 17%);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(135deg, hsl(219 59% 11%) 0%, hsl(219 46% 17%) 58%, hsl(214 67% 23%) 100%);
+  color: hsl(0 0% 100%);
+  padding: 1.25rem;
+  box-shadow: 0 16px 40px hsl(222 47% 11% / 0.18);
+}
+
+.eyebrow {
+  color: hsl(var(--primary));
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.025em;
+  line-height: 1rem;
+  text-transform: uppercase;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid hsl(var(--primary) / 0.15);
+  border-radius: 9999px;
+  background: hsl(var(--primary) / 0.1);
+  color: hsl(var(--primary));
+  font-size: 0.75rem;
+  font-weight: 800;
+  line-height: 1rem;
+  padding: 0.25rem 0.625rem;
+}
+
+.metric-tile {
+  border: 1px solid hsl(214 32% 91%);
+  border-radius: var(--radius);
+  background: hsl(210 40% 98%);
+  padding: 0.75rem;
+}
+
+.soft-panel {
+  border: 1px solid hsl(214 32% 91%);
+  border-radius: var(--radius);
+  background: hsl(210 40% 98%);
+  padding: 1rem;
 }

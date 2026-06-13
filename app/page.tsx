@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, BookOpen, Trophy } from 'lucide-react';
+import { ArrowRight, BookOpen, ShieldCheck, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { openContests } from '@/lib/phase-0-demo';
@@ -9,17 +9,18 @@ export default function HomePage() {
 
   return (
     <div className="space-y-6">
-      <section className="space-y-4 rounded-lg border bg-card p-5 shadow-sm">
+      <section className="brand-panel space-y-5">
         <div className="flex items-center justify-between gap-3">
-          <p className="text-sm font-medium text-primary">PickRank</p>
-          <Link href="/how-it-works" className="inline-flex items-center gap-1 text-sm font-medium text-primary">
+          <p className="text-sm font-bold text-white">Pick<span className="text-blue-400">Rank</span></p>
+          <Link href="/how-it-works" className="inline-flex items-center gap-1 text-sm font-bold text-blue-200">
             How it works
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
         </div>
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">Rank the slate. Climb the final leaderboard.</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-4xl font-black leading-tight text-white">PickRank</h1>
+          <p className="text-2xl font-black leading-tight text-white">See it. Rank it. Prove it.</p>
+          <p className="text-sm leading-6 text-slate-300">
             PickRank is a skill-based ranking contest where players compete by ordering a slate around one stat category.
           </p>
         </div>
@@ -31,6 +32,14 @@ export default function HomePage() {
             <Link href="/how-it-works">Learn the Rules</Link>
           </Button>
         </div>
+        <div className="grid grid-cols-3 gap-2 border-t border-white/10 pt-4 text-xs text-slate-300">
+          <div className="flex items-center gap-1.5">
+            <ShieldCheck className="h-4 w-4 text-blue-300" aria-hidden="true" />
+            Skill-based
+          </div>
+          <div>Fair contest</div>
+          <div>Final results</div>
+        </div>
       </section>
 
       <Card>
@@ -38,21 +47,19 @@ export default function HomePage() {
           <div className="flex items-center justify-between gap-3">
             <div>
               <CardTitle>Open Contests</CardTitle>
-              <CardDescription>Phase 0 UI preview. Entry and payment logic comes later.</CardDescription>
+              <CardDescription>Contest cards for the current Phase 0 preview. Entry and payment logic comes later.</CardDescription>
             </div>
             <Trophy className="h-5 w-5 text-primary" aria-hidden="true" />
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="rounded-lg border bg-muted/40 p-4">
+          <div className="soft-panel">
             <div className="mb-3 flex items-start justify-between gap-3">
               <div>
-                <p className="text-xs font-semibold uppercase text-primary">{featuredContest.status}</p>
+                <p className="eyebrow">{featuredContest.status}</p>
                 <h2 className="text-lg font-semibold">{featuredContest.title}</h2>
               </div>
-              <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
-                {featuredContest.entryFee}
-              </span>
+              <span className="status-pill">{featuredContest.entryFee}</span>
             </div>
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>

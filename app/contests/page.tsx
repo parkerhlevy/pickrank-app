@@ -11,13 +11,13 @@ export default function ContestsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-2">
+      <div className="screen-header space-y-2">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-sm font-medium text-primary">Contests</p>
-            <h1 className="text-3xl font-bold tracking-tight">Open Contests</h1>
+            <p className="eyebrow">Contests</p>
+            <h1 className="text-3xl font-black leading-tight">Open Contests</h1>
           </div>
-          <Link href="/how-it-works" className="text-sm font-medium text-primary">
+          <Link href="/how-it-works" className="text-sm font-bold text-primary">
             How It Works
           </Link>
         </div>
@@ -25,14 +25,14 @@ export default function ContestsPage() {
       </div>
 
       <Card className="overflow-hidden">
-        <CardHeader>
+        <CardHeader className="bg-slate-950 text-white">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="mb-1 text-xs font-semibold uppercase text-primary">Featured</p>
+              <p className="mb-1 text-xs font-bold uppercase text-blue-300">Featured</p>
               <CardTitle>{featuredContest.title}</CardTitle>
-              <CardDescription>{featuredContest.task}</CardDescription>
+              <CardDescription className="text-slate-300">{featuredContest.task}</CardDescription>
             </div>
-            <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
+            <span className="rounded-full border border-blue-300/30 bg-blue-400/15 px-2.5 py-1 text-xs font-bold text-blue-200">
               {featuredContest.status}
             </span>
           </div>
@@ -55,7 +55,7 @@ export default function ContestsPage() {
                   <CardTitle className="text-base">{contest.title}</CardTitle>
                   <CardDescription>{contest.lockTime}</CardDescription>
                 </div>
-                <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium">{contest.status}</span>
+                <span className="status-pill">{contest.status}</span>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -85,7 +85,7 @@ function ContestStats({
     <div className={compact ? 'grid grid-cols-2 gap-3 text-sm' : 'grid grid-cols-2 gap-3 text-sm'}>
       <Stat icon={DollarSign} label="Prize Pool" value={contest.prizePool} />
       <Stat icon={Users} label="Entries" value={contest.entries} />
-      <Stat icon={Clock} label="Lock Time" value={contest.lockTime.replace('Locks ', '')} />
+      <Stat icon={Clock} label="Lock Time" value={contest.lockTime} />
       <Stat icon={DollarSign} label="Entry Fee" value={contest.entryFee} />
     </div>
   );
@@ -101,7 +101,7 @@ function Stat({
   value: string;
 }) {
   return (
-    <div className="rounded-lg border bg-muted/35 p-3">
+    <div className="metric-tile">
       <div className="mb-1 flex items-center gap-1.5 text-xs text-muted-foreground">
         <Icon className="h-3.5 w-3.5" aria-hidden="true" />
         {label}

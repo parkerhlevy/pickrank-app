@@ -11,25 +11,22 @@ export default function LeaderboardPage() {
 
   return (
     <div className="space-y-6">
-      <section className="space-y-2">
+      <section className="screen-header space-y-2">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-sm font-medium text-primary">Leaderboard</p>
-            <h1 className="text-3xl font-bold tracking-tight">Final Results Preview</h1>
+            <p className="eyebrow">Leaderboard</p>
+            <h1 className="text-3xl font-black leading-tight">Final Results Preview</h1>
           </div>
-          <Link href="/how-it-works" className="text-sm font-medium text-primary">
-            How It Works
-          </Link>
         </div>
         <p className="text-muted-foreground">
           Placeholder display for final-only results. In-game scoring updates are intentionally out of scope.
         </p>
       </section>
 
-      <Card>
-        <CardHeader>
+      <Card className="overflow-hidden">
+        <CardHeader className="bg-slate-950 text-white">
           <CardTitle>{contest.title}</CardTitle>
-          <CardDescription>
+          <CardDescription className="text-slate-300">
             {contest.lockTime}. Rankings appear only after final stats are calculated in a future phase.
           </CardDescription>
         </CardHeader>
@@ -56,7 +53,7 @@ export default function LeaderboardPage() {
         </CardHeader>
         <CardContent className="space-y-2">
           {remainingRows.map((row) => (
-            <div key={row.rank} className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm">
+            <div key={row.rank} className="flex items-center justify-between rounded-lg border bg-slate-50 px-3 py-2 text-sm">
               <span className="font-medium">
                 {row.rank}. {row.username}
               </span>

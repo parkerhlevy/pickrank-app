@@ -6,13 +6,13 @@ import { Button } from '@/components/ui/button';
 export default function WalletPage() {
   return (
     <div className="space-y-6">
-      <section className="space-y-2">
+      <section className="screen-header space-y-2">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-sm font-medium text-primary">Wallet</p>
-            <h1 className="text-3xl font-bold tracking-tight">Balances</h1>
+            <p className="eyebrow">Wallet</p>
+            <h1 className="text-3xl font-black leading-tight">Balances</h1>
           </div>
-          <Link href="/how-it-works" className="text-sm font-medium text-primary">
+          <Link href="/how-it-works" className="text-sm font-bold text-primary">
             How It Works
           </Link>
         </div>
@@ -21,21 +21,21 @@ export default function WalletPage() {
         </p>
       </section>
 
-      <Card>
-        <CardHeader>
+      <Card className="overflow-hidden">
+        <CardHeader className="bg-slate-950 text-white">
           <div className="flex items-center gap-2">
-            <WalletCards className="h-5 w-5 text-primary" aria-hidden="true" />
+            <WalletCards className="h-5 w-5 text-blue-300" aria-hidden="true" />
             <CardTitle>Demo Balance</CardTitle>
           </div>
-          <CardDescription>Design-only values for reviewing the UI.</CardDescription>
+          <CardDescription className="text-slate-300">Design-only values for reviewing the UI.</CardDescription>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-3">
-          <div className="rounded-lg border bg-muted/35 p-4">
+        <CardContent className="grid grid-cols-2 gap-3 pt-5">
+          <div className="metric-tile">
             <p className="text-sm text-muted-foreground">Cash Balance</p>
             <p className="text-2xl font-bold">$0.00</p>
             <p className="mt-1 text-xs text-muted-foreground">Withdrawable winnings after provider review.</p>
           </div>
-          <div className="rounded-lg border bg-muted/35 p-4">
+          <div className="metric-tile">
             <p className="text-sm text-muted-foreground">Site Credit</p>
             <p className="text-2xl font-bold">$0.00</p>
             <p className="mt-1 text-xs text-muted-foreground">Non-withdrawable value for refunds or promotions.</p>

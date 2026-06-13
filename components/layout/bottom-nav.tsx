@@ -16,8 +16,8 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 border-t bg-background/95 backdrop-blur">
-      <div className="mx-auto grid max-w-md grid-cols-4 px-2 py-2">
+    <nav className="fixed inset-x-0 bottom-0 border-t border-slate-200 bg-white/95 shadow-[0_-10px_30px_rgba(15,23,42,0.08)] backdrop-blur">
+      <div className="mx-auto grid max-w-md grid-cols-4 px-2 py-2.5">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href || (item.href === '/contests' && pathname.startsWith('/contests'));
@@ -27,8 +27,8 @@ export function BottomNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                'flex flex-col items-center gap-1 rounded-lg px-2 py-1.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground',
-                isActive && 'bg-muted text-primary',
+                'flex min-h-14 flex-col items-center justify-center gap-1 rounded-lg px-2 text-xs font-semibold text-muted-foreground hover:bg-slate-100 hover:text-foreground',
+                isActive && 'bg-primary/10 text-primary',
               )}
             >
               <Icon className="h-5 w-5" aria-hidden="true" />

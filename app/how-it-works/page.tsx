@@ -29,9 +29,9 @@ export default function HowItWorksPage() {
 
   return (
     <div className="space-y-6">
-      <section className="space-y-3">
-        <p className="text-sm font-medium text-primary">How It Works</p>
-        <h1 className="text-3xl font-bold tracking-tight">Skill-based ranking contests</h1>
+      <section className="screen-header space-y-3">
+        <p className="eyebrow">How It Works</p>
+        <h1 className="text-3xl font-black leading-tight">Skill-based ranking contests</h1>
         <p className="text-muted-foreground">
           PickRank is a contest app where players rank a slate by a specific stat category and compete for the prize pool.
         </p>
@@ -70,11 +70,39 @@ export default function HowItWorksPage() {
             ['Tiebreaker 2', 'Most one-off-or-better picks.'],
             ['Tiebreaker 3', 'Closest placement of the actual QB1.'],
           ].map(([label, description]) => (
-            <div key={label} className="rounded-lg border px-3 py-2">
+            <div key={label} className="rounded-lg border bg-slate-50 px-3 py-2">
               <p className="font-semibold">{label}</p>
               <p className="text-muted-foreground">{description}</p>
             </div>
           ))}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Rank Differential Example</CardTitle>
+          <CardDescription>Each lineup spot is compared to the official final rank for that stat.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm">
+          <div className="grid grid-cols-3 gap-2 rounded-lg border bg-slate-50 px-3 py-2 font-semibold">
+            <span>Your Rank</span>
+            <span>Final Rank</span>
+            <span>Difference</span>
+          </div>
+          {[
+            ['1st', '2nd', '1'],
+            ['2nd', '2nd', '0'],
+            ['3rd', '6th', '3'],
+          ].map(([yourRank, finalRank, difference]) => (
+            <div key={`${yourRank}-${finalRank}`} className="grid grid-cols-3 gap-2 rounded-lg border px-3 py-2">
+              <span>{yourRank}</span>
+              <span>{finalRank}</span>
+              <span>{difference}</span>
+            </div>
+          ))}
+          <p className="rounded-lg bg-slate-100 p-3 text-muted-foreground">
+            Add the differences across all 10 ranked picks. Lower total differential wins, with tiebreakers applied if needed.
+          </p>
         </CardContent>
       </Card>
 

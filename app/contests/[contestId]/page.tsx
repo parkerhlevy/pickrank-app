@@ -10,7 +10,7 @@ export default async function ContestDetailPage({ params }: { params: Promise<{ 
   const contest = openContests.find((item) => item.id === contestId) ?? openContests[0];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="space-y-4">
         <Button asChild variant="ghost" size="sm" className="-ml-3 justify-start">
           <Link href="/contests">
@@ -18,40 +18,33 @@ export default async function ContestDetailPage({ params }: { params: Promise<{ 
             Contests
           </Link>
         </Button>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="screen-header flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-2">
-            <span className="inline-flex rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
-              {contest.status}
-            </span>
-            <h1 className="text-3xl font-bold tracking-tight">{contest.title}</h1>
+            <span className="status-pill">{contest.status}</span>
+            <h1 className="text-3xl font-black leading-tight">{contest.title}</h1>
             <p className="text-muted-foreground">{contest.task}</p>
           </div>
-          <Link href="/how-it-works" className="shrink-0 text-sm font-medium text-primary">
+          <Link href="/how-it-works" className="shrink-0 text-sm font-bold text-primary">
             How It Works
           </Link>
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Contest Details</CardTitle>
-          <CardDescription>Public overview only. Payment review and entry creation are future work.</CardDescription>
+      <Card className="overflow-hidden">
+        <CardHeader className="bg-slate-950 py-4 text-white">
+          <CardTitle className="text-base">Contest Details</CardTitle>
+          <CardDescription className="text-xs text-slate-300">
+            Public overview only. Payment review and entry creation are future work.
+          </CardDescription>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-3 text-sm">
+        <CardContent className="grid grid-cols-2 gap-2 pt-4 text-sm">
           <DetailStat icon={DollarSign} label="Prize Pool" value={contest.prizePool} />
           <DetailStat icon={Users} label="Entries" value={contest.entries} />
           <DetailStat icon={DollarSign} label="Entry Fee" value={contest.entryFee} />
           <DetailStat icon={Clock} label="Lock Time" value={contest.lockTime.replace('Locks ', '')} />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Contest Criteria</CardTitle>
-          <CardDescription>Rules for whether the contest runs after entries lock.</CardDescription>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">
-          <p>{contest.minimum}. If the contest does not meet the minimum at lock, it is canceled in a future phase.</p>
+          <p className="col-span-2 border-t border-slate-200 pt-2 text-xs text-muted-foreground">
+            * {contest.minimum}.
+          </p>
         </CardContent>
       </Card>
 
@@ -62,7 +55,7 @@ export default async function ContestDetailPage({ params }: { params: Promise<{ 
         </CardHeader>
         <CardContent className="space-y-2">
           {contest.payoutRows.map((row) => (
-            <div key={row.place} className="flex items-center justify-between rounded-lg border bg-muted/35 px-3 py-2">
+            <div key={row.place} className="flex items-center justify-between rounded-lg border bg-slate-50 px-3 py-2">
               <span className="font-medium">{row.place}</span>
               <span className="font-semibold">{row.value}</span>
             </div>
@@ -84,7 +77,7 @@ export default async function ContestDetailPage({ params }: { params: Promise<{ 
             <ListOrdered className="mt-0.5 h-4 w-4 text-primary" aria-hidden="true" />
             <p>Your score is based on rank differential against the official final stat ranking. Lower is better.</p>
           </div>
-          <p className="rounded-lg bg-muted p-3 text-muted-foreground">Results appear only after final stat review in a future phase.</p>
+          <p className="rounded-lg bg-slate-100 p-3 text-muted-foreground">Results appear only after final stat review in a future phase.</p>
         </CardContent>
       </Card>
 
@@ -94,13 +87,13 @@ export default async function ContestDetailPage({ params }: { params: Promise<{ 
           <CardDescription>Visual preview for the future lineup builder. Saving is not wired yet.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="rounded-lg border bg-muted/35 p-3 text-sm">
+          <div className="soft-panel text-sm">
             <p className="font-medium">5/10 ranked</p>
             <p className="text-muted-foreground">Rank the top 10 quarterbacks by passing yards.</p>
           </div>
           <div className="space-y-2">
             {demoLineup.map((name, index) => (
-              <div key={name} className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm">
+              <div key={name} className="flex items-center justify-between rounded-lg border bg-white px-3 py-2 text-sm">
                 <span className="font-medium">
                   {index + 1}. {name}
                 </span>
@@ -114,7 +107,7 @@ export default async function ContestDetailPage({ params }: { params: Promise<{ 
         </CardContent>
       </Card>
 
-      <div className="sticky bottom-20 rounded-lg border bg-background p-3 shadow-lg">
+      <div className="sticky bottom-20 rounded-lg border bg-white p-3 shadow-lg">
         <Button className="w-full" disabled>
           Enter Contest - Payment Review Not Implemented
         </Button>
@@ -133,12 +126,12 @@ function DetailStat({
   value: string;
 }) {
   return (
-    <div className="rounded-lg border bg-muted/35 p-3">
-      <div className="mb-1 flex items-center gap-1.5 text-xs text-muted-foreground">
-        <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+    <div className="rounded-lg border border-slate-200 bg-slate-50 p-2.5">
+      <div className="mb-1 flex items-center gap-1 text-[11px] text-muted-foreground">
+        <Icon className="h-3 w-3" aria-hidden="true" />
         {label}
       </div>
-      <p className="font-semibold">{value}</p>
+      <p className="text-sm font-semibold leading-tight">{value}</p>
     </div>
   );
 }

@@ -6,22 +6,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 export default function AuthPage() {
   return (
     <div className="space-y-6">
-      <section className="space-y-2">
-        <p className="text-sm font-medium text-primary">Auth</p>
-        <h1 className="text-3xl font-bold tracking-tight">Account Access Preview</h1>
+      <section className="screen-header space-y-2">
+        <p className="eyebrow">Auth</p>
+        <h1 className="text-3xl font-black leading-tight">Account Access Preview</h1>
         <p className="text-muted-foreground">Phase 0 placeholder for the future email-based account flow.</p>
       </section>
 
-      <Card>
-        <CardHeader>
+      <Card className="overflow-hidden">
+        <CardHeader className="bg-slate-950 text-white">
           <div className="flex items-center gap-2">
-            <Mail className="h-5 w-5 text-primary" aria-hidden="true" />
+            <Mail className="h-5 w-5 text-blue-300" aria-hidden="true" />
             <CardTitle>Email Sign In</CardTitle>
           </div>
-          <CardDescription>Authentication is not wired yet. This screen is visual only.</CardDescription>
+          <CardDescription className="text-slate-300">Authentication is not wired yet. This screen is visual only.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="rounded-lg border bg-muted/35 px-3 py-3 text-sm text-muted-foreground">Email address</div>
+        <CardContent className="space-y-3 pt-5">
+          <div className="rounded-lg border bg-slate-50 px-3 py-3 text-sm text-muted-foreground">Email address</div>
           <Button className="w-full" disabled>
             Continue Not Available
           </Button>
