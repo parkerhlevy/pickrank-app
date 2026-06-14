@@ -2,11 +2,11 @@ import Link from 'next/link';
 import { ArrowLeft, CheckCircle2, CreditCard, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { formatCents, getPaymentReviewBreakdown, openContests } from '@/lib/phase-0-demo';
+import { formatCents, getContestById, getPaymentReviewBreakdown } from '@/lib/phase-0-demo';
 
 export default async function PaymentReviewPage({ params }: { params: Promise<{ contestId: string }> }) {
   const { contestId } = await params;
-  const contest = openContests.find((item) => item.id === contestId) ?? openContests[0];
+  const contest = getContestById(contestId);
   const breakdown = getPaymentReviewBreakdown(contest.entryFee);
 
   return (
@@ -21,7 +21,7 @@ export default async function PaymentReviewPage({ params }: { params: Promise<{ 
       <div className="screen-header space-y-2">
         <p className="eyebrow">Payment Review</p>
         <h1 className="text-3xl font-black leading-tight">{contest.title}</h1>
-        <p className="text-muted-foreground">Review how this entry fee would be covered before lineup access opens.</p>
+        <p className="text-muted-foreground">Review how this single-entry fee would be covered before the visual-only success state and lineup builder.</p>
       </div>
 
       <Card className="overflow-hidden">
@@ -46,7 +46,7 @@ export default async function PaymentReviewPage({ params }: { params: Promise<{ 
       <Card>
         <CardHeader>
           <CardTitle>Entry Status</CardTitle>
-          <CardDescription>Lineup access remains behind successful entry in the product flow.</CardDescription>
+          <CardDescription>The next screen previews the post-payment success state without implying a real confirmed entry.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <div className="flex items-start gap-2">
@@ -65,8 +65,8 @@ export default async function PaymentReviewPage({ params }: { params: Promise<{ 
       </Card>
 
       <div className="sticky bottom-20 rounded-lg border bg-white p-3 shadow-lg">
-        <Button className="w-full" disabled>
-          Confirm Entry - Placeholder Only
+        <Button asChild className="w-full">
+          <Link href={`/contests/${contest.id}/success`}>Preview Entry Success</Link>
         </Button>
       </div>
     </div>

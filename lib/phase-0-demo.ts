@@ -37,6 +37,10 @@ export const openContests = [
   },
 ];
 
+export function getContestById(contestId: string) {
+  return openContests.find((item) => item.id === contestId) ?? openContests[0];
+}
+
 export const demoWalletBalances = {
   siteCreditCents: 200,
   cashBalanceCents: 100,
@@ -81,10 +85,15 @@ export const demoLeaderboardRows = [
   { rank: 4, username: 'PocketTimer', points: 61 },
 ];
 
-export const demoLineup = [
-  'QB Option A',
-  'QB Option B',
-  'QB Option C',
-  'QB Option D',
-  'QB Option E',
+export const demoLineupBuilderPlayers = [
+  'Brock Purdy',
+  'Dak Prescott',
+  'Derek Carr',
+  'Jalen Hurts',
+  'Joe Burrow',
+  'Jordan Love',
+  'Josh Allen',
+  'Justin Herbert',
+  'Kirk Cousins',
+  'Lamar Jackson',
 ];

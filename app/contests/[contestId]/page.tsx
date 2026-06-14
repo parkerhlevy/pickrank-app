@@ -1,13 +1,13 @@
 import Link from 'next/link';
-import { ArrowLeft, CheckCircle2, Clock, DollarSign, ListOrdered, Lock, Users } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, ChevronRight, Clock, DollarSign, ListOrdered, Lock, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { demoLineup, openContests } from '@/lib/phase-0-demo';
+import { getContestById } from '@/lib/phase-0-demo';
 
 export default async function ContestDetailPage({ params }: { params: Promise<{ contestId: string }> }) {
   const { contestId } = await params;
-  const contest = openContests.find((item) => item.id === contestId) ?? openContests[0];
+  const contest = getContestById(contestId);
 
   return (
     <div className="space-y-5">
@@ -91,7 +91,7 @@ export default async function ContestDetailPage({ params }: { params: Promise<{ 
           <div className="flex items-start justify-between gap-3">
             <div>
               <CardTitle>Build Your Lineup</CardTitle>
-              <CardDescription>Lineup access opens after entry and payment review in the real flow.</CardDescription>
+              <CardDescription>Lineup editing happens on a separate screen after payment review and the entry success step.</CardDescription>
             </div>
             <span className="status-pill shrink-0">
               <Lock className="mr-1 h-3 w-3" aria-hidden="true" />
@@ -100,23 +100,27 @@ export default async function ContestDetailPage({ params }: { params: Promise<{ 
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="soft-panel text-sm">
-            <p className="font-medium">Preview locked</p>
-            <p className="text-muted-foreground">Rank the top 10 quarterbacks by passing yards.</p>
+          <div className="soft-panel space-y-3 text-sm">
+            <p className="font-medium">Single-entry flow</p>
+            <p className="text-muted-foreground">
+              Contest detail now points into the gated MVP path instead of showing the lineup builder inline.
+            </p>
           </div>
-          <div className="space-y-2 opacity-55" aria-disabled="true">
-            {demoLineup.map((name, index) => (
-              <div key={name} className="flex items-center justify-between rounded-lg border bg-white px-3 py-2 text-sm">
-                <span className="font-medium">
-                  {index + 1}. {name}
-                </span>
-                <span className="text-muted-foreground">Mock slate</span>
+          <div className="space-y-2">
+            {[
+              'Review payment breakdown',
+              'See the visual-only entry success state',
+              'Open the dedicated Build Your Lineup screen',
+            ].map((step) => (
+              <div key={step} className="flex items-center justify-between rounded-lg border bg-white px-3 py-2 text-sm">
+                <span className="font-medium">{step}</span>
+                <ChevronRight className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
               </div>
             ))}
           </div>
-          <Button className="w-full" disabled>
-            Build Your Lineup
-          </Button>
+          <p className="text-xs text-muted-foreground">
+            Lineup access is still placeholder-only. No entry is created and no lineup is saved in this phase.
+          </p>
         </CardContent>
       </Card>
 
