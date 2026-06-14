@@ -37,6 +37,43 @@ export const openContests = [
   },
 ];
 
+export const demoWalletBalances = {
+  siteCreditCents: 200,
+  cashBalanceCents: 100,
+};
+
+export function getPaymentReviewBreakdown(entryFee: string) {
+  const entryFeeCents = parseDollarAmount(entryFee);
+  const siteCreditAppliedCents = Math.min(demoWalletBalances.siteCreditCents, entryFeeCents);
+  const remainingAfterSiteCredit = entryFeeCents - siteCreditAppliedCents;
+  const cashBalanceAppliedCents = Math.min(demoWalletBalances.cashBalanceCents, remainingAfterSiteCredit);
+  const amountDueTodayCents = entryFeeCents - siteCreditAppliedCents - cashBalanceAppliedCents;
+
+  return {
+    entryFeeCents,
+    siteCreditAppliedCents,
+    cashBalanceAppliedCents,
+    amountDueTodayCents,
+  };
+}
+
+export function formatCents(cents: number) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(cents / 100);
+}
+
+function parseDollarAmount(amount: string) {
+  const dollars = Number(amount.replace(/[^0-9.]/g, ''));
+
+  if (!Number.isFinite(dollars)) {
+    return 0;
+  }
+
+  return Math.round(dollars * 100);
+}
+
 export const demoLeaderboardRows = [
   { rank: 1, username: 'RankBuilder', points: 67 },
   { rank: 2, username: 'SlateReader', points: 65 },

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowLeft, CheckCircle2, Clock, DollarSign, ListOrdered, Users } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Clock, DollarSign, ListOrdered, Lock, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -34,7 +34,7 @@ export default async function ContestDetailPage({ params }: { params: Promise<{ 
         <CardHeader className="bg-slate-950 py-4 text-white">
           <CardTitle className="text-base">Contest Details</CardTitle>
           <CardDescription className="text-xs text-slate-300">
-            Public overview only. Payment review and entry creation are future work.
+            Public overview only. Entry creation remains placeholder-safe in this phase.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-2 pt-4 text-sm">
@@ -88,15 +88,23 @@ export default async function ContestDetailPage({ params }: { params: Promise<{ 
 
       <Card>
         <CardHeader>
-          <CardTitle>Build Your Lineup</CardTitle>
-          <CardDescription>Visual preview for the future lineup builder. Saving is not wired yet.</CardDescription>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <CardTitle>Build Your Lineup</CardTitle>
+              <CardDescription>Lineup access opens after entry and payment review in the real flow.</CardDescription>
+            </div>
+            <span className="status-pill shrink-0">
+              <Lock className="mr-1 h-3 w-3" aria-hidden="true" />
+              Entry Required
+            </span>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="soft-panel text-sm">
-            <p className="font-medium">5/10 ranked</p>
+            <p className="font-medium">Preview locked</p>
             <p className="text-muted-foreground">Rank the top 10 quarterbacks by passing yards.</p>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-2 opacity-55" aria-disabled="true">
             {demoLineup.map((name, index) => (
               <div key={name} className="flex items-center justify-between rounded-lg border bg-white px-3 py-2 text-sm">
                 <span className="font-medium">
@@ -107,14 +115,14 @@ export default async function ContestDetailPage({ params }: { params: Promise<{ 
             ))}
           </div>
           <Button className="w-full" disabled>
-            Save Lineup
+            Build Your Lineup
           </Button>
         </CardContent>
       </Card>
 
       <div className="sticky bottom-20 rounded-lg border bg-white p-3 shadow-lg">
-        <Button className="w-full" disabled>
-          Enter Contest - Payment Review Not Implemented
+        <Button asChild className="w-full">
+          <Link href={`/contests/${contest.id}/payment`}>Enter Contest - Review Payment</Link>
         </Button>
       </div>
     </div>
