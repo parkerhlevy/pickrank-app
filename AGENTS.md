@@ -22,9 +22,16 @@
 - Prefer cloud-app progress over local setup polish.
 - Do not implement real-money payments, withdrawals, scoring rules, wallet ledger rules, eligibility rules, or compliance-sensitive behavior without explicit human review.
 - Run the relevant checks after meaningful repo changes and report results plainly.
+- At the start of each new PickRank task or new chat, first provide Parker with the recommended kickoff prompt for that next slice before doing the work.
 
 ## Starter Prompt For Future Chats
 
 ```text
-Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Treat local work as a temporary workbench for getting the app ready for GitHub and cloud deployment. Do not overbuild local-only setup. Focus on the next milestone and explain what changed, why it matters, what passed, and what I need to do next.
+Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Before changing behavior, read `docs/agent-handoff.md`, `spec/product_spec.md`, and the relevant `spec/features/` files for the slice you are about to work on, plus any in-progress worktree files already involved. Work carefully with existing in-progress files. Keep the slice narrow, avoid payouts, scoring, real-money, compliance, and other broader lifecycle work unless explicitly requested, and run typecheck, tests, and browser verification before closing. Explain results business-first: what changed, why it matters, what passed, and what I need to do next.
+```
+
+## Kickoff Prompt Rule
+
+```text
+Every time we are ready to move to a new PickRank task or a new chat, start by giving me the recommended kickoff prompt for that next slice before doing the work.
 ```
