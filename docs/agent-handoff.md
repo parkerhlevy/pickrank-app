@@ -18,6 +18,8 @@ Avoid local-only complexity unless it directly helps get PickRank working in Git
 
 Explain results in business-friendly language first: what changed, why it matters, what passed, and what Parker needs to do next. Add technical detail only when it helps the decision or next step.
 
+At the start of each new PickRank task or new chat, first provide Parker with the recommended kickoff prompt for that next slice before doing the work.
+
 ## Current Repo State
 
 The app currently has a Phase 0 foundation:
@@ -151,6 +153,14 @@ Definition of done:
 - Public URL opens the PickRank homepage
 - Core placeholder routes open
 - No generated files or secrets are committed accidentally
+
+## Starter Prompt For Future Chats
+
+Use this default starter prompt pattern unless the next slice needs a tighter scoped variation:
+
+```text
+Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Before changing behavior, read `docs/agent-handoff.md`, `spec/product_spec.md`, and the relevant `spec/features/` files for the slice you are about to work on, plus any in-progress worktree files already involved. Work carefully with existing in-progress files. Keep the slice narrow, avoid payouts, scoring, real-money, compliance, and other broader lifecycle work unless explicitly requested, and run typecheck, tests, and browser verification before closing. Explain results business-first: what changed, why it matters, what passed, and what I need to do next.
+```
 
 ## Generated Files to Avoid Committing
 
