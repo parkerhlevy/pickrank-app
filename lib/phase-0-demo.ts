@@ -2,6 +2,7 @@ export const openContests = [
   {
     id: 'week-1-qb-passing-yards',
     title: 'Week 1 QB Passing Yards',
+    contestStatus: 'open',
     status: 'Open',
     lockTime: 'Locks Thu, Sep 5, 8:15 PM ET',
     entryFee: '$5',
@@ -20,7 +21,8 @@ export const openContests = [
   {
     id: 'week-1-sunday-qb-passing-yards',
     title: 'Week 1 Sunday QB Passing Yards',
-    status: 'Open',
+    contestStatus: 'locked',
+    status: 'Locked',
     lockTime: 'Locks Sun, Sep 8, 1:00 PM ET',
     entryFee: '$10',
     prizePool: '$3,500',
@@ -39,6 +41,14 @@ export const openContests = [
 
 export function getContestById(contestId: string) {
   return openContests.find((item) => item.id === contestId) ?? openContests[0];
+}
+
+export function isContestOpenForEntry(contest: (typeof openContests)[number]) {
+  return contest.contestStatus === 'open';
+}
+
+export function isContestLineupEditable(contest: (typeof openContests)[number]) {
+  return contest.contestStatus === 'open';
 }
 
 export const demoWalletBalances = {
@@ -86,14 +96,14 @@ export const demoLeaderboardRows = [
 ];
 
 export const demoLineupBuilderPlayers = [
-  'Brock Purdy',
-  'Dak Prescott',
-  'Derek Carr',
-  'Jalen Hurts',
-  'Joe Burrow',
-  'Jordan Love',
   'Josh Allen',
-  'Justin Herbert',
+  'Joe Burrow',
+  'Derek Carr',
   'Kirk Cousins',
+  'Justin Herbert',
+  'Jalen Hurts',
   'Lamar Jackson',
+  'Jordan Love',
+  'Dak Prescott',
+  'Brock Purdy',
 ];

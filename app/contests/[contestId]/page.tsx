@@ -1,13 +1,46 @@
 import Link from 'next/link';
+import { cookies } from 'next/headers';
 import { ArrowLeft, CheckCircle2, ChevronRight, Clock, DollarSign, ListOrdered, Lock, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { getContestById } from '@/lib/phase-0-demo';
+import {
+  getContestDetailPrimaryAction,
+  contestEntryCookieName,
+  getContestEntryProgressHref,
+  getContestEntryStateCopy,
+  getContestEntrySteps,
+  getPersistedContestEntryStage,
+} from '@/lib/contest-entry-flow';
+import { getPersistedContestEntry, persistedContestEntryCookieName } from '@/lib/persisted-contest-entry';
+import { demoLineupBuilderPlayers, getContestById, isContestOpenForEntry } from '@/lib/phase-0-demo';
 
-export default async function ContestDetailPage({ params }: { params: Promise<{ contestId: string }> }) {
+export default async function ContestDetailPage({
+  params,
+}: {
+  params: Promise<{ contestId: string }>;
+}) {
   const { contestId } = await params;
   const contest = getContestById(contestId);
+  const cookieStore = await cookies();
+  const stage = getPersistedContestEntryStage(
+    contest.id,
+    cookieStore.get(contestEntryCookieName)?.value,
+  );
+  const hasEntry = Boolean(
+    getPersistedContestEntry(
+      contest.id,
+      cookieStore.get(persistedContestEntryCookieName)?.value,
+      demoLineupBuilderPlayers,
+    ),
+  );
+  const stateCopy = getContestEntryStateCopy(stage);
+  const primaryAction = getContestDetailPrimaryAction({
+    contestId: contest.id,
+    hasEntry,
+    isContestOpen: isContestOpenForEntry(contest),
+  });
+  const flowSteps = getContestEntrySteps(stage);
 
   return (
     <div className="space-y-5">
@@ -34,7 +67,7 @@ export default async function ContestDetailPage({ params }: { params: Promise<{ 
         <CardHeader className="bg-slate-950 py-4 text-white">
           <CardTitle className="text-base">Contest Details</CardTitle>
           <CardDescription className="text-xs text-slate-300">
-            Public overview only. Entry creation remains placeholder-safe in this phase.
+            Public overview with single-entry MVP flow guidance.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-2 pt-4 text-sm">
@@ -45,6 +78,41 @@ export default async function ContestDetailPage({ params }: { params: Promise<{ 
           <p className="col-span-2 border-t border-slate-200 pt-2 text-xs text-muted-foreground">
             * {contest.minimum}.
           </p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <CardTitle>{stateCopy.title}</CardTitle>
+              <CardDescription>{stateCopy.description}</CardDescription>
+            </div>
+            <span className="status-pill shrink-0">{stateCopy.badge}</span>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {flowSteps.map((step) => (
+            <div key={step.key} className="flex items-center justify-between rounded-lg border bg-white px-3 py-2 text-sm">
+              <span className="font-medium">{step.label}</span>
+              <span
+                className={
+                  step.status === 'current'
+                    ? 'font-bold text-primary'
+                    : step.status === 'complete'
+                      ? 'text-emerald-700'
+                      : 'text-muted-foreground'
+                }
+              >
+                {step.status === 'current' ? 'Current' : step.status === 'complete' ? 'Complete' : 'Next'}
+              </span>
+            </div>
+          ))}
+          {stage !== 'not-entered' ? (
+            <Button asChild variant="ghost" className="w-full">
+              <Link href={getContestEntryProgressHref(contest.id, 'not-entered')}>Reset Placeholder Flow</Link>
+            </Button>
+          ) : null}
         </CardContent>
       </Card>
 
@@ -103,7 +171,7 @@ export default async function ContestDetailPage({ params }: { params: Promise<{ 
           <div className="soft-panel space-y-3 text-sm">
             <p className="font-medium">Single-entry flow</p>
             <p className="text-muted-foreground">
-              Contest detail now points into the gated MVP path instead of showing the lineup builder inline.
+              Contest detail now points into one current entry record and a dedicated lineup screen instead of showing the builder inline.
             </p>
           </div>
           <div className="space-y-2">
@@ -119,15 +187,21 @@ export default async function ContestDetailPage({ params }: { params: Promise<{ 
             ))}
           </div>
           <p className="text-xs text-muted-foreground">
-            Lineup access is still placeholder-only. No entry is created and no lineup is saved in this phase.
+            New lineup saves are blocked after lock. Existing entries can still open a read-only lineup view once the contest is no longer editable.
           </p>
         </CardContent>
       </Card>
 
       <div className="sticky bottom-20 rounded-lg border bg-white p-3 shadow-lg">
-        <Button asChild className="w-full">
-          <Link href={`/contests/${contest.id}/payment`}>Enter Contest - Review Payment</Link>
-        </Button>
+        {primaryAction.href ? (
+          <Button asChild className="w-full">
+            <Link href={primaryAction.href}>{primaryAction.label}</Link>
+          </Button>
+        ) : (
+          <Button className="w-full" disabled>
+            {primaryAction.label}
+          </Button>
+        )}
       </div>
     </div>
   );

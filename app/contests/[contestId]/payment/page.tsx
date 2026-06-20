@@ -1,12 +1,39 @@
 import Link from 'next/link';
+import { cookies } from 'next/headers';
 import { ArrowLeft, CheckCircle2, CreditCard, ShieldCheck } from 'lucide-react';
+import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  contestEntryCookieName,
+  getContestEntryProgressHref,
+  getContestEntryRouteState,
+  getContestEntryStateCopy,
+  getContestEntrySteps,
+  getPersistedContestEntryStage,
+} from '@/lib/contest-entry-flow';
 import { formatCents, getContestById, getPaymentReviewBreakdown } from '@/lib/phase-0-demo';
 
-export default async function PaymentReviewPage({ params }: { params: Promise<{ contestId: string }> }) {
+export default async function PaymentReviewPage({
+  params,
+}: {
+  params: Promise<{ contestId: string }>;
+}) {
   const { contestId } = await params;
   const contest = getContestById(contestId);
+  const cookieStore = await cookies();
+  const persistedStage = getPersistedContestEntryStage(
+    contest.id,
+    cookieStore.get(contestEntryCookieName)?.value,
+  );
+  const routeState = getContestEntryRouteState({ contestId: contest.id, persistedStage, route: 'payment' });
+
+  if (routeState.shouldRedirect && routeState.redirectHref) {
+    redirect(routeState.redirectHref);
+  }
+
+  const stateCopy = getContestEntryStateCopy(routeState.stage);
+  const flowSteps = getContestEntrySteps(routeState.stage);
   const breakdown = getPaymentReviewBreakdown(contest.entryFee);
 
   return (
@@ -21,14 +48,44 @@ export default async function PaymentReviewPage({ params }: { params: Promise<{ 
       <div className="screen-header space-y-2">
         <p className="eyebrow">Payment Review</p>
         <h1 className="text-3xl font-black leading-tight">{contest.title}</h1>
-        <p className="text-muted-foreground">Review how this single-entry fee would be covered before the visual-only success state and lineup builder.</p>
+        <p className="text-muted-foreground">Review how this single-entry fee would be covered before the entry confirmation handoff and lineup builder.</p>
       </div>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <CardTitle>{stateCopy.title}</CardTitle>
+              <CardDescription>{stateCopy.description}</CardDescription>
+            </div>
+            <span className="status-pill shrink-0">{stateCopy.badge}</span>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {flowSteps.map((step) => (
+            <div key={step.key} className="flex items-center justify-between rounded-lg border bg-white px-3 py-2 text-sm">
+              <span className="font-medium">{step.label}</span>
+              <span
+                className={
+                  step.status === 'current'
+                    ? 'font-bold text-primary'
+                    : step.status === 'complete'
+                      ? 'text-emerald-700'
+                      : 'text-muted-foreground'
+                }
+              >
+                {step.status === 'current' ? 'Current' : step.status === 'complete' ? 'Complete' : 'Next'}
+              </span>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
 
       <Card className="overflow-hidden">
         <CardHeader className="bg-slate-950 text-white">
           <CardTitle>Entry Fee Breakdown</CardTitle>
           <CardDescription className="text-slate-300">
-            Visual placeholder only. Confirming entry, charging payment, and creating entries are not wired.
+            Funding is still demo-only in this phase. The next step creates the current entry record for lineup work.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 pt-5 text-sm">
@@ -46,7 +103,7 @@ export default async function PaymentReviewPage({ params }: { params: Promise<{ 
       <Card>
         <CardHeader>
           <CardTitle>Entry Status</CardTitle>
-          <CardDescription>The next screen previews the post-payment success state without implying a real confirmed entry.</CardDescription>
+          <CardDescription>The next screen confirms the single-entry handoff for this MVP slice without adding real-money behavior.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <div className="flex items-start gap-2">
@@ -59,14 +116,14 @@ export default async function PaymentReviewPage({ params }: { params: Promise<{ 
           </div>
           <div className="flex items-start gap-2">
             <CheckCircle2 className="mt-0.5 h-4 w-4 text-primary" aria-hidden="true" />
-            <p>No wallet funds are debited and no contest entry is created from this placeholder screen.</p>
+            <p>No wallet funds are debited here. The entry record is created only for the persisted lineup flow that follows.</p>
           </div>
         </CardContent>
       </Card>
 
       <div className="sticky bottom-20 rounded-lg border bg-white p-3 shadow-lg">
         <Button asChild className="w-full">
-          <Link href={`/contests/${contest.id}/success`}>Preview Entry Success</Link>
+          <Link href={getContestEntryProgressHref(contest.id, 'entered')}>Continue to Entry Success</Link>
         </Button>
       </div>
     </div>
