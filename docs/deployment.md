@@ -30,13 +30,13 @@ Vercel will:
    - Build command: `npm run build`
    - Install command: `npm install`
    - Output directory: leave blank/default
-8. For the first Phase 0 deploy, environment variables can be left blank because the current pages do not call Supabase at build time.
+8. Add the environment variables below before testing auth in preview or production.
 9. Click `Deploy`.
 10. When the deploy finishes, open the generated Vercel URL and confirm the PickRank homepage loads.
 
 ## Environment Variables
 
-The repo includes `.env.example` with the variables PickRank will need once Supabase-backed auth and data flows are active:
+The repo includes `.env.example` with the variables PickRank needs for the current auth foundation:
 
 ```text
 NEXT_PUBLIC_SUPABASE_URL=
@@ -45,15 +45,49 @@ SUPABASE_SERVICE_ROLE_KEY=
 NEXT_PUBLIC_APP_URL=
 ```
 
-For Phase 0, these are not required for the placeholder app shell to build and load.
+For the current Phase 1 auth foundation, these values should be set in both places:
 
-Before implementing real auth, database reads, contest entries, wallet behavior, or admin tools, add the real Supabase values in Vercel under:
+- local `.env.local`
+- Vercel `Project Settings -> Environment Variables`
+
+Recommended values:
+
+- `NEXT_PUBLIC_SUPABASE_URL`: Supabase project URL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Supabase public anon key
+- `NEXT_PUBLIC_APP_URL`: the exact app origin receiving auth callbacks
+- `SUPABASE_SERVICE_ROLE_KEY`: keep stored for future trusted server work, but do not expose it to client code
+
+Example:
+
+```text
+Local:  NEXT_PUBLIC_APP_URL=http://localhost:3000
+Vercel: NEXT_PUBLIC_APP_URL=https://your-project-name.vercel.app
+```
+
+Before testing the auth flow, add the real Supabase values in Vercel under:
 
 ```text
 Project Settings -> Environment Variables
 ```
 
 Do not commit real secrets to the repo.
+
+## Current Auth Wiring Points
+
+The expected auth path is now:
+
+1. `/auth` submits an email sign-in request through Supabase.
+2. Supabase redirects back to `/auth/callback`.
+3. The callback route exchanges the code for a session cookie.
+4. `/profile` reads the authenticated session on the server.
+
+This keeps the slice narrow:
+
+- no real-money logic
+- no wallet logic
+- no scoring
+- no compliance flows
+- no profile table writes
 
 ## Replit Alternative
 

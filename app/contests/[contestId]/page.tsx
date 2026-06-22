@@ -4,6 +4,7 @@ import { ArrowLeft, CheckCircle2, ChevronRight, Clock, DollarSign, ListOrdered, 
 import type { LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { buildAuthHref, buildProfileHref, getProfileIdentity } from '@/lib/auth-profile';
 import {
   getContestDetailPrimaryAction,
   contestEntryCookieName,
@@ -12,8 +13,10 @@ import {
   getContestEntrySteps,
   getPersistedContestEntryStage,
 } from '@/lib/contest-entry-flow';
+import { hasBrowserSupabaseConfig } from '@/lib/env';
 import { getPersistedContestEntry, persistedContestEntryCookieName } from '@/lib/persisted-contest-entry';
 import { demoLineupBuilderPlayers, getContestById, isContestOpenForEntry } from '@/lib/phase-0-demo';
+import { createClient } from '@/lib/supabase/server';
 
 export default async function ContestDetailPage({
   params,
@@ -23,6 +26,12 @@ export default async function ContestDetailPage({
   const { contestId } = await params;
   const contest = getContestById(contestId);
   const cookieStore = await cookies();
+  const authConfigured = hasBrowserSupabaseConfig();
+  const supabase = authConfigured ? await createClient() : null;
+  const {
+    data: { user },
+  } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+  const profileIdentity = getProfileIdentity(user);
   const stage = getPersistedContestEntryStage(
     contest.id,
     cookieStore.get(contestEntryCookieName)?.value,
@@ -39,8 +48,14 @@ export default async function ContestDetailPage({
     contestId: contest.id,
     hasEntry,
     isContestOpen: isContestOpenForEntry(contest),
+    isAuthenticated: Boolean(user),
+    isProfileComplete: profileIdentity.isProfileComplete,
   });
   const flowSteps = getContestEntrySteps(stage);
+  const intendedEntryHref = getContestEntryProgressHref(contest.id, 'payment-review');
+  const primaryActionHref =
+    primaryAction.href ??
+    (!user ? buildAuthHref(intendedEntryHref) : !profileIdentity.isProfileComplete ? buildProfileHref(intendedEntryHref) : null);
 
   return (
     <div className="space-y-5">
@@ -193,9 +208,9 @@ export default async function ContestDetailPage({
       </Card>
 
       <div className="sticky bottom-20 rounded-lg border bg-white p-3 shadow-lg">
-        {primaryAction.href ? (
+        {primaryActionHref ? (
           <Button asChild className="w-full">
-            <Link href={primaryAction.href}>{primaryAction.label}</Link>
+            <Link href={primaryActionHref}>{primaryAction.label}</Link>
           </Button>
         ) : (
           <Button className="w-full" disabled>

@@ -21,6 +21,8 @@ describe('contest entry flow state', () => {
         contestId: 'week-1-qb-passing-yards',
         hasEntry: true,
         isContestOpen: true,
+        isAuthenticated: true,
+        isProfileComplete: true,
       }),
     ).toEqual({
       label: 'Edit Lineup',
@@ -35,6 +37,8 @@ describe('contest entry flow state', () => {
         contestId: 'week-1-qb-passing-yards',
         hasEntry: true,
         isContestOpen: false,
+        isAuthenticated: true,
+        isProfileComplete: true,
       }),
     ).toEqual({
       label: 'View Lineup',
@@ -97,5 +101,37 @@ describe('contest entry flow state', () => {
     expect(getContestEntryProgressHref('week-1-qb-passing-yards', 'lineup')).toBe(
       '/contests/week-1-qb-passing-yards/progress?stage=lineup',
     );
+  });
+
+  it('shows an auth gate CTA for logged-out open contests', () => {
+    expect(
+      getContestDetailPrimaryAction({
+        contestId: 'week-1-qb-passing-yards',
+        hasEntry: false,
+        isContestOpen: true,
+        isAuthenticated: false,
+        isProfileComplete: false,
+      }),
+    ).toEqual({
+      label: 'Sign Up / Log In to Enter',
+      href: null,
+      disabled: false,
+    });
+  });
+
+  it('shows a profile-completion CTA for signed-in users without a username', () => {
+    expect(
+      getContestDetailPrimaryAction({
+        contestId: 'week-1-qb-passing-yards',
+        hasEntry: false,
+        isContestOpen: true,
+        isAuthenticated: true,
+        isProfileComplete: false,
+      }),
+    ).toEqual({
+      label: 'Complete Profile to Enter',
+      href: null,
+      disabled: false,
+    });
   });
 });

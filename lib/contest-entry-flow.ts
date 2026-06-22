@@ -130,15 +130,43 @@ export function getContestDetailPrimaryAction({
   contestId,
   hasEntry,
   isContestOpen,
+  isAuthenticated,
+  isProfileComplete,
 }: {
   contestId: string;
   hasEntry: boolean;
   isContestOpen: boolean;
+  isAuthenticated: boolean;
+  isProfileComplete: boolean;
 }) {
-  if (hasEntry) {
+  if (hasEntry && isAuthenticated) {
     return {
       label: isContestOpen ? 'Edit Lineup' : 'View Lineup',
       href: getContestEntryProgressHref(contestId, 'lineup'),
+      disabled: false,
+    };
+  }
+
+  if (!isContestOpen) {
+    return {
+      label: 'Contest Locked',
+      href: null,
+      disabled: true,
+    };
+  }
+
+  if (!isAuthenticated) {
+    return {
+      label: 'Sign Up / Log In to Enter',
+      href: null,
+      disabled: false,
+    };
+  }
+
+  if (!isProfileComplete) {
+    return {
+      label: 'Complete Profile to Enter',
+      href: null,
       disabled: false,
     };
   }
