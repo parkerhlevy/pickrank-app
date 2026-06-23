@@ -27,7 +27,7 @@ When a screenshot combines a good layout with incorrect product behavior, keep t
 
 | Area | Keep | Correct | Decision needed |
 |---|---|---|---|
-| App shell | Mobile-first app frame, clear page headers, restrained sports-tech tone, persistent bottom navigation. | Bottom nav should not expose admin routes. Keep current primary app routes aligned with repo docs. | Bottom nav is decided for now: Contests, Leaderboard, Wallet, Profile. Do not swap Wallet for How It Works; make How It Works highly accessible from major pages instead. |
+| App shell | Mobile-first app frame, clear page headers, restrained sports-tech tone, persistent bottom navigation. | Bottom nav should not expose admin routes. Keep current primary app routes aligned with repo docs. | Bottom nav is decided for now: Home, Contests, Leaderboard, Profile. Wallet remains a secondary route under Profile. Make How It Works highly accessible from major pages instead of the bottom nav. |
 | Contest cards | Strong card hierarchy, status badge, lock time, entry count, entry fee, prize pool or site-credit placeholder, primary CTA. | Avoid sportsbook-style emphasis, risk language, guaranteed-win framing, or unsupported contest states. Contest status must follow the repo lifecycle states. | Exact balance between light Figma treatment and darker Lovable energy remains a visual-direction decision. Recommended default is hybrid restraint. |
 | Contest detail | Back affordance, title/status area, stat row, entry fee, projected payouts, scoring summary, minimum entries, sticky CTA. | CTA logic must follow auth, eligibility, entry, and contest state rules. Do not skip payment review or imply entry exists before payment succeeds. | Whether to show projected payout values in early placeholder screens should be reviewed if it makes the UI feel like real-money production behavior. |
 | Lineup builder | Progress card, helper copy, ranked section, available-player section, sticky save area, disabled state before required picks are complete. | MVP is a 15-QB slate where users select and rank 10 QBs. Use `Save Lineup`, not `Review & Submit Entry`, unless the spec changes. Do not implement localStorage persistence as production behavior. | Final drag/drop interaction details can wait until lineup builder implementation, but the visual structure can be prototyped. |
@@ -135,7 +135,7 @@ Recommended terms:
 Allowed:
 
 - Mobile-first layout with a narrow readable content column.
-- Bottom navigation using the current app routes from `docs/agent-handoff.md`: Contests, Leaderboard, Wallet, Profile.
+- Bottom navigation using the current app routes from `docs/agent-handoff.md`: Home, Contests, Leaderboard, Profile.
 - Soft active states and simple icons if already supported by the app stack.
 
 Forbidden:
@@ -146,8 +146,8 @@ Forbidden:
 
 Decision note:
 
-- Bottom nav remains Contests, Leaderboard, Wallet, Profile for this pass.
-- Do not swap Wallet for How It Works.
+- Bottom nav remains Home, Contests, Leaderboard, Profile for this pass.
+- Do not swap Profile or Home out for How It Works.
 - Make How It Works highly accessible from major pages through links, help affordances, or contextual CTAs.
 
 ### Contest Cards
@@ -307,12 +307,12 @@ Important product constraints:
 - Make questionable product behavior visibly placeholder-only or omit it.
 
 Bottom navigation for the current implementation should remain:
+- Home
 - Contests
 - Leaderboard
-- Wallet
 - Profile
 
-Do not replace Wallet with How It Works in the bottom navigation. How It Works should remain highly accessible from major pages through links, help affordances, or contextual CTAs.
+Do not replace Home or Profile with How It Works in the bottom navigation. Wallet should remain available through Profile and its secondary route. How It Works should remain highly accessible from major pages through links, help affordances, or contextual CTAs.
 
 Screens should be implementation-ready for a Next.js + Tailwind + shadcn-style component pass, but should not require new frameworks or backend behavior.
 ```

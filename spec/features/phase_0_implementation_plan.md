@@ -220,9 +220,9 @@ Acceptance:
 Create bottom-tab navigation placeholders:
 
 ```text
+Home
 Contests
 Leaderboard
-How It Works
 Profile
 ```
 

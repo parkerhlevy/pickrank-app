@@ -115,7 +115,7 @@ The design direction is generally strong for the MVP shell:
 - Light background with card-based sections
 - Blue primary accent color
 - Soft status badges for Open, Live, and completed-style states
-- Bottom tab navigation with Contests, Leaderboard, Wallet, Profile
+- Bottom tab navigation with Home, Contests, Leaderboard, Profile
 - Clear hierarchy between page title, primary card content, and supporting metadata
 - Sports-tech feel without casino/sportsbook styling
 
@@ -125,10 +125,12 @@ The design direction is generally strong for the MVP shell:
 
 Keep the bottom nav pattern:
 
+- Home
 - Contests
 - Leaderboard
-- Wallet
 - Profile
+
+Wallet should remain available through Profile and `/wallet`, not as a bottom-nav item.
 
 The nav should remain simple and persistent across primary app routes.
 
@@ -368,7 +370,7 @@ Use the Figma V1 visual style to improve existing placeholder pages only:
 Definition of done:
 
 - Existing routes render with cleaner card-based placeholder UI
-- Bottom nav remains Contests, Leaderboard, Wallet, Profile
+- Bottom nav remains Home, Contests, Leaderboard, Profile
 - No new business logic is added
 - No real wallet/payment/auth/scoring behavior is implemented
 - `npm run typecheck` passes
@@ -399,7 +401,7 @@ Do not show live scoring or functional wallet actions.
 
 Definition of done:
 - Existing routes render cleanly with mobile-first card-based UI
-- Bottom nav remains Contests, Leaderboard, Wallet, Profile
+- Bottom nav remains Home, Contests, Leaderboard, Profile
 - Copy stays aligned with /spec
 - npm run typecheck passes
 - npm run test passes

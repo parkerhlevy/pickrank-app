@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Get the current Phase 0 PickRank app to a shareable cloud URL with the smallest safe path.
+Get PickRank to a shareable cloud URL with the smallest safe path, then finish the minimum Supabase auth setup needed for hosted sign-in.
 
 ## Recommended Path: Vercel
 
@@ -30,13 +30,16 @@ Vercel will:
    - Build command: `npm run build`
    - Install command: `npm install`
    - Output directory: leave blank/default
-8. For the first Phase 0 deploy, environment variables can be left blank because the current pages do not call Supabase at build time.
+8. Add the required frontend auth variables before testing sign-in:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `NEXT_PUBLIC_APP_URL`
 9. Click `Deploy`.
 10. When the deploy finishes, open the generated Vercel URL and confirm the PickRank homepage loads.
 
 ## Environment Variables
 
-The repo includes `.env.example` with the variables PickRank will need once Supabase-backed auth and data flows are active:
+The repo includes `.env.example` with the app-side variables PickRank needs once Supabase-backed auth and data flows are active:
 
 ```text
 NEXT_PUBLIC_SUPABASE_URL=
@@ -45,15 +48,48 @@ SUPABASE_SERVICE_ROLE_KEY=
 NEXT_PUBLIC_APP_URL=
 ```
 
-For Phase 0, these are not required for the placeholder app shell to build and load.
-
-Before implementing real auth, database reads, contest entries, wallet behavior, or admin tools, add the real Supabase values in Vercel under:
+Add the real values in Vercel under:
 
 ```text
 Project Settings -> Environment Variables
 ```
 
 Do not commit real secrets to the repo.
+
+## Supabase Hosted Auth Setup
+
+### Google Sign-In
+
+PickRank now expects Google to be the primary low-friction sign-in path.
+
+Configure this in Supabase:
+
+1. Open `Authentication -> Providers -> Google`.
+2. Turn on the Google provider.
+3. Create a Google OAuth web application in Google Cloud.
+4. In Google Cloud, add your app origins:
+   - `http://localhost:3000`
+   - your Vercel preview or production origin
+5. In Google Cloud, add the Supabase Google callback URL shown on the provider page.
+6. Paste the Google Client ID and Client Secret into Supabase and save.
+
+### Email Fallback With Custom SMTP
+
+PickRank keeps email magic link as a fallback, but Supabase's built-in sender is not production-safe.
+
+Configure this in Supabase:
+
+1. Choose a transactional email provider such as Resend, Postmark, SendGrid, or SES.
+2. Open `Authentication -> Emails -> SMTP Settings`.
+3. Turn on custom SMTP.
+4. Enter your SMTP host, port, user, password, sender email, and sender name.
+5. Save the settings.
+6. Open `Authentication -> Rate Limits` and raise the email send limit to match your expected usage.
+
+Business note:
+
+- Google removes sign-in dependence on auth emails for most users.
+- Custom SMTP keeps email fallback, recovery, and account management dependable in production.
 
 ## Replit Alternative
 
@@ -79,8 +115,10 @@ Before sending the link around, confirm:
 - `npm run build` passes
 - the homepage opens
 - `/contests`, `/leaderboard`, `/wallet`, `/profile`, `/how-it-works`, and `/auth` open
+- Google sign-in is enabled in Supabase
+- custom SMTP is enabled in Supabase if email fallback is meant to be live
 - no real payment, wallet, eligibility, or scoring behavior is implied as live
 
 ## Current Recommendation
 
-Deploy the current Phase 0 app to Vercel now. After the URL exists, use future small PRs for Phase 1 app shell and navigation improvements.
+Deploy to Vercel, configure Supabase hosted auth next, make Google the default login path, and keep email magic link only as a custom-SMTP-backed fallback.

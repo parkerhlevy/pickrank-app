@@ -95,10 +95,11 @@ Create the MVP frontend structure.
 ## Build
 
 - bottom tab navigation
+- Home tab
 - Contests tab
 - Leaderboard tab placeholder
-- How It Works tab
 - Profile tab
+- prominent How It Works access from major pages
 - base route structure
 - logged-out browsing state
 - loading/error/empty states
@@ -112,7 +113,7 @@ Create the MVP frontend structure.
 ## Done when
 
 - user can navigate between MVP tabs
-- logged-out user can access Contests and How It Works
+- logged-out user can access Home, Contests, and How It Works
 - Profile shows auth gate when logged out
 - screen routing matches MVP route map
 

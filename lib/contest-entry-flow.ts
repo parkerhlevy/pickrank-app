@@ -1,3 +1,5 @@
+import { buildAuthHref, buildProfileHref } from '@/lib/auth-profile';
+
 export const contestEntryStages = ['not-entered', 'payment-review', 'entered', 'lineup'] as const;
 export const contestEntryCookieName = 'pickrank_demo_entry_state';
 
@@ -129,11 +131,15 @@ export function getUpdatedContestEntryCookieValue({
 export function getContestDetailPrimaryAction({
   contestId,
   hasEntry,
+  isAuthenticated,
   isContestOpen,
+  isProfileComplete,
 }: {
   contestId: string;
   hasEntry: boolean;
+  isAuthenticated: boolean;
   isContestOpen: boolean;
+  isProfileComplete: boolean;
 }) {
   if (hasEntry) {
     return {
@@ -143,10 +149,36 @@ export function getContestDetailPrimaryAction({
     };
   }
 
+  if (!isContestOpen) {
+    return {
+      label: 'Contest Locked',
+      href: null,
+      disabled: true,
+    };
+  }
+
+  const next = getContestEntryProgressHref(contestId, 'payment-review');
+
+  if (!isAuthenticated) {
+    return {
+      label: 'Sign Up / Log In to Enter',
+      href: buildAuthHref(next),
+      disabled: false,
+    };
+  }
+
+  if (!isProfileComplete) {
+    return {
+      label: 'Complete Profile to Enter',
+      href: buildProfileHref(next),
+      disabled: false,
+    };
+  }
+
   if (isContestOpen) {
     return {
       label: 'Enter Contest - Review Payment',
-      href: getContestEntryProgressHref(contestId, 'payment-review'),
+      href: next,
       disabled: false,
     };
   }

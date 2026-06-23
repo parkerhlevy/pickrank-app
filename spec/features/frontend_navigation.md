@@ -7,7 +7,7 @@ Define the MVP app screen map, navigation structure, screen access rules, user f
 Locked for MVP direction.
 
 ## Anchor
-MVP frontend uses bottom-tab navigation for Contests, Leaderboard, How It Works, and Profile, supports logged-out browsing, requires auth and eligibility before paid entry, routes users through contest entry/payment before lineup access, separates lineup editing from results states, and exposes admin setup screens only internally.
+MVP frontend uses bottom-tab navigation for Home, Contests, Leaderboard, and Profile, keeps Wallet nested under Profile, keeps How It Works highly accessible through secondary links, supports logged-out browsing, requires auth and eligibility before paid entry, routes users through contest entry/payment before lineup access, separates lineup editing from results states, and exposes admin setup screens only internally.
 
 ---
 
@@ -37,9 +37,9 @@ Lobby
 MVP uses bottom navigation tabs:
 
 ```text
+Home
 Contests
 Leaderboard
-How It Works
 Profile
 ```
 
@@ -47,10 +47,12 @@ Profile
 
 | Tab | Public? | Auth Required? | Notes |
 |---|---:|---:|---|
+| Home | Yes | No | Landing shell and high-level entry point |
 | Contests | Yes | No | Logged-out users can browse |
 | Leaderboard | Partial | No for public/final boards, auth for user-centered context | MVP final leaderboards only |
-| How It Works | Yes | No | Education + rules |
 | Profile | No | Yes | Shows auth gate if logged out |
+
+How It Works remains a public education screen that should stay easy to reach from Home, Contests, Contest Detail, Wallet, and Auth, but it is not a bottom-nav tab in the current MVP shell.
 
 ---
 

@@ -82,13 +82,15 @@ Do not expose admin routes in the bottom navigation unless the product spec expl
 The bottom navigation currently includes:
 
 ```text
+Home
 Contests
 Leaderboard
-Wallet
 Profile
 ```
 
-`/how-it-works` exists, but it is not currently in the bottom nav.
+`/wallet` remains available as a secondary route under Profile.
+
+`/how-it-works` exists, but it is not currently in the bottom nav. Keep it easy to reach from major pages through links or contextual CTAs.
 
 ## Source of Truth
 

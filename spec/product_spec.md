@@ -94,10 +94,12 @@ See /spec/features/stat_finalization.md
 ---
 5. Navigation Structure
 Bottom navigation tabs:
+Home
 Contests
 Leaderboard
-How It Works
 Profile
+Wallet remains accessible through Profile and `/wallet`.
+How It Works remains a major education screen, but it is reached through prominent secondary links rather than the bottom nav.
 Detailed screen map:
 See /spec/features/frontend_navigation.md
 ---
