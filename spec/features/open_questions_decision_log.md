@@ -674,6 +674,19 @@ Contest demand/liquidity is understood.
 
 ---
 
+## Marketing plan
+
+### Current status
+To do.
+
+### Current direction
+Start with a basic public landing page, a simple sign-up path, and a short product video.
+
+### Revisit after
+The landing page is live and early interest feedback is available.
+
+---
+
 # Decision Log
 
 ## 2026-05-14/15 Product spec buildout

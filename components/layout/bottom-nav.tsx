@@ -15,6 +15,10 @@ const navItems = [
 export function BottomNav() {
   const pathname = usePathname();
 
+  if (pathname === '/') {
+    return null;
+  }
+
   return (
     <nav className="fixed inset-x-0 bottom-0 border-t border-slate-200 bg-white/95 shadow-[0_-10px_30px_rgba(15,23,42,0.08)] backdrop-blur">
       <div className="mx-auto grid max-w-md grid-cols-4 px-2 py-2.5">
