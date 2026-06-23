@@ -1,13 +1,9 @@
 import { createBrowserClient } from '@supabase/ssr';
+import { getBrowserSupabaseConfig } from '@/lib/env';
 import type { Database } from './types';
 
 export function createClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const { url, anonKey } = getBrowserSupabaseConfig();
 
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Missing Supabase browser environment variables. Check .env.local.');
-  }
-
-  return createBrowserClient<Database>(supabaseUrl, supabaseAnonKey);
+  return createBrowserClient<Database>(url, anonKey);
 }

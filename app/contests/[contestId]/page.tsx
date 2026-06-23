@@ -4,6 +4,7 @@ import { ArrowLeft, CheckCircle2, ChevronRight, Clock, DollarSign, ListOrdered, 
 import type { LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { getProfileIdentity } from '@/lib/auth-profile';
 import {
   getContestDetailPrimaryAction,
   contestEntryCookieName,
@@ -12,8 +13,10 @@ import {
   getContestEntrySteps,
   getPersistedContestEntryStage,
 } from '@/lib/contest-entry-flow';
+import { hasBrowserSupabaseConfig } from '@/lib/env';
 import { getPersistedContestEntry, persistedContestEntryCookieName } from '@/lib/persisted-contest-entry';
 import { demoLineupBuilderPlayers, getContestById, isContestOpenForEntry } from '@/lib/phase-0-demo';
+import { createClient } from '@/lib/supabase/server';
 
 export default async function ContestDetailPage({
   params,
@@ -23,6 +26,23 @@ export default async function ContestDetailPage({
   const { contestId } = await params;
   const contest = getContestById(contestId);
   const cookieStore = await cookies();
+  let isAuthenticated = false;
+  let isProfileComplete = false;
+
+  if (hasBrowserSupabaseConfig()) {
+    try {
+      const supabase = await createClient();
+      const { data } = await supabase.auth.getUser();
+      const identity = getProfileIdentity(data.user);
+
+      isAuthenticated = Boolean(data.user);
+      isProfileComplete = identity.isProfileComplete;
+    } catch {
+      isAuthenticated = false;
+      isProfileComplete = false;
+    }
+  }
+
   const stage = getPersistedContestEntryStage(
     contest.id,
     cookieStore.get(contestEntryCookieName)?.value,
@@ -38,7 +58,9 @@ export default async function ContestDetailPage({
   const primaryAction = getContestDetailPrimaryAction({
     contestId: contest.id,
     hasEntry,
+    isAuthenticated,
     isContestOpen: isContestOpenForEntry(contest),
+    isProfileComplete,
   });
   const flowSteps = getContestEntrySteps(stage);
 

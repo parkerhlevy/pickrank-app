@@ -20,7 +20,9 @@ describe('contest entry flow state', () => {
       getContestDetailPrimaryAction({
         contestId: 'week-1-qb-passing-yards',
         hasEntry: true,
+        isAuthenticated: true,
         isContestOpen: true,
+        isProfileComplete: true,
       }),
     ).toEqual({
       label: 'Edit Lineup',
@@ -34,7 +36,9 @@ describe('contest entry flow state', () => {
       getContestDetailPrimaryAction({
         contestId: 'week-1-qb-passing-yards',
         hasEntry: true,
+        isAuthenticated: true,
         isContestOpen: false,
+        isProfileComplete: true,
       }),
     ).toEqual({
       label: 'View Lineup',
@@ -88,6 +92,38 @@ describe('contest entry flow state', () => {
         stage: 'entered',
       }),
     ).toBe(JSON.stringify({ 'other-contest': 'lineup', 'week-1-qb-passing-yards': 'entered' }));
+  });
+
+  it('routes logged-out users into auth before payment review', () => {
+    expect(
+      getContestDetailPrimaryAction({
+        contestId: 'week-1-qb-passing-yards',
+        hasEntry: false,
+        isAuthenticated: false,
+        isContestOpen: true,
+        isProfileComplete: false,
+      }),
+    ).toEqual({
+      label: 'Sign Up / Log In to Enter',
+      href: '/auth?next=%2Fcontests%2Fweek-1-qb-passing-yards%2Fprogress%3Fstage%3Dpayment-review',
+      disabled: false,
+    });
+  });
+
+  it('routes signed-in users without usernames into profile completion', () => {
+    expect(
+      getContestDetailPrimaryAction({
+        contestId: 'week-1-qb-passing-yards',
+        hasEntry: false,
+        isAuthenticated: true,
+        isContestOpen: true,
+        isProfileComplete: false,
+      }),
+    ).toEqual({
+      label: 'Complete Profile to Enter',
+      href: '/profile?next=%2Fcontests%2Fweek-1-qb-passing-yards%2Fprogress%3Fstage%3Dpayment-review',
+      disabled: false,
+    });
   });
 
   it('builds clean canonical and progress routes', () => {
