@@ -8,10 +8,6 @@ import { getProfileIdentity } from '@/lib/auth-profile';
 import {
   getContestDetailPrimaryAction,
   contestEntryCookieName,
-  getContestEntryProgressHref,
-  getContestEntryStateCopy,
-  getContestEntrySteps,
-  getPersistedContestEntryStage,
 } from '@/lib/contest-entry-flow';
 import { hasBrowserSupabaseConfig } from '@/lib/env';
 import { getPersistedContestEntry, persistedContestEntryCookieName } from '@/lib/persisted-contest-entry';
@@ -43,10 +39,6 @@ export default async function ContestDetailPage({
     }
   }
 
-  const stage = getPersistedContestEntryStage(
-    contest.id,
-    cookieStore.get(contestEntryCookieName)?.value,
-  );
   const hasEntry = Boolean(
     getPersistedContestEntry(
       contest.id,
@@ -54,7 +46,6 @@ export default async function ContestDetailPage({
       demoLineupBuilderPlayers,
     ),
   );
-  const stateCopy = getContestEntryStateCopy(stage);
   const primaryAction = getContestDetailPrimaryAction({
     contestId: contest.id,
     hasEntry,
@@ -62,7 +53,6 @@ export default async function ContestDetailPage({
     isContestOpen: isContestOpenForEntry(contest),
     isProfileComplete,
   });
-  const flowSteps = getContestEntrySteps(stage);
 
   return (
     <div className="space-y-5">
@@ -88,9 +78,6 @@ export default async function ContestDetailPage({
       <Card className="overflow-hidden">
         <CardHeader className="bg-slate-950 py-4 text-white">
           <CardTitle className="text-base">Contest Details</CardTitle>
-          <CardDescription className="text-xs text-slate-300">
-            Public overview with single-entry MVP flow guidance.
-          </CardDescription>
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-2 pt-4 text-sm">
           <DetailStat icon={DollarSign} label="Prize Pool" value={contest.prizePool} />
@@ -105,44 +92,59 @@ export default async function ContestDetailPage({
 
       <Card>
         <CardHeader>
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <CardTitle>{stateCopy.title}</CardTitle>
-              <CardDescription>{stateCopy.description}</CardDescription>
-            </div>
-            <span className="status-pill shrink-0">{stateCopy.badge}</span>
-          </div>
+          <CardTitle>How It Works</CardTitle>
+          <CardDescription>Keep it simple: log in, pay the entry fee, build your lineup, then compete for the top spot.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          {flowSteps.map((step) => (
-            <div key={step.key} className="rounded-lg border bg-white px-3 py-3 text-sm">
-              <div className="flex items-center justify-between gap-3">
-                <span className="font-medium">
-                  Step {step.stepNumber}: {step.label}
-                </span>
-                <span
-                  className={
-                    step.status === 'current'
-                      ? 'font-bold text-primary'
-                      : step.status === 'complete'
-                        ? 'text-emerald-700'
-                        : 'text-muted-foreground'
-                  }
-                >
-                  {step.status === 'current' ? 'Current' : step.status === 'complete' ? 'Complete' : 'Next'}
-                </span>
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">{step.summary}</p>
+          {[
+            'Log in or create your account.',
+            'Pick your contest and pay the entry fee.',
+            'Build your lineup before the deadline.',
+            'Compete for the best scores and the top payouts.',
+          ].map((step, index) => (
+            <div key={step} className="rounded-lg border bg-white px-3 py-3 text-sm">
+              <p className="font-medium">Step {index + 1}</p>
+              <p className="mt-1 text-muted-foreground">{step}</p>
             </div>
           ))}
-          <div className="rounded-lg bg-slate-100 p-3 text-sm text-muted-foreground">
-            The lineup builder stays behind entry confirmation so the contest overview, payment handoff, and edit state each have a clear job.
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <CardTitle>Build Your Lineup</CardTitle>
+              <CardDescription>You will see 15 quarterbacks. Pick the 10 you believe will finish highest in passing yards.</CardDescription>
+            </div>
+            <span className="status-pill shrink-0">
+              <Lock className="mr-1 h-3 w-3" aria-hidden="true" />
+              Entry Required
+            </span>
           </div>
-          {stage !== 'not-entered' ? (
-            <Button asChild variant="ghost" className="w-full">
-              <Link href={getContestEntryProgressHref(contest.id, 'not-entered')}>Reset Placeholder Flow</Link>
-            </Button>
-          ) : null}
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="soft-panel space-y-3 text-sm">
+            <p className="font-medium">How to build your lineup</p>
+            <p className="text-muted-foreground">
+              Start by choosing the 10 quarterbacks you want in your lineup. Then drag and drop them into order, from the quarterback you trust most down to number 10.
+            </p>
+          </div>
+          <div className="space-y-2">
+            {[
+              'Start with a 15-quarterback slate.',
+              'Pick the 10 quarterbacks you want in your lineup.',
+              'Drag and drop them into your final order before the deadline.',
+            ].map((step) => (
+              <div key={step} className="flex items-center justify-between rounded-lg border bg-white px-3 py-2 text-sm">
+                <span className="font-medium">{step}</span>
+                <ChevronRight className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Once the deadline hits, your lineup is locked and can no longer be changed.
+          </p>
         </CardContent>
       </Card>
 
@@ -165,60 +167,21 @@ export default async function ContestDetailPage({
         <CardHeader>
           <CardTitle>Scoring Summary</CardTitle>
           <CardDescription>
-            {contest.slate}. Rank differential compares each saved spot against the official final rank.
+            Rank the top 10 quarterbacks as close to their real finish as possible.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <div className="flex items-start gap-2">
             <CheckCircle2 className="mt-0.5 h-4 w-4 text-primary" aria-hidden="true" />
-            <p>Select and rank your top 10 quarterbacks by {contest.statCategory.toLowerCase()}.</p>
+            <p>Pick the 10 quarterbacks you think will finish highest in {contest.statCategory.toLowerCase()} and rank them accordingly.</p>
           </div>
           <div className="flex items-start gap-2">
             <ListOrdered className="mt-0.5 h-4 w-4 text-primary" aria-hidden="true" />
-            <p>Your score is based on rank differential against the official final stat ranking. Lower is better.</p>
+            <p>Your goal is the lowest score possible. You get points for how far off your rankings are compared with the real results.</p>
           </div>
-          <p className="rounded-lg bg-slate-100 p-3 text-muted-foreground">Results appear only after final stat review in a future phase.</p>
           <Button asChild variant="secondary" className="w-full">
             <Link href="/how-it-works#rank-differential-example">See Scoring Example</Link>
           </Button>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <CardTitle>Build Your Lineup</CardTitle>
-              <CardDescription>Lineup editing happens on a separate screen after Payment Review and Entry Success.</CardDescription>
-            </div>
-            <span className="status-pill shrink-0">
-              <Lock className="mr-1 h-3 w-3" aria-hidden="true" />
-              Entry Required
-            </span>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="soft-panel space-y-3 text-sm">
-            <p className="font-medium">Why this flow is separated</p>
-            <p className="text-muted-foreground">
-              Contest Detail explains the contest. Payment Review confirms the fee breakdown. Entry Success hands off into one dedicated lineup screen tied to the current entry.
-            </p>
-          </div>
-          <div className="space-y-2">
-            {[
-              'Step 2: Review the payment breakdown',
-              'Step 3: Confirm the entry success handoff',
-              'Step 4: Open the dedicated Build Your Lineup screen',
-            ].map((step) => (
-              <div key={step} className="flex items-center justify-between rounded-lg border bg-white px-3 py-2 text-sm">
-                <span className="font-medium">{step}</span>
-                <ChevronRight className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-              </div>
-            ))}
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Once you have an entry, the primary button changes from entering the contest to editing or viewing that lineup depending on lock state.
-          </p>
         </CardContent>
       </Card>
 

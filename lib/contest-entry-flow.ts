@@ -206,7 +206,7 @@ export function getContestDetailPrimaryAction({
 
   if (isContestOpen) {
     return {
-      label: 'Enter Contest - Review Payment',
+      label: 'Click to Pay and Enter',
       href: next,
       disabled: false,
     };

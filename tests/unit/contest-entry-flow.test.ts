@@ -127,6 +127,22 @@ describe('contest entry flow state', () => {
     });
   });
 
+  it('uses the pay-and-enter CTA for signed-in users who have not entered yet', () => {
+    expect(
+      getContestDetailPrimaryAction({
+        contestId: 'week-1-qb-passing-yards',
+        hasEntry: false,
+        isAuthenticated: true,
+        isContestOpen: true,
+        isProfileComplete: true,
+      }),
+    ).toEqual({
+      label: 'Click to Pay and Enter',
+      href: '/contests/week-1-qb-passing-yards/progress?stage=payment-review',
+      disabled: false,
+    });
+  });
+
   it('builds clean canonical and progress routes', () => {
     expect(getContestEntryHref('week-1-qb-passing-yards', 'payment-review')).toBe(
       '/contests/week-1-qb-passing-yards/payment',
