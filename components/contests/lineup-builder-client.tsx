@@ -311,7 +311,7 @@ export function LineupBuilderClient({
             <span className="status-pill">{contest.entryFee} Entry</span>
           </div>
           <p className="text-muted-foreground">
-            Save one lineup for your single contest entry. This screen now loads the saved order from the current entry record.
+            Step 4 is where lineup editing actually happens. Save one lineup for your single contest entry until lock.
           </p>
         </div>
 
@@ -363,19 +363,24 @@ export function LineupBuilderClient({
           </CardHeader>
           <CardContent className="space-y-2">
             {flowSteps.map((step) => (
-              <div key={step.key} className="flex items-center justify-between rounded-lg border bg-white px-3 py-2 text-sm">
-                <span className="font-medium">{step.label}</span>
-                <span
-                  className={
-                    step.status === 'current'
-                      ? 'font-bold text-primary'
-                      : step.status === 'complete'
-                        ? 'text-emerald-700'
-                        : 'text-muted-foreground'
-                  }
-                >
-                  {step.status === 'current' ? 'Current' : step.status === 'complete' ? 'Complete' : 'Next'}
-                </span>
+              <div key={step.key} className="rounded-lg border bg-white px-3 py-3 text-sm">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="font-medium">
+                    Step {step.stepNumber}: {step.label}
+                  </span>
+                  <span
+                    className={
+                      step.status === 'current'
+                        ? 'font-bold text-primary'
+                        : step.status === 'complete'
+                          ? 'text-emerald-700'
+                          : 'text-muted-foreground'
+                    }
+                  >
+                    {step.status === 'current' ? 'Current' : step.status === 'complete' ? 'Complete' : 'Next'}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">{step.summary}</p>
               </div>
             ))}
           </CardContent>
@@ -402,10 +407,10 @@ export function LineupBuilderClient({
               </div>
             </div>
             <div className="soft-panel text-sm">
-              <p className="font-medium">First-time hint</p>
+              <p className="font-medium">{isEditable ? 'Before you save' : 'Saved lineup status'}</p>
               <p className="text-muted-foreground">
                 {isEditable
-                  ? 'Press and hold the drag handle to move players into your rankings, then use Save Lineup to keep that order on your entry.'
+                  ? 'Press and hold the drag handle to move players into your rankings, then use Save Lineup to keep that order on your current entry.'
                   : 'This lineup reflects the saved order on your entry when the contest locked.'}
               </p>
             </div>

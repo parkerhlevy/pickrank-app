@@ -12,6 +12,12 @@ type ContestEntryStateCopy = {
   description: string;
 };
 
+type ContestEntryStepCopy = {
+  key: ContestEntryStage;
+  label: string;
+  summary: string;
+};
+
 const routeStageMap: Record<ContestEntryRoute, ContestEntryStage> = {
   detail: 'not-entered',
   payment: 'payment-review',
@@ -21,26 +27,49 @@ const routeStageMap: Record<ContestEntryRoute, ContestEntryStage> = {
 
 const stageCopyMap: Record<ContestEntryStage, ContestEntryStateCopy> = {
   'not-entered': {
-    badge: 'Not Entered',
-    title: 'Start your single-entry flow',
-    description: 'Review the contest first, then move into payment review before any confirmed entry or lineup access.',
+    badge: 'Step 1 of 4',
+    title: 'Review the contest before you enter',
+    description: 'Start on Contest Detail, then move forward into Payment Review, Entry Success, and Build Your Lineup.',
   },
   'payment-review': {
-    badge: 'Payment Review',
-    title: 'Finish the review step',
-    description: 'This stage previews how the single entry would be funded before the success handoff and lineup builder.',
+    badge: 'Step 2 of 4',
+    title: 'Confirm the payment review details',
+    description: 'See how this entry would be covered before the entry handoff and the dedicated lineup screen.',
   },
   entered: {
-    badge: 'Entered',
-    title: 'Entry confirmed state',
-    description: 'This is the handoff moment after payment review. The next step is the separate Build Your Lineup screen.',
+    badge: 'Step 3 of 4',
+    title: 'Your entry is ready for lineup work',
+    description: 'The entry handoff is complete. The next step is Build Your Lineup on its own screen.',
   },
   lineup: {
-    badge: 'Lineup Stage',
-    title: 'Ready to edit your lineup',
-    description: 'The contest detail page now treats lineup work as its own stage instead of an inline extension of contest entry.',
+    badge: 'Step 4 of 4',
+    title: 'Build and save your lineup',
+    description: 'This is the dedicated lineup screen for the current entry. Save changes here until the contest locks.',
   },
 };
+
+const contestEntryStepCopy: ContestEntryStepCopy[] = [
+  {
+    key: 'not-entered',
+    label: 'Contest Detail',
+    summary: 'Review the contest, timing, and single-entry rules before moving ahead.',
+  },
+  {
+    key: 'payment-review',
+    label: 'Payment Review',
+    summary: 'Check the placeholder fee breakdown and confirm the entry handoff.',
+  },
+  {
+    key: 'entered',
+    label: 'Entry Success',
+    summary: 'See that your entry is in place and head to the lineup screen.',
+  },
+  {
+    key: 'lineup',
+    label: 'Build Your Lineup',
+    summary: 'Rank players and save your order until lock.',
+  },
+];
 
 export function getContestEntryStage(
   entryParam: string | string[] | undefined,
@@ -193,16 +222,12 @@ export function getContestDetailPrimaryAction({
 export function getContestEntrySteps(stage: ContestEntryStage) {
   const currentStageIndex = contestEntryStages.indexOf(stage);
 
-  return [
-    { key: 'not-entered', label: 'Contest Detail', hrefStage: 'not-entered' },
-    { key: 'payment-review', label: 'Payment Review', hrefStage: 'payment-review' },
-    { key: 'entered', label: 'Entry Success', hrefStage: 'entered' },
-    { key: 'lineup', label: 'Build Your Lineup', hrefStage: 'lineup' },
-  ].map((step) => {
-    const stepIndex = contestEntryStages.indexOf(step.hrefStage as ContestEntryStage);
+  return contestEntryStepCopy.map((step, index) => {
+    const stepIndex = contestEntryStages.indexOf(step.key);
 
     return {
       ...step,
+      stepNumber: index + 1,
       status: stepIndex < currentStageIndex ? 'complete' : stepIndex === currentStageIndex ? 'current' : 'upcoming',
     };
   });

@@ -1,7 +1,7 @@
 import { ShieldCheck, UserCircle, WalletCards } from 'lucide-react';
 import Link from 'next/link';
 import { signOut } from '@/app/auth/actions';
-import { buildAuthHref, defaultReturnPath, normalizeReturnPath, getProfileIdentity } from '@/lib/auth-profile';
+import { buildAuthHref, defaultReturnPath, getProfileIdentity, getReturnStepCopy, normalizeReturnPath } from '@/lib/auth-profile';
 import { getMissingBrowserSupabaseKeys, hasBrowserSupabaseConfig } from '@/lib/env';
 import { createClient } from '@/lib/supabase/server';
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,7 @@ type ProfilePageProps = {
 export default async function ProfilePage({ searchParams }: ProfilePageProps) {
   const resolvedSearchParams = (await searchParams) || {};
   const next = normalizeReturnPath(resolvedSearchParams.next, defaultReturnPath);
+  const returnStep = getReturnStepCopy(next);
   const authConfigured = hasBrowserSupabaseConfig();
   const missingKeys = getMissingBrowserSupabaseKeys();
   const status = resolvedSearchParams.status;
@@ -49,6 +50,31 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         </div>
         <p className="text-muted-foreground">Complete the minimum account identity step here before contest-entry flows expand further.</p>
       </section>
+
+      {next !== defaultReturnPath ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>One Quick Step Left</CardTitle>
+            <CardDescription>
+              Save a public username here, then continue to {returnStep.detail}.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm text-muted-foreground">
+            <div className="flex items-center justify-between rounded-lg border bg-white px-3 py-2">
+              <span>Signed in</span>
+              <span className="text-emerald-700">Complete</span>
+            </div>
+            <div className="flex items-center justify-between rounded-lg border bg-slate-50 px-3 py-2">
+              <span>Choose public username</span>
+              <span className="font-medium text-foreground">Current</span>
+            </div>
+            <div className="flex items-center justify-between rounded-lg border bg-slate-50 px-3 py-2">
+              <span>Resume saved contest step</span>
+              <span>{returnStep.shortLabel}</span>
+            </div>
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Card className="overflow-hidden">
         <CardHeader className="bg-slate-950 text-white">
@@ -85,7 +111,9 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           ) : null}
           {authConfigured && !user ? (
             <Button asChild className="w-full">
-              <Link href={buildAuthHref(next)}>Create Account or Log In</Link>
+              <Link href={buildAuthHref(next)}>
+                {next !== defaultReturnPath ? 'Create Account or Log In to Continue' : 'Create Account or Log In'}
+              </Link>
             </Button>
           ) : null}
           {user ? (
@@ -115,7 +143,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
               </div>
               {next !== defaultReturnPath ? (
                 <Button asChild className="w-full">
-                  <Link href={next}>Continue to Contest Entry</Link>
+                  <Link href={next}>{returnStep.actionLabel}</Link>
                 </Button>
               ) : null}
             </CardContent>
@@ -124,7 +152,9 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           <Card>
             <CardHeader>
               <CardTitle>Complete Your Profile</CardTitle>
-              <CardDescription>Add a public username before returning to contest entry.</CardDescription>
+              <CardDescription>
+                Add a public username before returning to {returnStep.shortLabel.toLowerCase()}.
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <form className="space-y-3" action={completeProfile}>
@@ -141,6 +171,11 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                 <p className="text-sm text-muted-foreground">
                   Use 3-20 lowercase letters, numbers, or underscores. This is the public name shown for your account.
                 </p>
+                {next !== defaultReturnPath ? (
+                  <div className="rounded-lg border bg-slate-50 px-3 py-3 text-sm text-muted-foreground">
+                    After you save, PickRank will send you straight to {returnStep.detail}.
+                  </div>
+                ) : null}
                 <input type="hidden" name="next" value={next} />
                 <Button className="w-full" type="submit">
                   Save Username

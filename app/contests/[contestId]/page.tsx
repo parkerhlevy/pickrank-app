@@ -115,21 +115,29 @@ export default async function ContestDetailPage({
         </CardHeader>
         <CardContent className="space-y-3">
           {flowSteps.map((step) => (
-            <div key={step.key} className="flex items-center justify-between rounded-lg border bg-white px-3 py-2 text-sm">
-              <span className="font-medium">{step.label}</span>
-              <span
-                className={
-                  step.status === 'current'
-                    ? 'font-bold text-primary'
-                    : step.status === 'complete'
-                      ? 'text-emerald-700'
-                      : 'text-muted-foreground'
-                }
-              >
-                {step.status === 'current' ? 'Current' : step.status === 'complete' ? 'Complete' : 'Next'}
-              </span>
+            <div key={step.key} className="rounded-lg border bg-white px-3 py-3 text-sm">
+              <div className="flex items-center justify-between gap-3">
+                <span className="font-medium">
+                  Step {step.stepNumber}: {step.label}
+                </span>
+                <span
+                  className={
+                    step.status === 'current'
+                      ? 'font-bold text-primary'
+                      : step.status === 'complete'
+                        ? 'text-emerald-700'
+                        : 'text-muted-foreground'
+                  }
+                >
+                  {step.status === 'current' ? 'Current' : step.status === 'complete' ? 'Complete' : 'Next'}
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">{step.summary}</p>
             </div>
           ))}
+          <div className="rounded-lg bg-slate-100 p-3 text-sm text-muted-foreground">
+            The lineup builder stays behind entry confirmation so the contest overview, payment handoff, and edit state each have a clear job.
+          </div>
           {stage !== 'not-entered' ? (
             <Button asChild variant="ghost" className="w-full">
               <Link href={getContestEntryProgressHref(contest.id, 'not-entered')}>Reset Placeholder Flow</Link>
@@ -181,7 +189,7 @@ export default async function ContestDetailPage({
           <div className="flex items-start justify-between gap-3">
             <div>
               <CardTitle>Build Your Lineup</CardTitle>
-              <CardDescription>Lineup editing happens on a separate screen after payment review and the entry success step.</CardDescription>
+              <CardDescription>Lineup editing happens on a separate screen after Payment Review and Entry Success.</CardDescription>
             </div>
             <span className="status-pill shrink-0">
               <Lock className="mr-1 h-3 w-3" aria-hidden="true" />
@@ -191,16 +199,16 @@ export default async function ContestDetailPage({
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="soft-panel space-y-3 text-sm">
-            <p className="font-medium">Single-entry flow</p>
+            <p className="font-medium">Why this flow is separated</p>
             <p className="text-muted-foreground">
-              Contest detail now points into one current entry record and a dedicated lineup screen instead of showing the builder inline.
+              Contest Detail explains the contest. Payment Review confirms the fee breakdown. Entry Success hands off into one dedicated lineup screen tied to the current entry.
             </p>
           </div>
           <div className="space-y-2">
             {[
-              'Review payment breakdown',
-              'See the visual-only entry success state',
-              'Open the dedicated Build Your Lineup screen',
+              'Step 2: Review the payment breakdown',
+              'Step 3: Confirm the entry success handoff',
+              'Step 4: Open the dedicated Build Your Lineup screen',
             ].map((step) => (
               <div key={step} className="flex items-center justify-between rounded-lg border bg-white px-3 py-2 text-sm">
                 <span className="font-medium">{step}</span>
@@ -209,7 +217,7 @@ export default async function ContestDetailPage({
             ))}
           </div>
           <p className="text-xs text-muted-foreground">
-            New lineup saves are blocked after lock. Existing entries can still open a read-only lineup view once the contest is no longer editable.
+            Once you have an entry, the primary button changes from entering the contest to editing or viewing that lineup depending on lock state.
           </p>
         </CardContent>
       </Card>

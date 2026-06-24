@@ -1,11 +1,10 @@
 import Link from 'next/link';
-import { headers } from 'next/headers';
-import { Globe, Mail, Shield } from 'lucide-react';
+import { ArrowRight, Globe, Mail, Shield } from 'lucide-react';
 import { EmailSignInForm } from '@/components/auth/email-sign-in-form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { defaultReturnPath, normalizeReturnPath } from '@/lib/auth-profile';
-import { getAppUrl, getMissingBrowserSupabaseKeys, getRequestOrigin, hasBrowserSupabaseConfig } from '@/lib/env';
+import { defaultReturnPath, getReturnStepCopy, normalizeReturnPath } from '@/lib/auth-profile';
+import { getMissingBrowserSupabaseKeys, hasBrowserSupabaseConfig } from '@/lib/env';
 import { requestGoogleSignIn, requestMagicLink } from './actions';
 
 type AuthPageProps = {
@@ -18,9 +17,8 @@ type AuthPageProps = {
 
 export default async function AuthPage({ searchParams }: AuthPageProps) {
   const resolvedSearchParams = (await searchParams) || {};
-  const requestHeaders = await headers();
-  const requestOrigin = getRequestOrigin(requestHeaders, getAppUrl());
   const next = normalizeReturnPath(resolvedSearchParams.next, defaultReturnPath);
+  const returnStep = getReturnStepCopy(next);
   const authConfigured = hasBrowserSupabaseConfig();
   const missingKeys = getMissingBrowserSupabaseKeys();
   const status = resolvedSearchParams.status;
@@ -31,8 +29,35 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
       <section className="screen-header space-y-2">
         <p className="eyebrow">Auth</p>
         <h1 className="text-3xl font-black leading-tight">Account Access Preview</h1>
-        <p className="text-muted-foreground">Placeholder-safe Phase 1 foundation for sign-in, profile completion, and contest-entry return paths.</p>
+        <p className="text-muted-foreground">
+          {returnStep.isContestFlow
+            ? `Sign in now, finish one quick username step if needed, and then resume ${returnStep.shortLabel.toLowerCase()}.`
+            : 'Placeholder-safe Phase 1 foundation for sign-in, profile completion, and clear return paths.'}
+        </p>
       </section>
+
+      {next !== defaultReturnPath ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>You&apos;re Resuming</CardTitle>
+            <CardDescription>{returnStep.detail}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm text-muted-foreground">
+            <div className="flex items-center justify-between rounded-lg border bg-white px-3 py-2">
+              <span>1. Sign in</span>
+              <span className="font-medium text-foreground">Current</span>
+            </div>
+            <div className="flex items-center justify-between rounded-lg border bg-slate-50 px-3 py-2">
+              <span>2. Save username if this is a new account</span>
+              <span>Next if needed</span>
+            </div>
+            <div className="flex items-center justify-between rounded-lg border bg-slate-50 px-3 py-2">
+              <span>3. Resume your saved step</span>
+              <span>{returnStep.shortLabel}</span>
+            </div>
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Card className="overflow-hidden">
         <CardHeader className="bg-slate-950 text-white">
@@ -49,7 +74,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
         <CardContent className="space-y-3 pt-5">
           {status === 'check-email' ? (
             <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-3 text-sm text-emerald-900">
-              Check your email for the PickRank sign-in link.
+              Check your email for the PickRank sign-in link. After sign-in, you&apos;ll resume {returnStep.shortLabel.toLowerCase()}.
             </div>
           ) : null}
           {status === 'signed-out' ? (
@@ -70,13 +95,11 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
                   Continue with Google
                 </Button>
               </form>
-              <p className="text-sm text-muted-foreground">
-                Redirect target: <span className="font-medium text-foreground">{requestOrigin}/auth/callback</span>
-              </p>
               {next !== defaultReturnPath ? (
-                <p className="text-sm text-muted-foreground">
-                  After sign-in: <span className="font-medium text-foreground">{next}</span>
-                </p>
+                <div className="rounded-lg border bg-slate-50 px-3 py-3 text-sm text-muted-foreground">
+                  <p className="font-medium text-foreground">After sign-in</p>
+                  <p>You&apos;ll go to {returnStep.detail}.</p>
+                </div>
               ) : null}
             </>
           ) : (
@@ -131,8 +154,14 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
           <p>Future paid contests require a verified account, eligibility checks, and payment review before entry creation.</p>
-          <div className="rounded-lg border bg-white px-3 py-3">New users complete a username step after sign-in before returning to contest entry.</div>
+          <div className="rounded-lg border bg-white px-3 py-3">New users complete a username step after sign-in before returning to the saved contest step.</div>
           <div className="rounded-lg border bg-slate-50 px-3 py-3">Google is the fast path. Email remains the fallback once custom SMTP is configured in Supabase.</div>
+          {next !== defaultReturnPath ? (
+            <div className="flex items-center gap-2 rounded-lg border bg-slate-50 px-3 py-3 text-foreground">
+              <ArrowRight className="h-4 w-4 text-primary" aria-hidden="true" />
+              <span>{returnStep.actionLabel}</span>
+            </div>
+          ) : null}
           <Button asChild variant="secondary" className="w-full">
             <Link href="/how-it-works">Review How It Works</Link>
           </Button>

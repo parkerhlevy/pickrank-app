@@ -5,6 +5,7 @@ import {
   getContestEntryProgressHref,
   getContestEntryRouteState,
   getContestEntryStage,
+  getContestEntrySteps,
   getPersistedContestEntryStage,
   getUpdatedContestEntryCookieValue,
 } from '../../lib/contest-entry-flow';
@@ -133,5 +134,38 @@ describe('contest entry flow state', () => {
     expect(getContestEntryProgressHref('week-1-qb-passing-yards', 'lineup')).toBe(
       '/contests/week-1-qb-passing-yards/progress?stage=lineup',
     );
+  });
+
+  it('returns numbered step copy for the full contest-entry sequence', () => {
+    expect(getContestEntrySteps('payment-review')).toEqual([
+      {
+        key: 'not-entered',
+        label: 'Contest Detail',
+        summary: 'Review the contest, timing, and single-entry rules before moving ahead.',
+        stepNumber: 1,
+        status: 'complete',
+      },
+      {
+        key: 'payment-review',
+        label: 'Payment Review',
+        summary: 'Check the placeholder fee breakdown and confirm the entry handoff.',
+        stepNumber: 2,
+        status: 'current',
+      },
+      {
+        key: 'entered',
+        label: 'Entry Success',
+        summary: 'See that your entry is in place and head to the lineup screen.',
+        stepNumber: 3,
+        status: 'upcoming',
+      },
+      {
+        key: 'lineup',
+        label: 'Build Your Lineup',
+        summary: 'Rank players and save your order until lock.',
+        stepNumber: 4,
+        status: 'upcoming',
+      },
+    ]);
   });
 });

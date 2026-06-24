@@ -1,9 +1,85 @@
 import { expect, test } from '@playwright/test';
 
-test('lineup builder saves through the current entry and persists after reload', async ({ page }) => {
-  await page.goto('http://localhost:3000/contests/week-1-qb-passing-yards/progress?stage=lineup');
+test('entry screens reinforce the four-step handoff into the lineup builder', async ({ page }) => {
+  await page.context().addCookies([
+    {
+      name: 'pickrank_demo_entry_state',
+      value: JSON.stringify({ 'week-1-qb-passing-yards': 'payment-review' }),
+      url: 'http://localhost:3000',
+    },
+  ]);
 
-  await expect(page).toHaveURL('http://localhost:3000/contests/week-1-qb-passing-yards/lineup');
+  await page.goto('http://localhost:3000/contests/week-1-qb-passing-yards/payment');
+  await expect(page.getByText('Step 2 of 4')).toBeVisible();
+  await expect(page.getByText('Step 2: Payment Review')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Confirm Entry Review' })).toBeVisible();
+
+  await page.context().addCookies([
+    {
+      name: 'pickrank_demo_entry_state',
+      value: JSON.stringify({ 'week-1-qb-passing-yards': 'entered' }),
+      url: 'http://localhost:3000',
+    },
+    {
+      name: 'pickrank_demo_entry_data',
+      value: JSON.stringify({
+        'week-1-qb-passing-yards': {
+          entryId: 'demo-entry-open',
+          contestId: 'week-1-qb-passing-yards',
+          lineupOrder: ['Josh Allen', 'Joe Burrow', 'Derek Carr', 'Kirk Cousins', 'Justin Herbert', 'Jalen Hurts', 'Lamar Jackson', 'Jordan Love', 'Dak Prescott', 'Brock Purdy'],
+          lastSavedAt: null,
+          source: 'default',
+          createdAt: '2026-06-22T00:00:00.000Z',
+          updatedAt: '2026-06-22T00:00:00.000Z',
+        },
+      }),
+      url: 'http://localhost:3000',
+    },
+  ]);
+
+  await page.goto('http://localhost:3000/contests/week-1-qb-passing-yards/success');
+  await expect(page.getByText('Step 3 of 4')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Continue to Build Your Lineup' })).toBeVisible();
+
+  await page.context().addCookies([
+    {
+      name: 'pickrank_demo_entry_state',
+      value: JSON.stringify({ 'week-1-qb-passing-yards': 'lineup' }),
+      url: 'http://localhost:3000',
+    },
+  ]);
+
+  await page.goto('http://localhost:3000/contests/week-1-qb-passing-yards/lineup');
+  await expect(page.getByText('Step 4 of 4')).toBeVisible();
+  await expect(page.getByText('Step 4: Build Your Lineup')).toBeVisible();
+});
+
+test('lineup builder saves through the current entry and persists after reload', async ({ page }) => {
+  await page.context().addCookies([
+    {
+      name: 'pickrank_demo_entry_state',
+      value: JSON.stringify({ 'week-1-qb-passing-yards': 'lineup' }),
+      url: 'http://localhost:3000',
+    },
+    {
+      name: 'pickrank_demo_entry_data',
+      value: JSON.stringify({
+        'week-1-qb-passing-yards': {
+          entryId: 'demo-entry-open',
+          contestId: 'week-1-qb-passing-yards',
+          lineupOrder: ['Josh Allen', 'Joe Burrow', 'Derek Carr', 'Kirk Cousins', 'Justin Herbert', 'Jalen Hurts', 'Lamar Jackson', 'Jordan Love', 'Dak Prescott', 'Brock Purdy'],
+          lastSavedAt: null,
+          source: 'default_assigned',
+          createdAt: '2026-06-22T00:00:00.000Z',
+          updatedAt: '2026-06-22T00:00:00.000Z',
+        },
+      }),
+      url: 'http://localhost:3000',
+    },
+  ]);
+
+  await page.goto('http://localhost:3000/contests/week-1-qb-passing-yards/lineup');
+
   await expect(page.getByRole('heading', { name: 'Build Your Lineup' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Save Lineup' })).toBeDisabled();
 

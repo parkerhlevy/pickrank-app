@@ -48,7 +48,7 @@ export default async function PaymentReviewPage({
       <div className="screen-header space-y-2">
         <p className="eyebrow">Payment Review</p>
         <h1 className="text-3xl font-black leading-tight">{contest.title}</h1>
-        <p className="text-muted-foreground">Review how this single-entry fee would be covered before the entry confirmation handoff and lineup builder.</p>
+        <p className="text-muted-foreground">Step 2 keeps the fee review separate from lineup editing so the handoff into your entry feels clear.</p>
       </div>
 
       <Card>
@@ -63,19 +63,24 @@ export default async function PaymentReviewPage({
         </CardHeader>
         <CardContent className="space-y-2">
           {flowSteps.map((step) => (
-            <div key={step.key} className="flex items-center justify-between rounded-lg border bg-white px-3 py-2 text-sm">
-              <span className="font-medium">{step.label}</span>
-              <span
-                className={
-                  step.status === 'current'
-                    ? 'font-bold text-primary'
-                    : step.status === 'complete'
-                      ? 'text-emerald-700'
-                      : 'text-muted-foreground'
-                }
-              >
-                {step.status === 'current' ? 'Current' : step.status === 'complete' ? 'Complete' : 'Next'}
-              </span>
+            <div key={step.key} className="rounded-lg border bg-white px-3 py-3 text-sm">
+              <div className="flex items-center justify-between gap-3">
+                <span className="font-medium">
+                  Step {step.stepNumber}: {step.label}
+                </span>
+                <span
+                  className={
+                    step.status === 'current'
+                      ? 'font-bold text-primary'
+                      : step.status === 'complete'
+                        ? 'text-emerald-700'
+                        : 'text-muted-foreground'
+                  }
+                >
+                  {step.status === 'current' ? 'Current' : step.status === 'complete' ? 'Complete' : 'Next'}
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">{step.summary}</p>
             </div>
           ))}
         </CardContent>
@@ -102,8 +107,8 @@ export default async function PaymentReviewPage({
 
       <Card>
         <CardHeader>
-          <CardTitle>Entry Status</CardTitle>
-          <CardDescription>The next screen confirms the single-entry handoff for this MVP slice without adding real-money behavior.</CardDescription>
+          <CardTitle>What happens next</CardTitle>
+          <CardDescription>The next screen confirms the entry handoff, then sends you into Build Your Lineup.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <div className="flex items-start gap-2">
@@ -116,14 +121,14 @@ export default async function PaymentReviewPage({
           </div>
           <div className="flex items-start gap-2">
             <CheckCircle2 className="mt-0.5 h-4 w-4 text-primary" aria-hidden="true" />
-            <p>No wallet funds are debited here. The entry record is created only for the persisted lineup flow that follows.</p>
+            <p>No wallet funds are debited here. Continuing moves you into Entry Success, where the current entry record is ready for lineup work.</p>
           </div>
         </CardContent>
       </Card>
 
       <div className="sticky bottom-20 rounded-lg border bg-white p-3 shadow-lg">
         <Button asChild className="w-full">
-          <Link href={getContestEntryProgressHref(contest.id, 'entered')}>Continue to Entry Success</Link>
+          <Link href={getContestEntryProgressHref(contest.id, 'entered')}>Confirm Entry Review</Link>
         </Button>
       </div>
     </div>
