@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { BottomNav } from '@/components/layout/bottom-nav';
+import { AppShell } from '@/components/layout/app-shell';
 
 export const metadata: Metadata = {
   title: 'PickRank',
@@ -15,8 +15,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <body>
-        <main className="mx-auto min-h-screen max-w-md px-4 pb-24 pt-6">{children}</main>
-        <BottomNav />
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );

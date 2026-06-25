@@ -5,6 +5,7 @@ import {
   getContestEntryProgressHref,
   getContestEntryRouteState,
   getContestEntryStage,
+  getContestEntrySteps,
   getPersistedContestEntryStage,
   getUpdatedContestEntryCookieValue,
 } from '../../lib/contest-entry-flow';
@@ -19,6 +20,7 @@ describe('contest entry flow state', () => {
     expect(
       getContestDetailPrimaryAction({
         contestId: 'week-1-qb-passing-yards',
+        entryFee: '$5',
         hasEntry: true,
         isAuthenticated: true,
         isContestOpen: true,
@@ -35,6 +37,7 @@ describe('contest entry flow state', () => {
     expect(
       getContestDetailPrimaryAction({
         contestId: 'week-1-qb-passing-yards',
+        entryFee: '$5',
         hasEntry: true,
         isAuthenticated: true,
         isContestOpen: false,
@@ -98,6 +101,7 @@ describe('contest entry flow state', () => {
     expect(
       getContestDetailPrimaryAction({
         contestId: 'week-1-qb-passing-yards',
+        entryFee: '$5',
         hasEntry: false,
         isAuthenticated: false,
         isContestOpen: true,
@@ -114,6 +118,7 @@ describe('contest entry flow state', () => {
     expect(
       getContestDetailPrimaryAction({
         contestId: 'week-1-qb-passing-yards',
+        entryFee: '$5',
         hasEntry: false,
         isAuthenticated: true,
         isContestOpen: true,
@@ -126,6 +131,23 @@ describe('contest entry flow state', () => {
     });
   });
 
+  it('uses the pay-and-enter CTA for signed-in users who have not entered yet', () => {
+    expect(
+      getContestDetailPrimaryAction({
+        contestId: 'week-1-qb-passing-yards',
+        entryFee: '$5',
+        hasEntry: false,
+        isAuthenticated: true,
+        isContestOpen: true,
+        isProfileComplete: true,
+      }),
+    ).toEqual({
+      label: 'Enter Contest - $5',
+      href: '/contests/week-1-qb-passing-yards/progress?stage=payment-review',
+      disabled: false,
+    });
+  });
+
   it('builds clean canonical and progress routes', () => {
     expect(getContestEntryHref('week-1-qb-passing-yards', 'payment-review')).toBe(
       '/contests/week-1-qb-passing-yards/payment',
@@ -133,5 +155,38 @@ describe('contest entry flow state', () => {
     expect(getContestEntryProgressHref('week-1-qb-passing-yards', 'lineup')).toBe(
       '/contests/week-1-qb-passing-yards/progress?stage=lineup',
     );
+  });
+
+  it('returns numbered step copy for the full contest-entry sequence', () => {
+    expect(getContestEntrySteps('payment-review')).toEqual([
+      {
+        key: 'not-entered',
+        label: 'Contest Detail',
+        summary: 'Check the contest details, lock time, and payout overview before you enter.',
+        stepNumber: 1,
+        status: 'complete',
+      },
+      {
+        key: 'payment-review',
+        label: 'Payment Review',
+        summary: 'Review your entry fee, applied balances, and amount due today.',
+        stepNumber: 2,
+        status: 'current',
+      },
+      {
+        key: 'entered',
+        label: 'Entry Success',
+        summary: 'See your confirmed entry and head straight into your lineup.',
+        stepNumber: 3,
+        status: 'upcoming',
+      },
+      {
+        key: 'lineup',
+        label: 'Build Your Lineup',
+        summary: 'Rank your players and save your order until lock.',
+        stepNumber: 4,
+        status: 'upcoming',
+      },
+    ]);
   });
 });

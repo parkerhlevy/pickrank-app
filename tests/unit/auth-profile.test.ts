@@ -3,6 +3,7 @@ import {
   buildAuthHref,
   buildProfileHref,
   defaultReturnPath,
+  getReturnStepCopy,
   getProfileIdentity,
   normalizeReturnPath,
   normalizeUsername,
@@ -23,6 +24,24 @@ describe('auth profile helpers', () => {
     expect(buildProfileHref('/contests/week-1-qb-passing-yards/payment')).toBe(
       '/profile?next=%2Fcontests%2Fweek-1-qb-passing-yards%2Fpayment',
     );
+  });
+
+  it('turns protected contest paths into user-facing return copy', () => {
+    expect(getReturnStepCopy('/contests/week-1-qb-passing-yards/progress?stage=payment-review')).toEqual({
+      actionLabel: 'Continue to Payment Review',
+      detail: 'Payment Review for Week 1 QB Passing Yards',
+      isContestFlow: true,
+      shortLabel: 'Payment Review',
+    });
+  });
+
+  it('uses profile as the default non-contest destination', () => {
+    expect(getReturnStepCopy(defaultReturnPath)).toEqual({
+      actionLabel: 'Continue to Profile',
+      detail: 'Profile',
+      isContestFlow: false,
+      shortLabel: 'Profile',
+    });
   });
 
   it('validates usernames with the MVP rules', () => {

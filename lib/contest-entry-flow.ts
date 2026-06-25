@@ -12,6 +12,12 @@ type ContestEntryStateCopy = {
   description: string;
 };
 
+type ContestEntryStepCopy = {
+  key: ContestEntryStage;
+  label: string;
+  summary: string;
+};
+
 const routeStageMap: Record<ContestEntryRoute, ContestEntryStage> = {
   detail: 'not-entered',
   payment: 'payment-review',
@@ -21,26 +27,49 @@ const routeStageMap: Record<ContestEntryRoute, ContestEntryStage> = {
 
 const stageCopyMap: Record<ContestEntryStage, ContestEntryStateCopy> = {
   'not-entered': {
-    badge: 'Not Entered',
-    title: 'Start your single-entry flow',
-    description: 'Review the contest first, then move into payment review before any confirmed entry or lineup access.',
+    badge: 'Step 1 of 4',
+    title: 'Review the contest before you enter',
+    description: 'Check the contest details, review your payment, then build your lineup before lock.',
   },
   'payment-review': {
-    badge: 'Payment Review',
-    title: 'Finish the review step',
-    description: 'This stage previews how the single entry would be funded before the success handoff and lineup builder.',
+    badge: 'Step 2 of 4',
+    title: 'Review your entry before you confirm',
+    description: 'Check your fee breakdown, then confirm your entry and head to your lineup.',
   },
   entered: {
-    badge: 'Entered',
-    title: 'Entry confirmed state',
-    description: 'This is the handoff moment after payment review. The next step is the separate Build Your Lineup screen.',
+    badge: 'Step 3 of 4',
+    title: "You're in",
+    description: 'Your entry is confirmed. Next up: Build Your Lineup before lock.',
   },
   lineup: {
-    badge: 'Lineup Stage',
-    title: 'Ready to edit your lineup',
-    description: 'The contest detail page now treats lineup work as its own stage instead of an inline extension of contest entry.',
+    badge: 'Step 4 of 4',
+    title: 'Build Your Lineup',
+    description: 'Rank your players and save changes until the contest locks.',
   },
 };
+
+const contestEntryStepCopy: ContestEntryStepCopy[] = [
+  {
+    key: 'not-entered',
+    label: 'Contest Detail',
+    summary: 'Check the contest details, lock time, and payout overview before you enter.',
+  },
+  {
+    key: 'payment-review',
+    label: 'Payment Review',
+    summary: 'Review your entry fee, applied balances, and amount due today.',
+  },
+  {
+    key: 'entered',
+    label: 'Entry Success',
+    summary: 'See your confirmed entry and head straight into your lineup.',
+  },
+  {
+    key: 'lineup',
+    label: 'Build Your Lineup',
+    summary: 'Rank your players and save your order until lock.',
+  },
+];
 
 export function getContestEntryStage(
   entryParam: string | string[] | undefined,
@@ -130,12 +159,14 @@ export function getUpdatedContestEntryCookieValue({
 
 export function getContestDetailPrimaryAction({
   contestId,
+  entryFee,
   hasEntry,
   isAuthenticated,
   isContestOpen,
   isProfileComplete,
 }: {
   contestId: string;
+  entryFee: string;
   hasEntry: boolean;
   isAuthenticated: boolean;
   isContestOpen: boolean;
@@ -177,7 +208,7 @@ export function getContestDetailPrimaryAction({
 
   if (isContestOpen) {
     return {
-      label: 'Enter Contest - Review Payment',
+      label: `Enter Contest - ${entryFee}`,
       href: next,
       disabled: false,
     };
@@ -193,16 +224,12 @@ export function getContestDetailPrimaryAction({
 export function getContestEntrySteps(stage: ContestEntryStage) {
   const currentStageIndex = contestEntryStages.indexOf(stage);
 
-  return [
-    { key: 'not-entered', label: 'Contest Detail', hrefStage: 'not-entered' },
-    { key: 'payment-review', label: 'Payment Review', hrefStage: 'payment-review' },
-    { key: 'entered', label: 'Entry Success', hrefStage: 'entered' },
-    { key: 'lineup', label: 'Build Your Lineup', hrefStage: 'lineup' },
-  ].map((step) => {
-    const stepIndex = contestEntryStages.indexOf(step.hrefStage as ContestEntryStage);
+  return contestEntryStepCopy.map((step, index) => {
+    const stepIndex = contestEntryStages.indexOf(step.key);
 
     return {
       ...step,
+      stepNumber: index + 1,
       status: stepIndex < currentStageIndex ? 'complete' : stepIndex === currentStageIndex ? 'current' : 'upcoming',
     };
   });

@@ -36,8 +36,10 @@ export default async function PaymentReviewPage({
   const flowSteps = getContestEntrySteps(routeState.stage);
   const breakdown = getPaymentReviewBreakdown(contest.entryFee);
 
+  const upcomingSteps = flowSteps.filter((step) => step.status === 'upcoming');
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 pb-28">
       <Button asChild variant="ghost" size="sm" className="-ml-3 justify-start">
         <Link href={`/contests/${contest.id}`}>
           <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
@@ -48,44 +50,14 @@ export default async function PaymentReviewPage({
       <div className="screen-header space-y-2">
         <p className="eyebrow">Payment Review</p>
         <h1 className="text-3xl font-black leading-tight">{contest.title}</h1>
-        <p className="text-muted-foreground">Review how this single-entry fee would be covered before the entry confirmation handoff and lineup builder.</p>
+        <p className="text-muted-foreground">Review your entry fee and confirm how this contest will be covered before you continue.</p>
       </div>
-
-      <Card>
-        <CardHeader>
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <CardTitle>{stateCopy.title}</CardTitle>
-              <CardDescription>{stateCopy.description}</CardDescription>
-            </div>
-            <span className="status-pill shrink-0">{stateCopy.badge}</span>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          {flowSteps.map((step) => (
-            <div key={step.key} className="flex items-center justify-between rounded-lg border bg-white px-3 py-2 text-sm">
-              <span className="font-medium">{step.label}</span>
-              <span
-                className={
-                  step.status === 'current'
-                    ? 'font-bold text-primary'
-                    : step.status === 'complete'
-                      ? 'text-emerald-700'
-                      : 'text-muted-foreground'
-                }
-              >
-                {step.status === 'current' ? 'Current' : step.status === 'complete' ? 'Complete' : 'Next'}
-              </span>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
 
       <Card className="overflow-hidden">
         <CardHeader className="bg-slate-950 text-white">
           <CardTitle>Entry Fee Breakdown</CardTitle>
           <CardDescription className="text-slate-300">
-            Funding is still demo-only in this phase. The next step creates the current entry record for lineup work.
+            Site Credit is applied first, then Cash Balance, with any remaining amount due today.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 pt-5 text-sm">
@@ -102,8 +74,13 @@ export default async function PaymentReviewPage({
 
       <Card>
         <CardHeader>
-          <CardTitle>Entry Status</CardTitle>
-          <CardDescription>The next screen confirms the single-entry handoff for this MVP slice without adding real-money behavior.</CardDescription>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <CardTitle>{stateCopy.title}</CardTitle>
+              <CardDescription>Confirm this entry, then head straight into your lineup for this contest.</CardDescription>
+            </div>
+            <span className="status-pill shrink-0">{stateCopy.badge}</span>
+          </div>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <div className="flex items-start gap-2">
@@ -112,18 +89,34 @@ export default async function PaymentReviewPage({
           </div>
           <div className="flex items-start gap-2">
             <CreditCard className="mt-0.5 h-4 w-4 text-primary" aria-hidden="true" />
-            <p>External payment provider selection and payment processing are still future work.</p>
+            <p>If your balances do not fully cover the fee, the remaining amount shows under Amount Due Today.</p>
           </div>
           <div className="flex items-start gap-2">
             <CheckCircle2 className="mt-0.5 h-4 w-4 text-primary" aria-hidden="true" />
-            <p>No wallet funds are debited here. The entry record is created only for the persisted lineup flow that follows.</p>
+            <p>Once you confirm, your entry is in and you can start building your lineup.</p>
+          </div>
+          <div className="rounded-lg border bg-white px-3 py-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Up next</p>
+            <div className="mt-2 space-y-2">
+              {upcomingSteps.map((step) => (
+                <div key={step.key} className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="font-medium">
+                      Step {step.stepNumber}: {step.label}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{step.summary}</p>
+                  </div>
+                  <span className="text-muted-foreground">Next</span>
+                </div>
+              ))}
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      <div className="sticky bottom-20 rounded-lg border bg-white p-3 shadow-lg">
+      <div className="rounded-lg border bg-white p-3 shadow-lg">
         <Button asChild className="w-full">
-          <Link href={getContestEntryProgressHref(contest.id, 'entered')}>Continue to Entry Success</Link>
+          <Link href={getContestEntryProgressHref(contest.id, 'entered')}>Confirm Entry</Link>
         </Button>
       </div>
     </div>
