@@ -11,8 +11,8 @@ test('entry screens reinforce the four-step handoff into the lineup builder', as
 
   await page.goto('http://localhost:3000/contests/week-1-qb-passing-yards/payment');
   await expect(page.getByText('Step 2 of 4')).toBeVisible();
-  await expect(page.getByText('Step 2: Payment Review')).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Confirm Entry Review' })).toBeVisible();
+  await expect(page.getByText('Review your entry before you confirm')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Confirm Entry' })).toBeVisible();
 
   await page.context().addCookies([
     {
@@ -80,7 +80,7 @@ test('lineup builder saves through the current entry and persists after reload',
 
   await page.goto('http://localhost:3000/contests/week-1-qb-passing-yards/lineup');
 
-  await expect(page.getByRole('heading', { name: 'Build Your Lineup' })).toBeVisible();
+  await expect(page.locator('h1').filter({ hasText: 'Build Your Lineup' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Save Lineup' })).toBeDisabled();
 
   await page.evaluate(() => window.scrollTo(0, 800));

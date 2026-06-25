@@ -20,6 +20,7 @@ describe('contest entry flow state', () => {
     expect(
       getContestDetailPrimaryAction({
         contestId: 'week-1-qb-passing-yards',
+        entryFee: '$5',
         hasEntry: true,
         isAuthenticated: true,
         isContestOpen: true,
@@ -36,6 +37,7 @@ describe('contest entry flow state', () => {
     expect(
       getContestDetailPrimaryAction({
         contestId: 'week-1-qb-passing-yards',
+        entryFee: '$5',
         hasEntry: true,
         isAuthenticated: true,
         isContestOpen: false,
@@ -99,6 +101,7 @@ describe('contest entry flow state', () => {
     expect(
       getContestDetailPrimaryAction({
         contestId: 'week-1-qb-passing-yards',
+        entryFee: '$5',
         hasEntry: false,
         isAuthenticated: false,
         isContestOpen: true,
@@ -115,6 +118,7 @@ describe('contest entry flow state', () => {
     expect(
       getContestDetailPrimaryAction({
         contestId: 'week-1-qb-passing-yards',
+        entryFee: '$5',
         hasEntry: false,
         isAuthenticated: true,
         isContestOpen: true,
@@ -131,13 +135,14 @@ describe('contest entry flow state', () => {
     expect(
       getContestDetailPrimaryAction({
         contestId: 'week-1-qb-passing-yards',
+        entryFee: '$5',
         hasEntry: false,
         isAuthenticated: true,
         isContestOpen: true,
         isProfileComplete: true,
       }),
     ).toEqual({
-      label: 'Click to Pay and Enter',
+      label: 'Enter Contest - $5',
       href: '/contests/week-1-qb-passing-yards/progress?stage=payment-review',
       disabled: false,
     });
@@ -157,28 +162,28 @@ describe('contest entry flow state', () => {
       {
         key: 'not-entered',
         label: 'Contest Detail',
-        summary: 'Review the contest, timing, and single-entry rules before moving ahead.',
+        summary: 'Check the contest details, lock time, and payout overview before you enter.',
         stepNumber: 1,
         status: 'complete',
       },
       {
         key: 'payment-review',
         label: 'Payment Review',
-        summary: 'Check the placeholder fee breakdown and confirm the entry handoff.',
+        summary: 'Review your entry fee, applied balances, and amount due today.',
         stepNumber: 2,
         status: 'current',
       },
       {
         key: 'entered',
         label: 'Entry Success',
-        summary: 'See that your entry is in place and head to the lineup screen.',
+        summary: 'See your confirmed entry and head straight into your lineup.',
         stepNumber: 3,
         status: 'upcoming',
       },
       {
         key: 'lineup',
         label: 'Build Your Lineup',
-        summary: 'Rank players and save your order until lock.',
+        summary: 'Rank your players and save your order until lock.',
         stepNumber: 4,
         status: 'upcoming',
       },

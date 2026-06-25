@@ -29,22 +29,22 @@ const stageCopyMap: Record<ContestEntryStage, ContestEntryStateCopy> = {
   'not-entered': {
     badge: 'Step 1 of 4',
     title: 'Review the contest before you enter',
-    description: 'Start on Contest Detail, then move forward into Payment Review, Entry Success, and Build Your Lineup.',
+    description: 'Check the contest details, review your payment, then build your lineup before lock.',
   },
   'payment-review': {
     badge: 'Step 2 of 4',
-    title: 'Confirm the payment review details',
-    description: 'See how this entry would be covered before the entry handoff and the dedicated lineup screen.',
+    title: 'Review your entry before you confirm',
+    description: 'Check your fee breakdown, then confirm your entry and head to your lineup.',
   },
   entered: {
     badge: 'Step 3 of 4',
-    title: 'Your entry is ready for lineup work',
-    description: 'The entry handoff is complete. The next step is Build Your Lineup on its own screen.',
+    title: "You're in",
+    description: 'Your entry is confirmed. Next up: Build Your Lineup before lock.',
   },
   lineup: {
     badge: 'Step 4 of 4',
-    title: 'Build and save your lineup',
-    description: 'This is the dedicated lineup screen for the current entry. Save changes here until the contest locks.',
+    title: 'Build Your Lineup',
+    description: 'Rank your players and save changes until the contest locks.',
   },
 };
 
@@ -52,22 +52,22 @@ const contestEntryStepCopy: ContestEntryStepCopy[] = [
   {
     key: 'not-entered',
     label: 'Contest Detail',
-    summary: 'Review the contest, timing, and single-entry rules before moving ahead.',
+    summary: 'Check the contest details, lock time, and payout overview before you enter.',
   },
   {
     key: 'payment-review',
     label: 'Payment Review',
-    summary: 'Check the placeholder fee breakdown and confirm the entry handoff.',
+    summary: 'Review your entry fee, applied balances, and amount due today.',
   },
   {
     key: 'entered',
     label: 'Entry Success',
-    summary: 'See that your entry is in place and head to the lineup screen.',
+    summary: 'See your confirmed entry and head straight into your lineup.',
   },
   {
     key: 'lineup',
     label: 'Build Your Lineup',
-    summary: 'Rank players and save your order until lock.',
+    summary: 'Rank your players and save your order until lock.',
   },
 ];
 
@@ -159,12 +159,14 @@ export function getUpdatedContestEntryCookieValue({
 
 export function getContestDetailPrimaryAction({
   contestId,
+  entryFee,
   hasEntry,
   isAuthenticated,
   isContestOpen,
   isProfileComplete,
 }: {
   contestId: string;
+  entryFee: string;
   hasEntry: boolean;
   isAuthenticated: boolean;
   isContestOpen: boolean;
@@ -206,7 +208,7 @@ export function getContestDetailPrimaryAction({
 
   if (isContestOpen) {
     return {
-      label: 'Click to Pay and Enter',
+      label: `Enter Contest - ${entryFee}`,
       href: next,
       disabled: false,
     };
