@@ -45,10 +45,14 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="eyebrow">Profile</p>
-            <h1 className="text-3xl font-black leading-tight">Account Preview</h1>
+            <h1 className="text-3xl font-black leading-tight">{user ? 'Your Account' : 'Create Your Account'}</h1>
           </div>
         </div>
-        <p className="text-muted-foreground">Complete the minimum account identity step here before contest-entry flows expand further.</p>
+        <p className="text-muted-foreground">
+          {user
+            ? 'Manage your username, account session, and the basics tied to contest entry from one place.'
+            : 'You can browse contests without signing in. Create an account here to enter contests, save lineups, and keep your place in the flow.'}
+        </p>
       </section>
 
       {next !== defaultReturnPath ? (
@@ -78,12 +82,12 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
 
       <Card className="overflow-hidden">
         <CardHeader className="bg-slate-950 text-white">
-          <div className="flex items-center gap-2">
-            <UserCircle className="h-5 w-5 text-blue-300" aria-hidden="true" />
-            <CardTitle>{user ? 'Signed-In Session' : 'Signed-Out State'}</CardTitle>
-          </div>
+            <div className="flex items-center gap-2">
+              <UserCircle className="h-5 w-5 text-blue-300" aria-hidden="true" />
+              <CardTitle>{user ? 'Signed-In Session' : 'Signed-Out State'}</CardTitle>
+            </div>
           <CardDescription className="text-slate-300">
-            {user ? 'Supabase returned an authenticated user for this session.' : 'Create an account or log in to continue to Profile and contest entry.'}
+            {user ? 'Your account session is active.' : 'Create an account or log in to continue from contest browsing into entry, lineup, and wallet views.'}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 pt-5">
@@ -99,7 +103,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           ) : null}
           {!authConfigured ? (
             <div className="space-y-3 rounded-lg border bg-slate-50 p-4 text-sm text-muted-foreground">
-              <p className="font-medium text-foreground">Add Supabase environment values before testing sign-in.</p>
+              <p className="font-medium text-foreground">Add Supabase environment values before testing sign-in here.</p>
               <ul className="space-y-2">
                 {missingKeys.map((key) => (
                   <li key={key} className="rounded-md bg-white px-3 py-2 font-mono text-xs text-foreground">
@@ -192,7 +196,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
             <WalletCards className="h-5 w-5 text-primary" aria-hidden="true" />
             <CardTitle>Wallet & Balances</CardTitle>
           </div>
-          <CardDescription>Design-only wallet summary. Payment and ledger behavior are not wired.</CardDescription>
+          <CardDescription>Wallet balances will appear here for signed-in accounts as contest funding and payouts expand.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
@@ -215,9 +219,9 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         <CardHeader>
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-primary" aria-hidden="true" />
-            <CardTitle>Eligibility Placeholder</CardTitle>
+            <CardTitle>Account Readiness</CardTitle>
           </div>
-          <CardDescription>Future account status rows without real verification logic.</CardDescription>
+          <CardDescription>These checks help PickRank confirm when an account is ready for contest entry and future withdrawals.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
           <div className="flex items-center justify-between rounded-lg border bg-slate-50 px-3 py-2">
@@ -227,7 +231,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           {['Age and location review', 'Responsible play controls'].map((label) => (
             <div key={label} className="flex items-center justify-between rounded-lg border bg-slate-50 px-3 py-2">
               <span>{label}</span>
-              <span className="text-muted-foreground">Not wired</span>
+              <span className="text-muted-foreground">Not started</span>
             </div>
           ))}
         </CardContent>

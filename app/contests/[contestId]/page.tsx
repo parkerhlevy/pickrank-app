@@ -129,7 +129,10 @@ export default async function ContestDetailPage({
       <Card>
         <CardHeader>
           <CardTitle>Projected Payouts</CardTitle>
-          <CardDescription>Projected from the current placeholder prize pool. Final payout logic is not implemented.</CardDescription>
+          <CardDescription>
+            Current payout examples based on the prize pool shown today. Final settled results and payout processing will
+            appear here after contests close.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
           {contest.payoutRows.map((row) => (
@@ -140,6 +143,19 @@ export default async function ContestDetailPage({
           ))}
         </CardContent>
       </Card>
+
+      {!isAuthenticated ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>What You Can Do Now</CardTitle>
+            <CardDescription>Browse the contest details today, then sign in when you&apos;re ready to continue.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm text-muted-foreground">
+            <p>You can review the format, lock time, and payout structure on this page right now.</p>
+            <p>After you sign in, PickRank will take you into Payment Review and keep your next step pointed at this contest.</p>
+          </CardContent>
+        </Card>
+      ) : null}
 
       <div className="rounded-lg border bg-white p-3 shadow-lg">
         {primaryAction.href ? (

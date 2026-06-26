@@ -4,6 +4,7 @@ import { ArrowLeft, CheckCircle2, CreditCard, ShieldCheck } from 'lucide-react';
 import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { getProtectedContestEntryRedirect } from '@/lib/contest-entry-access';
 import {
   contestEntryCookieName,
   getContestEntryProgressHref,
@@ -21,6 +22,13 @@ export default async function PaymentReviewPage({
 }) {
   const { contestId } = await params;
   const contest = getContestById(contestId);
+  const next = `/contests/${contest.id}/payment`;
+  const protectedRedirect = await getProtectedContestEntryRedirect(next);
+
+  if (protectedRedirect) {
+    redirect(protectedRedirect);
+  }
+
   const cookieStore = await cookies();
   const persistedStage = getPersistedContestEntryStage(
     contest.id,
@@ -91,10 +99,10 @@ export default async function PaymentReviewPage({
             <CreditCard className="mt-0.5 h-4 w-4 text-primary" aria-hidden="true" />
             <p>If your balances do not fully cover the fee, the remaining amount shows under Amount Due Today.</p>
           </div>
-          <div className="flex items-start gap-2">
-            <CheckCircle2 className="mt-0.5 h-4 w-4 text-primary" aria-hidden="true" />
-            <p>Once you confirm, your entry is in and you can start building your lineup.</p>
-          </div>
+        <div className="flex items-start gap-2">
+          <CheckCircle2 className="mt-0.5 h-4 w-4 text-primary" aria-hidden="true" />
+          <p>Once you confirm, your entry is saved and you can head straight into lineup setup.</p>
+        </div>
           <div className="rounded-lg border bg-white px-3 py-3">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Up next</p>
             <div className="mt-2 space-y-2">

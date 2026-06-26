@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { LineupBuilderClient } from '@/components/contests/lineup-builder-client';
+import { getProtectedContestEntryRedirect } from '@/lib/contest-entry-access';
 import {
   contestEntryCookieName,
   getContestEntryRouteState,
@@ -29,6 +30,13 @@ export default async function LineupBuilderPage({
 }) {
   const { contestId } = await params;
   const contest = getContestById(contestId);
+  const next = `/contests/${contest.id}/lineup`;
+  const protectedRedirect = await getProtectedContestEntryRedirect(next);
+
+  if (protectedRedirect) {
+    redirect(protectedRedirect);
+  }
+
   const cookieStore = await cookies();
   const persistedStage = getPersistedContestEntryStage(
     contest.id,

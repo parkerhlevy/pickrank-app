@@ -86,8 +86,11 @@ export function getReturnStepCopy(next: string): ReturnStepCopy {
     })
     .join(' ');
   const stage = new URLSearchParams(queryString).get('stage');
+  const isPaymentPath = pathPart.endsWith('/payment');
+  const isSuccessPath = pathPart.endsWith('/success');
+  const isLineupPath = pathPart.endsWith('/lineup');
 
-  if (stage === 'payment-review') {
+  if (stage === 'payment-review' || isPaymentPath) {
     return {
       actionLabel: 'Continue to Payment Review',
       detail: `Payment Review for ${contestTitle}`,
@@ -96,7 +99,7 @@ export function getReturnStepCopy(next: string): ReturnStepCopy {
     };
   }
 
-  if (stage === 'entered') {
+  if (stage === 'entered' || isSuccessPath) {
     return {
       actionLabel: 'Continue to Entry Success',
       detail: `Entry Success for ${contestTitle}`,
@@ -105,7 +108,7 @@ export function getReturnStepCopy(next: string): ReturnStepCopy {
     };
   }
 
-  if (stage === 'lineup') {
+  if (stage === 'lineup' || isLineupPath) {
     return {
       actionLabel: 'Continue to Build Your Lineup',
       detail: `Build Your Lineup for ${contestTitle}`,

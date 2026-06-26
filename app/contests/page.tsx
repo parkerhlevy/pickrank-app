@@ -21,7 +21,10 @@ export default function ContestsPage() {
             How It Works
           </Link>
         </div>
-        <p className="text-muted-foreground">Browse available Phase 0 contest cards. Entry flows are not active yet.</p>
+        <p className="text-muted-foreground">
+          Browse this week&apos;s contest slate now. After you sign in, PickRank preserves your place and sends you into
+          entry and lineup setup for the contest you choose.
+        </p>
       </div>
 
       <Card className="overflow-hidden">

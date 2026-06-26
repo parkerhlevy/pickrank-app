@@ -11,18 +11,18 @@ const hasLandingVideo = existsSync(join(process.cwd(), 'public', landingVideoPat
 
 const proofPoints = [
   {
-    title: 'Simple first impression',
-    description: 'Show the concept quickly before the full contest loop is fully live.',
+    title: 'Easy to understand',
+    description: 'See the weekly contest format, the 15-QB slate, and how rankings turn into standings.',
     icon: Sparkles,
   },
   {
-    title: 'Skill-based positioning',
-    description: 'Keep the message centered on rankings, accuracy, and competition.',
+    title: 'Built around skill',
+    description: 'PickRank rewards how close your rankings are to the real results, not random swings.',
     icon: ShieldCheck,
   },
   {
-    title: 'Direct conversion path',
-    description: 'Move interested users straight into the existing sign-up flow.',
+    title: 'Ready for sign-in',
+    description: 'Create an account now so you can move straight into entry and lineup steps as access expands.',
     icon: Users,
   },
 ];
@@ -35,7 +35,7 @@ export default function HomePage() {
         <div className="relative grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
           <div className="space-y-5">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-blue-100">
-              Pre-launch preview
+              Early access
             </div>
             <div className="space-y-3">
               <Image
@@ -47,11 +47,11 @@ export default function HomePage() {
                 priority
               />
               <h1 className="max-w-xl text-4xl font-black leading-tight text-white sm:text-5xl">
-                A simple new way to compete on NFL knowledge.
+                Rank the slate. Climb the standings.
               </h1>
               <p className="max-w-2xl text-base leading-7 text-slate-200 sm:text-lg">
-                PickRank is a skill-based ranking contest where players order a slate around one stat category, then climb
-                the standings based on how close they were to the final results.
+                PickRank is a skill-based NFL contest where you rank 10 quarterbacks from a 15-player slate and compete
+                based on how close your order is to the final results.
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
@@ -66,9 +66,9 @@ export default function HomePage() {
               </Button>
             </div>
             <div className="grid gap-3 text-sm text-slate-200 sm:grid-cols-3">
-              <div className="rounded-xl border border-white/12 bg-white/6 px-4 py-3">Public preview is live now</div>
-              <div className="rounded-xl border border-white/12 bg-white/6 px-4 py-3">Contest concept in plain language</div>
-              <div className="rounded-xl border border-white/12 bg-white/6 px-4 py-3">Account path ready at sign-up</div>
+              <div className="rounded-xl border border-white/12 bg-white/6 px-4 py-3">Browse contests and rules today</div>
+              <div className="rounded-xl border border-white/12 bg-white/6 px-4 py-3">See exactly how weekly ranking play works</div>
+              <div className="rounded-xl border border-white/12 bg-white/6 px-4 py-3">Sign in to get ready for entry and lineup setup</div>
             </div>
           </div>
 
@@ -76,9 +76,9 @@ export default function HomePage() {
             <CardHeader className="space-y-2">
               <div className="inline-flex items-center gap-2 text-sm font-semibold text-blue-100">
                 <PlayCircle className="h-4 w-4" aria-hidden="true" />
-                Product preview
+                Product walkthrough
               </div>
-              <CardTitle className="text-2xl">See the idea before the full launch.</CardTitle>
+              <CardTitle className="text-2xl">See how the weekly contest flow comes together.</CardTitle>
             </CardHeader>
             <CardContent>
               {hasLandingVideo ? (
@@ -86,7 +86,7 @@ export default function HomePage() {
                   controls
                   preload="metadata"
                   className="aspect-video w-full rounded-xl border border-white/10 bg-slate-900"
-                  aria-label="PickRank product preview video"
+                  aria-label="PickRank product walkthrough video"
                 >
                   <source src={landingVideoPath} type="video/mp4" />
                   Your browser does not support the video tag.
@@ -94,10 +94,10 @@ export default function HomePage() {
               ) : (
                 <div className="flex aspect-video w-full flex-col items-center justify-center rounded-xl border border-dashed border-white/20 bg-slate-900/70 p-6 text-center">
                   <PlayCircle className="mb-3 h-10 w-10 text-blue-200" aria-hidden="true" />
-                  <p className="text-lg font-semibold text-white">Preview video coming next</p>
+                  <p className="text-lg font-semibold text-white">Walkthrough video coming soon</p>
                   <p className="mt-2 max-w-sm text-sm leading-6 text-slate-300">
-                    This landing page is ready for a pre-rendered Remotion video at
-                    <span className="font-mono text-slate-100"> public{landingVideoPath}</span>.
+                    You can browse the live product screens now. A short walkthrough of contest entry and lineup setup is
+                    on the way.
                   </p>
                 </div>
               )}
@@ -128,9 +128,9 @@ export default function HomePage() {
             <CardTitle>What PickRank is</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm leading-6 text-muted-foreground">
-            <p>Users rank players from a contest slate around one stat category.</p>
-            <p>After the games finish, scores are based on how close those rankings were to the final order.</p>
-            <p>The goal is simple: reward sports judgment, not luck-driven play.</p>
+            <p>PickRank runs weekly skill-based contests built around one stat category.</p>
+            <p>You choose and rank 10 players from the featured slate, then score points based on how close your order is to the final finish.</p>
+            <p>The goal is simple: reward sharp sports judgment with a format that feels clear from the first screen.</p>
           </CardContent>
         </Card>
 
@@ -140,8 +140,8 @@ export default function HomePage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm leading-6 text-muted-foreground">
-              If you want early access, create an account now and follow the product as the contest experience continues to
-              tighten up.
+              Browse contests and learn the format now. After you sign in, PickRank can send you straight into the saved
+              entry step for the contest you choose.
             </p>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Button asChild className="sm:flex-1">

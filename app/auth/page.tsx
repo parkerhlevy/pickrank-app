@@ -28,11 +28,11 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
     <div className="space-y-6">
       <section className="screen-header space-y-2">
         <p className="eyebrow">Auth</p>
-        <h1 className="text-3xl font-black leading-tight">Account Access Preview</h1>
+        <h1 className="text-3xl font-black leading-tight">Account Access</h1>
         <p className="text-muted-foreground">
           {returnStep.isContestFlow
             ? `You need to be signed in to enter any contest. Sign in now, finish one quick username step if needed, and then resume ${returnStep.shortLabel.toLowerCase()}.`
-            : 'Placeholder-safe Phase 1 foundation for sign-in, profile completion, and clear return paths.'}
+            : 'Create your account, choose a public username, and keep your contest and profile steps in one place.'}
         </p>
       </section>
 
@@ -73,7 +73,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
           ) : null}
           {status === 'error' ? (
             <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-950">
-              {message || 'Auth is not ready yet. Add the required environment values and try again.'}
+              {message || 'Sign-in is temporarily unavailable here. Add the required environment values and try again.'}
             </div>
           ) : null}
           {authConfigured ? (
@@ -138,11 +138,11 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-primary" aria-hidden="true" />
-            <CardTitle>Before Paid Entry</CardTitle>
+          <CardTitle>Before Paid Entry</CardTitle>
           </div>
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
-          <p>Future paid contests require a verified account, eligibility checks, and payment review before entry creation.</p>
+          <p>PickRank uses account sign-in, username setup, and entry review so each contest step feels clear and tied to one account.</p>
           <div className="rounded-lg border bg-white px-3 py-3">New users complete a username step after sign-in before returning to the saved contest step.</div>
           {next !== defaultReturnPath ? (
             <div className="flex items-center gap-2 rounded-lg border bg-slate-50 px-3 py-3 text-foreground">

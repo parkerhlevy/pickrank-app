@@ -4,6 +4,7 @@ import { ArrowLeft, CheckCircle2, Clock, ListChecks } from 'lucide-react';
 import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { getProtectedContestEntryRedirect } from '@/lib/contest-entry-access';
 import {
   contestEntryCookieName,
   getContestEntryProgressHref,
@@ -20,6 +21,13 @@ export default async function EntrySuccessPage({
 }) {
   const { contestId } = await params;
   const contest = getContestById(contestId);
+  const next = `/contests/${contest.id}/success`;
+  const protectedRedirect = await getProtectedContestEntryRedirect(next);
+
+  if (protectedRedirect) {
+    redirect(protectedRedirect);
+  }
+
   const cookieStore = await cookies();
   const persistedStage = getPersistedContestEntryStage(
     contest.id,
@@ -44,7 +52,7 @@ export default async function EntrySuccessPage({
       <div className="screen-header space-y-2">
         <p className="eyebrow">Entry Success</p>
         <h1 className="text-3xl font-black leading-tight">{contest.title}</h1>
-        <p className="text-muted-foreground">Your entry is confirmed. Build your lineup now and make changes any time before lock.</p>
+        <p className="text-muted-foreground">Your entry is confirmed. Head into your lineup now and keep editing until the contest locks.</p>
       </div>
 
       <Card className="overflow-hidden">
@@ -54,7 +62,7 @@ export default async function EntrySuccessPage({
             You&apos;re In
           </CardTitle>
           <CardDescription className="text-emerald-200">
-            Your contest entry is confirmed and your lineup is ready to be set.
+            Your contest entry is confirmed and your lineup is ready for your rankings.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 pt-5 text-sm">

@@ -35,6 +35,15 @@ describe('auth profile helpers', () => {
     });
   });
 
+  it('describes canonical contest routes in user-facing return copy', () => {
+    expect(getReturnStepCopy('/contests/week-1-qb-passing-yards/lineup')).toEqual({
+      actionLabel: 'Continue to Build Your Lineup',
+      detail: 'Build Your Lineup for Week 1 QB Passing Yards',
+      isContestFlow: true,
+      shortLabel: 'Build Your Lineup',
+    });
+  });
+
   it('uses profile as the default non-contest destination', () => {
     expect(getReturnStepCopy(defaultReturnPath)).toEqual({
       actionLabel: 'Continue to Profile',
