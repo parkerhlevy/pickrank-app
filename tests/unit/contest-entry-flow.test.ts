@@ -9,8 +9,15 @@ import {
   getPersistedContestEntryStage,
   getUpdatedContestEntryCookieValue,
 } from '../../lib/contest-entry-flow';
+import { verifyEmailToEnterContestsMessage } from '../../lib/auth-profile';
 
 describe('contest entry flow state', () => {
+  const verificationGateHref = new URLSearchParams({
+    next: '/contests/week-1-qb-passing-yards/progress?stage=payment-review',
+    status: 'error',
+    message: verifyEmailToEnterContestsMessage,
+  }).toString();
+
   it('falls back to the expected stage when the entry param is missing or invalid', () => {
     expect(getContestEntryStage(undefined, 'not-entered')).toBe('not-entered');
     expect(getContestEntryStage('unknown', 'payment-review')).toBe('payment-review');
@@ -25,6 +32,7 @@ describe('contest entry flow state', () => {
         isAuthenticated: true,
         isContestOpen: true,
         isProfileComplete: true,
+        isEmailVerified: true,
       }),
     ).toEqual({
       label: 'Edit Lineup',
@@ -42,6 +50,7 @@ describe('contest entry flow state', () => {
         isAuthenticated: true,
         isContestOpen: false,
         isProfileComplete: true,
+        isEmailVerified: true,
       }),
     ).toEqual({
       label: 'View Lineup',
@@ -106,6 +115,7 @@ describe('contest entry flow state', () => {
         isAuthenticated: false,
         isContestOpen: true,
         isProfileComplete: false,
+        isEmailVerified: false,
       }),
     ).toEqual({
       label: 'Sign Up / Log In to Enter',
@@ -123,6 +133,7 @@ describe('contest entry flow state', () => {
         isAuthenticated: true,
         isContestOpen: true,
         isProfileComplete: false,
+        isEmailVerified: false,
       }),
     ).toEqual({
       label: 'Complete Profile to Enter',
@@ -131,7 +142,7 @@ describe('contest entry flow state', () => {
     });
   });
 
-  it('uses the pay-and-enter CTA for signed-in users who have not entered yet', () => {
+  it('routes signed-in users with unverified email into the profile gate', () => {
     expect(
       getContestDetailPrimaryAction({
         contestId: 'week-1-qb-passing-yards',
@@ -140,6 +151,25 @@ describe('contest entry flow state', () => {
         isAuthenticated: true,
         isContestOpen: true,
         isProfileComplete: true,
+        isEmailVerified: false,
+      }),
+    ).toEqual({
+      label: 'Verify Email to Enter',
+      href: `/profile?${verificationGateHref}`,
+      disabled: false,
+    });
+  });
+
+  it('uses the pay-and-enter CTA for ready signed-in users who have not entered yet', () => {
+    expect(
+      getContestDetailPrimaryAction({
+        contestId: 'week-1-qb-passing-yards',
+        entryFee: '$5',
+        hasEntry: false,
+        isAuthenticated: true,
+        isContestOpen: true,
+        isProfileComplete: true,
+        isEmailVerified: true,
       }),
     ).toEqual({
       label: 'Enter Contest - $5',

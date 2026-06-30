@@ -15,7 +15,7 @@ import {
   removePersistedContestEntry,
 } from '@/lib/persisted-contest-entry';
 import { getProtectedContestEntryRedirect } from '@/lib/contest-entry-access';
-import { demoLineupBuilderPlayers, getContestById, isContestOpenForEntry } from '@/lib/phase-0-demo';
+import { getContestById, getContestLineupPlayers, isContestOpenForEntry } from '@/lib/contest-data';
 
 export async function GET(
   request: Request,
@@ -27,7 +27,7 @@ export async function GET(
   const stage = contestEntryStages.includes(requestedStage as ContestEntryStage)
     ? (requestedStage as ContestEntryStage)
     : 'not-entered';
-  const contest = getContestById(contestId);
+  const contest = await getContestById(contestId);
   const cookieStore = await cookies();
   const cookieValue = cookieStore.get(contestEntryCookieName)?.value;
   const entryCookieValue = cookieStore.get(persistedContestEntryCookieName)?.value;
@@ -35,7 +35,8 @@ export async function GET(
   const requestedEntryFlow = stage === 'payment-review' || stage === 'entered';
   const requestedProtectedFlow = requestedEntryFlow || requestedLineupAccess;
   const contestIsOpen = isContestOpenForEntry(contest);
-  const existingEntry = getPersistedContestEntry(contestId, entryCookieValue, demoLineupBuilderPlayers);
+  const lineupPlayers = getContestLineupPlayers(contest);
+  const existingEntry = getPersistedContestEntry(contestId, entryCookieValue, lineupPlayers);
 
   if (requestedProtectedFlow) {
     const next = getContestEntryProgressHref(contestId, stage);
@@ -64,12 +65,12 @@ export async function GET(
 
   if (nextStage === 'not-entered') {
     response.cookies.set(
-      persistedContestEntryCookieName,
-      removePersistedContestEntry({
-        contestId,
-        cookieValue: entryCookieValue,
-        players: demoLineupBuilderPlayers,
-      }),
+        persistedContestEntryCookieName,
+        removePersistedContestEntry({
+          contestId,
+          cookieValue: entryCookieValue,
+          players: lineupPlayers,
+        }),
       {
         httpOnly: true,
         sameSite: 'lax',
@@ -80,7 +81,7 @@ export async function GET(
     const entryState = ensurePersistedContestEntry({
       contestId,
       cookieValue: entryCookieValue,
-      players: demoLineupBuilderPlayers,
+      players: lineupPlayers,
     });
 
     response.cookies.set(persistedContestEntryCookieName, entryState.cookieValue, {

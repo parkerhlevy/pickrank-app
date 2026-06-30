@@ -1,27 +1,56 @@
-import { buildAuthHref, buildProfileHref, getProfileIdentity } from '@/lib/auth-profile';
+import {
+  buildAuthHref,
+  buildProfileHref,
+  verifyEmailToEnterContestsMessage,
+} from '@/lib/auth-profile';
 import { hasBrowserSupabaseConfig } from '@/lib/env';
-import { createClient } from '@/lib/supabase/server';
+import { getViewerIdentity } from '@/lib/viewer-identity';
 
-export async function getProtectedContestEntryRedirect(next: string) {
-  if (!hasBrowserSupabaseConfig()) {
+export function getProtectedContestEntryHref({
+  next,
+  hasSupabaseConfig,
+  isAuthenticated,
+  isProfileComplete,
+  isEmailVerified,
+}: {
+  next: string;
+  hasSupabaseConfig: boolean;
+  isAuthenticated: boolean;
+  isProfileComplete: boolean;
+  isEmailVerified: boolean;
+}) {
+  if (!hasSupabaseConfig || !isAuthenticated) {
     return buildAuthHref(next);
   }
 
-  try {
-    const supabase = await createClient();
-    const { data } = await supabase.auth.getUser();
-    const identity = getProfileIdentity(data.user);
+  if (!isProfileComplete) {
+    return buildProfileHref(next);
+  }
 
-    if (!data.user) {
-      return buildAuthHref(next);
-    }
-
-    if (!identity.isProfileComplete) {
-      return buildProfileHref(next);
-    }
-  } catch {
-    return buildAuthHref(next);
+  if (!isEmailVerified) {
+    return buildProfileHref(next, {
+      status: 'error',
+      message: verifyEmailToEnterContestsMessage,
+    });
   }
 
   return null;
+}
+
+export async function getProtectedContestEntryRedirect(next: string) {
+  const hasSupabaseConfig = hasBrowserSupabaseConfig();
+
+  try {
+    const identity = await getViewerIdentity();
+
+    return getProtectedContestEntryHref({
+      next,
+      hasSupabaseConfig: hasSupabaseConfig || identity.source === 'e2e-fixture',
+      isAuthenticated: identity.isAuthenticated,
+      isProfileComplete: identity.isProfileComplete,
+      isEmailVerified: identity.isEmailVerified,
+    });
+  } catch {
+    return buildAuthHref(next);
+  }
 }

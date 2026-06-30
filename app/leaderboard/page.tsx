@@ -2,10 +2,17 @@ import Link from 'next/link';
 import { Medal, Trophy } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { demoLeaderboardRows, openContests } from '@/lib/phase-0-demo';
+import { getContestById } from '@/lib/contest-data';
 
-export default function LeaderboardPage() {
-  const contest = openContests[0];
+const demoLeaderboardRows = [
+  { rank: 1, username: 'RankBuilder', points: 67 },
+  { rank: 2, username: 'SlateReader', points: 65 },
+  { rank: 3, username: 'YardageScout', points: 64 },
+  { rank: 4, username: 'PocketTimer', points: 61 },
+];
+
+export default async function LeaderboardPage() {
+  const contest = await getContestById('week-1-qb-passing-yards');
   const topThree = demoLeaderboardRows.slice(0, 3);
   const remainingRows = demoLeaderboardRows.slice(3);
 

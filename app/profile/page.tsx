@@ -145,7 +145,12 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                 <p className="text-muted-foreground">Username</p>
                 <p className="text-lg font-bold">{identity.displayName || identity.username}</p>
               </div>
-              {next !== defaultReturnPath ? (
+              {!identity.isEmailVerified && next !== defaultReturnPath ? (
+                <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-950">
+                  Verify your email to enter contests. After you confirm your email, come back here and continue to {returnStep.shortLabel.toLowerCase()}.
+                </div>
+              ) : null}
+              {identity.isEmailVerified && next !== defaultReturnPath ? (
                 <Button asChild className="w-full">
                   <Link href={next}>{returnStep.actionLabel}</Link>
                 </Button>

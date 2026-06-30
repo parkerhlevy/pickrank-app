@@ -8,6 +8,7 @@ import {
   normalizeReturnPath,
   normalizeUsername,
   validateUsername,
+  verifyEmailToEnterContestsMessage,
 } from '../../lib/auth-profile';
 
 describe('auth profile helpers', () => {
@@ -23,6 +24,17 @@ describe('auth profile helpers', () => {
     );
     expect(buildProfileHref('/contests/week-1-qb-passing-yards/payment')).toBe(
       '/profile?next=%2Fcontests%2Fweek-1-qb-passing-yards%2Fpayment',
+    );
+  });
+
+  it('builds profile handoff links with additional gate messaging', () => {
+    expect(
+      buildProfileHref('/contests/week-1-qb-passing-yards/payment', {
+        status: 'error',
+        message: verifyEmailToEnterContestsMessage,
+      }),
+    ).toBe(
+      '/profile?next=%2Fcontests%2Fweek-1-qb-passing-yards%2Fpayment&status=error&message=Verify+your+email+to+enter+contests.',
     );
   });
 

@@ -3,11 +3,12 @@ import { ArrowRight, Clock, DollarSign, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { openContests } from '@/lib/phase-0-demo';
+import { listPublicContests, type ContestSummary } from '@/lib/contest-data';
 
-export default function ContestsPage() {
-  const featuredContest = openContests[0];
-  const supportingContests = openContests.slice(1);
+export default async function ContestsPage() {
+  const contests = await listPublicContests();
+  const featuredContest = contests[0] ?? null;
+  const supportingContests = contests.slice(1);
 
   return (
     <div className="space-y-6">
@@ -27,26 +28,35 @@ export default function ContestsPage() {
         </p>
       </div>
 
-      <Card className="overflow-hidden">
-        <CardHeader className="bg-slate-950 text-white">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="mb-1 text-xs font-bold uppercase text-blue-300">Featured</p>
-              <CardTitle>{featuredContest.title}</CardTitle>
-              <CardDescription className="text-slate-300">{featuredContest.task}</CardDescription>
+      {featuredContest ? (
+        <Card className="overflow-hidden">
+          <CardHeader className="bg-slate-950 text-white">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="mb-1 text-xs font-bold uppercase text-blue-300">Featured</p>
+                <CardTitle>{featuredContest.title}</CardTitle>
+                <CardDescription className="text-slate-300">{featuredContest.task}</CardDescription>
+              </div>
+              <span className="rounded-full border border-blue-300/30 bg-blue-400/15 px-2.5 py-1 text-xs font-bold text-blue-200">
+                {featuredContest.status}
+              </span>
             </div>
-            <span className="rounded-full border border-blue-300/30 bg-blue-400/15 px-2.5 py-1 text-xs font-bold text-blue-200">
-              {featuredContest.status}
-            </span>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <ContestStats contest={featuredContest} />
-          <Button asChild className="w-full">
-            <Link href={`/contests/${featuredContest.id}`}>Enter Contest</Link>
-          </Button>
-        </CardContent>
-      </Card>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <ContestStats contest={featuredContest} />
+            <Button asChild className="w-full">
+              <Link href={`/contests/${featuredContest.id}`}>Enter Contest</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card>
+          <CardContent className="space-y-2 pt-6 text-sm text-muted-foreground">
+            <p className="font-semibold text-foreground">No contests are available right now.</p>
+            <p>An internal contest operator can create, validate, and publish the next contest from admin.</p>
+          </CardContent>
+        </Card>
+      )}
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">More Open Contests</h2>
@@ -81,7 +91,7 @@ function ContestStats({
   contest,
   compact = false,
 }: {
-  contest: (typeof openContests)[number];
+  contest: ContestSummary;
   compact?: boolean;
 }) {
   return (

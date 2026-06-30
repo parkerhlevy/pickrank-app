@@ -17,11 +17,7 @@ import {
   getPersistedContestEntry,
   persistedContestEntryCookieName,
 } from '@/lib/persisted-contest-entry';
-import {
-  demoLineupBuilderPlayers,
-  getContestById,
-  isContestLineupEditable,
-} from '@/lib/phase-0-demo';
+import { getContestById, getContestLineupPlayers, isContestLineupEditable } from '@/lib/contest-data';
 
 export default async function LineupBuilderPage({
   params,
@@ -29,7 +25,7 @@ export default async function LineupBuilderPage({
   params: Promise<{ contestId: string }>;
 }) {
   const { contestId } = await params;
-  const contest = getContestById(contestId);
+  const contest = await getContestById(contestId);
   const next = `/contests/${contest.id}/lineup`;
   const protectedRedirect = await getProtectedContestEntryRedirect(next);
 
@@ -50,10 +46,11 @@ export default async function LineupBuilderPage({
 
   const stateCopy = getContestEntryStateCopy(routeState.stage);
   const flowSteps = getContestEntrySteps(routeState.stage);
+  const lineupPlayers = getContestLineupPlayers(contest);
   const persistedEntry = getPersistedContestEntry(
     contest.id,
     cookieStore.get(persistedContestEntryCookieName)?.value,
-    demoLineupBuilderPlayers,
+    lineupPlayers,
   );
   const isEditable = isContestLineupEditable(contest);
 
@@ -63,12 +60,12 @@ export default async function LineupBuilderPage({
 
   const initialLineupState = persistedEntry
     ? createLineupStateFromSavedOrder({
-        players: demoLineupBuilderPlayers,
+        players: lineupPlayers,
         savedOrder: persistedEntry.lineupOrder,
         source: persistedEntry.source,
         lastSavedAt: persistedEntry.lastSavedAt,
       })
-    : createDefaultLineupState(demoLineupBuilderPlayers);
+    : createDefaultLineupState(lineupPlayers);
 
   return (
     <LineupBuilderClient

@@ -13,7 +13,7 @@ import {
   getContestEntrySteps,
   getPersistedContestEntryStage,
 } from '@/lib/contest-entry-flow';
-import { formatCents, getContestById, getPaymentReviewBreakdown } from '@/lib/phase-0-demo';
+import { formatCents, getContestById, getPaymentReviewBreakdown } from '@/lib/contest-data';
 
 export default async function PaymentReviewPage({
   params,
@@ -21,7 +21,7 @@ export default async function PaymentReviewPage({
   params: Promise<{ contestId: string }>;
 }) {
   const { contestId } = await params;
-  const contest = getContestById(contestId);
+  const contest = await getContestById(contestId);
   const next = `/contests/${contest.id}/payment`;
   const protectedRedirect = await getProtectedContestEntryRedirect(next);
 
@@ -42,7 +42,7 @@ export default async function PaymentReviewPage({
 
   const stateCopy = getContestEntryStateCopy(routeState.stage);
   const flowSteps = getContestEntrySteps(routeState.stage);
-  const breakdown = getPaymentReviewBreakdown(contest.entryFee);
+  const breakdown = getPaymentReviewBreakdown(contest.entryFeeCents);
 
   const upcomingSteps = flowSteps.filter((step) => step.status === 'upcoming');
 

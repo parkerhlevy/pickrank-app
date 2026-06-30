@@ -1,4 +1,8 @@
-import { buildAuthHref, buildProfileHref } from '@/lib/auth-profile';
+import {
+  buildAuthHref,
+  buildProfileHref,
+  verifyEmailToEnterContestsMessage,
+} from '@/lib/auth-profile';
 
 export const contestEntryStages = ['not-entered', 'payment-review', 'entered', 'lineup'] as const;
 export const contestEntryCookieName = 'pickrank_demo_entry_state';
@@ -164,6 +168,7 @@ export function getContestDetailPrimaryAction({
   isAuthenticated,
   isContestOpen,
   isProfileComplete,
+  isEmailVerified,
 }: {
   contestId: string;
   entryFee: string;
@@ -171,6 +176,7 @@ export function getContestDetailPrimaryAction({
   isAuthenticated: boolean;
   isContestOpen: boolean;
   isProfileComplete: boolean;
+  isEmailVerified: boolean;
 }) {
   if (hasEntry) {
     return {
@@ -202,6 +208,17 @@ export function getContestDetailPrimaryAction({
     return {
       label: 'Complete Profile to Enter',
       href: buildProfileHref(next),
+      disabled: false,
+    };
+  }
+
+  if (!isEmailVerified) {
+    return {
+      label: 'Verify Email to Enter',
+      href: buildProfileHref(next, {
+        status: 'error',
+        message: verifyEmailToEnterContestsMessage,
+      }),
       disabled: false,
     };
   }

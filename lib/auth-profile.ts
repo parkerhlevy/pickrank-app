@@ -1,6 +1,16 @@
 import type { User } from '@supabase/supabase-js';
 
 export const defaultReturnPath = '/profile';
+export const verifyEmailToEnterContestsMessage = 'Verify your email to enter contests.';
+
+export type ProfileIdentity = {
+  email: string;
+  username: string;
+  displayName: string;
+  emailConfirmedAt: string | null;
+  isProfileComplete: boolean;
+  isEmailVerified: boolean;
+};
 
 type ReturnStepCopy = {
   actionLabel: string;
@@ -23,10 +33,17 @@ export function buildAuthHref(next = defaultReturnPath) {
   return `/auth?${new URLSearchParams({ next: normalizedNext }).toString()}`;
 }
 
-export function buildProfileHref(next = defaultReturnPath) {
+export function buildProfileHref(next = defaultReturnPath, params?: Record<string, string>) {
   const normalizedNext = normalizeReturnPath(next, defaultReturnPath);
+  const searchParams = new URLSearchParams({ next: normalizedNext });
 
-  return `/profile?${new URLSearchParams({ next: normalizedNext }).toString()}`;
+  if (params) {
+    for (const [key, value] of Object.entries(params)) {
+      searchParams.set(key, value);
+    }
+  }
+
+  return `/profile?${searchParams.toString()}`;
 }
 
 export function normalizeUsername(value: string) {
@@ -125,7 +142,7 @@ export function getReturnStepCopy(next: string): ReturnStepCopy {
   };
 }
 
-export function getProfileIdentity(user: User | null) {
+export function getProfileIdentity(user: User | null): ProfileIdentity {
   const metadata = user?.user_metadata ?? {};
   const username = typeof metadata.username === 'string' ? normalizeUsername(metadata.username) : '';
   const displayName = typeof metadata.display_name === 'string' ? metadata.display_name : username;

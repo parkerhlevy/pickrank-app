@@ -4,12 +4,10 @@ import { ArrowLeft, ChevronRight, Clock, DollarSign, Lock, Users } from 'lucide-
 import type { LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { getProfileIdentity } from '@/lib/auth-profile';
 import { getContestDetailPrimaryAction } from '@/lib/contest-entry-flow';
-import { hasBrowserSupabaseConfig } from '@/lib/env';
+import { getContestById, getContestLineupPlayers, isContestOpenForEntry } from '@/lib/contest-data';
 import { getPersistedContestEntry, persistedContestEntryCookieName } from '@/lib/persisted-contest-entry';
-import { demoLineupBuilderPlayers, getContestById, isContestOpenForEntry } from '@/lib/phase-0-demo';
-import { createClient } from '@/lib/supabase/server';
+import { getViewerIdentity } from '@/lib/viewer-identity';
 
 export default async function ContestDetailPage({
   params,
@@ -17,39 +15,25 @@ export default async function ContestDetailPage({
   params: Promise<{ contestId: string }>;
 }) {
   const { contestId } = await params;
-  const contest = getContestById(contestId);
+  const contest = await getContestById(contestId);
   const cookieStore = await cookies();
-  let isAuthenticated = false;
-  let isProfileComplete = false;
-
-  if (hasBrowserSupabaseConfig()) {
-    try {
-      const supabase = await createClient();
-      const { data } = await supabase.auth.getUser();
-      const identity = getProfileIdentity(data.user);
-
-      isAuthenticated = Boolean(data.user);
-      isProfileComplete = identity.isProfileComplete;
-    } catch {
-      isAuthenticated = false;
-      isProfileComplete = false;
-    }
-  }
+  const viewerIdentity = await getViewerIdentity();
 
   const hasEntry = Boolean(
     getPersistedContestEntry(
       contest.id,
       cookieStore.get(persistedContestEntryCookieName)?.value,
-      demoLineupBuilderPlayers,
+      getContestLineupPlayers(contest),
     ),
   );
   const primaryAction = getContestDetailPrimaryAction({
     contestId: contest.id,
     entryFee: contest.entryFee,
     hasEntry,
-    isAuthenticated,
+    isAuthenticated: viewerIdentity.isAuthenticated,
     isContestOpen: isContestOpenForEntry(contest),
-    isProfileComplete,
+    isProfileComplete: viewerIdentity.isProfileComplete,
+    isEmailVerified: viewerIdentity.isEmailVerified,
   });
 
   return (
@@ -144,7 +128,7 @@ export default async function ContestDetailPage({
         </CardContent>
       </Card>
 
-      {!isAuthenticated ? (
+      {!viewerIdentity.isAuthenticated ? (
         <Card>
           <CardHeader>
             <CardTitle>What You Can Do Now</CardTitle>

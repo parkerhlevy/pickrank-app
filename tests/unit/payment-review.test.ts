@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { formatCents, getPaymentReviewBreakdown } from '../../lib/phase-0-demo';
+import { formatCents, getPaymentReviewBreakdown } from '../../lib/contest-data';
 
 describe('payment review placeholder breakdown', () => {
   it('applies Site Credit before Cash Balance before amount due today', () => {
-    expect(getPaymentReviewBreakdown('$5')).toEqual({
+    expect(getPaymentReviewBreakdown(500)).toEqual({
       entryFeeCents: 500,
       siteCreditAppliedCents: 200,
       cashBalanceAppliedCents: 100,

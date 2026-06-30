@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { demoLineupBuilderPlayers, getContestById, isContestLineupEditable } from '@/lib/phase-0-demo';
+import { getContestById, getContestLineupPlayers, isContestLineupEditable } from '@/lib/contest-data';
 import {
   persistedContestEntryCookieName,
   savePersistedContestEntryLineup,
@@ -11,7 +11,8 @@ export async function POST(
   { params }: { params: Promise<{ contestId: string }> },
 ) {
   const { contestId } = await params;
-  const contest = getContestById(contestId);
+  const contest = await getContestById(contestId);
+  const lineupPlayers = getContestLineupPlayers(contest);
 
   if (!isContestLineupEditable(contest)) {
     return NextResponse.json(
@@ -35,7 +36,7 @@ export async function POST(
     const result = savePersistedContestEntryLineup({
       contestId,
       cookieValue,
-      players: demoLineupBuilderPlayers,
+      players: lineupPlayers,
       order: body.order,
     });
     const response = NextResponse.json({

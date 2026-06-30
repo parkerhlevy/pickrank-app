@@ -12,7 +12,7 @@ import {
   getContestEntryStateCopy,
   getPersistedContestEntryStage,
 } from '@/lib/contest-entry-flow';
-import { getContestById } from '@/lib/phase-0-demo';
+import { getContestById } from '@/lib/contest-data';
 
 export default async function EntrySuccessPage({
   params,
@@ -20,7 +20,7 @@ export default async function EntrySuccessPage({
   params: Promise<{ contestId: string }>;
 }) {
   const { contestId } = await params;
-  const contest = getContestById(contestId);
+  const contest = await getContestById(contestId);
   const next = `/contests/${contest.id}/success`;
   const protectedRedirect = await getProtectedContestEntryRedirect(next);
 

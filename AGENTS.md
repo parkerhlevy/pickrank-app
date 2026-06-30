@@ -27,7 +27,7 @@
 ## Starter Prompt For Future Chats
 
 ```text
-Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Before changing behavior, read `docs/agent-handoff.md`, `spec/product_spec.md`, and the relevant `spec/features/` files for the slice you are about to work on, plus any in-progress worktree files already involved. Work carefully with existing in-progress files. Keep the slice narrow, avoid payouts, scoring, real-money, compliance, and other broader lifecycle work unless explicitly requested, and run typecheck, tests, and browser verification before closing. Explain results business-first: what changed, why it matters, what passed, and what I need to do next.
+Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Before changing behavior, read `docs/agent-handoff.md`, `spec/product_spec.md`, and the relevant `spec/features/` files for the slice you are about to work on, plus any in-progress worktree files already involved. Work carefully with existing in-progress files. Keep the slice narrow, avoid payouts, scoring, real-money, compliance, and other broader lifecycle work unless explicitly requested, and run typecheck, tests, and browser verification before closing. Before you finish, refresh `docs/agent-handoff.md` if the slice changed repo reality or the next recommended move. Explain results business-first: what changed, why it matters, what passed, and what I need to do next.
 ```
 
 ## Kickoff Prompt Rule
@@ -35,3 +35,9 @@ Continue PickRank using the repo as source of truth. Keep explanations business-
 ```text
 Every time we are ready to move to a new PickRank task or a new chat, start by giving me the recommended kickoff prompt for that next slice before doing the work.
 ```
+
+## Handoff Update Rule
+
+- Codex owns updates to `docs/agent-handoff.md`.
+- Refresh it at the end of any slice that changes repo reality, stage, active in-progress work, or the next recommended move.
+- Parker should not need to remind the agent to do this.
