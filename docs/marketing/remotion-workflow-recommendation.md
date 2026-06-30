@@ -22,7 +22,7 @@ This is intentionally narrow. It does not change app behavior, product rules, or
 Use a standalone Remotion project inside the repo at:
 
 ```text
-marketing-video/
+assets/marketing/video/
 ```
 
 This is cleaner than wiring Remotion directly into the existing Next.js app because it:
@@ -40,12 +40,12 @@ The app repo is currently a single Next.js package. Adding Remotion directly int
 - marketing assets would sit next to product code
 - future video variants would create noise in the app package
 
-For this repo state, a sibling project is the lowest-friction option.
+For this repo state, a standalone project folder is the lowest-friction option.
 
 ## Recommended Folder Shape
 
 ```text
-marketing-video/
+assets/marketing/video/
   package.json
   tsconfig.json
   remotion.config.ts
@@ -59,9 +59,11 @@ marketing-video/
         scenes/
           HookScene.tsx
           IntroScene.tsx
-          MechanicScene.tsx
+          SelectionScene.tsx
+          RankingScene.tsx
+          ScoringScene.tsx
           DifferentiatorScene.tsx
-          SocialScene.tsx
+          NationalScene.tsx
           CtaScene.tsx
         components/
           FullscreenText.tsx
@@ -78,21 +80,12 @@ marketing-video/
           theme.ts
     data/
       pickrank-launch-video.ts
-  public/
-    brand/
-      pickrank-wordmark.svg
-      pickrank-icon.svg
-    audio/
-      launch-bed.mp3
-      launch-voiceover.wav
-    textures/
-      stadium-grain.png
-      grid-noise.png
-    ui/
-      app-shell-frame.png
-      contest-card.png
-      leaderboard-card.png
+  out/
+    pickrank-landing-video.mp4
+    pickrank-landing-thumb.png
 ```
+
+`out/` and `node_modules/` should stay ignored. The repo should keep the source project and lockfile, not rendered exports or installed packages.
 
 ## Composition Plan
 
@@ -102,8 +95,8 @@ marketing-video/
 - Composition id: `PickRankLandingVideo`
 - Size: `1920x1080`
 - FPS: `30`
-- Duration: `1560` frames
-- Total runtime: `52s`
+- Duration: `960` frames
+- Total runtime: `32s`
 
 ### Optional Supporting Outputs
 
@@ -128,31 +121,33 @@ Use `interpolate()` with clamped frame ranges and crisp ease-out curves for entr
 
 ### Asset Approach
 
-Put local assets in `marketing-video/public/` and reference them with `staticFile()`.
+Keep the current build self-contained in `assets/marketing/video/`. Add `public/` only if a later cut truly needs local media files.
 
 ## Concrete Timeline
 
-Version 1 should stay at six scenes, one idea at a time.
+The current baseline uses eight short scenes with one idea per scene.
 
 | Scene | Frames | Time | Purpose |
 | --- | ---: | ---: | --- |
-| Hook | `0-149` | `0:00-0:05` | Stop the scroll and set the tension |
-| Intro | `150-389` | `0:05-0:13` | Define PickRank in one sentence |
-| Mechanic | `390-719` | `0:13-0:24` | Show ranking and accuracy scoring |
-| Differentiator | `720-1079` | `0:24-0:36` | Show why it feels simpler than fantasy |
-| Social | `1080-1439` | `0:36-0:48` | Make the friend-group payoff feel real |
-| CTA | `1440-1559` | `0:48-0:52` | End cleanly with early-access signup |
+| Hook | `0-89` | `0:00-0:03` | Open with a fast, clear challenge |
+| Intro | `90-179` | `0:03-0:06` | Define PickRank in one sentence |
+| Selection | `180-299` | `0:06-0:10` | Show the 15-player slate and 10-pick task |
+| Ranking | `300-419` | `0:10-0:14` | Show drag-and-rank movement |
+| Scoring | `420-539` | `0:14-0:18` | Explain accuracy-based scoring |
+| Differentiator | `540-659` | `0:18-0:22` | Show why it feels simpler than fantasy |
+| National | `660-809` | `0:22-0:27` | Show the shared leaderboard payoff |
+| CTA | `810-959` | `0:27-0:32` | End cleanly with a waitlist CTA |
 
 ## Scene Map
 
 ### 1. Hook
 
-- Frames: `0-149`
-- Goal: make the viewer feel the problem before showing UI
+- Frames: `0-89`
+- Goal: stop the scroll with a fast challenge before showing UI depth
 - Copy beats:
-  - `Fantasy is fun.`
-  - `But proving who knows the games best`
-  - `should be simpler.`
+  - `Pick 10.`
+  - `Rank them.`
+  - `Beat your friends.`
 - Visual treatment:
   - full-screen type
   - restrained dark-sports hybrid background
@@ -161,7 +156,7 @@ Version 1 should stay at six scenes, one idea at a time.
 - Motion:
   - staggered headline reveals
   - low-motion background drift
-  - one sharp exit transition at frame `132`
+  - one sharp exit transition at frame `78`
 - Props:
   - `lines: string[]`
   - `backgroundVariant: "texture-grid"`
@@ -169,7 +164,7 @@ Version 1 should stay at six scenes, one idea at a time.
 
 ### 2. Intro
 
-- Frames: `150-389`
+- Frames: `90-179`
 - Goal: define PickRank quickly and cleanly
 - Copy beats:
   - `Meet PickRank`
@@ -184,88 +179,116 @@ Version 1 should stay at six scenes, one idea at a time.
 - Props:
   - `headline`
   - `subhead`
-  - `logoPath`
   - `featureCards`
 
-### 3. Mechanic
+### 3. Selection
 
-- Frames: `390-719`
-- Goal: explain the game loop with almost no ambiguity
+- Frames: `180-299`
+- Goal: show the contest setup before any ranking animation starts
 - Copy beats:
-  - `Rank the slate`
-  - `One stat category`
-  - `Put players in order`
-  - `Get scored on accuracy`
+  - `15-player slate`
+  - `Choose 10`
+  - `QB Passing Yards`
 - Visual treatment:
   - phone-frame or stylized panel
-  - 15-player slate implied, with 10 ranked slots highlighted
-  - ranked list locks in
-  - actual results compare against user order
+  - 15-player slate visible
+  - 10 selected players highlighted
 - Motion:
-  - drag-reorder interaction
-  - rank numbers flip
-  - score badge settles in at the end
+  - selection chips settle in
+  - chosen players highlight cleanly
 - Props:
   - `statCategory: "QB Passing Yards"`
-  - `availablePlayers`
-  - `rankedPlayers`
-  - `actualResults`
-  - `scoreSummary`
+  - `allPlayers`
+  - `selectedPlayers`
 - Guardrail:
   - show the contest as a slate-ranking challenge
   - do not introduce payouts, wallet balances, or betting language
 
-### 4. Differentiator
+### 4. Ranking
 
-- Frames: `720-1079`
-- Goal: make the product feel simpler without attacking fantasy
+- Frames: `300-419`
+- Goal: make the ranking interaction instantly legible
 - Copy beats:
-  - `No full roster management`
-  - `No season-long maintenance`
-  - `Just picks, accuracy, and competition`
+  - `Rank the slate`
+  - `Drag players into order`
 - Visual treatment:
-  - one focused comparison canvas
-  - left-side clutter collapses away
-  - right-side PickRank flow remains clean
+  - ranked list in a phone frame
+  - one dragged row as the focal motion beat
 - Motion:
-  - cluttered blocks sweep out
-  - clean stack remains
-  - final line lands centered
+  - dragged player lifts and settles
+  - rank numbers update cleanly
 - Props:
-  - `comparisonLabels`
-  - `pickrankBenefits`
+  - `rankedPlayers`
+  - `draggedPlayer`
+  - `draggedFrom`
+  - `draggedTo`
 
-### 5. Social
+### 5. Scoring
 
-- Frames: `1080-1439`
-- Goal: move from abstract product explanation to social payoff
+- Frames: `420-539`
+- Goal: explain how accuracy turns into a result
 - Copy beats:
-  - `Run it with your friends`
-  - `See who called it best`
-  - `Climb the board`
+  - `Closer picks score better`
+  - `Get scored on accuracy`
+- Visual treatment:
+  - side-by-side picked rank and actual rank
+  - simple score badge
+- Motion:
+  - result badge settles in
+  - supporting line lands last
+- Props:
+  - `player`
+  - `pickedRank`
+  - `actualRank`
+  - `distance`
+  - `scoreSummary`
+  - `supportingLine`
+
+### 6. Differentiator
+
+- Frames: `540-659`
+- Goal: make the format feel simpler without sounding defensive
+- Copy beats:
+  - `No full roster`
+  - `No long season`
+  - `One weekly result`
+- Visual treatment:
+  - clean comparison-style typography
+  - no cluttered fantasy-dashboard parody
+- Motion:
+  - each line lands in sequence
+- Props:
+  - `headline`
+  - `lines`
+
+### 7. National
+
+- Frames: `660-809`
+- Goal: move from mechanic to shared competition
+- Copy beats:
+  - `Beat the field`
+  - `One nationwide board`
 - Visual treatment:
   - leaderboard card
-  - avatar chips
-  - position changes
-  - subtle podium energy
+  - restrained highlight on the user row
 - Motion:
-  - rows reorder into final standings
-  - user row highlights briefly
-  - first-place glow stays restrained
+  - rows settle into final order
+  - highlighted row pulses once
 - Props:
+  - `headline`
+  - `supportingLine`
   - `leaderboardRows`
-  - `friendAvatars`
   - `highlightedUser`
 
-### 6. CTA
+### 8. CTA
 
-- Frames: `1440-1559`
+- Frames: `810-959`
 - Goal: end with one clear ask
 - Copy beats:
   - `PickRank`
   - `Rank the slate`
-  - `Compete on accuracy`
-  - `Sign up for early access`
+  - `Beat the field`
+  - `Join the waitlist`
 - Visual treatment:
   - clean end card
   - wordmark
@@ -276,7 +299,8 @@ Version 1 should stay at six scenes, one idea at a time.
   - CTA button appears second
   - final hold long enough for homepage embed pause state
 - Props:
-  - `logoPath`
+  - `headline`
+  - `supportingLines`
   - `ctaLabel`
   - `ctaUrlLabel`
 
@@ -326,25 +350,40 @@ export type LaunchVideoData = {
       headline: string;
       subhead: string;
     };
-    mechanic: {
+    selection: {
       statCategory: string;
-      availablePlayers: string[];
+      allPlayers: string[];
+      selectedPlayers: string[];
+    };
+    ranking: {
       rankedPlayers: string[];
-      actualResults: string[];
+      draggedPlayer: string;
+      draggedFrom: number;
+      draggedTo: number;
+    };
+    scoring: {
+      player: string;
+      pickedRank: number;
+      actualRank: number;
+      distance: number;
       scoreSummary: string;
+      supportingLine: string;
     };
     differentiator: {
-      comparisonLabels: string[];
-      pickrankBenefits: string[];
+      headline: string;
+      lines: string[];
     };
-    social: {
-      leaderboardRows: Array<{name: string; points: number}>;
+    national: {
+      headline: string;
+      supportingLine: string;
+      leaderboardRows: Array<{name: string; points: number; region: string}>;
       highlightedUser: string;
     };
     cta: {
       headline: string;
       supportingLines: string[];
       ctaLabel: string;
+      ctaUrlLabel: string;
     };
   };
 };
@@ -381,17 +420,17 @@ If the product UI is not polished enough yet, use stylized UI-inspired blocks ra
 
 Use generic or placeholder-safe sample content first.
 
-- `availablePlayers`
-  - `A. Carter`
-  - `J. Brooks`
-  - `M. Daniels`
-  - `R. Evans`
-  - `T. Fields`
+- `allPlayers`
+  - `Josh Allen`
+  - `Joe Burrow`
+  - `Jalen Hurts`
+  - `Patrick Mahomes`
+  - `Brock Purdy`
 - `leaderboardRows`
-  - `Alex`, `67`
-  - `Jordan`, `65`
-  - `Casey`, `64`
-  - `You`, `61`
+  - `Texas Tate`, `67`, `TX`
+  - `Philly Phil`, `65`, `PA`
+  - `Miami Max`, `64`, `FL`
+  - `You`, `61`, `CA`
 
 That keeps the mechanic legible without creating rights or product-readiness confusion.
 
@@ -399,17 +438,17 @@ That keeps the mechanic legible without creating rights or product-readiness con
 
 When you are ready to implement, the cleanest order is:
 
-1. Create `marketing-video/` as a standalone Remotion app.
+1. Keep `assets/marketing/video/` as the standalone Remotion app.
 2. Register `PickRankLandingVideo` and `PickRankLandingThumb`.
-3. Add shared theme and motion helpers.
-4. Build scenes in this order:
+3. Keep shared theme and motion helpers centralized.
+4. Refine scenes in this order:
    - Hook
-   - Intro
+   - Selection
+   - Ranking
+   - Scoring
+   - National
    - CTA
-   - Mechanic
-   - Social
-   - Differentiator
-5. Drop in temporary audio last, after pacing is readable without sound.
+5. Add temporary audio last, after pacing is readable without sound.
 
 That order gets a presentable first cut faster than starting with the most complex mechanic animation.
 

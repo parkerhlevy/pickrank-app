@@ -10,7 +10,7 @@ Primary job:
 
 - make the concept instantly understandable
 - make it feel competitive and social
-- make the product feel real and worth signing up for
+- make the product feel real and worth joining the waitlist for
 
 Secondary job:
 
@@ -21,7 +21,7 @@ Secondary job:
 - Primary format: `16:9`
 - Recommended size: `1920x1080`
 - FPS: `30`
-- Target duration: `45-60 seconds`
+- Target duration: `30-35 seconds`
 - Tone: clean, competitive, modern, confident
 - Audience: sports fans who like fantasy competition and friendly group bragging rights
 
@@ -58,14 +58,14 @@ Do not:
 
 ## Core Message
 
-If fantasy sports makes you feel like luck matters too much, PickRank gives you a simpler, sharper way to compete.
+PickRank gives sports fans a simple new way to compete with friends and prove who knows the games and matchups best.
 
 You do not build a full roster.
 You do not manage a long season.
 You rank a slate of players around one stat category.
 Then you see how close your order was to the real final results.
 
-It is fast to understand, easy to enter, and naturally competitive with friends.
+It is fast to understand, naturally competitive with friends, and clear enough to spark waitlist interest without overexplaining the product.
 
 ## Single-Sentence Positioning
 
@@ -78,7 +78,7 @@ By the end of the video, the viewer should think:
 - I get it immediately
 - this feels easier to jump into than traditional fantasy
 - this would be fun to run with friends
-- I want to sign up and try it
+- I want to join the waitlist and keep an eye on it
 
 ## Recommended Structure
 
@@ -88,15 +88,16 @@ Prefer one idea at a time.
 
 ### Scene 1: Hook
 
-Duration: `0:00-0:05`
+Duration: `0:00-0:03`
 
 Goal:
-Stop the scroll and make the core tension clear.
+Stop the scroll with a fast challenge that feels competitive immediately.
 
 Suggested on-screen text:
 
-- `Fantasy is fun.`
-- `But proving who knows the games best should be simpler.`
+- `Pick 10.`
+- `Rank them.`
+- `Beat your friends.`
 
 Visual direction:
 
@@ -107,11 +108,11 @@ Visual direction:
 
 Suggested narration:
 
-`Fantasy is fun. But proving who actually knows the games best should be simpler.`
+`Pick 10 players, rank them, and see who called the week best.`
 
 ### Scene 2: What PickRank Is
 
-Duration: `0:05-0:13`
+Duration: `0:03-0:06`
 
 Goal:
 Define the product in one clean idea.
@@ -131,81 +132,121 @@ Suggested narration:
 
 `PickRank is a skill-based NFL contest built around one simple challenge.`
 
-### Scene 3: The Mechanic
+### Scene 3: Selection Setup
 
-Duration: `0:13-0:24`
+Duration: `0:06-0:10`
 
 Goal:
-Explain how it works in the simplest possible way.
+Show the contest setup before the ranking motion starts.
 
 Suggested on-screen text sequence:
 
+- `15-player slate`
+- `Choose 10`
+- `QB Passing Yards`
+
+Visual direction:
+
+- UI-inspired motion showing the full slate
+- selected players lighting up clearly
+- one stat category called out without clutter
+
+Suggested narration:
+
+`Each contest gives you one stat category and a 15-player slate. You choose the 10 players you want to rank.`
+
+### Scene 4: Ranking Motion
+
+Duration: `0:10-0:14`
+
+Goal:
+Make the core interaction instantly legible.
+
+Suggested on-screen text:
+
 - `Rank the slate`
-- `One stat category`
-- `Put players in order`
+- `Drag players into order`
+
+Visual direction:
+
+- clean drag-and-rank movement
+- numbered rows locking into place
+- one obvious motion beat, not a busy sequence
+
+Suggested narration:
+
+`Then you drag them into the order you think will finish best.`
+
+### Scene 5: Accuracy Scoring
+
+Duration: `0:14-0:18`
+
+Goal:
+Explain the scoring in one clean beat.
+
+Suggested on-screen text:
+
 - `Get scored on accuracy`
+- `Closer picks score better`
 
 Visual direction:
 
-- UI-inspired motion showing a small player slate
-- drag-and-rank interaction
-- a ranked list locking into place
-- final results comparing user order against actual order
+- picked rank versus actual rank
+- one clear score badge
+- simple comparison, not rules-heavy detail
 
 Suggested narration:
 
-`You get a slate of players and one stat category. Rank them in the order you think they will finish. When the games end, your score is based on how close you were to the real results.`
+`When the games end, your score comes from how close your rankings were to the real results.`
 
-### Scene 4: Why It Feels Better
+### Scene 6: Why It Feels Better
 
-Duration: `0:24-0:36`
+Duration: `0:18-0:22`
 
 Goal:
-Differentiate PickRank from traditional fantasy without sounding negative or defensive.
+Differentiate PickRank from traditional fantasy without sounding defensive.
 
 Suggested on-screen text:
 
-- `No full roster management`
-- `No season-long maintenance`
-- `Just picks, accuracy, and competition`
+- `No full roster`
+- `No long season`
+- `One weekly result`
 
 Visual direction:
 
-- clean comparison-style motion
-- avoid cheesy split-screen clichés
-- keep typography and card motion crisp
+- clean type-led comparison feel
+- restrained motion
+- no fantasy-dashboard clutter
 
 Suggested narration:
 
-`No full roster management. No long season commitment. Just picks, accuracy, and real competition.`
+`No full roster management. No long season to maintain. Just one weekly challenge built around sharp picks.`
 
-### Scene 5: Social Payoff
+### Scene 7: Shared Competition
 
-Duration: `0:36-0:48`
+Duration: `0:22-0:27`
 
 Goal:
-Make it feel fun with friends, not just abstractly clever.
+Make the social payoff feel real.
 
 Suggested on-screen text:
 
-- `Run it with your friends`
-- `See who called it best`
-- `Climb the board`
+- `Beat the field`
+- `One nationwide board`
 
 Visual direction:
 
 - leaderboard motion
-- profile chips or avatars
-- podium or ranking movement
-- subtle celebration energy, not casino energy
+- subtle highlight on the user row
+- competitive energy without casino styling
 
 Suggested narration:
 
-`It is the kind of game that works instantly with your friends. Make your picks, compare results, and see who really called the week best.`
+`Then you see exactly where you landed against the field.`
 
-### Scene 6: CTA
+### Scene 8: CTA
 
-Duration: `0:48-0:58`
+Duration: `0:27-0:32`
 
 Goal:
 End with a clean next step.
@@ -214,8 +255,8 @@ Suggested on-screen text:
 
 - `PickRank`
 - `Rank the slate`
-- `Compete on accuracy`
-- `Sign up for early access`
+- `Beat the field`
+- `Join the waitlist`
 
 Visual direction:
 
@@ -226,7 +267,7 @@ Visual direction:
 
 Suggested narration:
 
-`PickRank makes fantasy competition simpler, faster, and sharper. Sign up and be early.`
+`PickRank makes fantasy competition simpler, faster, and sharper. Join the waitlist to follow the launch.`
 
 ## Recommended Voiceover Style
 
@@ -318,7 +359,7 @@ Remotion is code-based, so this should be built as a composition, not treated li
 Recommended implementation shape:
 
 - one main composition for the landing-page version
-- `1920x1080`, `30fps`, `45-60s`
+- `1920x1080`, `30fps`, `30-35s`
 - scene timing controlled with explicit frame ranges
 - on-screen copy as structured data, not hardcoded inline everywhere
 - reusable components for:
@@ -359,8 +400,8 @@ For the first version, optimize for clarity over production complexity.
 
 That means:
 
-- 45-55 seconds
-- 6 scenes max
+- 30-35 seconds
+- 8 short scenes max
 - one clear voiceover track
 - strong captions or on-screen text
 - no feature sprawl
@@ -371,7 +412,7 @@ That means:
 ```text
 Create a Remotion marketing video for PickRank.
 
-Build one main composition named `PickRankLandingVideo` in 1920x1080 at 30fps with a total duration between 45 and 60 seconds.
+Build one main composition named `PickRankLandingVideo` in 1920x1080 at 30fps with a total duration between 30 and 35 seconds.
 
 The purpose of the video is to explain what PickRank is and why it feels like a simpler, more competitive fantasy sports game to play with friends.
 
@@ -392,23 +433,27 @@ Constraints:
 - Prefer premium product-marketing motion, not generic template effects.
 
 Required scene flow:
-1. Hook: fantasy is fun, but proving who knows the games best should be simpler.
+1. Hook: pick 10, rank them, beat your friends.
 2. Introduce PickRank as a skill-based NFL ranking contest.
-3. Explain the mechanic: rank the slate, one stat category, score based on accuracy.
-4. Differentiate it from traditional fantasy: no full roster management, no long season commitment, just picks and competition.
-5. Show the social payoff: compete with friends, compare picks, climb the board.
-6. End with a CTA to sign up for early access.
+3. Show the 15-player slate and 10-pick setup.
+4. Show the drag-to-rank interaction.
+5. Explain that scoring comes from accuracy.
+6. Differentiate it from traditional fantasy: no full roster management, no long season commitment, one weekly result.
+7. Show the social payoff through the shared leaderboard.
+8. End with a CTA to join the waitlist.
 
 Suggested on-screen phrases to use or adapt:
-- Fantasy is fun. But proving who knows the games best should be simpler.
+- Pick 10.
+- Rank them.
+- Beat your friends.
 - Meet PickRank
 - A skill-based NFL ranking contest
-- Rank the slate
-- One stat category
+- 15-player slate
+- Choose 10
 - Get scored on accuracy
-- Run it with your friends
-- See who called it best
-- Sign up for early access
+- Beat the field
+- One nationwide board
+- Join the waitlist
 
 Build the video with reusable components for:
 - fullscreen text scenes
