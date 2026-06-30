@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { z } from 'zod';
 import {
   createDraftContest,
@@ -114,6 +115,10 @@ export async function saveContestSlateAction(formData: FormData) {
       ),
     );
   } catch (error) {
+    if (isRedirectError(error)) {
+      throw error;
+    }
+
     const message = error instanceof Error ? error.message : 'Unable to save the draft slate.';
 
     redirect(buildAdminContestsRedirect('error', message));
@@ -161,6 +166,10 @@ export async function publishContestAction(formData: FormData) {
 
     redirect(buildAdminContestsRedirect('published', `${result.contest.title} is now ${result.contest.status.toLowerCase()}.`));
   } catch (error) {
+    if (isRedirectError(error)) {
+      throw error;
+    }
+
     const message = error instanceof Error ? error.message : 'Unable to publish this contest right now.';
 
     redirect(buildAdminContestsRedirect('error', message));

@@ -64,7 +64,7 @@ The repo is past bare Phase 0 and currently includes:
 Current branch reality on `main` as of 2026-06-29:
 
 - `main` is ahead of `origin/main` with the local commits `Add contest operator and repository foundation`, `Add Remotion marketing video source`, `Finish Postgres contest repository rollout`, and `Exclude Remotion workspace from app typecheck`
-- the only remaining uncommitted tracked change is generated `next-env.d.ts` noise that should usually stay out of commits
+- the remaining tracked repo change is a narrow admin publish-action fix, plus generated `next-env.d.ts` noise that should usually stay out of commits
 - the current Remotion source baseline is a motion-polished `32s` waitlist-focused cut under `assets/marketing/video/`, aligned to the 15-player / pick-10 product framing and the `pickrankgames.com` brand
 - the latest rendered review asset is `assets/marketing/video/out/pickrank-landing-video.mp4`
 - `lib/contest-data.ts` now reads and writes contest browse/admin data directly against Supabase/Postgres in normal app use, while keeping file-backed fixtures only for tests and explicit fixture-driven runs
@@ -87,6 +87,7 @@ Current branch reality on `main` as of 2026-06-29:
 - the admin UI still includes a narrow text-based slate input for operators, but full provider sync and richer editing controls are still follow-ups
 - live browser verification on 2026-06-29 confirms Google sign-in now returns correctly to `www.pickrankgames.com`, public `/contests` and `/contests/week-1-qb-passing-yards` work against the real contest records, and a signed-in `contest_operator` can reach `/admin/contests`
 - direct Vercel production deployment `dpl_GhDY7kEZxXn9Wvm6ACKmd8EwyDcQ` now serves the current admin contest UI on `www.pickrankgames.com`, including the draft-create form, live contest list, draft slate editor, and operator gating
+- live production verification now confirms the draft validation step passes, the publish button enables only after validation, and the remaining live bug is a `NEXT_REDIRECT` banner caused by the publish action catching Next.js redirect control flow as if it were a real error
 - GitHub push from this machine is currently blocked by missing local GitHub credentials, so `origin/main` still trails the live Vercel deployment and local `main` until credentials are restored
 - `next-env.d.ts` should usually be treated as generated noise unless a slice specifically requires it
 - untracked marketing video work currently lives under `assets/marketing/video/` and belongs to this repo when it supports PickRank launch work
@@ -203,7 +204,7 @@ The MVP includes:
 Next recommended slice:
 
 ```text
-Re-run the signed-in `contest_operator` flow on live production now that the real admin UI is deployed, covering draft slate save, validation, and the human-confirmed publish step, while separately restoring GitHub push access so `origin/main` catches up to the deployed repo state.
+Deploy the narrow publish-action redirect fix, then re-run the signed-in `contest_operator` publish step on live production and confirm the draft becomes visible in public contest browse, while separately restoring GitHub push access so `origin/main` catches up to the deployed repo state.
 ```
 
 Definition of done:
