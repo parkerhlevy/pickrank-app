@@ -248,24 +248,16 @@ export async function createDraftContest(input: CreateDraftContestInput, options
     return toContestSummary(contest);
   }
 
-  try {
-    const store = await readContestStoreFromDatabase();
-    const contest = buildDraftContestRecord(input, store.contests, now);
-    const supabase: any = await createSupabaseClient();
-    const { error } = await supabase.from('contests').insert(toContestDbInsert(contest));
+  const store = await readContestStoreFromDatabase();
+  const contest = buildDraftContestRecord(input, store.contests, now);
+  const supabase: any = await createSupabaseClient();
+  const { error } = await supabase.from('contests').insert(toContestDbInsert(contest));
 
-    if (error) {
-      throw new Error(`Unable to create draft contest: ${error.message}`);
-    }
-
-    return toContestSummary(contest);
-  } catch (error) {
-    if (!isDatabaseRepositoryUnavailable(error)) {
-      throw error;
-    }
-
-    return createDraftContest(input, { dataFilePath: options?.dataFilePath ?? defaultContestDataPath });
+  if (error) {
+    throw new Error(`Unable to create draft contest: ${error.message}`);
   }
+
+  return toContestSummary(contest);
 }
 
 export async function saveContestSlate(
@@ -304,58 +296,50 @@ export async function saveContestSlate(
     return toContestSummary(nextContest);
   }
 
-  try {
-    const supabase: any = await createSupabaseClient();
-    const currentContest = await getDatabaseContestBySlug(contestId);
-    const normalizedSlatePlayers = normalizeContestSlatePlayers(slatePlayers);
-    const nextContest: ContestRecord = {
-      ...currentContest.record,
-      slatePlayers: normalizedSlatePlayers,
-      lineupPlayers: buildLineupShellPlayersFromSlate(normalizedSlatePlayers),
-      validation: resetContestValidation(currentContest.record.validation),
-      updatedAt: now,
-    };
+  const supabase: any = await createSupabaseClient();
+  const currentContest = await getDatabaseContestBySlug(contestId);
+  const normalizedSlatePlayers = normalizeContestSlatePlayers(slatePlayers);
+  const nextContest: ContestRecord = {
+    ...currentContest.record,
+    slatePlayers: normalizedSlatePlayers,
+    lineupPlayers: buildLineupShellPlayersFromSlate(normalizedSlatePlayers),
+    validation: resetContestValidation(currentContest.record.validation),
+    updatedAt: now,
+  };
 
-    const { error: updateContestError } = await supabase
-      .from('contests')
-      .update({
-        lineup_players: nextContest.lineupPlayers,
-        updated_at: now,
-      })
-      .eq('id', currentContest.row.id);
+  const { error: updateContestError } = await supabase
+    .from('contests')
+    .update({
+      lineup_players: nextContest.lineupPlayers,
+      updated_at: now,
+    })
+    .eq('id', currentContest.row.id);
 
-    if (updateContestError) {
-      throw new Error(`Unable to save the draft slate: ${updateContestError.message}`);
-    }
-
-    const { error: deleteSlateError } = await supabase
-      .from('contest_slate_players')
-      .delete()
-      .eq('contest_id', currentContest.row.id);
-
-    if (deleteSlateError) {
-      throw new Error(`Unable to replace the draft slate: ${deleteSlateError.message}`);
-    }
-
-    if (normalizedSlatePlayers.length > 0) {
-      const { error: insertSlateError } = await supabase
-        .from('contest_slate_players')
-        .insert(normalizedSlatePlayers.map((player) => toContestSlatePlayerDbInsert(currentContest.row.id, player)));
-
-      if (insertSlateError) {
-        throw new Error(`Unable to save the draft slate: ${insertSlateError.message}`);
-      }
-    }
-
-    await upsertContestValidationRow(currentContest.row.id, nextContest.validation);
-    return toContestSummary(nextContest);
-  } catch (error) {
-    if (!isDatabaseRepositoryUnavailable(error)) {
-      throw error;
-    }
-
-    return saveContestSlate(contestId, slatePlayers, { dataFilePath: options?.dataFilePath ?? defaultContestDataPath, now });
+  if (updateContestError) {
+    throw new Error(`Unable to save the draft slate: ${updateContestError.message}`);
   }
+
+  const { error: deleteSlateError } = await supabase
+    .from('contest_slate_players')
+    .delete()
+    .eq('contest_id', currentContest.row.id);
+
+  if (deleteSlateError) {
+    throw new Error(`Unable to replace the draft slate: ${deleteSlateError.message}`);
+  }
+
+  if (normalizedSlatePlayers.length > 0) {
+    const { error: insertSlateError } = await supabase
+      .from('contest_slate_players')
+      .insert(normalizedSlatePlayers.map((player) => toContestSlatePlayerDbInsert(currentContest.row.id, player)));
+
+    if (insertSlateError) {
+      throw new Error(`Unable to save the draft slate: ${insertSlateError.message}`);
+    }
+  }
+
+  await upsertContestValidationRow(currentContest.row.id, nextContest.validation);
+  return toContestSummary(nextContest);
 }
 
 export async function validateDraftContest(
@@ -395,40 +379,29 @@ export async function validateDraftContest(
     };
   }
 
-  try {
-    const supabase: any = await createSupabaseClient();
-    const currentContest = await getDatabaseContestBySlug(contestId);
-    const validation = buildContestValidationResult(currentContest.record, now, validatedByAdminId);
+  const supabase: any = await createSupabaseClient();
+  const currentContest = await getDatabaseContestBySlug(contestId);
+  const validation = buildContestValidationResult(currentContest.record, now, validatedByAdminId);
 
-    const { error: updateContestError } = await supabase
-      .from('contests')
-      .update({ updated_at: now })
-      .eq('id', currentContest.row.id);
+  const { error: updateContestError } = await supabase
+    .from('contests')
+    .update({ updated_at: now })
+    .eq('id', currentContest.row.id);
 
-    if (updateContestError) {
-      throw new Error(`Unable to update contest validation state: ${updateContestError.message}`);
-    }
-
-    await upsertContestValidationRow(currentContest.row.id, validation);
-
-    return {
-      contest: toContestSummary({
-        ...currentContest.record,
-        validation,
-        updatedAt: now,
-      }),
-      validation,
-    };
-  } catch (error) {
-    if (!isDatabaseRepositoryUnavailable(error)) {
-      throw error;
-    }
-
-    return validateDraftContest(contestId, validatedByAdminId, {
-      dataFilePath: options?.dataFilePath ?? defaultContestDataPath,
-      now,
-    });
+  if (updateContestError) {
+    throw new Error(`Unable to update contest validation state: ${updateContestError.message}`);
   }
+
+  await upsertContestValidationRow(currentContest.row.id, validation);
+
+  return {
+    contest: toContestSummary({
+      ...currentContest.record,
+      validation,
+      updatedAt: now,
+    }),
+    validation,
+  };
 }
 
 export async function publishContest(
@@ -493,71 +466,60 @@ export async function publishContest(
     };
   }
 
-  try {
-    const supabase: any = await createSupabaseClient();
-    const currentContest = await getDatabaseContestBySlug(contestId);
+  const supabase: any = await createSupabaseClient();
+  const currentContest = await getDatabaseContestBySlug(contestId);
 
-    if (currentContest.record.status !== 'draft') {
-      throw new Error('Only draft contests can be published.');
-    }
-
-    const validation = buildContestValidationResult(currentContest.record, now, publishedByAdminId);
-
-    if (validation.status !== 'passed') {
-      throw new Error(validation.errors[0] || 'This contest must pass validation before publish.');
-    }
-
-    const nextStatus = resolvePublishedContestStatus(currentContest.record, now);
-    const nextContest: ContestRecord = {
-      ...currentContest.record,
-      status: nextStatus,
-      visibilityStatus: 'visible',
-      publishedByAdminId,
-      publishedAt: now,
-      validation,
-      updatedAt: now,
-    };
-
-    const { error: updateContestError } = await supabase
-      .from('contests')
-      .update({
-        status: nextStatus,
-        visibility_status: 'visible',
-        published_by_admin_id: publishedByAdminId,
-        published_at: now,
-        updated_at: now,
-      })
-      .eq('id', currentContest.row.id);
-
-    if (updateContestError) {
-      throw new Error(`Unable to publish contest: ${updateContestError.message}`);
-    }
-
-    await upsertContestValidationRow(currentContest.row.id, validation);
-    await insertContestStateEventRow(
-      toContestStateEventDbInsert({
-        contestId: currentContest.row.id,
-        createdAt: now,
-        fromStatus: currentContest.record.status,
-        toStatus: nextStatus,
-        trigger: 'admin',
-      }),
-    );
-
-    return {
-      contest: toContestSummary(nextContest),
-      validation,
-    };
-  } catch (error) {
-    if (!isDatabaseRepositoryUnavailable(error)) {
-      throw error;
-    }
-
-    return publishContest(contestId, publishedByAdminId, {
-      dataFilePath: options?.dataFilePath ?? defaultContestDataPath,
-      now,
-    });
+  if (currentContest.record.status !== 'draft') {
+    throw new Error('Only draft contests can be published.');
   }
+
+  const validation = buildContestValidationResult(currentContest.record, now, publishedByAdminId);
+
+  if (validation.status !== 'passed') {
+    throw new Error(validation.errors[0] || 'This contest must pass validation before publish.');
+  }
+
+  const nextStatus = resolvePublishedContestStatus(currentContest.record, now);
+  const nextContest: ContestRecord = {
+    ...currentContest.record,
+    status: nextStatus,
+    visibilityStatus: 'visible',
+    publishedByAdminId,
+    publishedAt: now,
+    validation,
+    updatedAt: now,
+  };
+
+  const { error: updateContestError } = await supabase
+    .from('contests')
+    .update({
+      status: nextStatus,
+      visibility_status: 'visible',
+      published_by_admin_id: publishedByAdminId,
+      published_at: now,
+      updated_at: now,
+    })
+    .eq('id', currentContest.row.id);
+
+  if (updateContestError) {
+    throw new Error(`Unable to publish contest: ${updateContestError.message}`);
+  }
+
+  await upsertContestValidationRow(currentContest.row.id, validation);
+  await insertContestStateEventRow(
+    toContestStateEventDbInsert({
+      contestId: currentContest.row.id,
+      createdAt: now,
+      fromStatus: currentContest.record.status,
+      toStatus: nextStatus,
+      trigger: 'admin',
+    }),
+  );
+
+  return {
+    contest: toContestSummary(nextContest),
+    validation,
+  };
 }
 
 export async function runContestLifecycleTransitions(options?: TimestampOptions) {
@@ -597,36 +559,28 @@ export async function runContestLifecycleTransitions(options?: TimestampOptions)
     };
   }
 
-  try {
-    const store = await readContestStoreFromDatabase();
-    const nextEvents = [...store.contestStateEvents];
-    const nextContests: ContestRecord[] = [];
+  const store = await readContestStoreFromDatabase();
+  const nextEvents = [...store.contestStateEvents];
+  const nextContests: ContestRecord[] = [];
 
-    for (const contest of store.contests) {
-      const nextContest = transitionContestLifecycle(contest, now);
+  for (const contest of store.contests) {
+    const nextContest = transitionContestLifecycle(contest, now);
 
-      if (!nextContest) {
-        nextContests.push(contest);
-        continue;
-      }
-
-      await updateContestLifecycleStatus(nextContest.contest.id, nextContest.contest.status, now);
-      await insertContestStateEventRow(toContestStateEventDbInsert(fromContestStateEvent(nextContest.event)));
-      nextEvents.push(nextContest.event);
-      nextContests.push(nextContest.contest);
+    if (!nextContest) {
+      nextContests.push(contest);
+      continue;
     }
 
-    return {
-      contests: nextContests.map(toContestSummary),
-      events: nextEvents,
-    };
-  } catch (error) {
-    if (!isDatabaseRepositoryUnavailable(error)) {
-      throw error;
-    }
-
-    return runContestLifecycleTransitions({ dataFilePath: options?.dataFilePath ?? defaultContestDataPath, now });
+    await updateContestLifecycleStatus(nextContest.contest.id, nextContest.contest.status, now);
+    await insertContestStateEventRow(toContestStateEventDbInsert(fromContestStateEvent(nextContest.event)));
+    nextEvents.push(nextContest.event);
+    nextContests.push(nextContest.contest);
   }
+
+  return {
+    contests: nextContests.map(toContestSummary),
+    events: nextEvents,
+  };
 }
 
 export function buildDraftContestRecord(
@@ -718,15 +672,7 @@ async function readContestStore(options?: ContestDataOptions) {
     return readContestStoreFromFile(options?.dataFilePath);
   }
 
-  try {
-    return await readContestStoreFromDatabase();
-  } catch (error) {
-    if (!isDatabaseRepositoryUnavailable(error)) {
-      throw error;
-    }
-
-    return readContestStoreFromFile(options?.dataFilePath);
-  }
+  return readContestStoreFromDatabase();
 }
 
 async function readContestStoreFromFile(dataFilePath = defaultContestDataPath) {
@@ -828,18 +774,7 @@ function shouldUseFixtureStore(options?: ContestDataOptions) {
 }
 
 function shouldUseFileStore(options?: ContestDataOptions) {
-  return shouldUseFixtureStore(options) || !hasBrowserSupabaseConfig();
-}
-
-function isDatabaseRepositoryUnavailable(error: unknown) {
-  if (!(error instanceof Error)) {
-    return false;
-  }
-
-  return (
-    error.message.includes("Could not find the table 'public.contests'") ||
-    error.message.includes('Contest data now requires Supabase configuration.')
-  );
+  return shouldUseFixtureStore(options);
 }
 
 async function createSupabaseClient() {
@@ -1219,13 +1154,13 @@ function toContestRecord({
     visibilityStatus: row.visibility_status,
     isFeatured: row.is_featured,
     displayOrder: row.display_order,
-    entryOpenTime: row.entry_open_time,
-    lockTime: row.lock_time,
+    entryOpenTime: normalizeIsoDateTime(row.entry_open_time),
+    lockTime: normalizeIsoDateTime(row.lock_time),
     createdByAdminId: row.created_by_admin_id,
     publishedByAdminId: row.published_by_admin_id,
-    publishedAt: row.published_at,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
+    publishedAt: normalizeIsoDateTime(row.published_at),
+    createdAt: normalizeIsoDateTime(row.created_at),
+    updatedAt: normalizeIsoDateTime(row.updated_at),
     lineupPlayers:
       row.lineup_players && row.lineup_players.length === 10
         ? row.lineup_players
@@ -1275,7 +1210,7 @@ function toContestSlatePlayer(row: ContestSlatePlayerDbRow) {
     teamAbbreviation: row.team_abbreviation,
     opponentAbbreviation: row.opponent_abbreviation,
     homeAway: row.home_away || (row.opponent_context === 'vs' ? 'home' : 'away'),
-    gameStartTime: row.game_start_time || new Date().toISOString(),
+    gameStartTime: normalizeIsoDateTime(row.game_start_time || new Date().toISOString()),
     position: 'QB',
     activeStatus: row.active_status,
     sortOrderInternal: row.sort_order_internal || row.display_order,
@@ -1308,7 +1243,7 @@ function toContestValidationResult(row: ContestValidationDbRow): ContestValidati
     status: row.status === 'passed' || row.status === 'failed' ? row.status : 'not_run',
     errors: row.errors,
     warnings: row.warnings,
-    validatedAt: row.validated_at,
+    validatedAt: normalizeIsoDateTime(row.validated_at),
     validatedByAdminId: row.validated_by_admin_id,
   };
 }
@@ -1320,9 +1255,17 @@ function toContestStateEvent(row: ContestStateEventDbRow): ContestStateEvent {
     fromStatus: row.from_status,
     toStatus: row.to_status,
     trigger: row.trigger,
-    createdAt: row.created_at,
+    createdAt: normalizeIsoDateTime(row.created_at),
     metadata: toStringRecord(row.metadata),
   });
+}
+
+function normalizeIsoDateTime(value: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  return new Date(value).toISOString();
 }
 
 function toContestStateEventDbInsert(event: {

@@ -63,12 +63,11 @@ The repo is past bare Phase 0 and currently includes:
 
 Current branch reality on `main` as of 2026-06-29:
 
-- `main` is aligned with `origin/main`
-- there are no committed but unpushed changes
-- uncommitted tracked changes currently exist in contest/admin files and marketing/Remotion docs
+- `main` is ahead of `origin/main` with the local commits `Add contest operator and repository foundation` and `Add Remotion marketing video source`
+- uncommitted tracked changes currently exist in contest/admin files, plus generated `next-env.d.ts` noise that should usually stay out of commits
 - the current Remotion source baseline is a motion-polished `32s` waitlist-focused cut under `assets/marketing/video/`, aligned to the 15-player / pick-10 product framing and the `pickrankgames.com` brand
 - the latest rendered review asset is `assets/marketing/video/out/pickrank-landing-video.mp4`
-- `lib/contest-data.ts` now prefers a Supabase/Postgres-backed contest repository for contests, slate players, validation rows, and state events, while carrying a narrow temporary file fallback until the active Supabase project has migration `0005` plus the first real contest rows applied
+- `lib/contest-data.ts` now reads and writes contest browse/admin data directly against Supabase/Postgres in normal app use, while keeping file-backed fixtures only for tests and explicit fixture-driven runs
 - Supabase role foundations now exist in repo migrations for `roles` and `user_roles`, with `contest_operator` as the single enforced MVP internal role
 - internal operator assignment can now be staged by email before signup through `pending_user_roles`, which auto-converts into a real `user_roles` assignment when the matching user account is created
 - the active Supabase project now has migrations `0001` through `0004` applied, plus the `assign_first_contest_operator.sql` seed
@@ -81,10 +80,13 @@ Current branch reality on `main` as of 2026-06-29:
 - sandboxed browser runs still fail before startup with `listen EPERM: operation not permitted 0.0.0.0:3000`; Playwright verification is confirmed only in an environment that can bind the local dev server
 - publish is intentionally human-confirmed even when validation passes; agent assistance is limited to preparation and validation support
 - migration `db/migrations/0005_contest_repository_backing_fields.sql` adds the missing contest slug, description, season, contest type, entry count, display order, lineup shell, and validation uniqueness fields needed for the repository swap
-- direct Supabase verification on 2026-06-29 confirmed the active project still lacks migration `0005`: a live read against `public.contests` failed with `column contests.slug does not exist`
-- `db/seed/contest_repository_baseline.sql` now provides the current idempotent seed for one public contest plus one hidden draft contest after `0005` is applied
-- the active Supabase project still needs migration `0005` plus the updated contest baseline seed before browser-verified local behavior can stop falling back to `data/contests.json`
-- the admin UI now includes a narrow text-based slate input for operators, but full provider sync, richer editing controls, and the final removal of the temporary file fallback are still follow-ups
+- Supabase migration `0005` and the updated `db/seed/contest_repository_baseline.sql` are now applied in the active project
+- direct Supabase verification on 2026-06-29 confirmed the active project now holds one visible public contest (`week-1-qb-passing-yards`) and one hidden draft contest (`week-2-qb-passing-yards-draft`)
+- local verification now confirms `/contests` and `/contests/week-1-qb-passing-yards` return `200`, while `/admin/contests` redirects to `/auth?next=%2Fadmin%2Fcontests` until an operator signs in
+- the contest repository layer now normalizes Supabase timestamp fields before schema validation so Postgres-backed slate rows load cleanly in the app
+- the admin UI still includes a narrow text-based slate input for operators, but full provider sync and richer editing controls are still follow-ups
+- live browser verification on 2026-06-29 confirms Google sign-in now returns correctly to `www.pickrankgames.com`, public `/contests` and `/contests/week-1-qb-passing-yards` work against the real contest records, and a signed-in `contest_operator` can reach `/admin/contests`
+- the active production deployment is still commit `410c644` (`Polish public copy and auth-gate entry routes`), so live `/admin/contests` still shows the older placeholder screen until the current local repo state is pushed and redeployed
 - `next-env.d.ts` should usually be treated as generated noise unless a slice specifically requires it
 - untracked marketing video work currently lives under `assets/marketing/video/` and belongs to this repo when it supports PickRank launch work
 
@@ -200,24 +202,23 @@ The MVP includes:
 Next recommended slice:
 
 ```text
-Apply repo migration `0005` to the active Supabase project, run `db/seed/contest_repository_baseline.sql`, confirm `/contests`, contest detail, and `/admin/contests` are reading and writing against Postgres, and only then remove the temporary file fallback.
+Push and deploy the current contest/admin repo state so production serves the real operator UI, then re-run the signed-in `contest_operator` flow against live Supabase for draft slate save, validation, and the human-confirmed publish step.
 ```
 
 Definition of done:
 
-- The configured Supabase project has migration `0005` applied on top of the already-live `0001` through `0004` foundation
-- `db/seed/contest_repository_baseline.sql` has been run successfully
-- At least one public contest and one operator-manageable draft exist in Postgres
-- Local `/contests`, contest detail, and `/admin/contests` load without falling back to `data/contests.json`
-- Human-confirmed publish remains the final operator checkpoint
-- Update this handoff note if the database source of truth or the recommended next move changes
+- Production serves the current repo-backed `/admin/contests` UI instead of the old placeholder screen
+- An authenticated `contest_operator` can use the live admin page against Supabase-backed contest data
+- Draft slate save, validation, and human-confirmed publish all succeed against Supabase
+- Public contest browse still reflects publish-state changes correctly after the deployment
+- Update this handoff note if the admin verification outcome or next recommended move changes
 
 ## Starter Prompt For Future Chats
 
 Use this default starter prompt pattern unless the next slice needs a tighter scoped variation:
 
 ```text
-Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Before changing behavior, read `docs/agent-handoff.md`, `spec/product_spec.md`, `spec/features/implementation_roadmap.md`, `spec/features/contest_admin_setup.md`, `spec/features/backend_data_architecture.md`, and `spec/features/frontend_navigation.md`, plus the current contest admin, contest data, and role files. Work carefully with the in-progress marketing/Remotion files but do not disturb them. This slice is narrow: apply `db/migrations/0005_contest_repository_backing_fields.sql` to the active Supabase project, run `db/seed/contest_repository_baseline.sql`, confirm the app can read and write contest data from Postgres, and only then remove the temporary file fallback after `/contests`, contest detail, and `/admin/contests` still work. Keep the human-confirmed publish step and `contest_operator` gate intact, avoid payments, payouts, withdrawals, and compliance work, run typecheck, tests, and browser verification before closing, and refresh `docs/agent-handoff.md` if repo reality or the next recommended move changes. Explain results business-first: what changed, why it matters, what passed, and what I need to do next.
+Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Before changing behavior, read `docs/agent-handoff.md`, `spec/product_spec.md`, `spec/features/implementation_roadmap.md`, `spec/features/contest_admin_setup.md`, `spec/features/backend_data_architecture.md`, and `spec/features/frontend_navigation.md`, plus the current contest admin, contest data, and role files. Work carefully with the in-progress marketing/Remotion files but do not disturb them. This slice is narrow: verify production is serving the current `/admin/contests` implementation, then test the signed-in `contest_operator` flow against live Supabase data for draft slate save, validation, and the human-confirmed publish action, while confirming public contest browse still reflects the live contest state. Keep the human-confirmed publish step and `contest_operator` gate intact, avoid payments, payouts, withdrawals, and compliance work, run typecheck, tests, and browser verification before closing, and refresh `docs/agent-handoff.md` if repo reality or the next recommended move changes. Explain results business-first: what changed, why it matters, what passed, and what I need to do next.
 ```
 
 ## Generated Files to Avoid Committing

@@ -200,7 +200,7 @@ select
   home_away,
   sort_order_internal,
   sort_order_internal,
-  game_start_time,
+  cast(game_start_time as timestamptz),
   'QB',
   active_status
 from (
