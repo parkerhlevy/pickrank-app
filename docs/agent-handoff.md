@@ -61,10 +61,10 @@ The repo is past bare Phase 0 and currently includes:
 - Vitest wired
 - Basic route smoke tests
 
-Current branch reality on `main` as of 2026-06-29:
+Current branch reality on `main` as of 2026-06-30:
 
-- `main` is ahead of `origin/main` with the local commits `Add contest operator and repository foundation`, `Add Remotion marketing video source`, `Finish Postgres contest repository rollout`, and `Exclude Remotion workspace from app typecheck`
-- the remaining tracked repo change is a narrow admin publish-action fix, plus generated `next-env.d.ts` noise that should usually stay out of commits
+- `main` is ahead of `origin/main` with the local commits `Add contest operator and repository foundation`, `Add Remotion marketing video source`, `Finish Postgres contest repository rollout`, `Exclude Remotion workspace from app typecheck`, `Document live deployment status`, and `Fix admin publish redirect handling`
+- the only remaining tracked working-tree change should be generated `next-env.d.ts` noise, which should usually stay out of commits
 - the current Remotion source baseline is a motion-polished `32s` waitlist-focused cut under `assets/marketing/video/`, aligned to the 15-player / pick-10 product framing and the `pickrankgames.com` brand
 - the latest rendered review asset is `assets/marketing/video/out/pickrank-landing-video.mp4`
 - `lib/contest-data.ts` now reads and writes contest browse/admin data directly against Supabase/Postgres in normal app use, while keeping file-backed fixtures only for tests and explicit fixture-driven runs
@@ -85,9 +85,9 @@ Current branch reality on `main` as of 2026-06-29:
 - local verification now confirms `/contests` and `/contests/week-1-qb-passing-yards` return `200`, while `/admin/contests` redirects to `/auth?next=%2Fadmin%2Fcontests` until an operator signs in
 - the contest repository layer now normalizes Supabase timestamp fields before schema validation so Postgres-backed slate rows load cleanly in the app
 - the admin UI still includes a narrow text-based slate input for operators, but full provider sync and richer editing controls are still follow-ups
-- live browser verification on 2026-06-29 confirms Google sign-in now returns correctly to `www.pickrankgames.com`, public `/contests` and `/contests/week-1-qb-passing-yards` work against the real contest records, and a signed-in `contest_operator` can reach `/admin/contests`
-- direct Vercel production deployment `dpl_GhDY7kEZxXn9Wvm6ACKmd8EwyDcQ` now serves the current admin contest UI on `www.pickrankgames.com`, including the draft-create form, live contest list, draft slate editor, and operator gating
-- live production verification now confirms the draft validation step passes, the publish button enables only after validation, and the remaining live bug is a `NEXT_REDIRECT` banner caused by the publish action catching Next.js redirect control flow as if it were a real error
+- live browser verification now confirms Google sign-in returns correctly to `www.pickrankgames.com`, public `/contests` and `/contests/week-1-qb-passing-yards` work against the real contest records, and a signed-in `contest_operator` can reach `/admin/contests`
+- direct Vercel production deployment `dpl_GhDY7kEZxXn9Wvm6ACKmd8EwyDcQ` moved production onto the real admin contest UI, and follow-up deployment `dpl_EXHcfuUHrMokumP3wMcMkoE2iAtY` fixed the false `NEXT_REDIRECT` publish banner
+- live production verification now confirms the draft validation step passes, the publish button enables only after validation, the publish action succeeds, and the newly published contest appears in public browse
 - GitHub push from this machine is currently blocked by missing local GitHub credentials, so `origin/main` still trails the live Vercel deployment and local `main` until credentials are restored
 - `next-env.d.ts` should usually be treated as generated noise unless a slice specifically requires it
 - untracked marketing video work currently lives under `assets/marketing/video/` and belongs to this repo when it supports PickRank launch work
@@ -204,7 +204,7 @@ The MVP includes:
 Next recommended slice:
 
 ```text
-Deploy the narrow publish-action redirect fix, then re-run the signed-in `contest_operator` publish step on live production and confirm the draft becomes visible in public contest browse, while separately restoring GitHub push access so `origin/main` catches up to the deployed repo state.
+Reconcile GitHub `origin/main` with the already-deployed production code, then do one final browser sanity pass that the live admin list and public contest browse still reflect the expected published records without any repo-versus-production drift.
 ```
 
 Definition of done:
@@ -221,7 +221,7 @@ Definition of done:
 Use this default starter prompt pattern unless the next slice needs a tighter scoped variation:
 
 ```text
-Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Before changing behavior, read `docs/agent-handoff.md`, `spec/product_spec.md`, `spec/features/implementation_roadmap.md`, `spec/features/contest_admin_setup.md`, `spec/features/backend_data_architecture.md`, and `spec/features/frontend_navigation.md`, plus the current contest admin, contest data, and role files. Work carefully with the in-progress marketing/Remotion files but do not disturb them. This slice is narrow: use the now-live `/admin/contests` production UI to test the signed-in `contest_operator` flow against Supabase for draft slate save, validation, and the human-confirmed publish action, while confirming public contest browse still reflects any live state change. Keep the human-confirmed publish step and `contest_operator` gate intact, avoid payments, payouts, withdrawals, and compliance work, run typecheck, tests, and browser verification before closing, and refresh `docs/agent-handoff.md` if repo reality or the next recommended move changes. Also note whether GitHub push access has been restored so `origin/main` matches the deployed code. Explain results business-first: what changed, why it matters, what passed, and what I need to do next.
+Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Before changing behavior, read `docs/agent-handoff.md`, `spec/product_spec.md`, and the relevant contest/admin and deployment files already involved. Work carefully with the in-progress marketing/Remotion files but do not disturb them. This slice is narrow: reconcile GitHub `origin/main` with the production deployment that already contains the live Supabase contest/admin rollout, then verify live admin and public contest browse still match the expected published records after sync. Keep the human-confirmed publish step and `contest_operator` gate intact, avoid payments, payouts, withdrawals, and compliance work, run the relevant checks, and refresh `docs/agent-handoff.md` if repo reality or the next recommended move changes. Explain results business-first: what changed, why it matters, what passed, and what I need to do next.
 ```
 
 ## Generated Files to Avoid Committing
