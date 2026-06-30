@@ -81,14 +81,15 @@ Current branch reality on `main` as of 2026-06-30:
 - publish is intentionally human-confirmed even when validation passes; agent assistance is limited to preparation and validation support
 - migration `db/migrations/0005_contest_repository_backing_fields.sql` adds the missing contest slug, description, season, contest type, entry count, display order, lineup shell, and validation uniqueness fields needed for the repository swap
 - Supabase migration `0005` and the updated `db/seed/contest_repository_baseline.sql` are now applied in the active project
-- direct Supabase verification on 2026-06-29 confirmed the active project now holds one visible public contest (`week-1-qb-passing-yards`) and one hidden draft contest (`week-2-qb-passing-yards-draft`)
+- direct Supabase verification on 2026-06-29 confirmed the active project held the initial Week 1 public contest plus the Week 2 draft before the later live publish step
 - local verification now confirms `/contests` and `/contests/week-1-qb-passing-yards` return `200`, while `/admin/contests` redirects to `/auth?next=%2Fadmin%2Fcontests` until an operator signs in
 - the contest repository layer now normalizes Supabase timestamp fields before schema validation so Postgres-backed slate rows load cleanly in the app
 - the admin UI still includes a narrow text-based slate input for operators, but full provider sync and richer editing controls are still follow-ups
 - live browser verification now confirms Google sign-in returns correctly to `www.pickrankgames.com`, public `/contests` and `/contests/week-1-qb-passing-yards` work against the real contest records, and a signed-in `contest_operator` can reach `/admin/contests`
 - direct Vercel production deployment `dpl_GhDY7kEZxXn9Wvm6ACKmd8EwyDcQ` moved production onto the real admin contest UI, and follow-up deployment `dpl_EXHcfuUHrMokumP3wMcMkoE2iAtY` fixed the false `NEXT_REDIRECT` publish banner
 - live production verification now confirms the draft validation step passes, the publish button enables only after validation, the publish action succeeds, and the newly published contest appears in public browse
-- GitHub push from this machine is currently blocked by missing local GitHub credentials, so `origin/main` still trails the live Vercel deployment and local `main` until credentials are restored
+- GitHub push access from this machine was restored on 2026-06-30, and local `main`, `origin/main`, and the already-deployed production code are now back in sync at `f1c70b9`
+- final live browser verification on 2026-06-30 confirms public `/contests` now shows Week 1 as `Open` and Week 2 as `Scheduled`, while signed-in admin `/admin/contests` shows both records as visible under the `contest_operator` gate with publish controls inactive for those already-published contests
 - `next-env.d.ts` should usually be treated as generated noise unless a slice specifically requires it
 - untracked marketing video work currently lives under `assets/marketing/video/` and belongs to this repo when it supports PickRank launch work
 
@@ -204,16 +205,15 @@ The MVP includes:
 Next recommended slice:
 
 ```text
-Reconcile GitHub `origin/main` with the already-deployed production code, then do one final browser sanity pass that the live admin list and public contest browse still reflect the expected published records without any repo-versus-production drift.
+Replace the temporary 10-player lineup subset with the real 15-player-to-pick-10 contest selection flow, while keeping the current Supabase-backed contest records, admin publish gate, and protected-route auth behavior intact.
 ```
 
 Definition of done:
 
-- Production serves the current repo-backed `/admin/contests` UI instead of the old placeholder screen
-- An authenticated `contest_operator` can use the live admin page against Supabase-backed contest data
-- Draft slate save, validation, and human-confirmed publish all succeed against Supabase
-- Public contest browse still reflects publish-state changes correctly after the deployment
-- `origin/main` is updated or there is a clear follow-up owner for restoring GitHub push access
+- Contest detail, payment, success, and lineup flows all read the full 15-player contest slate without falling back to the temporary subset shortcut
+- A signed-in user can choose and rank 10 quarterbacks from the real 15-player slate while the existing auth/profile gating still controls access
+- The admin publish flow, `contest_operator` gate, and live public contest browse continue to work against the same Supabase-backed contest records
+- `npm run typecheck`, `npm run test`, and browser verification pass for the updated selection flow
 - Update this handoff note if the admin verification outcome or next recommended move changes
 
 ## Starter Prompt For Future Chats
@@ -221,7 +221,7 @@ Definition of done:
 Use this default starter prompt pattern unless the next slice needs a tighter scoped variation:
 
 ```text
-Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Before changing behavior, read `docs/agent-handoff.md`, `spec/product_spec.md`, and the relevant contest/admin and deployment files already involved. Work carefully with the in-progress marketing/Remotion files but do not disturb them. This slice is narrow: reconcile GitHub `origin/main` with the production deployment that already contains the live Supabase contest/admin rollout, then verify live admin and public contest browse still match the expected published records after sync. Keep the human-confirmed publish step and `contest_operator` gate intact, avoid payments, payouts, withdrawals, and compliance work, run the relevant checks, and refresh `docs/agent-handoff.md` if repo reality or the next recommended move changes. Explain results business-first: what changed, why it matters, what passed, and what I need to do next.
+Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Before changing behavior, read `docs/agent-handoff.md`, `spec/product_spec.md`, and the relevant contest-entry, lineup, and contest/admin spec files already involved. Work carefully with the in-progress marketing/Remotion files but do not disturb them. This slice is narrow: replace the temporary 10-player lineup subset with the real 15-player-to-pick-10 selection flow on top of the live Supabase contest records. Keep the human-confirmed publish step, `contest_operator` gate, and current protected-route auth behavior intact, avoid payments, payouts, withdrawals, and compliance work, run the relevant checks plus browser verification, and refresh `docs/agent-handoff.md` if repo reality or the next recommended move changes. Explain results business-first: what changed, why it matters, what passed, and what I need to do next.
 ```
 
 ## Generated Files to Avoid Committing
