@@ -129,7 +129,7 @@ export default function HomePage() {
           </CardHeader>
           <CardContent className="space-y-3 text-sm leading-6 text-muted-foreground">
             <p>PickRank runs weekly skill-based contests built around one stat category.</p>
-            <p>You choose and rank 10 players from the featured slate, then score points based on how close your order is to the final finish.</p>
+            <p>You choose and rank 10 players from the featured slate, then receive a miss score based on how far each pick lands from the final finish. Lower total score wins.</p>
             <p>The goal is simple: reward sharp sports judgment with a format that feels clear from the first screen.</p>
           </CardContent>
         </Card>

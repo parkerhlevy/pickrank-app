@@ -32,16 +32,16 @@ You finished
 147th
 
 Your Score
-78 pts
+18 pts
 
 Best Unique Pick
 Josh Allen
 You: 1 | Field: 6 | Actual: 1st
-+15 pts
+0 pts
 
 Picks Summary
-Exact Picks: 2 (+30 pts)
-Close Picks: 4 (+20 pts)
+Exact Picks: 2
+One-Off-Or-Better Picks: 4
 Avg Miss Distance: 6 spots
 
 View Player Breakdown ↓
@@ -53,32 +53,34 @@ Enter Next Contest
 ## Best Unique Pick
 Highlights the pick where the user diverged from the field and was correct.
 
-Suggested formula:
+Suggested selection order:
 
 ```text
-unique_score = abs(user_rank - field_avg_rank) * points_earned
+1. lowest points_earned
+2. largest abs(user_rank - field_avg_rank)
+3. lowest user_rank
 ```
 
 Rules:
-- Only picks with points_earned > 0 qualify.
+- Only picks with the lowest available miss score should be considered first.
 - If no pick qualifies, hide this section.
 - Display field average rank as a rounded whole-number rank.
 
 ## Picks Summary
-Use a hybrid format that shows both accuracy and score contribution.
+Use a hybrid format that shows accuracy plus miss direction.
 
 Format:
 
 ```text
-Exact Picks: X (+points)
-Close Picks: X (+points)
+Exact Picks: X
+One-Off-Or-Better Picks: X
 Avg Miss Distance: X spots
 ```
 
 Definitions:
 - Exact = distance 0
-- Close = distance 1–3
-- Miss = distance 4+
+- One-Off-Or-Better = distance 0-1
+- Miss = distance 2+
 
 Average miss distance:
 - Calculated only from misses.
@@ -111,7 +113,7 @@ Row format:
 
 ```text
 #1 Josh Allen (BUF)
-You: 1 | Actual: 1st | +15
+You: 1 | Actual: 1st | 0 pts
 ```
 
 ## Visual Cues

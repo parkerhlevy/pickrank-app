@@ -7,7 +7,7 @@ Define how PickRank handles entry score ties in contest scoring, leaderboard pla
 Locked for MVP.
 
 ## Anchor
-MVP entry score tie handling uses true shared placements, `T-` display, skipped placement ranking, pooled payout splitting, no secondary entry score tie-breaker, and deterministic cent rounding by lowest `entry_id`.
+MVP entry score tie handling first applies the locked leaderboard tiebreakers for equal total miss scores, then uses true shared placements, `T-` display, skipped placement ranking, pooled payout splitting, and deterministic cent rounding by lowest `entry_id` only for entries that remain tied after those checks.
 
 ## Important Distinction
 This document covers **entry score ties**: two or more contest entries finishing with the same total score.
@@ -15,47 +15,45 @@ This document covers **entry score ties**: two or more contest entries finishing
 It does not define player stat ties, such as two quarterbacks finishing with the same passing yards. Player stat ties are handled in `/spec/features/stat_finalization.md`.
 
 ## Summary
-PickRank contests allow true entry score ties. Entries with the same final score share the same leaderboard rank.
+PickRank contests sort final standings by lowest total score first. When entries share the same total score, MVP applies a small set of scoring-native leaderboard tiebreakers before declaring a true tie.
 
-MVP does not use secondary entry score tie-breakers such as exact-pick count, entry timestamp, lineup uniqueness, closest aggregate miss distance, or random draw.
+Only entries that remain equal after those tiebreakers share the same leaderboard rank.
 
 If a tie affects paid positions, the affected prize slots are pooled and split evenly across the tied entries.
 
-## No Secondary Entry Score Tie-Breaker
-For MVP, tied entries remain tied.
+## Leaderboard Tiebreakers
+For equal total scores, apply these checks in order:
 
-Do not break entry score ties using:
+1. most exact player placements
+2. most one-off-or-better picks
+3. closest placement of the actual QB1
+4. more passing touchdowns from the quarterback the user ranked #1
+5. if still tied, compare passing touchdowns from the user's selected QB2, then QB3, then QB4, then QB5 in order
 
-- most exact player placements
-- closest aggregate miss distance
-- earliest entry payment
-- earliest lineup save
-- fewest edits
-- lineup uniqueness
-- random draw
-- account age
-- external manual judgment
+If one entry wins at any step, that entry ranks ahead of the other entry and the comparison stops there.
 
 Reason:
 
-- shared ties are simpler to explain
-- pooled payout splitting is fair and transparent
-- avoids hidden rules users did not optimize for
-- reduces legal/compliance ambiguity around arbitrary tie-breaks
+- these checks are still derived from lineup accuracy
+- they reduce payout-relevant ties without introducing arbitrary admin judgment
+- they match the current simulation-backed product direction already reflected in public rules copy
+
+## True Shared Ties
+If entries remain equal after the full locked tiebreak tree through selected QB5 passing touchdowns, they remain tied.
 
 ## Leaderboard Tie Rules
 
 ### Shared rank
-Entries with the same final score share the same rank.
+Entries with the same final score and the same tiebreaker profile share the same rank.
 
 Example:
 
 | Rank | Entry | Score |
 |---:|---|---:|
-| 1 | Entry A | 120 |
-| T-2 | Entry B | 115 |
-| T-2 | Entry C | 115 |
-| 4 | Entry D | 110 |
+| 1 | Entry A | 18 |
+| T-2 | Entry B | 21 |
+| T-2 | Entry C | 21 |
+| 4 | Entry D | 24 |
 
 ### Ranking method
 Use competition ranking.
@@ -100,9 +98,9 @@ Result:
 
 | Rank | Entry | Score | Payout |
 |---:|---|---:|---:|
-| T-1 | Entry A | 120 | $80 |
-| T-1 | Entry B | 120 | $80 |
-| 3 | Entry C | 110 | $40 |
+| T-1 | Entry A | 18 | $80 |
+| T-1 | Entry B | 18 | $80 |
+| 3 | Entry C | 22 | $40 |
 
 Calculation:
 
@@ -122,9 +120,9 @@ Result:
 
 | Rank | Entry | Score | Payout |
 |---:|---|---:|---:|
-| 1 | Entry A | 120 | $100 |
-| T-2 | Entry B | 115 | $50 |
-| T-2 | Entry C | 115 | $50 |
+| 1 | Entry A | 18 | $100 |
+| T-2 | Entry B | 21 | $50 |
+| T-2 | Entry C | 21 | $50 |
 
 Calculation:
 
@@ -146,10 +144,10 @@ Result:
 
 | Rank | Entry | Score | Payout |
 |---:|---|---:|---:|
-| 1 | Entry A | 120 | $100 |
-| 2 | Entry B | 115 | $60 |
-| T-3 | Entry C | 110 | $20 |
-| T-3 | Entry D | 110 | $20 |
+| 1 | Entry A | 18 | $100 |
+| 2 | Entry B | 21 | $60 |
+| T-3 | Entry C | 24 | $20 |
+| T-3 | Entry D | 24 | $20 |
 
 Calculation:
 
@@ -234,8 +232,8 @@ Recommended fields:
 
 Backend logic:
 
-1. Sort finalized entries by `total_score` descending.
-2. Group entries with identical `total_score`.
+1. Sort finalized entries by `total_score` ascending.
+2. For entries with identical `total_score`, compare the locked tiebreakers in sequence.
 3. Assign shared competition ranks.
 4. Determine whether each tie group intersects paid positions.
 5. Pool affected payout slots for each paid tie group.
@@ -273,17 +271,15 @@ If the tie does not affect payout, no payout explanation is needed.
 ## App Rules Copy
 Use this user-facing rule copy in contest rules or help text:
 
-> If two or more entries finish with the same final score, they share the same placement. If the tie affects paid positions, the prizes for those positions are combined and split evenly among all tied entries.
+> If two or more entries finish with the same final score, PickRank first checks the locked scoring tiebreakers. Only entries still equal after those checks share the same placement. If that tie affects paid positions, the prizes for those positions are combined and split evenly among all tied entries.
 
 ## Non-MVP / Future Considerations
-Do not build secondary entry score tie-breakers for MVP.
+Do not build additional entry score tie-breakers beyond the locked MVP set.
+Potential future tie-breaker concepts, if needed later beyond the locked MVP set:
 
-Potential future tie-breaker concepts, if needed later:
-
-- Most exact picks
-- Closest aggregate miss distance
-- Earliest entry submission
-- Random draw
-- Custom contest-level tie-break rules
+- total lineup uniqueness
+- earliest entry submission
+- random draw
+- custom contest-level tie-break rules
 
 These are intentionally out of scope for MVP.

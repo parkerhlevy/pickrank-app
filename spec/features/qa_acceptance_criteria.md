@@ -527,14 +527,14 @@ User ranks all QBs exactly correctly.
 
 ### Expected result
 
-- each player earns 15 points
-- total score = 15 x slate size
+- each player earns 0 points
+- total score = 0
 
 ### Acceptance criteria
 
 ```text
-PASS if exact lineup receives maximum score.
-FAIL if any exact placement receives less than 15 points.
+PASS if exact lineup receives a zero-difference score.
+FAIL if any exact placement receives more than 0 points.
 ```
 
 ---
@@ -547,11 +547,11 @@ Create lineup with players 0, 1, 2, 3, and 4+ spots away from actual rank.
 ### Expected result
 
 ```text
-0 distance = 15 points
-1 distance = 7 points
-2 distance = 5 points
+0 distance = 0 points
+1 distance = 1 point
+2 distance = 2 points
 3 distance = 3 points
-4+ distance = 0 points
+4+ distance = actual miss distance
 ```
 
 ### Acceptance criteria
@@ -611,6 +611,26 @@ FAIL if players are removed or replaced after contest opens.
 ---
 
 ## 8. Entry Score Tie + Payout Tests
+
+## Test: Leaderboard tiebreakers resolve equal total scores
+
+### Setup
+Two entries finish with the same total score.
+
+### Expected result
+
+- entry with more exact picks ranks higher
+- if exact picks are equal, entry with more one-off-or-better picks ranks higher
+- if both are still equal, entry with closer placement of the actual QB1 ranks higher
+- if entries are still equal after that, compare passing touchdowns from the user's selected QB1, then QB2, QB3, QB4, and QB5 in order
+- only entries still equal after that full tree remain tied
+
+### Acceptance criteria
+
+```text
+PASS if equal total scores use the locked scoring tiebreakers before payout split logic.
+FAIL if standings skip those tiebreakers or use an arbitrary fallback first.
+```
 
 ## Test: Two-way tie for first
 

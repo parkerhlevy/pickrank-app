@@ -36,6 +36,26 @@ export function getAppUrl() {
   return process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 }
 
+export function getStatsProviderMode(): 'disabled' | 'file' | 'persisted_snapshot' {
+  if (process.env.PICKRANK_STATS_PROVIDER === 'file') {
+    return 'file';
+  }
+
+  if (process.env.PICKRANK_STATS_PROVIDER === 'persisted_snapshot') {
+    return 'persisted_snapshot';
+  }
+
+  return 'disabled';
+}
+
+export function getStatsProviderFilePath() {
+  return process.env.PICKRANK_STATS_PROVIDER_FILE_PATH || `${process.cwd()}/data/provider-stats.json`;
+}
+
+export function getPersistedStatsSnapshotFilePath() {
+  return process.env.PICKRANK_STATS_SNAPSHOT_FILE_PATH || `${process.cwd()}/data/contest-stat-snapshots.json`;
+}
+
 export function getRequestOrigin(headers: HeaderSource, fallbackOrigin = getAppUrl()) {
   const host = headers.get('x-forwarded-host') || headers.get('host');
 

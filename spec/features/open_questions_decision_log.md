@@ -95,9 +95,10 @@ Can wait until after MVP.
 | MVP stat category | locked | QB Passing Yards |
 | Slate size | locked | 15 quarterbacks |
 | User task | locked | Pick and rank the top 10 QBs by passing yards from the 15-QB slate |
-| Scoring model | locked | Placement distance scoring |
-| Scoring table | locked | Exact 15, 1 off 7, 2 off 5, 3 off 3, 4+ off 0 |
-| Alternate scoring model testing | revisit_after_testing | Test low-score total rank differential once real NFL/stat-provider data is available |
+| Scoring model | locked | Low-score total rank differential scoring |
+| Scoring table | locked | Each selected QB earns `abs(user_rank - actual_rank)` points against the full 15-QB slate |
+| Leaderboard tiebreakers | locked | Most exact picks, then most one-off-or-better picks, then closest placement of the actual QB1, then selected QB1 through QB5 passing TDs in order |
+| Scoring-model validation basis | locked | 2025 repo simulation favored differential with tiebreakers because it produced the fewest payout-relevant ties among tested models |
 | Single-entry MVP | locked | One entry per user per contest |
 | No live scoring | locked | Final results only after games complete |
 
@@ -122,9 +123,10 @@ Can wait until after MVP.
 |---|---|---|
 | Entry score ties | locked | True shared placements |
 | Entry tie payout | locked | Pool affected payout slots and split evenly |
-| Entry tie-breakers | deferred | No secondary entry score tie-breaker for MVP |
+| Entry tie-breakers | locked | Apply the three differential tiebreakers before declaring a true shared placement |
 | QB passing-yard ties | locked | Use tied actual rank range |
 | QB stat tie-breakers | revisit_after_testing | Consider interceptions, rushing yards, TDs, etc. later |
+| Future non-QB tiebreak framework | recommended | Keep the same differential-first concept for WR/RB/TE contests, but define a position-specific stat-family fallback tree before those contest types launch |
 
 ---
 
@@ -238,25 +240,47 @@ External-stat beta or real-money launch.
 
 ---
 
-## 3a. Alternate scoring model testing
+## 3a. Scoring-model validation record
 
 | Field | Value |
 |---|---|
-| Status | revisit_after_testing |
-| Launch classification | post_mvp |
+| Status | locked |
+| Launch classification | pre_build |
 | Owner | TBD |
 | Related specs | product_spec.md, stat_finalization.md, results_reveal.md |
 
 ### Question
-Should PickRank eventually use, offer, or simulate a low-score differential scoring model instead of the MVP points table?
+Which scoring direction and leaderboard tiebreakers should PickRank treat as the product truth for MVP?
 
-### Candidate model
-Use the same 15-player weekly slate and the user's 10 submitted ranked QBs, but score each selected player by raw rank differential against the full 15-QB slate:
+### Locked model
+Use the same 15-player weekly slate and the user's 10 submitted ranked QBs, and score each selected player by raw rank differential against the full 15-QB slate:
 
 ```text
 differential = abs(user_rank - actual_rank)
 total_score = sum(differential for the 10 selected players)
 ```
+
+For equal total scores, use the locked tiebreak tree in this order:
+
+```text
+1. most exact picks
+2. most one-off-or-better picks
+3. closest placement of the actual QB1
+4. more passing TDs from the user's selected QB1
+5. if still tied, compare the user's selected QB2, then QB3, then QB4, then QB5 passing TDs in order
+6. if still tied after QB5, keep the true shared placement and split affected payout slots
+```
+
+### Future extension note
+When PickRank expands beyond QB passing-yards contests, keep the same overall structure:
+
+```text
+differential scoring first
+then a small ordered tiebreak tree drawn from the same contest's stat family
+then true shared placement only after that position-specific fallback tree is exhausted
+```
+
+WR, RB, and TE contests should not automatically reuse QB passing-touchdown fallbacks. Each position/stat type should define its own explicit, explainable fallback tree before launch.
 
 Lowest total score wins because the score represents total miss distance across the lineup.
 
@@ -273,19 +297,26 @@ Player stat ties should use the same tied actual rank range logic as MVP scoring
 
 Unselected QBs are not directly scored. Their impact is indirect: leaving out a QB who finishes high removes the user's chance to earn a low differential on that QB.
 
-### Testing intent
-Do not replace MVP scoring yet. Keep MVP placement distance scoring as the locked product rule.
+If two entries finish with the same total score, resolve standings in this order:
 
-When real NFL/stat-provider data is available, run simulations comparing:
+1. most exact picks
+2. most one-off-or-better picks
+3. closest placement of the actual QB1
 
-- MVP point-table scoring, where highest score wins
-- total rank differential scoring, where lowest score wins
-- leaderboard spread and tie frequency
-- whether casual users understand the scoring more easily
-- whether the model rewards selected-lineup accuracy better than the MVP table
+If entries are still tied after those checks, keep them tied and apply shared placement plus payout-split rules.
+
+### Why this is locked
+The repo's 2025 scoring simulation compared four models on payout-relevant tie behavior:
+
+- historical MVP point-table scoring
+- raw differential scoring
+- differential scoring with the three leaderboard tiebreakers above
+- weighted differential scoring
+
+Differential scoring with those tiebreakers produced the fewest top-3 payout tie collisions in the repo simulation run, so it is the cleanest current product truth.
 
 ### Decision needed before
-Only needed before changing scoring rules or adding alternate contest formats.
+No further decision is needed before scoring implementation unless the product team explicitly reopens scoring.
 
 ---
 
@@ -695,7 +726,7 @@ The landing page is live and early interest feedback is available.
 
 - MVP game format: QB Passing Yards ranking contest
 - Slate size: 15 QBs
-- Scoring: placement distance scoring
+- Scoring: low-score total rank differential with locked leaderboard tiebreakers
 - Platform fee: 30%
 - Prize pool: 70%
 - Payout: Top 3, 50/30/20

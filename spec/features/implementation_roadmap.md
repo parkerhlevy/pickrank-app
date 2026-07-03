@@ -309,6 +309,7 @@ Calculate results before external stats provider integration.
 - actual rank calculation
 - tied QB stat rank range handling
 - entry score calculation
+- leaderboard tiebreaker calculation
 - entry score tie handling
 - payout calculation preview
 - scoring result persistence
@@ -332,6 +333,7 @@ External sports data provider integration can follow after scoring logic is prov
 - test stats can be entered/imported internally
 - scoring calculates correctly
 - tied player stat ranges score correctly
+- equal total scores apply the locked leaderboard tiebreakers before shared placements
 - tied entry scores produce shared ranks
 - payout calculations match Top 3 50/30/20 rules
 - results data persists

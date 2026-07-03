@@ -61,10 +61,10 @@ The repo is past bare Phase 0 and currently includes:
 - Vitest wired
 - Basic route smoke tests
 
-Current branch reality on `main` as of 2026-06-30:
+Current branch reality on `main` as of 2026-07-02:
 
 - `main` is ahead of `origin/main` with the local commits `Add contest operator and repository foundation`, `Add Remotion marketing video source`, `Finish Postgres contest repository rollout`, `Exclude Remotion workspace from app typecheck`, `Document live deployment status`, and `Fix admin publish redirect handling`
-- the only remaining tracked working-tree change should be generated `next-env.d.ts` noise, which should usually stay out of commits
+- local `main` now also includes `49802ba Add server-backed saved entry lineup flow`, which moved contest entry, payment placeholder, success, and lineup screens onto persisted entry records plus a full 15-player slate with a ranked top-10 save flow
 - the current Remotion source baseline is a motion-polished `32s` waitlist-focused cut under `assets/marketing/video/`, aligned to the 15-player / pick-10 product framing and the `pickrankgames.com` brand
 - the latest rendered review asset is `assets/marketing/video/out/pickrank-landing-video.mp4`
 - `lib/contest-data.ts` now reads and writes contest browse/admin data directly against Supabase/Postgres in normal app use, while keeping file-backed fixtures only for tests and explicit fixture-driven runs
@@ -74,6 +74,7 @@ Current branch reality on `main` as of 2026-06-30:
 - operator bootstrap is confirmed for `parkerhlevy@gmail.com` as a live `contest_operator`, while `glevy59@icloud.com` is correctly staged in `pending_user_roles` and should auto-convert after signup
 - the admin flow now records `created_by_admin_id`, `validated_by_admin_id`, and `published_by_admin_id`, and draft contests can now carry real `slatePlayers` rows plus stricter publish validation through the shared contest repository layer
 - the public contest lobby and contest detail pages now read contests that include real slate-player arrays, while the lineup shell still temporarily derives a 10-player subset from that slate
+- the lineup shell no longer relies on the temporary 10-player subset shortcut; signed-in users can now save one ranked 10-quarterback lineup from the full 15-player contest slate against a persisted entry record
 - protected contest-entry routes now share one auth gate for signed-out, profile-incomplete, and email-unverified users, and the contest-detail CTA mirrors that same gating path
 - the current automated QA baseline now covers signed-out direct visits to `/contests/[contestId]/payment`, `/success`, and `/lineup`, plus ready-account browser verification of those same protected routes through a dedicated Playwright signed-in auth fixture
 - Playwright now runs those protected-route checks against the repo fixture contest store by enabling `PICKRANK_E2E_AUTH=1` and `PICKRANK_E2E_USE_FILE_STORE=1` in the e2e web-server command, which keeps production auth gates intact while isolating browser QA from the still-incomplete live contest migration
@@ -90,8 +91,13 @@ Current branch reality on `main` as of 2026-06-30:
 - live production verification now confirms the draft validation step passes, the publish button enables only after validation, the publish action succeeds, and the newly published contest appears in public browse
 - GitHub push access from this machine was restored on 2026-06-30, and local `main`, `origin/main`, and the already-deployed production code are now back in sync at `f1c70b9`
 - final live browser verification on 2026-06-30 confirms public `/contests` now shows Week 1 as `Open` and Week 2 as `Scheduled`, while signed-in admin `/admin/contests` shows both records as visible under the `contest_operator` gate with publish controls inactive for those already-published contests
+- contest finalization now has a saved-results foundation: operators can prefill final stat rows from a provider-backed adapter seam, still type `FINAL` to confirm scoring, and publish saved contest results plus final leaderboard standings without exposing live scoring
+- the new provider seam supports disabled, file-backed, and persisted-snapshot adapter modes so the next integration slice can swap in a real external stats source without rewriting the current admin finalization UX
+- public `/contests/[contestId]/results` and `/leaderboard?contest=...` now read from saved final results after a contest reaches `final` or `paid_out`
+- repo verification for the new scoring/results slice now includes unit coverage for stat ingestion, ranking, tie handling, finalization, and saved results plus Playwright coverage for operator finalization and signed-in final-results viewing
 - `next-env.d.ts` should usually be treated as generated noise unless a slice specifically requires it
 - untracked marketing video work currently lives under `assets/marketing/video/` and belongs to this repo when it supports PickRank launch work
+- additional in-progress design and marketing assets remain outside the product commits for this slice and should stay untouched unless that work is explicitly resumed
 
 ## Core Commands
 
@@ -205,15 +211,16 @@ The MVP includes:
 Next recommended slice:
 
 ```text
-Replace the temporary 10-player lineup subset with the real 15-player-to-pick-10 contest selection flow, while keeping the current Supabase-backed contest records, admin publish gate, and protected-route auth behavior intact.
+Replace the file and persisted-snapshot stat adapter placeholders with the first real provider-backed snapshot fetch and persistence path, while keeping the current operator `FINAL` confirmation step, saved-results surfaces, and low-score differential scoring model intact.
 ```
 
 Definition of done:
 
-- Contest detail, payment, success, and lineup flows all read the full 15-player contest slate without falling back to the temporary subset shortcut
-- A signed-in user can choose and rank 10 quarterbacks from the real 15-player slate while the existing auth/profile gating still controls access
-- The admin publish flow, `contest_operator` gate, and live public contest browse continue to work against the same Supabase-backed contest records
-- `npm run typecheck`, `npm run test`, and browser verification pass for the updated selection flow
+- A provider adapter can fetch one contest snapshot from a real external stats source and normalize it into the existing finalization seam
+- The fetched snapshot can be persisted for operator review without auto-publishing results
+- Admin finalization still requires a human operator to review the rows and type `FINAL`
+- Public final-results and leaderboard screens continue to read only from saved final results after confirmation
+- `npm run typecheck`, `npm run test`, and browser verification pass for the provider-backed ingestion slice
 - Update this handoff note if the admin verification outcome or next recommended move changes
 
 ## Starter Prompt For Future Chats
@@ -221,7 +228,7 @@ Definition of done:
 Use this default starter prompt pattern unless the next slice needs a tighter scoped variation:
 
 ```text
-Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Before changing behavior, read `docs/agent-handoff.md`, `spec/product_spec.md`, and the relevant contest-entry, lineup, and contest/admin spec files already involved. Work carefully with the in-progress marketing/Remotion files but do not disturb them. This slice is narrow: replace the temporary 10-player lineup subset with the real 15-player-to-pick-10 selection flow on top of the live Supabase contest records. Keep the human-confirmed publish step, `contest_operator` gate, and current protected-route auth behavior intact, avoid payments, payouts, withdrawals, and compliance work, run the relevant checks plus browser verification, and refresh `docs/agent-handoff.md` if repo reality or the next recommended move changes. Explain results business-first: what changed, why it matters, what passed, and what I need to do next.
+Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Before changing behavior, read `docs/agent-handoff.md`, `spec/product_spec.md`, `spec/features/stat_finalization.md`, `spec/features/results_reveal.md`, and the other scoring/results spec files already aligned to the low-score differential model, plus the in-progress contest-entry and provider/results files already involved. Work carefully with the parked design and marketing files but do not disturb them. Keep the slice narrow: wire the first real provider-backed stat snapshot adapter and persistence path only, preserve the current human-confirmed finalization step and saved-results surfaces, avoid payments, withdrawals, compliance, and unrelated UI work, run the relevant typecheck/tests/browser verification for that seam, and refresh `docs/agent-handoff.md` if repo reality or the next recommended move changes. Explain results business-first: what changed, why it matters, what passed, what remains risky, and what I need to do next.
 ```
 
 ## Generated Files to Avoid Committing

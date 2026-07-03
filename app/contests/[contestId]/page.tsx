@@ -38,6 +38,7 @@ export default async function ContestDetailPage({
     isContestOpen: isContestOpenForEntry(contest),
     isProfileComplete: viewerIdentity.isProfileComplete,
     isEmailVerified: viewerIdentity.isEmailVerified,
+    contestStatus: contest.contestStatus,
   });
 
   return (
@@ -105,7 +106,7 @@ export default async function ContestDetailPage({
           <div className="rounded-lg border bg-slate-50 px-3 py-3 text-sm">
             <p className="font-medium">Scoring at a glance</p>
             <p className="mt-1 text-muted-foreground">
-              Rank the quarterbacks as close to their real finish as possible. The closer your order is to the final results, the better your score.
+              Rank the quarterbacks as close to their real finish as possible. Each pick adds its rank miss to your total, so lower score wins.
             </p>
           </div>
           <Button asChild variant="secondary" className="w-full">

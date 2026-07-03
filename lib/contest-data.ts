@@ -217,6 +217,18 @@ export async function listPublicContests(options?: ContestDataOptions) {
     .map(toContestSummary);
 }
 
+export async function listPublicFinalContests(options?: ContestDataOptions) {
+  const store = await readContestStore(options);
+
+  return store.contests
+    .filter(
+      (contest) =>
+        contest.visibilityStatus === 'visible' && ['final', 'paid_out'].includes(contest.status),
+    )
+    .sort(compareContestRecords)
+    .map(toContestSummary);
+}
+
 export async function listAdminContests(options?: ContestDataOptions) {
   const store = await readContestStore(options);
   return [...store.contests].sort(compareContestRecords).map(toContestSummary);
@@ -583,6 +595,43 @@ export async function updateContestEntryCounts(
   if (error) {
     throw new Error(`Unable to update contest entry counts: ${error.message}`);
   }
+}
+
+export async function updateContestStatus(
+  contestId: string,
+  status: ContestStatus,
+  {
+    now = new Date().toISOString(),
+    ...options
+  }: TimestampOptions = {},
+) {
+  if (shouldUseFileStore(options)) {
+    const store = await readContestStoreFromFile(options.dataFilePath);
+    const contestIndex = store.contests.findIndex((contest) => contest.id === contestId);
+
+    if (contestIndex === -1) {
+      throw new Error('Contest not found.');
+    }
+
+    const currentContest = store.contests[contestIndex];
+    const nextContest = contestRecordSchema.parse({
+      ...currentContest,
+      status,
+      updatedAt: now,
+    });
+
+    await writeContestStoreToFile(
+      {
+        ...store,
+        contests: replaceContest(store.contests, contestIndex, nextContest),
+      },
+      options.dataFilePath,
+    );
+
+    return;
+  }
+
+  await updateContestLifecycleStatus(contestId, status, now);
 }
 
 export async function runContestLifecycleTransitions(options?: TimestampOptions) {

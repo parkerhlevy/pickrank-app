@@ -486,7 +486,7 @@ Authenticated + entered + contest final/paid_out.
 - player-by-player score breakdown
 - actual rank
 - user rank
-- points awarded
+- miss points awarded
 - tie status, if applicable
 - payout pending/paid status
 
@@ -661,14 +661,14 @@ How It Works must include at least one concrete example showing:
 - a user-ranked quarterback
 - that quarterback's actual weekly passing-yards rank
 - the rank distance
-- the points awarded under the MVP placement distance scoring table
+- the miss points awarded under the locked rank-differential scoring model
 - how individual player points roll up into the user's total score
 
 Example:
 
 ```text
 If you rank Patrick Mahomes 1st and he finishes 9th in passing yards, he is 8 spots off.
-Under MVP scoring, 4+ spots off earns 0 points for that player.
+Under PickRank scoring, that player earns 8 points because the score is the miss distance.
 ```
 
 Keep this example near the scoring table so users can understand the point system without opening a contest result.

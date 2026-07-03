@@ -169,6 +169,7 @@ export function getContestDetailPrimaryAction({
   isContestOpen,
   isProfileComplete,
   isEmailVerified,
+  contestStatus = 'open',
 }: {
   contestId: string;
   entryFee: string;
@@ -177,7 +178,16 @@ export function getContestDetailPrimaryAction({
   isContestOpen: boolean;
   isProfileComplete: boolean;
   isEmailVerified: boolean;
+  contestStatus?: 'draft' | 'scheduled' | 'open' | 'locked' | 'canceled' | 'live' | 'finalizing' | 'final' | 'paid_out' | 'error_review';
 }) {
+  if (contestStatus === 'final' || contestStatus === 'paid_out') {
+    return {
+      label: hasEntry ? 'View Results' : 'View Leaderboard',
+      href: hasEntry ? `/contests/${contestId}/results` : `/leaderboard?contest=${contestId}`,
+      disabled: false,
+    };
+  }
+
   if (hasEntry) {
     return {
       label: isContestOpen ? 'Edit Lineup' : 'View Lineup',

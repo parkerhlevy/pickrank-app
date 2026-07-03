@@ -16,6 +16,8 @@ This document covers **player stat ties**: two or more quarterbacks finishing wi
 
 It does not define entry score ties, such as two users finishing with the same total contest score. Entry score ties, leaderboard placement, and payout splits are handled in `/spec/features/tie_handling.md`.
 
+For MVP internal results finalization, the saved final-stat input may also carry passing-touchdown totals so the locked entry-score tiebreak tree can compare the user's selected QB1 through QB5 if total miss score, exact picks, one-off-or-better picks, and QB1 placement distance are still equal. Those passing-touchdown values do not change actual player rank for the contest and are not used to break tied passing-yard finishes.
+
 ---
 
 ## Summary

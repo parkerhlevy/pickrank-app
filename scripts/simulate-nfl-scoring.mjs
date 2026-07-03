@@ -713,7 +713,7 @@ function renderReport({ season, entries, slateSize, rankedPicks, sourceUrl, week
 
 ## Purpose
 
-Compare the locked MVP points table, the raw low-score rank differential model, a differential model with top-3 tiebreakers, and a weighted top-of-slate differential model using real NFL weekly QB passing data.
+Compare the historical MVP points table, the raw low-score rank differential model, a differential model with leaderboard tiebreakers, and a weighted top-of-slate differential model using real NFL weekly QB passing data.
 
 This is a simulation artifact, not production scoring code. Contestant entries are synthetic and deterministic so the same command produces the same comparison.
 
@@ -725,9 +725,9 @@ This is a simulation artifact, not production scoring code. Contestant entries a
 - Slate construction: top ${slateSize} quarterbacks by weekly passing yards, used as a hindsight test slate
 - Contestant task: rank ${rankedPicks} quarterbacks from the ${slateSize}-QB slate
 - Contestants per week: ${entries}
-- MVP scoring: Exact 15, 1 off 7, 2 off 5, 3 off 3, 4+ off 0. Highest total wins.
+- Historical MVP scoring: Exact 15, 1 off 7, 2 off 5, 3 off 3, 4+ off 0. Highest total wins.
 - Raw differential scoring: sum of rank differentials across the ${rankedPicks} selected QBs. Each selected QB's actual rank is still measured against the full ${slateSize}-QB slate. Lowest total wins.
-- Differential with tiebreakers: raw differential first, then most exact picks, then most one-off-or-better picks, then closest placement of the actual QB1.
+- Differential with tiebreakers: raw differential first, then most exact picks, then most one-off-or-better picks, then closest placement of the actual QB1. This is the current repo scoring direction because it produced the fewest payout-relevant ties in this test set.
 - Weighted differential scoring: top-3 actual finishers use distance x 4, actual ranks 4-10 use distance x 2, and actual ranks 11-15 use distance x 1. Weight buckets use actual rank minimum for tied stat ranks.
 - Player stat ties: all scoring models use the same tied actual rank range logic.
 - Contestant lineups: deterministic synthetic entries using season-to-date prior passing-yard rank, projection noise, alphabetical order, and random strategies.

@@ -3,14 +3,17 @@ import type { InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from 'rea
 import { AlertCircle, CheckCircle2, EyeOff, FileText, ShieldCheck } from 'lucide-react';
 import {
   createDraftContestAction,
+  finalizeContestAction,
   publishContestAction,
   saveContestSlateAction,
   validateDraftContestAction,
 } from '@/app/admin/contests/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { canFinalizeContestStatus } from '@/lib/contest-finalization';
 import { listAdminContests, type ContestSummary } from '@/lib/contest-data';
 import { requireContestOperator } from '@/lib/contest-operator-access';
+import { buildContestStatIngestionPreview } from '@/lib/contest-stat-ingestion';
 
 export default async function AdminContestsPage({
   searchParams,
@@ -19,6 +22,14 @@ export default async function AdminContestsPage({
 }) {
   const access = await requireContestOperator('/admin/contests');
   const contests = await listAdminContests();
+  const contestsWithStatPreview = await Promise.all(
+    contests.map(async (contest) => ({
+      contest,
+      finalStatPreview: canFinalizeContestStatus(contest.contestStatus)
+        ? await buildContestStatIngestionPreview(contest)
+        : null,
+    })),
+  );
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const status = resolvedSearchParams?.status;
   const message = resolvedSearchParams?.message;
@@ -46,20 +57,20 @@ export default async function AdminContestsPage({
       {message ? (
         <Card
           className={
-            status === 'created' || status === 'saved' || status === 'validated' || status === 'published'
+            status === 'created' || status === 'saved' || status === 'validated' || status === 'published' || status === 'finalized'
               ? 'border-emerald-200 bg-emerald-50'
               : 'border-amber-200 bg-amber-50'
           }
         >
           <CardContent className="flex items-start gap-3 pt-6 text-sm">
-            {status === 'created' || status === 'saved' || status === 'validated' || status === 'published' ? (
+            {status === 'created' || status === 'saved' || status === 'validated' || status === 'published' || status === 'finalized' ? (
               <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-700" aria-hidden="true" />
             ) : (
               <AlertCircle className="mt-0.5 h-4 w-4 text-amber-700" aria-hidden="true" />
             )}
             <p
               className={
-                status === 'created' || status === 'saved' || status === 'validated' || status === 'published'
+                status === 'created' || status === 'saved' || status === 'validated' || status === 'published' || status === 'finalized'
                   ? 'text-emerald-900'
                   : 'text-amber-900'
               }
@@ -162,7 +173,7 @@ export default async function AdminContestsPage({
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              {contests.map((contest) => (
+              {contestsWithStatPreview.map(({ contest, finalStatPreview }) => (
                 <div key={contest.id} className="rounded-lg border bg-white p-3">
                   <div className="flex items-start justify-between gap-3">
                     <div>
@@ -250,6 +261,40 @@ export default async function AdminContestsPage({
                       </Button>
                     </form>
                   </div>
+                  {canFinalizeContestStatus(contest.contestStatus) ? (
+                    <form action={finalizeContestAction} className="mt-3 space-y-3 rounded-lg border bg-slate-50 p-3">
+                      <input type="hidden" name="contestId" value={contest.id} />
+                      <div className="space-y-1.5">
+                        <Label htmlFor={`finalStatRows-${contest.id}`}>Confirmed final QB stats</Label>
+                        <TextArea
+                          id={`finalStatRows-${contest.id}`}
+                          name="finalStatRows"
+                          rows={10}
+                          defaultValue={finalStatPreview?.rows ?? ''}
+                          placeholder="playerId|playerName|passingYards|passingTouchdowns"
+                        />
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        <span className="font-semibold text-foreground">{finalStatPreview?.sourceLabel ?? 'Manual entry'}.</span>{' '}
+                        Internal-only scoring publish. Keep one quarterback per line as{' '}
+                        <span className="font-mono">playerId|playerName|passingYards|passingTouchdowns</span>. This can
+                        rerun final scoring if an official stat correction changes the slate.
+                      </p>
+                      <p className="text-xs text-muted-foreground">{finalStatPreview?.helperText}</p>
+                      <div className="space-y-1.5">
+                        <Label htmlFor={`confirmationText-${contest.id}`}>Type FINAL to confirm</Label>
+                        <TextInput
+                          id={`confirmationText-${contest.id}`}
+                          name="confirmationText"
+                          placeholder="FINAL"
+                          required
+                        />
+                      </div>
+                      <Button type="submit" variant="secondary" className="w-full">
+                        Run Final Scoring
+                      </Button>
+                    </form>
+                  ) : null}
                 </div>
               ))}
             </CardContent>
@@ -265,8 +310,8 @@ export default async function AdminContestsPage({
             <CardContent className="space-y-2 text-sm text-muted-foreground">
               <p>The contest operator role is the only enforced internal permission in MVP.</p>
               <p>Agent help can prepare and validate drafts, but publish still requires a human operator action.</p>
-              <p>Public entry, payment, and lineup shells still use placeholder entry state while reading real contest records.</p>
-              <p>The lineup builder still runs on a temporary 10-player subset until the full 15-player selection flow lands.</p>
+              <p>Public entry and lineup flows now use server-backed entry records while the payment step stays a non-provider placeholder.</p>
+              <p>The lineup builder now shows the full 15-player slate and saves one ranked 10-player lineup for each entry.</p>
             </CardContent>
           </Card>
         </div>

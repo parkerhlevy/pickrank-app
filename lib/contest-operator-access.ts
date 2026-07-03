@@ -1,8 +1,10 @@
 import type { User } from '@supabase/supabase-js';
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { buildAuthHref, buildProfileHref, getProfileIdentity } from '@/lib/auth-profile';
 import { hasBrowserSupabaseConfig } from '@/lib/env';
 import { createClient } from '@/lib/supabase/server';
+import { e2eAuthCookieName, getE2eAuthFixture } from '@/lib/viewer-identity';
 
 export const contestOperatorRoleSlug = 'contest_operator';
 
@@ -64,6 +66,25 @@ export function getContestOperatorAccessDecision({
 }
 
 export async function getCurrentOperatorRoles() {
+  const cookieStore = await cookies();
+  const e2eFixture = getE2eAuthFixture(cookieStore.get(e2eAuthCookieName)?.value);
+
+  if (e2eFixture) {
+    return {
+      user: {
+        id: e2eFixture.userId,
+        email: e2eFixture.email,
+        email_confirmed_at: e2eFixture.emailConfirmedAt,
+        user_metadata: {
+          username: e2eFixture.username,
+          display_name: e2eFixture.displayName,
+        },
+      } as unknown as User,
+      roleSlugs: e2eFixture.roleSlugs,
+      isContestOperator: e2eFixture.roleSlugs.includes(contestOperatorRoleSlug),
+    };
+  }
+
   if (!hasBrowserSupabaseConfig()) {
     return {
       user: null,

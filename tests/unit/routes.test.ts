@@ -10,6 +10,7 @@ const appRoutes = [
   { path: '/contests/:contest_id/payment', file: 'app/contests/[contestId]/payment/page.tsx' },
   { path: '/contests/:contest_id/success', file: 'app/contests/[contestId]/success/page.tsx' },
   { path: '/contests/:contest_id/lineup', file: 'app/contests/[contestId]/lineup/page.tsx' },
+  { path: '/contests/:contest_id/results', file: 'app/contests/[contestId]/results/page.tsx' },
   { path: '/how-it-works', file: 'app/how-it-works/page.tsx' },
   { path: '/leaderboard', file: 'app/leaderboard/page.tsx' },
   { path: '/profile', file: 'app/profile/page.tsx' },

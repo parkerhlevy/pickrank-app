@@ -9,8 +9,8 @@ Product Type
 Skill-based NFL prediction contest.
 Core Mechanic
 Users rank a slate of players by projected stat outcome. Points are
-awarded based on how close their rankings are to the final results.
-The highest total score wins the contest.
+awarded as ranking miss distance against the final results. The
+lowest total score wins the contest.
 Compliance Direction
 PickRank is framed as a paid skill-based contest, not sports betting. Public real-money launch requires legal/payment-provider review, supported jurisdiction definition, age/eligibility controls, and responsible play requirements.
 Detailed design:
@@ -74,19 +74,31 @@ Detailed design:
 See /spec/features/contest_admin_setup.md
 ---
 4. Scoring System
-Placement Distance Scoring
+Rank Differential Scoring
 Distance   Points
 ---
-Exact      15
-1 off      7
-2 off      5
+Exact      0
+1 off      1
+2 off      2
 3 off      3
-4+ off     0
+4 off      4
+5+ off     actual miss distance
 Score Calculation
 distance = abs(user_rank - actual_rank)  
-points = scoring_table[distance]
+points = distance
 Total score = sum of points from the user's 10 selected QBs.
+Lowest total score wins.
 Actual rank is always measured against the full 15-QB slate, not only against the user's selected 10.
+Leaderboard Tie Resolution
+If two entries finish with the same total score, resolve the order
+using these tiebreakers in sequence:
+1. most exact picks
+2. most one-off-or-better picks
+3. closest placement of the actual QB1
+4. more passing touchdowns from the quarterback the user ranked #1
+5. if still tied, compare passing touchdowns from the user's selected QB2, then QB3, then QB4, then QB5 in order
+If entries remain tied after that locked tiebreak tree, they share the
+same final placement and tie-based payout handling applies.
 Player Stat Ties
 If multiple players finish with the same final stat, they share an actual rank range. A user receives distance 0 if the player is placed anywhere inside that tied actual rank range.
 Detailed design:
@@ -253,16 +265,16 @@ Rank
 Username  
 Points
 Example:
-1 User123 67 pts  
-2 QBWizard 65 pts  
-3 StatMaster 64 pts
+1 User123 22 pts  
+2 QBWizard 24 pts  
+3 StatMaster 27 pts
 User Position
 Final leaderboard opens centered on the user's position.
 Example:
-176 GridironPro 43 pts  
-177 QBWizard 43 pts  
-178 You 42 pts  
-179 SportsFan22 42 pts
+176 GridironPro 58 pts  
+177 QBWizard 58 pts  
+178 You 55 pts  
+179 SportsFan22 55 pts
 User row highlighted.
 Leaderboard Restrictions (MVP)
 No: - leaderboard search - rank movement indicators - projections - stat
@@ -285,7 +297,7 @@ See /spec/features/results_reveal.md
 For MVP: Single entry per user
 Contest must reach at least 4 paid entries by lock time to run.
 Future: Multi-entry contests
-Future scoring test: evaluate a low-score total rank differential model after real NFL data is available. In that model, each selected player receives `abs(user_rank - actual_rank)` points, all 10 selected player differentials are summed, and the lowest total score wins. Actual rank is measured against the full 15-QB slate. Player stat ties use the same tied actual rank range logic as MVP scoring. This is not the locked MVP scoring rule.
+Scoring direction is locked for MVP: each selected player receives `abs(user_rank - actual_rank)` points, all 10 selected player differentials are summed, and the lowest total score wins. Actual rank is measured against the full 15-QB slate. Player stat ties use the same tied actual rank range logic as the rest of MVP scoring.
 ---
 16. Backend Data Model
 Detailed MVP backend object and service design is defined in:
@@ -431,7 +443,7 @@ Leaderboard: - movement indicators - friend leaderboard - live scoring leaderboa
 Lobby: - sorting - search - filters
 Contest: - multi-entry contests - variable payout ladders - variable platform fees - guaranteed prize pools - private/capped contests - admin lifecycle dashboard - dispute workflow
 Payments: - standalone deposits - expanded wallet history - payment provider reconciliation dashboard - tax reporting flows - chargeback tooling
-Stats: - provider redundancy - stat dispute workflow - live stat tracking - additional stat categories - optional QB stat tie-breaker testing using interceptions, rushing yards, TDs, or other secondary stats - alternate low-score total rank differential scoring simulations
+Stats: - provider redundancy - stat dispute workflow - live stat tracking - additional stat categories - optional QB stat tie-breaker testing using interceptions, rushing yards, TDs, or other secondary stats
 Admin: - automated weekly contest generation - bulk contest creation - role-based permissions - clone previous contest workflow
 Account: - social login - avatars - public user stats - friend leaderboard - referral system - responsible gaming controls - self-exclusion tooling - enhanced KYC/location verification
 Compliance: - geolocation provider integration - tax document dashboard - jurisdiction-specific terms - compliance admin dashboard - responsible play limits

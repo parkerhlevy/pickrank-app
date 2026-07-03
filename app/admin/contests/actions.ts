@@ -6,12 +6,15 @@ import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { z } from 'zod';
 import {
   createDraftContest,
+  getContestById,
   publishContest,
   saveContestSlate,
   validateDraftContest,
   type ContestSlatePlayer,
 } from '@/lib/contest-data';
+import { canFinalizeContestStatus, parseFinalStatRows } from '@/lib/contest-finalization';
 import { requireContestOperator } from '@/lib/contest-operator-access';
+import { finalizeContestResults } from '@/lib/contest-results';
 
 const createDraftContestSchema = z.object({
   title: z.string().trim().min(1, 'Add a contest title.'),
@@ -32,8 +35,14 @@ const saveContestSlateSchema = z.object({
   slateRows: z.string().trim().min(1, 'Add 15 quarterback rows before saving the slate.'),
 });
 
+const finalizeContestSchema = z.object({
+  contestId: z.string().trim().min(1, 'Contest not found.'),
+  finalStatRows: z.string().trim().min(1, 'Add the confirmed final QB stats before running results.'),
+  confirmationText: z.string().trim().min(1, 'Type FINAL to confirm the scoring publish step.'),
+});
+
 function buildAdminContestsRedirect(
-  status: 'created' | 'saved' | 'validated' | 'published' | 'error',
+  status: 'created' | 'saved' | 'validated' | 'published' | 'finalized' | 'error',
   message?: string,
 ) {
   const params = new URLSearchParams({ status });
@@ -176,10 +185,70 @@ export async function publishContestAction(formData: FormData) {
   }
 }
 
+export async function finalizeContestAction(formData: FormData) {
+  await requireContestOperator('/admin/contests');
+  const parsed = finalizeContestSchema.safeParse({
+    contestId: String(formData.get('contestId') || ''),
+    finalStatRows: String(formData.get('finalStatRows') || ''),
+    confirmationText: String(formData.get('confirmationText') || ''),
+  });
+
+  if (!parsed.success) {
+    redirect(buildAdminContestsRedirect('error', parsed.error.issues[0]?.message || 'Unable to run final scoring.'));
+  }
+
+  if (parsed.data.confirmationText !== 'FINAL') {
+    redirect(buildAdminContestsRedirect('error', 'Type FINAL to confirm this results publish step.'));
+  }
+
+  try {
+    const contest = await getContestById(parsed.data.contestId, {
+      includeHidden: true,
+    });
+
+    if (!canFinalizeContestStatus(contest.contestStatus)) {
+      redirect(
+        buildAdminContestsRedirect(
+          'error',
+          `${contest.title} cannot be finalized from ${contest.contestStatus}.`,
+        ),
+      );
+    }
+
+    const finalStats = parseFinalStatRows({
+      contest,
+      rawRows: parsed.data.finalStatRows,
+    });
+
+    const result = await finalizeContestResults({
+      contestId: contest.id,
+      finalStats,
+    });
+
+    revalidateAdminContestPaths(result.contestId);
+
+    redirect(
+      buildAdminContestsRedirect(
+        'finalized',
+        `${result.contestTitle} final results are now published from the confirmed QB stats.`,
+      ),
+    );
+  } catch (error) {
+    if (isRedirectError(error)) {
+      throw error;
+    }
+
+    const message = error instanceof Error ? error.message : 'Unable to run final scoring right now.';
+
+    redirect(buildAdminContestsRedirect('error', message));
+  }
+}
+
 function revalidateAdminContestPaths(contestId: string) {
   revalidatePath('/admin/contests');
   revalidatePath('/contests');
   revalidatePath(`/contests/${contestId}`);
+  revalidatePath(`/contests/${contestId}/results`);
   revalidatePath('/leaderboard');
 }
 
