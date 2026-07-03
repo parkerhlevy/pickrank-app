@@ -13,7 +13,15 @@ import {
   getContestEntrySteps,
   getPersistedContestEntryStage,
 } from '@/lib/contest-entry-flow';
-import { formatCents, getContestById, getPaymentReviewBreakdown } from '@/lib/contest-data';
+import {
+  formatCents,
+  getContestById,
+  getContestDefaultLineupOrder,
+  getContestSelectablePlayers,
+  getPaymentReviewBreakdown,
+} from '@/lib/contest-data';
+import { getPersistedContestEntry } from '@/lib/persisted-contest-entry';
+import { getViewerIdentity } from '@/lib/viewer-identity';
 
 export default async function PaymentReviewPage({
   params,
@@ -34,7 +42,19 @@ export default async function PaymentReviewPage({
     contest.id,
     cookieStore.get(contestEntryCookieName)?.value,
   );
-  const routeState = getContestEntryRouteState({ contestId: contest.id, persistedStage, route: 'payment' });
+  const viewerIdentity = await getViewerIdentity();
+  const persistedEntry = await getPersistedContestEntry(
+    contest.id,
+    viewerIdentity.userId,
+    getContestSelectablePlayers(contest),
+    getContestDefaultLineupOrder(contest),
+  );
+  const routeState = getContestEntryRouteState({
+    contestId: contest.id,
+    persistedStage,
+    route: 'payment',
+    hasPersistedEntry: Boolean(persistedEntry),
+  });
 
   if (routeState.shouldRedirect && routeState.redirectHref) {
     redirect(routeState.redirectHref);

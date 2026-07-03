@@ -11,11 +11,15 @@ import {
 import {
   ensurePersistedContestEntry,
   getPersistedContestEntry,
-  persistedContestEntryCookieName,
-  removePersistedContestEntry,
 } from '@/lib/persisted-contest-entry';
 import { getProtectedContestEntryRedirect } from '@/lib/contest-entry-access';
-import { getContestById, getContestLineupPlayers, isContestOpenForEntry } from '@/lib/contest-data';
+import {
+  getContestById,
+  getContestDefaultLineupOrder,
+  getContestSelectablePlayers,
+  isContestOpenForEntry,
+} from '@/lib/contest-data';
+import { getViewerIdentity } from '@/lib/viewer-identity';
 
 export async function GET(
   request: Request,
@@ -30,13 +34,19 @@ export async function GET(
   const contest = await getContestById(contestId);
   const cookieStore = await cookies();
   const cookieValue = cookieStore.get(contestEntryCookieName)?.value;
-  const entryCookieValue = cookieStore.get(persistedContestEntryCookieName)?.value;
   const requestedLineupAccess = stage === 'lineup';
   const requestedEntryFlow = stage === 'payment-review' || stage === 'entered';
   const requestedProtectedFlow = requestedEntryFlow || requestedLineupAccess;
   const contestIsOpen = isContestOpenForEntry(contest);
-  const lineupPlayers = getContestLineupPlayers(contest);
-  const existingEntry = getPersistedContestEntry(contestId, entryCookieValue, lineupPlayers);
+  const selectablePlayers = getContestSelectablePlayers(contest);
+  const defaultSelectedOrder = getContestDefaultLineupOrder(contest);
+  const viewerIdentity = await getViewerIdentity();
+  const existingEntry = await getPersistedContestEntry(
+    contestId,
+    viewerIdentity.userId,
+    selectablePlayers,
+    defaultSelectedOrder,
+  );
 
   if (requestedProtectedFlow) {
     const next = getContestEntryProgressHref(contestId, stage);
@@ -49,7 +59,13 @@ export async function GET(
 
   const shouldBlockEntryFlow = requestedEntryFlow && !contestIsOpen;
   const shouldBlockLockedLineupView = requestedLineupAccess && !contestIsOpen && !existingEntry;
-  const nextStage = shouldBlockEntryFlow || shouldBlockLockedLineupView ? 'not-entered' : stage;
+  const nextStage = shouldBlockEntryFlow || shouldBlockLockedLineupView
+    ? 'not-entered'
+    : existingEntry
+      ? requestedLineupAccess
+        ? 'lineup'
+        : 'entered'
+      : stage;
   const updatedCookieValue = getUpdatedContestEntryCookieValue({
     contestId,
     currentCookieValue: cookieValue,
@@ -63,31 +79,12 @@ export async function GET(
     path: '/',
   });
 
-  if (nextStage === 'not-entered') {
-    response.cookies.set(
-        persistedContestEntryCookieName,
-        removePersistedContestEntry({
-          contestId,
-          cookieValue: entryCookieValue,
-          players: lineupPlayers,
-        }),
-      {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-      },
-    );
-  } else if (nextStage === 'entered' || (requestedLineupAccess && contestIsOpen)) {
-    const entryState = ensurePersistedContestEntry({
+  if (nextStage === 'entered' || (requestedLineupAccess && contestIsOpen)) {
+    await ensurePersistedContestEntry({
       contestId,
-      cookieValue: entryCookieValue,
-      players: lineupPlayers,
-    });
-
-    response.cookies.set(persistedContestEntryCookieName, entryState.cookieValue, {
-      httpOnly: true,
-      sameSite: 'lax',
-      path: '/',
+      viewerId: viewerIdentity.userId ?? '',
+      players: selectablePlayers,
+      defaultSelectedOrder,
     });
   }
 

@@ -1,12 +1,16 @@
 import Link from 'next/link';
-import { cookies } from 'next/headers';
 import { ArrowLeft, ChevronRight, Clock, DollarSign, Lock, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getContestDetailPrimaryAction } from '@/lib/contest-entry-flow';
-import { getContestById, getContestLineupPlayers, isContestOpenForEntry } from '@/lib/contest-data';
-import { getPersistedContestEntry, persistedContestEntryCookieName } from '@/lib/persisted-contest-entry';
+import {
+  getContestById,
+  getContestDefaultLineupOrder,
+  getContestSelectablePlayers,
+  isContestOpenForEntry,
+} from '@/lib/contest-data';
+import { getPersistedContestEntry } from '@/lib/persisted-contest-entry';
 import { getViewerIdentity } from '@/lib/viewer-identity';
 
 export default async function ContestDetailPage({
@@ -16,14 +20,14 @@ export default async function ContestDetailPage({
 }) {
   const { contestId } = await params;
   const contest = await getContestById(contestId);
-  const cookieStore = await cookies();
   const viewerIdentity = await getViewerIdentity();
 
   const hasEntry = Boolean(
-    getPersistedContestEntry(
+    await getPersistedContestEntry(
       contest.id,
-      cookieStore.get(persistedContestEntryCookieName)?.value,
-      getContestLineupPlayers(contest),
+      viewerIdentity.userId,
+      getContestSelectablePlayers(contest),
+      getContestDefaultLineupOrder(contest),
     ),
   );
   const primaryAction = getContestDetailPrimaryAction({

@@ -1,6 +1,9 @@
 import { randomUUID } from 'node:crypto';
-
-export const persistedContestEntryCookieName = 'pickrank_demo_entry_data';
+import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { z } from 'zod';
+import { updateContestEntryCounts } from '@/lib/contest-data';
+import type { Database } from '@/lib/supabase/types';
 
 export type PersistedContestEntrySource = 'default_assigned' | 'user_saved';
 
@@ -14,170 +17,772 @@ export type PersistedContestEntry = {
   updatedAt: string;
 };
 
-type PersistedContestEntryCookiePayload = Record<string, PersistedContestEntry>;
+export type PersistedContestEntryForScoring = PersistedContestEntry & {
+  userId: string;
+};
 
-export function getPersistedContestEntry(
+type PersistedContestEntryRecord = PersistedContestEntry & {
+  userId: string;
+};
+
+type PersistedContestEntryOptions = {
+  dataFilePath?: string;
+  contestDataFilePath?: string;
+};
+
+const persistedContestEntryRecordSchema = z.object({
+  entryId: z.string().min(1),
+  contestId: z.string().min(1),
+  userId: z.string().min(1),
+  lineupOrder: z.array(z.string().min(1)).length(10),
+  lastSavedAt: z.string().datetime().nullable(),
+  source: z.enum(['default_assigned', 'user_saved']),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+});
+
+const persistedContestEntryStoreSchema = z.object({
+  version: z.literal(1),
+  entries: z.array(persistedContestEntryRecordSchema),
+});
+
+const defaultContestEntryDataPath = path.join(process.cwd(), 'data', 'contest-entries.json');
+
+type EntryDbRow = Database['public']['Tables']['entries']['Row'];
+type EntryDbInsert = Database['public']['Tables']['entries']['Insert'];
+type EntryDbUpdate = Database['public']['Tables']['entries']['Update'];
+type EntryLineupDbRow = Database['public']['Tables']['entry_lineups']['Row'];
+type EntryLineupDbInsert = Database['public']['Tables']['entry_lineups']['Insert'];
+type ContestDbRow = Database['public']['Tables']['contests']['Row'];
+type ContestSlatePlayerDbRow = Database['public']['Tables']['contest_slate_players']['Row'];
+
+export async function getPersistedContestEntry(
   contestId: string,
-  cookieValue: string | undefined,
+  viewerId: string | null,
   players: string[],
+  defaultSelectedOrder: string[],
+  options?: PersistedContestEntryOptions,
 ) {
-  const payload = parsePersistedContestEntryCookie(cookieValue, players);
+  if (!viewerId) {
+    return null;
+  }
 
-  return payload[contestId] ?? null;
+  if (shouldUseFileStore(options)) {
+    const store = await readPersistedContestEntryStoreFromFile(options?.dataFilePath);
+    return (
+      store.entries.find((entry) => entry.contestId === contestId && entry.userId === viewerId) ?? null
+    );
+  }
+
+  const entry = await readPersistedContestEntryFromDatabase({
+    contestId,
+    viewerId,
+    players,
+    defaultSelectedOrder,
+  });
+
+  return entry;
 }
 
-export function ensurePersistedContestEntry({
+export async function ensurePersistedContestEntry({
   contestId,
-  cookieValue,
+  viewerId,
   players,
+  defaultSelectedOrder,
   now = new Date().toISOString(),
+  options,
 }: {
   contestId: string;
-  cookieValue: string | undefined;
+  viewerId: string;
   players: string[];
+  defaultSelectedOrder: string[];
   now?: string;
+  options?: PersistedContestEntryOptions;
 }) {
-  const payload = parsePersistedContestEntryCookie(cookieValue, players);
-  const existingEntry = payload[contestId];
+  if (shouldUseFileStore(options)) {
+    const store = await readPersistedContestEntryStoreFromFile(options?.dataFilePath);
+    const existingEntry = store.entries.find((entry) => entry.contestId === contestId && entry.userId === viewerId);
+
+    if (existingEntry) {
+      return {
+        entry: existingEntry,
+        created: false,
+      };
+    }
+
+    const entry = buildPersistedContestEntryRecord({
+      contestId,
+      viewerId,
+      players,
+      defaultSelectedOrder,
+      now,
+    });
+
+    await writePersistedContestEntryStoreToFile(
+      {
+        version: 1,
+        entries: [...store.entries, entry],
+      },
+      options?.dataFilePath,
+    );
+
+    await updateContestEntryCounts(contestId, {
+      entryDelta: 1,
+      paidEntryDelta: 1,
+      now,
+      dataFilePath: options?.contestDataFilePath,
+    });
+
+    return {
+      entry,
+      created: true,
+    };
+  }
+
+  const existingEntry = await readPersistedContestEntryFromDatabase({
+    contestId,
+    viewerId,
+    players,
+    defaultSelectedOrder,
+  });
 
   if (existingEntry) {
     return {
       entry: existingEntry,
-      cookieValue: JSON.stringify(payload),
       created: false,
     };
   }
 
-  const entry: PersistedContestEntry = {
-    entryId: `demo-entry-${randomUUID()}`,
+  const entry = await createPersistedContestEntryInDatabase({
     contestId,
-    lineupOrder: [...players],
-    lastSavedAt: null,
-    source: 'default_assigned',
-    createdAt: now,
-    updatedAt: now,
-  };
-
-  payload[contestId] = entry;
+    viewerId,
+    players,
+    defaultSelectedOrder,
+    now,
+  });
 
   return {
     entry,
-    cookieValue: JSON.stringify(payload),
     created: true,
   };
 }
 
-export function removePersistedContestEntry({
+export async function listPersistedContestEntriesForContest({
   contestId,
-  cookieValue,
   players,
+  defaultSelectedOrder,
+  options,
 }: {
   contestId: string;
-  cookieValue: string | undefined;
   players: string[];
+  defaultSelectedOrder: string[];
+  options?: PersistedContestEntryOptions;
 }) {
-  const payload = parsePersistedContestEntryCookie(cookieValue, players);
+  if (shouldUseFileStore(options)) {
+    const store = await readPersistedContestEntryStoreFromFile(options?.dataFilePath);
 
-  delete payload[contestId];
-
-  return JSON.stringify(payload);
-}
-
-export function savePersistedContestEntryLineup({
-  contestId,
-  cookieValue,
-  players,
-  order,
-  now = new Date().toISOString(),
-}: {
-  contestId: string;
-  cookieValue: string | undefined;
-  players: string[];
-  order: string[];
-  now?: string;
-}) {
-  const payload = parsePersistedContestEntryCookie(cookieValue, players);
-  const existingEntry = payload[contestId];
-
-  if (!existingEntry) {
-    throw new Error('No persisted entry exists for this contest.');
+    return store.entries
+      .filter((entry) => entry.contestId === contestId)
+      .map((entry) => ({
+        ...entry,
+        userId: entry.userId,
+      })) satisfies PersistedContestEntryForScoring[];
   }
 
-  const normalizedOrder = normalizeLineupOrder(order, players);
+  const contestRow = await getDatabaseContestRow(contestId);
+  const supabase: any = await createSupabaseClient();
+  const [
+    { data: entryRows, error: entryError },
+    { data: lineupRows, error: lineupError },
+    { data: slateRows, error: slateError },
+  ] = await Promise.all([
+    supabase.from('entries').select('*').eq('contest_id', contestRow.id),
+    supabase
+      .from('entry_lineups')
+      .select('*')
+      .in(
+        'entry_id',
+        (
+          (
+            await supabase.from('entries').select('id').eq('contest_id', contestRow.id)
+          ).data || []
+        ).map((row: { id: string }) => row.id),
+      ),
+    supabase.from('contest_slate_players').select('*').eq('contest_id', contestRow.id),
+  ]);
+
+  if (entryError) {
+    throw new Error(`Unable to read contest entries: ${entryError.message}`);
+  }
+
+  if (lineupError) {
+    throw new Error(`Unable to read saved contest lineups: ${lineupError.message}`);
+  }
+
+  if (slateError) {
+    throw new Error(`Unable to read contest slate for scoring: ${slateError.message}`);
+  }
+
+  const lineupRowsByEntryId = new Map<string, EntryLineupDbRow[]>();
+
+  for (const lineupRow of (lineupRows || []) as EntryLineupDbRow[]) {
+    const existing = lineupRowsByEntryId.get(lineupRow.entry_id) || [];
+    existing.push(lineupRow);
+    lineupRowsByEntryId.set(lineupRow.entry_id, existing);
+  }
+
+  return ((entryRows || []) as EntryDbRow[]).map((entryRow) => {
+    const entry = toPersistedContestEntry({
+      contestId,
+      entryRow,
+      lineupRows: lineupRowsByEntryId.get(entryRow.id) || [],
+      slateRows: (slateRows || []) as ContestSlatePlayerDbRow[],
+      players,
+      defaultSelectedOrder,
+    });
+
+    return {
+      ...entry,
+      userId: entryRow.user_id,
+    } satisfies PersistedContestEntryForScoring;
+  });
+}
+
+export async function savePersistedContestEntryLineup({
+  contestId,
+  viewerId,
+  players,
+  defaultSelectedOrder,
+  order,
+  now = new Date().toISOString(),
+  options,
+}: {
+  contestId: string;
+  viewerId: string;
+  players: string[];
+  defaultSelectedOrder: string[];
+  order: string[];
+  now?: string;
+  options?: PersistedContestEntryOptions;
+}) {
+  const normalizedOrder = normalizeLineupOrder(order, players, defaultSelectedOrder);
 
   if (normalizedOrder.length !== order.length || normalizedOrder.some((player, index) => player !== order[index])) {
     throw new Error('Submitted lineup order is invalid.');
   }
 
-  const updatedEntry: PersistedContestEntry = {
-    ...existingEntry,
-    lineupOrder: normalizedOrder,
-    lastSavedAt: now,
-    source: 'user_saved',
-    updatedAt: now,
-  };
+  if (shouldUseFileStore(options)) {
+    const store = await readPersistedContestEntryStoreFromFile(options?.dataFilePath);
+    const entryIndex = store.entries.findIndex((entry) => entry.contestId === contestId && entry.userId === viewerId);
 
-  payload[contestId] = updatedEntry;
+    if (entryIndex === -1) {
+      throw new Error('No persisted entry exists for this contest.');
+    }
 
-  return {
-    entry: updatedEntry,
-    cookieValue: JSON.stringify(payload),
-  };
-}
+    const updatedEntry: PersistedContestEntryRecord = {
+      ...store.entries[entryIndex],
+      lineupOrder: normalizedOrder,
+      lastSavedAt: now,
+      source: 'user_saved',
+      updatedAt: now,
+    };
 
-function parsePersistedContestEntryCookie(cookieValue: string | undefined, players: string[]) {
-  if (!cookieValue) {
-    return {};
+    const nextEntries = [...store.entries];
+    nextEntries[entryIndex] = updatedEntry;
+
+    await writePersistedContestEntryStoreToFile(
+      {
+        version: 1,
+        entries: nextEntries,
+      },
+      options?.dataFilePath,
+    );
+
+    return {
+      entry: updatedEntry,
+    };
   }
 
-  try {
-    const parsedValue = JSON.parse(cookieValue) as Record<string, unknown>;
-
-    return Object.fromEntries(
-      Object.entries(parsedValue)
-        .map(([contestId, entry]) => [contestId, normalizePersistedContestEntry(contestId, entry, players)] as const)
-        .filter(([, entry]) => entry !== null),
-    ) as PersistedContestEntryCookiePayload;
-  } catch {
-    return {};
-  }
-}
-
-function normalizePersistedContestEntry(contestId: string, value: unknown, players: string[]) {
-  if (!value || typeof value !== 'object') {
-    return null;
-  }
-
-  const entry = value as Record<string, unknown>;
-  const entryId = typeof entry.entryId === 'string' ? entry.entryId : null;
-  const createdAt = typeof entry.createdAt === 'string' ? entry.createdAt : null;
-  const updatedAt = typeof entry.updatedAt === 'string' ? entry.updatedAt : createdAt;
-
-  if (!entryId || !createdAt || !updatedAt) {
-    return null;
-  }
-
-  return {
-    entryId,
+  const entry = await updatePersistedContestEntryLineupInDatabase({
     contestId,
-    lineupOrder: normalizeLineupOrder(entry.lineupOrder, players),
-    lastSavedAt: typeof entry.lastSavedAt === 'string' ? entry.lastSavedAt : null,
-    source: entry.source === 'user_saved' ? 'user_saved' : 'default_assigned',
-    createdAt,
-    updatedAt,
+    viewerId,
+    players,
+    defaultSelectedOrder,
+    order: normalizedOrder,
+    now,
+  });
+
+  return {
+    entry,
+  };
+}
+
+export async function removePersistedContestEntry({
+  contestId,
+  viewerId,
+  options,
+}: {
+  contestId: string;
+  viewerId: string;
+  options?: PersistedContestEntryOptions;
+}) {
+  if (shouldUseFileStore(options)) {
+    const store = await readPersistedContestEntryStoreFromFile(options?.dataFilePath);
+    const existingEntry = store.entries.find((entry) => entry.contestId === contestId && entry.userId === viewerId);
+
+    await writePersistedContestEntryStoreToFile(
+      {
+        version: 1,
+        entries: store.entries.filter((entry) => !(entry.contestId === contestId && entry.userId === viewerId)),
+      },
+      options?.dataFilePath,
+    );
+
+    if (existingEntry) {
+      await updateContestEntryCounts(contestId, {
+        entryDelta: -1,
+        paidEntryDelta: -1,
+        dataFilePath: options?.contestDataFilePath,
+      });
+    }
+
+    return;
+  }
+
+  const supabase: any = await createSupabaseClient();
+  const contestRow = await getDatabaseContestRow(contestId);
+  const { data: existingEntry, error: entryError } = await supabase
+    .from('entries')
+    .select('id')
+    .eq('contest_id', contestRow.id)
+    .eq('user_id', viewerId)
+    .maybeSingle();
+
+  if (entryError) {
+    throw new Error(`Unable to remove the contest entry: ${entryError.message}`);
+  }
+
+  if (!existingEntry) {
+    return;
+  }
+
+  const { error } = await supabase.from('entries').delete().eq('contest_id', contestRow.id).eq('user_id', viewerId);
+
+  if (error) {
+    throw new Error(`Unable to remove the contest entry: ${error.message}`);
+  }
+
+  await updateContestEntryCounts(contestId, {
+    entryDelta: -1,
+    paidEntryDelta: -1,
+    dataFilePath: options?.contestDataFilePath,
+  });
+}
+
+function buildPersistedContestEntryRecord({
+  contestId,
+  viewerId,
+  players,
+  defaultSelectedOrder,
+  now,
+}: {
+  contestId: string;
+  viewerId: string;
+  players: string[];
+  defaultSelectedOrder: string[];
+  now: string;
+}) {
+  return persistedContestEntryRecordSchema.parse({
+    entryId: `entry-${randomUUID()}`,
+    contestId,
+    userId: viewerId,
+    lineupOrder: normalizeLineupOrder(defaultSelectedOrder, players, defaultSelectedOrder),
+    lastSavedAt: null,
+    source: 'default_assigned',
+    createdAt: now,
+    updatedAt: now,
+  });
+}
+
+async function readPersistedContestEntryStoreFromFile(dataFilePath = defaultContestEntryDataPath) {
+  try {
+    const fileContents = await readFile(dataFilePath, 'utf8');
+    return persistedContestEntryStoreSchema.parse(JSON.parse(fileContents));
+  } catch (error) {
+    const notFound = (error as NodeJS.ErrnoException).code === 'ENOENT';
+
+    if (!notFound) {
+      throw error;
+    }
+
+    return persistedContestEntryStoreSchema.parse({
+      version: 1,
+      entries: [],
+    });
+  }
+}
+
+async function writePersistedContestEntryStoreToFile(
+  store: z.infer<typeof persistedContestEntryStoreSchema>,
+  dataFilePath = defaultContestEntryDataPath,
+) {
+  const nextStore = persistedContestEntryStoreSchema.parse(store);
+  const directory = path.dirname(dataFilePath);
+  const tempFilePath = path.join(directory, `${path.basename(dataFilePath)}.${randomUUID()}.tmp`);
+
+  await mkdir(directory, { recursive: true });
+  await writeFile(tempFilePath, `${JSON.stringify(nextStore, null, 2)}\n`, 'utf8');
+  await rename(tempFilePath, dataFilePath);
+}
+
+async function readPersistedContestEntryFromDatabase({
+  contestId,
+  viewerId,
+  players,
+  defaultSelectedOrder,
+}: {
+  contestId: string;
+  viewerId: string;
+  players: string[];
+  defaultSelectedOrder: string[];
+}) {
+  const supabase: any = await createSupabaseClient();
+  const contestRow = await getDatabaseContestRow(contestId);
+  const { data: entryRow, error: entryError } = await supabase
+    .from('entries')
+    .select('*')
+    .eq('contest_id', contestRow.id)
+    .eq('user_id', viewerId)
+    .maybeSingle();
+
+  if (entryError) {
+    throw new Error(`Unable to read the contest entry: ${entryError.message}`);
+  }
+
+  if (!entryRow) {
+    return null;
+  }
+
+  const { data: lineupRows, error: lineupError } = await supabase
+    .from('entry_lineups')
+    .select('*')
+    .eq('entry_id', entryRow.id)
+    .order('rank_position', { ascending: true });
+
+  if (lineupError) {
+    throw new Error(`Unable to read the saved lineup: ${lineupError.message}`);
+  }
+
+  const { data: slateRows, error: slateError } = await supabase
+    .from('contest_slate_players')
+    .select('*')
+    .eq('contest_id', contestRow.id);
+
+  if (slateError) {
+    throw new Error(`Unable to read the contest slate: ${slateError.message}`);
+  }
+
+  return toPersistedContestEntry({
+    contestId,
+    entryRow,
+    lineupRows: (lineupRows || []) as EntryLineupDbRow[],
+    slateRows: (slateRows || []) as ContestSlatePlayerDbRow[],
+    players,
+    defaultSelectedOrder,
+  });
+}
+
+async function createPersistedContestEntryInDatabase({
+  contestId,
+  viewerId,
+  players,
+  defaultSelectedOrder,
+  now,
+}: {
+  contestId: string;
+  viewerId: string;
+  players: string[];
+  defaultSelectedOrder: string[];
+  now: string;
+}) {
+  const supabase: any = await createSupabaseClient();
+  const contestRow = await getDatabaseContestRow(contestId);
+  const { data: slateRows, error: slateError } = await supabase
+    .from('contest_slate_players')
+    .select('*')
+    .eq('contest_id', contestRow.id);
+
+  if (slateError) {
+    throw new Error(`Unable to read the contest slate: ${slateError.message}`);
+  }
+
+  const normalizedOrder = normalizeLineupOrder(defaultSelectedOrder, players, defaultSelectedOrder);
+  const slateIdByName = buildSlatePlayerIdByName((slateRows || []) as ContestSlatePlayerDbRow[]);
+  const entryInsert: EntryDbInsert = {
+    contest_id: contestRow.id,
+    user_id: viewerId,
+    status: 'created',
+    created_at: now,
+    updated_at: now,
+  };
+  const { data: entryRow, error: entryError } = await supabase
+    .from('entries')
+    .insert(entryInsert)
+    .select('*')
+    .single();
+
+  if (entryError) {
+    if (isDuplicateEntryError(entryError)) {
+      const existingEntry = await readPersistedContestEntryFromDatabase({
+        contestId,
+        viewerId,
+        players,
+        defaultSelectedOrder,
+      });
+
+      if (existingEntry) {
+        return existingEntry;
+      }
+    }
+
+    throw new Error(`Unable to create the contest entry: ${entryError.message}`);
+  }
+
+  const lineupInsert = normalizedOrder.map((playerName, index) => {
+    const slatePlayerId = slateIdByName.get(playerName);
+
+    if (!slatePlayerId) {
+      throw new Error(`Unable to create the contest entry: missing slate player for ${playerName}.`);
+    }
+
+    return {
+      entry_id: entryRow.id,
+      slate_player_id: slatePlayerId,
+      rank_position: index + 1,
+      created_at: now,
+      updated_at: now,
+    } satisfies EntryLineupDbInsert;
+  });
+
+  const { error: lineupError } = await supabase.from('entry_lineups').insert(lineupInsert);
+
+  if (lineupError) {
+    await supabase.from('entries').delete().eq('id', entryRow.id);
+    throw new Error(`Unable to save the default lineup: ${lineupError.message}`);
+  }
+
+  await updateContestEntryCounts(contestId, {
+    entryDelta: 1,
+    paidEntryDelta: 1,
+    now,
+  });
+
+  return toPersistedContestEntry({
+    contestId,
+    entryRow: entryRow as EntryDbRow,
+    lineupRows: lineupInsert.map((lineup, index) => ({
+      id: `lineup-${index + 1}`,
+      entry_id: lineup.entry_id,
+      slate_player_id: lineup.slate_player_id,
+      rank_position: lineup.rank_position,
+      created_at: lineup.created_at ?? now,
+      updated_at: lineup.updated_at ?? now,
+    })),
+    slateRows: (slateRows || []) as ContestSlatePlayerDbRow[],
+    players,
+    defaultSelectedOrder,
+  });
+}
+
+async function updatePersistedContestEntryLineupInDatabase({
+  contestId,
+  viewerId,
+  players,
+  defaultSelectedOrder,
+  order,
+  now,
+}: {
+  contestId: string;
+  viewerId: string;
+  players: string[];
+  defaultSelectedOrder: string[];
+  order: string[];
+  now: string;
+}) {
+  const supabase: any = await createSupabaseClient();
+  const contestRow = await getDatabaseContestRow(contestId);
+  const { data: entryRow, error: entryError } = await supabase
+    .from('entries')
+    .select('*')
+    .eq('contest_id', contestRow.id)
+    .eq('user_id', viewerId)
+    .maybeSingle();
+
+  if (entryError) {
+    throw new Error(`Unable to read the contest entry: ${entryError.message}`);
+  }
+
+  if (!entryRow) {
+    throw new Error('No persisted entry exists for this contest.');
+  }
+
+  const { data: slateRows, error: slateError } = await supabase
+    .from('contest_slate_players')
+    .select('*')
+    .eq('contest_id', contestRow.id);
+
+  if (slateError) {
+    throw new Error(`Unable to read the contest slate: ${slateError.message}`);
+  }
+
+  const slateIdByName = buildSlatePlayerIdByName((slateRows || []) as ContestSlatePlayerDbRow[]);
+  const lineupInsert = order.map((playerName, index) => {
+    const slatePlayerId = slateIdByName.get(playerName);
+
+    if (!slatePlayerId) {
+      throw new Error(`Unable to save this lineup right now: missing slate player for ${playerName}.`);
+    }
+
+    return {
+      entry_id: entryRow.id,
+      slate_player_id: slatePlayerId,
+      rank_position: index + 1,
+      created_at: now,
+      updated_at: now,
+    } satisfies EntryLineupDbInsert;
+  });
+
+  const { error: deleteError } = await supabase.from('entry_lineups').delete().eq('entry_id', entryRow.id);
+
+  if (deleteError) {
+    throw new Error(`Unable to replace the saved lineup: ${deleteError.message}`);
+  }
+
+  const { error: insertError } = await supabase.from('entry_lineups').insert(lineupInsert);
+
+  if (insertError) {
+    throw new Error(`Unable to save the lineup: ${insertError.message}`);
+  }
+
+  const entryUpdate: EntryDbUpdate = {
+    updated_at: now,
+  };
+  const { data: updatedEntryRow, error: updateError } = await supabase
+    .from('entries')
+    .update(entryUpdate)
+    .eq('id', entryRow.id)
+    .select('*')
+    .single();
+
+  if (updateError) {
+    throw new Error(`Unable to update the contest entry: ${updateError.message}`);
+  }
+
+  return toPersistedContestEntry({
+    contestId,
+    entryRow: updatedEntryRow as EntryDbRow,
+    lineupRows: lineupInsert.map((lineup, index) => ({
+      id: `lineup-${index + 1}`,
+      entry_id: lineup.entry_id,
+      slate_player_id: lineup.slate_player_id,
+      rank_position: lineup.rank_position,
+      created_at: lineup.created_at ?? now,
+      updated_at: lineup.updated_at ?? now,
+    })),
+    slateRows: (slateRows || []) as ContestSlatePlayerDbRow[],
+    players,
+    defaultSelectedOrder,
+  });
+}
+
+function toPersistedContestEntry({
+  contestId,
+  entryRow,
+  lineupRows,
+  slateRows,
+  players,
+  defaultSelectedOrder,
+}: {
+  contestId: string;
+  entryRow: EntryDbRow;
+  lineupRows: EntryLineupDbRow[];
+  slateRows: ContestSlatePlayerDbRow[];
+  players: string[];
+  defaultSelectedOrder: string[];
+}) {
+  const playerNameBySlateId = new Map(
+    slateRows.map((row) => [row.id, row.display_name || row.player_name]),
+  );
+  const orderedPlayers = lineupRows
+    .slice()
+    .sort((left, right) => left.rank_position - right.rank_position)
+    .map((row) => playerNameBySlateId.get(row.slate_player_id))
+    .filter((playerName): playerName is string => typeof playerName === 'string');
+  const normalizedOrder = normalizeLineupOrder(orderedPlayers, players, defaultSelectedOrder);
+  const lastSavedAt = entryRow.updated_at > entryRow.created_at ? entryRow.updated_at : null;
+
+  return {
+    entryId: entryRow.id,
+    contestId,
+    lineupOrder: normalizedOrder,
+    lastSavedAt,
+    source: lastSavedAt ? 'user_saved' : 'default_assigned',
+    createdAt: entryRow.created_at,
+    updatedAt: entryRow.updated_at,
   } satisfies PersistedContestEntry;
 }
 
-function normalizeLineupOrder(value: unknown, players: string[]) {
+function buildSlatePlayerIdByName(slateRows: ContestSlatePlayerDbRow[]) {
+  return new Map(slateRows.map((row) => [row.display_name || row.player_name, row.id]));
+}
+
+function normalizeLineupOrder(value: unknown, players: string[], defaultSelectedOrder: string[]) {
+  const fallbackSelectedOrder = defaultSelectedOrder.filter(
+    (player, index, allPlayers) => players.includes(player) && allPlayers.indexOf(player) === index,
+  );
+
   if (!Array.isArray(value)) {
-    return [...players];
+    return [...fallbackSelectedOrder];
   }
 
   const filteredPlayers = value.filter((item): item is string => typeof item === 'string' && players.includes(item));
 
-  if (filteredPlayers.length !== players.length || new Set(filteredPlayers).size !== players.length) {
-    return [...players];
+  if (filteredPlayers.length !== 10 || new Set(filteredPlayers).size !== 10) {
+    return [...fallbackSelectedOrder];
   }
 
   return filteredPlayers;
+}
+
+function isDuplicateEntryError(error: { code?: string; message?: string } | null | undefined) {
+  return error?.code === '23505' || error?.message?.includes('entries_user_id_contest_id_key') === true;
+}
+
+function shouldUseFileStore(options?: PersistedContestEntryOptions) {
+  return (
+    Boolean(options?.dataFilePath) ||
+    process.env.NODE_ENV === 'test' ||
+    process.env.VITEST === 'true' ||
+    process.env.PICKRANK_E2E_USE_FILE_STORE === '1'
+  );
+}
+
+async function createSupabaseClient() {
+  const { createClient } = await import('@/lib/supabase/server');
+  return createClient();
+}
+
+async function getDatabaseContestRow(contestId: string) {
+  const supabase: any = await createSupabaseClient();
+  const { data: row, error } = await supabase.from('contests').select('*').eq('slug', contestId).maybeSingle();
+
+  if (error) {
+    throw new Error(`Unable to load the contest: ${error.message}`);
+  }
+
+  if (!row) {
+    throw new Error('Contest not found.');
+  }
+
+  return row as ContestDbRow;
 }

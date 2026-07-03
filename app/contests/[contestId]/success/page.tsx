@@ -12,7 +12,13 @@ import {
   getContestEntryStateCopy,
   getPersistedContestEntryStage,
 } from '@/lib/contest-entry-flow';
-import { getContestById } from '@/lib/contest-data';
+import {
+  getContestById,
+  getContestDefaultLineupOrder,
+  getContestSelectablePlayers,
+} from '@/lib/contest-data';
+import { getPersistedContestEntry } from '@/lib/persisted-contest-entry';
+import { getViewerIdentity } from '@/lib/viewer-identity';
 
 export default async function EntrySuccessPage({
   params,
@@ -33,7 +39,19 @@ export default async function EntrySuccessPage({
     contest.id,
     cookieStore.get(contestEntryCookieName)?.value,
   );
-  const routeState = getContestEntryRouteState({ contestId: contest.id, persistedStage, route: 'success' });
+  const viewerIdentity = await getViewerIdentity();
+  const persistedEntry = await getPersistedContestEntry(
+    contest.id,
+    viewerIdentity.userId,
+    getContestSelectablePlayers(contest),
+    getContestDefaultLineupOrder(contest),
+  );
+  const routeState = getContestEntryRouteState({
+    contestId: contest.id,
+    persistedStage,
+    route: 'success',
+    hasPersistedEntry: Boolean(persistedEntry),
+  });
 
   if (routeState.shouldRedirect && routeState.redirectHref) {
     redirect(routeState.redirectHref);

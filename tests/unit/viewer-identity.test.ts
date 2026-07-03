@@ -1,5 +1,9 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { getE2eViewerIdentity } from '../../lib/viewer-identity';
+import {
+  defaultE2eViewerUserId,
+  getE2eAuthFixture,
+  getE2eViewerIdentity,
+} from '../../lib/viewer-identity';
 
 describe('viewer identity', () => {
   afterEach(() => {
@@ -16,6 +20,7 @@ describe('viewer identity', () => {
           username: 'playwright_user',
           displayName: 'playwright_user',
           emailConfirmedAt: '2026-06-29T00:00:00.000Z',
+          userId: defaultE2eViewerUserId,
         }),
       ),
     ).toEqual({
@@ -27,6 +32,29 @@ describe('viewer identity', () => {
       isEmailVerified: true,
       isProfileComplete: true,
       source: 'e2e-fixture',
+      userId: defaultE2eViewerUserId,
+    });
+  });
+
+  it('keeps optional role slugs on the parsed e2e fixture payload', () => {
+    process.env.PICKRANK_E2E_AUTH = '1';
+
+    expect(
+      getE2eAuthFixture(
+        JSON.stringify({
+          email: 'operator@pickrank.test',
+          username: 'operator_user',
+          displayName: 'Operator User',
+          roleSlugs: ['contest_operator'],
+        }),
+      ),
+    ).toEqual({
+      email: 'operator@pickrank.test',
+      username: 'operator_user',
+      displayName: 'Operator User',
+      emailConfirmedAt: expect.any(String),
+      userId: defaultE2eViewerUserId,
+      roleSlugs: ['contest_operator'],
     });
   });
 

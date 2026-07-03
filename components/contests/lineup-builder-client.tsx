@@ -9,14 +9,19 @@ import {
   CheckCircle2,
   Clock,
   GripVertical,
+  Plus,
+  X,
   Save,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   type LineupState,
+  addLineupPlayer,
+  getAvailablePlayers,
   hasUnsavedLineupChanges,
   moveLineupPlayer,
+  removeLineupPlayer,
 } from '@/lib/lineup-builder-state';
 import { getContestEntrySteps } from '@/lib/contest-entry-flow';
 
@@ -65,7 +70,8 @@ export function LineupBuilderClient({
   const pendingSaveAndLeaveHref = useRef<string | null>(null);
   const dragSessionRef = useRef<DragSession | null>(null);
 
-  const hasUnsavedChanges = hasUnsavedLineupChanges(lineupState.order, lineupState.savedOrder);
+  const hasUnsavedChanges = hasUnsavedLineupChanges(lineupState.selectedOrder, lineupState.savedSelectedOrder);
+  const needsMoreSelections = lineupState.selectedOrder.length < 10;
 
   useEffect(() => {
     setLineupState(initialLineupState);
@@ -176,8 +182,8 @@ export function LineupBuilderClient({
       }
 
       setLineupState((currentState) => {
-        const fromIndex = currentState.order.indexOf(player);
-        const toIndex = currentState.order.indexOf(targetPlayer);
+        const fromIndex = currentState.selectedOrder.indexOf(player);
+        const toIndex = currentState.selectedOrder.indexOf(targetPlayer);
 
         if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) {
           return currentState;
@@ -185,7 +191,7 @@ export function LineupBuilderClient({
 
         return {
           ...currentState,
-          order: moveLineupPlayer(currentState.order, fromIndex, toIndex),
+          selectedOrder: moveLineupPlayer(currentState.selectedOrder, fromIndex, toIndex),
         };
       });
     };
@@ -215,6 +221,11 @@ export function LineupBuilderClient({
       return;
     }
 
+    if (needsMoreSelections) {
+      setSaveError('Choose and rank 10 quarterbacks before saving this lineup.');
+      return;
+    }
+
     setIsSaving(true);
     setSaveError(null);
 
@@ -226,7 +237,7 @@ export function LineupBuilderClient({
         },
         body: JSON.stringify({
           entryId,
-          order: lineupState.order,
+          order: lineupState.selectedOrder,
         }),
       });
       const payload = (await response.json()) as {
@@ -241,8 +252,12 @@ export function LineupBuilderClient({
       }
 
       const nextState: LineupState = {
-        order: [...payload.savedOrder],
-        savedOrder: [...payload.savedOrder],
+        selectedOrder: [...payload.savedOrder],
+        savedSelectedOrder: [...payload.savedOrder],
+        availablePlayers: getAvailablePlayers(
+          lineupState.selectedOrder.concat(lineupState.availablePlayers),
+          payload.savedOrder,
+        ),
         source: payload.source,
         lastSavedAt: payload.lastSavedAt ?? null,
       };
@@ -268,7 +283,11 @@ export function LineupBuilderClient({
   function handleDiscardChanges() {
     setLineupState((currentState) => ({
       ...currentState,
-      order: [...currentState.savedOrder],
+      selectedOrder: [...currentState.savedSelectedOrder],
+      availablePlayers: getAvailablePlayers(
+        currentState.selectedOrder.concat(currentState.availablePlayers),
+        currentState.savedSelectedOrder,
+      ),
     }));
 
     if (pendingHref) {
@@ -292,6 +311,46 @@ export function LineupBuilderClient({
     handleSaveLineup();
   }
 
+  function handleAddPlayer(player: string) {
+    if (!isEditable) {
+      return;
+    }
+
+    setSaveError(null);
+    setLineupState((currentState) => {
+      const nextSelectedOrder = addLineupPlayer(currentState.selectedOrder, player);
+
+      return {
+        ...currentState,
+        selectedOrder: nextSelectedOrder,
+        availablePlayers: getAvailablePlayers(
+          currentState.selectedOrder.concat(currentState.availablePlayers),
+          nextSelectedOrder,
+        ),
+      };
+    });
+  }
+
+  function handleRemovePlayer(player: string) {
+    if (!isEditable) {
+      return;
+    }
+
+    setSaveError(null);
+    setLineupState((currentState) => {
+      const nextSelectedOrder = removeLineupPlayer(currentState.selectedOrder, player);
+
+      return {
+        ...currentState,
+        selectedOrder: nextSelectedOrder,
+        availablePlayers: getAvailablePlayers(
+          currentState.selectedOrder.concat(currentState.availablePlayers),
+          nextSelectedOrder,
+        ),
+      };
+    });
+  }
+
   return (
     <>
       <div className="space-y-5 pb-24">
@@ -311,7 +370,7 @@ export function LineupBuilderClient({
             <span className="status-pill">{contest.entryFee} Entry</span>
           </div>
           <p className="text-muted-foreground">
-            Step 4 is where lineup editing actually happens. Save one lineup for your single contest entry until lock.
+            Step 4 is where lineup editing actually happens. Choose 10 quarterbacks from the full slate, rank them, and save one lineup for your single contest entry until lock.
           </p>
         </div>
 
@@ -391,7 +450,7 @@ export function LineupBuilderClient({
             <CardTitle>{contest.title}</CardTitle>
             <CardDescription>
               {isEditable
-                ? 'Rank your top 10 quarterbacks by passing yards, then use Save Lineup before contest lock.'
+                ? 'Choose and rank your top 10 quarterbacks by passing yards, then use Save Lineup before contest lock.'
                 : 'This is your saved lineup for the current entry. Rankings are read-only because the contest is locked.'}
             </CardDescription>
           </CardHeader>
@@ -410,12 +469,25 @@ export function LineupBuilderClient({
               <p className="font-medium">{isEditable ? 'Before you save' : 'Saved lineup status'}</p>
               <p className="text-muted-foreground">
                 {isEditable
-                  ? 'Press and hold the drag handle to move players into your rankings, then use Save Lineup to keep that order on your current entry.'
+                  ? 'Add quarterbacks from the available slate until you have 10, then press and hold the drag handle to rank them before saving.'
                   : 'This lineup reflects the saved order on your entry when the contest locked.'}
               </p>
             </div>
+            <div className="rounded-lg border bg-slate-50 px-3 py-3 text-sm">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="font-semibold">Your Ranked 10</p>
+                  <p className="text-muted-foreground">
+                    {needsMoreSelections
+                      ? `${10 - lineupState.selectedOrder.length} more quarterback${10 - lineupState.selectedOrder.length === 1 ? '' : 's'} needed before you can save.`
+                      : 'All 10 lineup spots are filled and ready to rank.'}
+                  </p>
+                </div>
+                <span className="status-pill shrink-0">{lineupState.selectedOrder.length}/10 Selected</span>
+              </div>
+            </div>
             <div className="space-y-2">
-              {lineupState.order.map((name, index) => (
+              {lineupState.selectedOrder.map((name, index) => (
                 <div
                   key={name}
                   data-lineup-player={name}
@@ -430,26 +502,76 @@ export function LineupBuilderClient({
                     <p className="text-xs text-muted-foreground">
                       {draggingPlayer === name
                         ? 'Move into place, then release to drop'
-                        : lineupState.savedOrder[index] === name
+                        : lineupState.savedSelectedOrder[index] === name
                           ? 'Saved position'
                           : 'Unsaved position change'}
                     </p>
                   </div>
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    className={`ml-3 h-11 w-11 shrink-0 rounded-full px-0 touch-none ${
-                      draggingPlayer === name ? 'cursor-grabbing' : 'cursor-grab'
-                    }`}
-                    onPointerDown={(event) => handleDragStart(name, event)}
-                    disabled={!isEditable}
-                    aria-label={isEditable ? `Press and hold to drag ${name}` : `${name} lineup position is locked`}
-                  >
-                    <GripVertical className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
-                  </Button>
+                  <div className="ml-3 flex shrink-0 items-center gap-2">
+                    {isEditable ? (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9 w-9 rounded-full px-0"
+                        onClick={() => handleRemovePlayer(name)}
+                        aria-label={`Remove ${name} from your ranked lineup`}
+                      >
+                        <X className="h-4 w-4" aria-hidden="true" />
+                      </Button>
+                    ) : null}
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      className={`h-11 w-11 shrink-0 rounded-full px-0 touch-none ${
+                        draggingPlayer === name ? 'cursor-grabbing' : 'cursor-grab'
+                      }`}
+                      onPointerDown={(event) => handleDragStart(name, event)}
+                      disabled={!isEditable}
+                      aria-label={isEditable ? `Press and hold to drag ${name}` : `${name} lineup position is locked`}
+                    >
+                      <GripVertical className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+                    </Button>
+                  </div>
                 </div>
               ))}
+            </div>
+            <div className="space-y-2 border-t pt-3">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="font-semibold">Available Quarterbacks</p>
+                  <p className="text-xs text-muted-foreground">Use the full 15-player slate to fill any open lineup spots.</p>
+                </div>
+                <span className="text-xs text-muted-foreground">{lineupState.availablePlayers.length} Remaining</span>
+              </div>
+              <div className="space-y-2">
+                {lineupState.availablePlayers.map((name) => (
+                  <div key={name} className="flex items-center justify-between rounded-lg border bg-slate-50 px-3 py-2 text-sm">
+                    <div>
+                      <p className="font-medium">{name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {isEditable
+                          ? needsMoreSelections
+                            ? 'Available to add to your ranked 10.'
+                            : 'Remove someone from your ranked 10 before adding another.'
+                          : 'Not included in the saved lineup.'}
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      className="gap-1"
+                      onClick={() => handleAddPlayer(name)}
+                      disabled={!isEditable || lineupState.selectedOrder.length >= 10}
+                    >
+                      <Plus className="h-4 w-4" aria-hidden="true" />
+                      Add
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -470,7 +592,9 @@ export function LineupBuilderClient({
                 {isEditable
                   ? hasUnsavedChanges
                     ? 'You have unsaved ranking changes on this entry.'
-                    : 'Your saved order is up to date for this entry.'
+                    : needsMoreSelections
+                      ? 'Finish selecting 10 quarterbacks to create a save-ready lineup.'
+                      : 'Your saved order is up to date for this entry.'
                   : 'This contest is locked, so the saved order cannot be edited.'}
               </p>
             </div>
@@ -488,15 +612,21 @@ export function LineupBuilderClient({
         </Card>
 
         <div className="sticky bottom-20 rounded-lg border bg-white p-3 shadow-lg">
-          <Button className="w-full" onClick={handleSaveLineup} disabled={!isEditable || !hasUnsavedChanges || isSaving}>
+          <Button
+            className="w-full"
+            onClick={handleSaveLineup}
+            disabled={!isEditable || !hasUnsavedChanges || isSaving || needsMoreSelections}
+          >
             {isEditable ? (isSaving ? 'Saving Lineup...' : 'Save Lineup') : `${contest.status} - Read Only`}
           </Button>
           <p className="mt-2 text-center text-xs text-muted-foreground">
             {!isEditable
               ? 'This contest is no longer editable.'
               : hasUnsavedChanges
-                ? 'Save your current order before leaving this screen.'
-                : 'Reorder players to activate the next Save Lineup action.'}
+                ? needsMoreSelections
+                  ? 'Choose all 10 quarterbacks before saving this lineup.'
+                  : 'Save your current order before leaving this screen.'
+                : 'Add or reorder quarterbacks to activate the next Save Lineup action.'}
           </p>
         </div>
       </div>

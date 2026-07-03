@@ -87,6 +87,36 @@ describe('contest entry flow state', () => {
     });
   });
 
+  it('redirects payment review to saved-entry state when a real entry already exists', () => {
+    expect(
+      getContestEntryRouteState({
+        contestId: 'week-1-qb-passing-yards',
+        persistedStage: 'not-entered',
+        route: 'payment',
+        hasPersistedEntry: true,
+      }),
+    ).toEqual({
+      stage: 'entered',
+      shouldRedirect: true,
+      redirectHref: getContestEntryHref('week-1-qb-passing-yards', 'entered'),
+    });
+  });
+
+  it('allows direct lineup access when a real entry already exists even if the cookie is stale', () => {
+    expect(
+      getContestEntryRouteState({
+        contestId: 'week-1-qb-passing-yards',
+        persistedStage: 'not-entered',
+        route: 'lineup',
+        hasPersistedEntry: true,
+      }),
+    ).toEqual({
+      stage: 'lineup',
+      shouldRedirect: false,
+      redirectHref: null,
+    });
+  });
+
   it('reads a persisted stage from the cookie payload', () => {
     expect(
       getPersistedContestEntryStage(

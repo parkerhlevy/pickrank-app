@@ -32,6 +32,284 @@ export type Database = {
           trigger?: string;
         };
       };
+      contest_stat_snapshot_rows: {
+        Row: {
+          final_stat: number;
+          game_status: string;
+          passing_touchdowns: number;
+          player_name: string | null;
+          provider_game_id: string;
+          provider_player_id: string;
+          snapshot_id: string;
+        };
+        Insert: {
+          final_stat: number;
+          game_status?: string;
+          passing_touchdowns?: number;
+          player_name?: string | null;
+          provider_game_id: string;
+          provider_player_id: string;
+          snapshot_id: string;
+        };
+        Update: {
+          final_stat?: number;
+          game_status?: string;
+          passing_touchdowns?: number;
+          player_name?: string | null;
+          provider_game_id?: string;
+          provider_player_id?: string;
+          snapshot_id?: string;
+        };
+      };
+      contest_stat_snapshots: {
+        Row: {
+          contest_id: string;
+          created_at: string;
+          metadata: Json | null;
+          provider_name: string;
+          provider_snapshot_time: string;
+          snapshot_id: string;
+          status: string;
+        };
+        Insert: {
+          contest_id: string;
+          created_at?: string;
+          metadata?: Json | null;
+          provider_name: string;
+          provider_snapshot_time: string;
+          snapshot_id?: string;
+          status?: string;
+        };
+        Update: {
+          contest_id?: string;
+          created_at?: string;
+          metadata?: Json | null;
+          provider_name?: string;
+          provider_snapshot_time?: string;
+          snapshot_id?: string;
+          status?: string;
+        };
+      };
+      contest_player_results: {
+        Row: {
+          actual_rank: number;
+          actual_rank_display: string;
+          actual_rank_max: number;
+          actual_rank_min: number;
+          contest_id: string;
+          final_stat: number;
+          passing_touchdowns: number;
+          game_id: string;
+          game_status: string;
+          player_id: string;
+          player_name: string;
+          provider_player_id: string;
+          stat_finalized_at: string;
+          team_abbreviation: string;
+        };
+        Insert: {
+          actual_rank: number;
+          actual_rank_display: string;
+          actual_rank_max: number;
+          actual_rank_min: number;
+          contest_id: string;
+          final_stat: number;
+          passing_touchdowns?: number;
+          game_id: string;
+          game_status?: string;
+          player_id: string;
+          player_name: string;
+          provider_player_id: string;
+          stat_finalized_at?: string;
+          team_abbreviation: string;
+        };
+        Update: {
+          actual_rank?: number;
+          actual_rank_display?: string;
+          actual_rank_max?: number;
+          actual_rank_min?: number;
+          contest_id?: string;
+          final_stat?: number;
+          passing_touchdowns?: number;
+          game_id?: string;
+          game_status?: string;
+          player_id?: string;
+          player_name?: string;
+          provider_player_id?: string;
+          stat_finalized_at?: string;
+          team_abbreviation?: string;
+        };
+      };
+      entries: {
+        Row: {
+          contest_id: string;
+          created_at: string;
+          id: string;
+          status: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          contest_id: string;
+          created_at?: string;
+          id?: string;
+          status?: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          contest_id?: string;
+          created_at?: string;
+          id?: string;
+          status?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+      };
+      entry_player_scores: {
+        Row: {
+          actual_rank_display: string;
+          actual_rank_max: number;
+          actual_rank_min: number;
+          contest_id: string;
+          created_at: string;
+          distance: number;
+          entry_id: string;
+          entry_player_score_id: string;
+          player_id: string;
+          player_name: string;
+          points_awarded: number;
+          user_rank: number;
+        };
+        Insert: {
+          actual_rank_display: string;
+          actual_rank_max: number;
+          actual_rank_min: number;
+          contest_id: string;
+          created_at?: string;
+          distance: number;
+          entry_id: string;
+          entry_player_score_id?: string;
+          player_id: string;
+          player_name: string;
+          points_awarded: number;
+          user_rank: number;
+        };
+        Update: {
+          actual_rank_display?: string;
+          actual_rank_max?: number;
+          actual_rank_min?: number;
+          contest_id?: string;
+          created_at?: string;
+          distance?: number;
+          entry_id?: string;
+          entry_player_score_id?: string;
+          player_id?: string;
+          player_name?: string;
+          points_awarded?: number;
+          user_rank?: number;
+        };
+      };
+      entry_scoring_results: {
+        Row: {
+          actual_qb1_distance: number | null;
+          selected_qb1_passing_touchdowns: number | null;
+          selected_qb2_passing_touchdowns: number | null;
+          selected_qb3_passing_touchdowns: number | null;
+          selected_qb4_passing_touchdowns: number | null;
+          selected_qb5_passing_touchdowns: number | null;
+          contest_id: string;
+          created_at: string;
+          entry_id: string;
+          exact_picks: number;
+          final_rank: number;
+          final_rank_display: string;
+          is_tied: boolean;
+          one_off_or_better_picks: number;
+          payout_amount: number;
+          payout_status: string;
+          score_finalized_at: string;
+          scoring_version: string;
+          tie_group_id: string | null;
+          tie_group_size: number;
+          total_score: number;
+          user_id: string;
+        };
+        Insert: {
+          actual_qb1_distance?: number | null;
+          selected_qb1_passing_touchdowns?: number | null;
+          selected_qb2_passing_touchdowns?: number | null;
+          selected_qb3_passing_touchdowns?: number | null;
+          selected_qb4_passing_touchdowns?: number | null;
+          selected_qb5_passing_touchdowns?: number | null;
+          contest_id: string;
+          created_at?: string;
+          entry_id: string;
+          exact_picks?: number;
+          final_rank: number;
+          final_rank_display: string;
+          is_tied?: boolean;
+          one_off_or_better_picks?: number;
+          payout_amount?: number;
+          payout_status?: string;
+          score_finalized_at?: string;
+          scoring_version: string;
+          tie_group_id?: string | null;
+          tie_group_size?: number;
+          total_score: number;
+          user_id: string;
+        };
+        Update: {
+          actual_qb1_distance?: number | null;
+          selected_qb1_passing_touchdowns?: number | null;
+          selected_qb2_passing_touchdowns?: number | null;
+          selected_qb3_passing_touchdowns?: number | null;
+          selected_qb4_passing_touchdowns?: number | null;
+          selected_qb5_passing_touchdowns?: number | null;
+          contest_id?: string;
+          created_at?: string;
+          entry_id?: string;
+          exact_picks?: number;
+          final_rank?: number;
+          final_rank_display?: string;
+          is_tied?: boolean;
+          one_off_or_better_picks?: number;
+          payout_amount?: number;
+          payout_status?: string;
+          score_finalized_at?: string;
+          scoring_version?: string;
+          tie_group_id?: string | null;
+          tie_group_size?: number;
+          total_score?: number;
+          user_id?: string;
+        };
+      };
+      entry_lineups: {
+        Row: {
+          created_at: string;
+          entry_id: string;
+          id: string;
+          rank_position: number;
+          slate_player_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          entry_id: string;
+          id?: string;
+          rank_position: number;
+          slate_player_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          entry_id?: string;
+          id?: string;
+          rank_position?: number;
+          slate_player_id?: string;
+          updated_at?: string;
+        };
+      };
       contest_slate_players: {
         Row: {
           active_status: string | null;

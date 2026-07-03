@@ -129,6 +129,7 @@ const statusLabels: Record<ContestStatus, string> = {
 type ContestStore = z.infer<typeof contestStoreSchema>;
 type ContestDbRow = Database['public']['Tables']['contests']['Row'];
 type ContestDbInsert = Database['public']['Tables']['contests']['Insert'];
+type ContestDbUpdate = Database['public']['Tables']['contests']['Update'];
 type ContestSlatePlayerDbRow = Database['public']['Tables']['contest_slate_players']['Row'];
 type ContestSlatePlayerDbInsert = Database['public']['Tables']['contest_slate_players']['Insert'];
 type ContestValidationDbRow = Database['public']['Tables']['contest_validation_results']['Row'];
@@ -198,6 +199,12 @@ type ContestLookupOptions = ContestDataOptions & {
 };
 
 type TimestampOptions = ContestDataOptions & {
+  now?: string;
+};
+
+type ContestEntryCountUpdateOptions = ContestDataOptions & {
+  entryDelta?: number;
+  paidEntryDelta?: number;
   now?: string;
 };
 
@@ -522,6 +529,62 @@ export async function publishContest(
   };
 }
 
+export async function updateContestEntryCounts(
+  contestId: string,
+  {
+    entryDelta = 0,
+    paidEntryDelta = 0,
+    now = new Date().toISOString(),
+    ...options
+  }: ContestEntryCountUpdateOptions = {},
+) {
+  if (entryDelta === 0 && paidEntryDelta === 0) {
+    return;
+  }
+
+  if (shouldUseFileStore(options)) {
+    const store = await readContestStoreFromFile(options.dataFilePath);
+    const contestIndex = store.contests.findIndex((contest) => contest.id === contestId);
+
+    if (contestIndex === -1) {
+      throw new Error('Contest not found.');
+    }
+
+    const currentContest = store.contests[contestIndex];
+    const nextContest = contestRecordSchema.parse({
+      ...currentContest,
+      entryCount: Math.max(0, currentContest.entryCount + entryDelta),
+      paidEntryCount: Math.max(0, currentContest.paidEntryCount + paidEntryDelta),
+      updatedAt: now,
+    });
+
+    await writeContestStoreToFile(
+      {
+        ...store,
+        contests: replaceContest(store.contests, contestIndex, nextContest),
+      },
+      options.dataFilePath,
+    );
+
+    return;
+  }
+
+  const { row } = await getDatabaseContestBySlug(contestId);
+  const supabase: any = await createSupabaseClient();
+  const { error } = await supabase
+    .from('contests')
+    .update({
+      entry_count: Math.max(0, row.entry_count + entryDelta),
+      paid_entries_count: Math.max(0, row.paid_entries_count + paidEntryDelta),
+      updated_at: now,
+    } satisfies ContestDbUpdate)
+    .eq('id', row.id);
+
+  if (error) {
+    throw new Error(`Unable to update contest entry counts: ${error.message}`);
+  }
+}
+
 export async function runContestLifecycleTransitions(options?: TimestampOptions) {
   const now = options?.now ?? new Date().toISOString();
 
@@ -634,8 +697,27 @@ export function buildDraftContestRecord(
   });
 }
 
-export function getContestLineupPlayers(contest: Pick<ContestSummary, 'lineupPlayers'>) {
+export function getContestSelectablePlayers(contest: Pick<ContestSummary, 'lineupPlayers' | 'slatePlayers'>) {
+  if (contest.slatePlayers.length > 0) {
+    return [...contest.slatePlayers]
+      .sort((a, b) => a.displayName.localeCompare(b.displayName))
+      .map((player) => player.displayName);
+  }
+
   return [...contest.lineupPlayers];
+}
+
+export function getContestDefaultLineupOrder(
+  contest: Pick<ContestSummary, 'lineupPlayers' | 'slatePlayers'>,
+) {
+  const selectablePlayers = getContestSelectablePlayers(contest);
+  const selectedPlayers = contest.lineupPlayers.filter((player) => selectablePlayers.includes(player));
+
+  if (selectedPlayers.length === 10 && new Set(selectedPlayers).size === 10) {
+    return [...selectedPlayers];
+  }
+
+  return selectablePlayers.slice(0, 10);
 }
 
 export function isContestOpenForEntry(contest: Pick<ContestSummary, 'contestStatus'>) {
@@ -1013,12 +1095,8 @@ function buildContestValidationResult(contest: ContestRecord, now: string, valid
   }
 
   if (contest.lineupPlayers.length !== 10) {
-    errors.push('The current lineup shell expects a 10-player ranking order.');
+    errors.push('Save a 10-player default lineup order before publish.');
   }
-
-  warnings.push(
-    'The saved slate is real contest setup data, but the public lineup shell still uses a temporary 10-player subset until the full 15-to-10 selection flow lands.',
-  );
 
   return {
     status: errors.length > 0 ? 'failed' : 'passed',

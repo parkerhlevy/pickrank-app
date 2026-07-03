@@ -1,16 +1,26 @@
 export type LineupSource = 'default_assigned' | 'user_saved';
 
 export type LineupState = {
-  order: string[];
-  savedOrder: string[];
+  selectedOrder: string[];
+  savedSelectedOrder: string[];
+  availablePlayers: string[];
   source: LineupSource;
   lastSavedAt: string | null;
 };
 
-export function createDefaultLineupState(players: string[]): LineupState {
+export function createDefaultLineupState({
+  players,
+  defaultSelectedOrder,
+}: {
+  players: string[];
+  defaultSelectedOrder: string[];
+}): LineupState {
+  const normalizedSelectedOrder = normalizeSelectedOrder(defaultSelectedOrder, players);
+
   return {
-    order: [...players],
-    savedOrder: [...players],
+    selectedOrder: normalizedSelectedOrder,
+    savedSelectedOrder: normalizedSelectedOrder,
+    availablePlayers: getAvailablePlayers(players, normalizedSelectedOrder),
     source: 'default_assigned',
     lastSavedAt: null,
   };
@@ -19,36 +29,39 @@ export function createDefaultLineupState(players: string[]): LineupState {
 export function createLineupStateFromSavedOrder({
   players,
   savedOrder,
+  defaultSelectedOrder,
   source,
   lastSavedAt,
 }: {
   players: string[];
   savedOrder: string[];
+  defaultSelectedOrder: string[];
   source: LineupSource;
   lastSavedAt: string | null;
 }): LineupState {
-  const normalizedSavedOrder = normalizeLineupOrder(savedOrder, players);
+  const normalizedSavedOrder = normalizeSelectedOrder(savedOrder, players, defaultSelectedOrder);
 
   return {
-    order: normalizedSavedOrder,
-    savedOrder: normalizedSavedOrder,
+    selectedOrder: normalizedSavedOrder,
+    savedSelectedOrder: normalizedSavedOrder,
+    availablePlayers: getAvailablePlayers(players, normalizedSavedOrder),
     source,
     lastSavedAt,
   };
 }
 
-export function moveLineupPlayer(order: string[], fromIndex: number, toIndex: number) {
+export function moveLineupPlayer(selectedOrder: string[], fromIndex: number, toIndex: number) {
   if (
     fromIndex < 0 ||
     toIndex < 0 ||
-    fromIndex >= order.length ||
-    toIndex >= order.length ||
+    fromIndex >= selectedOrder.length ||
+    toIndex >= selectedOrder.length ||
     fromIndex === toIndex
   ) {
-    return order;
+    return selectedOrder;
   }
 
-  const nextOrder = [...order];
+  const nextOrder = [...selectedOrder];
   const [movedPlayer] = nextOrder.splice(fromIndex, 1);
 
   nextOrder.splice(toIndex, 0, movedPlayer);
@@ -56,23 +69,47 @@ export function moveLineupPlayer(order: string[], fromIndex: number, toIndex: nu
   return nextOrder;
 }
 
-export function hasUnsavedLineupChanges(order: string[], savedOrder: string[]) {
-  if (order.length !== savedOrder.length) {
+export function addLineupPlayer(selectedOrder: string[], player: string) {
+  if (selectedOrder.includes(player) || selectedOrder.length >= 10) {
+    return selectedOrder;
+  }
+
+  return [...selectedOrder, player];
+}
+
+export function removeLineupPlayer(selectedOrder: string[], player: string) {
+  if (!selectedOrder.includes(player)) {
+    return selectedOrder;
+  }
+
+  return selectedOrder.filter((currentPlayer) => currentPlayer !== player);
+}
+
+export function hasUnsavedLineupChanges(selectedOrder: string[], savedSelectedOrder: string[]) {
+  if (selectedOrder.length !== savedSelectedOrder.length) {
     return true;
   }
 
-  return order.some((player, index) => player !== savedOrder[index]);
+  return selectedOrder.some((player, index) => player !== savedSelectedOrder[index]);
 }
 
-function normalizeLineupOrder(value: unknown, players: string[]) {
+export function getAvailablePlayers(players: string[], selectedOrder: string[]) {
+  return players.filter((player) => !selectedOrder.includes(player));
+}
+
+function normalizeSelectedOrder(value: unknown, players: string[], fallbackOrder?: string[]) {
+  const fallbackSelectedOrder = Array.isArray(fallbackOrder)
+    ? fallbackOrder.filter((player, index, allPlayers) => players.includes(player) && allPlayers.indexOf(player) === index).slice(0, 10)
+    : players.slice(0, 10);
+
   if (!Array.isArray(value)) {
-    return [...players];
+    return fallbackSelectedOrder;
   }
 
   const filteredPlayers = value.filter((item): item is string => typeof item === 'string' && players.includes(item));
 
-  if (filteredPlayers.length !== players.length || new Set(filteredPlayers).size !== players.length) {
-    return [...players];
+  if (filteredPlayers.length !== 10 || new Set(filteredPlayers).size !== 10) {
+    return fallbackSelectedOrder;
   }
 
   return filteredPlayers;

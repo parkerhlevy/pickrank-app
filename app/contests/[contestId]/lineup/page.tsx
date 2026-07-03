@@ -13,11 +13,14 @@ import {
   createLineupStateFromSavedOrder,
   createDefaultLineupState,
 } from '@/lib/lineup-builder-state';
+import { getPersistedContestEntry } from '@/lib/persisted-contest-entry';
 import {
-  getPersistedContestEntry,
-  persistedContestEntryCookieName,
-} from '@/lib/persisted-contest-entry';
-import { getContestById, getContestLineupPlayers, isContestLineupEditable } from '@/lib/contest-data';
+  getContestById,
+  getContestDefaultLineupOrder,
+  getContestSelectablePlayers,
+  isContestLineupEditable,
+} from '@/lib/contest-data';
+import { getViewerIdentity } from '@/lib/viewer-identity';
 
 export default async function LineupBuilderPage({
   params,
@@ -38,7 +41,21 @@ export default async function LineupBuilderPage({
     contest.id,
     cookieStore.get(contestEntryCookieName)?.value,
   );
-  const routeState = getContestEntryRouteState({ contestId: contest.id, persistedStage, route: 'lineup' });
+  const selectablePlayers = getContestSelectablePlayers(contest);
+  const defaultSelectedOrder = getContestDefaultLineupOrder(contest);
+  const viewerIdentity = await getViewerIdentity();
+  const persistedEntry = await getPersistedContestEntry(
+    contest.id,
+    viewerIdentity.userId,
+    selectablePlayers,
+    defaultSelectedOrder,
+  );
+  const routeState = getContestEntryRouteState({
+    contestId: contest.id,
+    persistedStage,
+    route: 'lineup',
+    hasPersistedEntry: Boolean(persistedEntry),
+  });
 
   if (routeState.shouldRedirect && routeState.redirectHref) {
     redirect(routeState.redirectHref);
@@ -46,12 +63,6 @@ export default async function LineupBuilderPage({
 
   const stateCopy = getContestEntryStateCopy(routeState.stage);
   const flowSteps = getContestEntrySteps(routeState.stage);
-  const lineupPlayers = getContestLineupPlayers(contest);
-  const persistedEntry = getPersistedContestEntry(
-    contest.id,
-    cookieStore.get(persistedContestEntryCookieName)?.value,
-    lineupPlayers,
-  );
   const isEditable = isContestLineupEditable(contest);
 
   if (!persistedEntry) {
@@ -60,12 +71,13 @@ export default async function LineupBuilderPage({
 
   const initialLineupState = persistedEntry
     ? createLineupStateFromSavedOrder({
-        players: lineupPlayers,
+        players: selectablePlayers,
         savedOrder: persistedEntry.lineupOrder,
+        defaultSelectedOrder,
         source: persistedEntry.source,
         lastSavedAt: persistedEntry.lastSavedAt,
       })
-    : createDefaultLineupState(lineupPlayers);
+    : createDefaultLineupState({ players: selectablePlayers, defaultSelectedOrder });
 
   return (
     <LineupBuilderClient

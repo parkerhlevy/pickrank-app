@@ -8,6 +8,7 @@ export const e2eAuthCookieName = 'pickrank_e2e_auth';
 export type ViewerIdentity = ProfileIdentity & {
   isAuthenticated: boolean;
   source: 'anonymous' | 'supabase' | 'e2e-fixture';
+  userId: string | null;
 };
 
 const anonymousViewerIdentity: ViewerIdentity = {
@@ -19,6 +20,7 @@ const anonymousViewerIdentity: ViewerIdentity = {
   isEmailVerified: false,
   isProfileComplete: false,
   source: 'anonymous',
+  userId: null,
 };
 
 type E2eAuthCookiePayload = {
@@ -26,9 +28,22 @@ type E2eAuthCookiePayload = {
   username: string;
   displayName?: string;
   emailConfirmedAt?: string;
+  userId?: string;
+  roleSlugs?: string[];
 };
 
-export function getE2eViewerIdentity(cookieValue: string | undefined): ViewerIdentity | null {
+export const defaultE2eViewerUserId = '00000000-0000-4000-8000-000000000001';
+
+export type E2eAuthFixture = {
+  email: string;
+  username: string;
+  displayName: string;
+  emailConfirmedAt: string;
+  userId: string;
+  roleSlugs: string[];
+};
+
+export function getE2eAuthFixture(cookieValue: string | undefined): E2eAuthFixture | null {
   if (process.env.PICKRANK_E2E_AUTH !== '1' || !cookieValue) {
     return null;
   }
@@ -40,25 +55,45 @@ export function getE2eViewerIdentity(cookieValue: string | undefined): ViewerIde
       return null;
     }
 
-    const identity = getProfileIdentity({
-      email: parsed.email,
-      email_confirmed_at:
-        typeof parsed.emailConfirmedAt === 'string' ? parsed.emailConfirmedAt : new Date().toISOString(),
-      user_metadata: {
-        username: parsed.username,
-        display_name:
-          typeof parsed.displayName === 'string' ? parsed.displayName : parsed.username,
-      },
-    } as never);
-
     return {
-      ...identity,
-      isAuthenticated: true,
-      source: 'e2e-fixture',
+      email: parsed.email,
+      username: parsed.username,
+      displayName: typeof parsed.displayName === 'string' ? parsed.displayName : parsed.username,
+      emailConfirmedAt:
+        typeof parsed.emailConfirmedAt === 'string' ? parsed.emailConfirmedAt : new Date().toISOString(),
+      userId: typeof parsed.userId === 'string' ? parsed.userId : defaultE2eViewerUserId,
+      roleSlugs:
+        Array.isArray(parsed.roleSlugs) && parsed.roleSlugs.every((value) => typeof value === 'string')
+          ? parsed.roleSlugs
+          : [],
     };
   } catch {
     return null;
   }
+}
+
+export function getE2eViewerIdentity(cookieValue: string | undefined): ViewerIdentity | null {
+  const fixture = getE2eAuthFixture(cookieValue);
+
+  if (!fixture) {
+    return null;
+  }
+
+  const identity = getProfileIdentity({
+    email: fixture.email,
+    email_confirmed_at: fixture.emailConfirmedAt,
+    user_metadata: {
+      username: fixture.username,
+      display_name: fixture.displayName,
+    },
+  } as never);
+
+  return {
+    ...identity,
+    isAuthenticated: true,
+    source: 'e2e-fixture',
+    userId: fixture.userId,
+  };
 }
 
 export async function getViewerIdentity(): Promise<ViewerIdentity> {
@@ -85,6 +120,7 @@ export async function getViewerIdentity(): Promise<ViewerIdentity> {
       ...getProfileIdentity(data.user),
       isAuthenticated: true,
       source: 'supabase',
+      userId: data.user.id,
     };
   } catch {
     return anonymousViewerIdentity;

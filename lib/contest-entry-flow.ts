@@ -256,13 +256,21 @@ export function getContestEntryRouteState({
   contestId,
   persistedStage,
   route,
+  hasPersistedEntry = false,
 }: {
   contestId: string;
   persistedStage: ContestEntryStage;
   route: ContestEntryRoute;
+  hasPersistedEntry?: boolean;
 }) {
   const fallbackStage = routeStageMap[route];
-  const stage = persistedStage;
+  const stage = hasPersistedEntry
+    ? route === 'lineup'
+      ? 'lineup'
+      : persistedStage === 'lineup'
+        ? 'lineup'
+        : 'entered'
+    : persistedStage;
   const shouldRedirect = route !== 'detail' && stage !== fallbackStage;
 
   return {

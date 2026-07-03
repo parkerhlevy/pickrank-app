@@ -1,10 +1,14 @@
-import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { getContestById, getContestLineupPlayers, isContestLineupEditable } from '@/lib/contest-data';
 import {
-  persistedContestEntryCookieName,
+  getContestById,
+  getContestDefaultLineupOrder,
+  getContestSelectablePlayers,
+  isContestLineupEditable,
+} from '@/lib/contest-data';
+import {
   savePersistedContestEntryLineup,
 } from '@/lib/persisted-contest-entry';
+import { getViewerIdentity } from '@/lib/viewer-identity';
 
 export async function POST(
   request: Request,
@@ -12,7 +16,8 @@ export async function POST(
 ) {
   const { contestId } = await params;
   const contest = await getContestById(contestId);
-  const lineupPlayers = getContestLineupPlayers(contest);
+  const selectablePlayers = getContestSelectablePlayers(contest);
+  const defaultSelectedOrder = getContestDefaultLineupOrder(contest);
 
   if (!isContestLineupEditable(contest)) {
     return NextResponse.json(
@@ -29,14 +34,18 @@ export async function POST(
     return NextResponse.json({ message: 'A lineup order is required.' }, { status: 400 });
   }
 
-  const cookieStore = await cookies();
-  const cookieValue = cookieStore.get(persistedContestEntryCookieName)?.value;
+  const viewerIdentity = await getViewerIdentity();
+
+  if (!viewerIdentity.isAuthenticated || !viewerIdentity.isProfileComplete || !viewerIdentity.isEmailVerified || !viewerIdentity.userId) {
+    return NextResponse.json({ message: 'Sign in with a ready account before saving a lineup.' }, { status: 401 });
+  }
 
   try {
-    const result = savePersistedContestEntryLineup({
+    const result = await savePersistedContestEntryLineup({
       contestId,
-      cookieValue,
-      players: lineupPlayers,
+      viewerId: viewerIdentity.userId,
+      players: selectablePlayers,
+      defaultSelectedOrder,
       order: body.order,
     });
     const response = NextResponse.json({
@@ -44,12 +53,6 @@ export async function POST(
       savedOrder: result.entry.lineupOrder,
       source: result.entry.source,
       lastSavedAt: result.entry.lastSavedAt,
-    });
-
-    response.cookies.set(persistedContestEntryCookieName, result.cookieValue, {
-      httpOnly: true,
-      sameSite: 'lax',
-      path: '/',
     });
 
     return response;

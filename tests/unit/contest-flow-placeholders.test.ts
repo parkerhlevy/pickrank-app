@@ -1,11 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { getContestById, getContestLineupPlayers, listPublicContests } from '../../lib/contest-data';
+import {
+  getContestById,
+  getContestDefaultLineupOrder,
+  getContestSelectablePlayers,
+  listPublicContests,
+} from '../../lib/contest-data';
 
 describe('contest data backbone', () => {
-  it('exposes a 10-player lineup builder shell for the current single-entry flow', async () => {
+  it('exposes the full 15-player slate plus a 10-player default ranking for the lineup flow', async () => {
     const contest = await getContestById('week-1-qb-passing-yards');
 
-    expect(getContestLineupPlayers(contest)).toHaveLength(10);
+    expect(getContestSelectablePlayers(contest)).toHaveLength(15);
+    expect(getContestDefaultLineupOrder(contest)).toHaveLength(10);
   });
 
   it('returns the requested contest when building post-entry routes', async () => {
