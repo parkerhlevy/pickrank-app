@@ -63,7 +63,7 @@ The repo is past bare Phase 0 and currently includes:
 
 Current branch reality on `main` as of 2026-07-03:
 
-- `main` is carrying the current provisional Replay snapshot foundation slice locally until the next push, while `origin/main` still reflects the last synced baseline
+- `main` and `origin/main` are back in sync after the provisional Replay snapshot foundation slice landed on GitHub
 - the synced baseline now includes `49802ba Add server-backed saved entry lineup flow`, `b085fae Add contest final scoring and results foundation`, and `3b5b9af Track contest entry fixture data`
 - the current Remotion source baseline is a motion-polished `32.5s` waitlist-focused cut under `assets/marketing/video/`, aligned to the 15-player / pick-10 product framing and the `pickrankgames.com` brand
 - the latest rendered review asset is `assets/marketing/video/out/pickrank-landing-video.mp4`
@@ -97,9 +97,12 @@ Current branch reality on `main` as of 2026-07-03:
 - provisional Replay snapshots now persist into dedicated provisional snapshot storage and carry normalized rank groups, game-state counts, and provider-keyed row data without touching the saved final-results tables or the typed `FINAL` confirmation gate
 - public `/contests/[contestId]/results` and `/leaderboard?contest=...` now read from saved final results after a contest reaches `final` or `paid_out`
 - repo verification for the committed scoring/results slice includes unit coverage for stat ingestion, ranking, tie handling, finalization, and saved results plus Playwright coverage for operator finalization and signed-in final-results viewing; the current provisional snapshot foundation additionally passes `npm run typecheck`, focused provisional/provider tests, and the full Vitest suite via `npx vitest run --maxWorkers=1` in this constrained environment
+- the 2026-07-03 weekly repo-maintenance pass deleted six fully merged local `codex/*` branches, so the active local branch set is now just `main`
+- merged remote refs still include the older `origin/codex/*` stack plus `origin/spec/results-reveal-clean`; treat those as optional remote-side cleanup candidates later, not as local blockers
 - `next-env.d.ts` should usually be treated as generated noise unless a slice specifically requires it
 - the active marketing/Remotion and design-doc work was intentionally parked on 2026-07-02 in the local stashes `parked-remotion-design-2026-07-02` and `parked-next-env-noise-2026-07-02`, but there is now also a live resumed marketing edit set in `assets/marketing/video/` that remains intentionally uncommitted
-- the live worktree is not fully clean yet: the remaining dirt is the resumed marketing/Remotion polish bundle plus generated `next-env.d.ts`
+- there is also a separate detached worktree at `/private/tmp/pickrank-lineup-verify` with active contest-entry edits; preserve it as in-progress work until that slice is either resumed or intentionally parked
+- the live `main` worktree is not fully clean yet: the remaining dirt is the resumed marketing/Remotion polish bundle plus generated `next-env.d.ts`
 
 ## Core Commands
 
@@ -230,7 +233,7 @@ Definition of done:
 Use this default starter prompt pattern unless the next slice needs a tighter scoped variation:
 
 ```text
-Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Before changing behavior, read `docs/agent-handoff.md`, `spec/product_spec.md`, `spec/features/stat_finalization.md`, `spec/features/results_reveal.md`, and `docs/replay-provisional-order-foundation.md`, plus the current stats-provider files already involved. Work carefully around the unrelated marketing/design edits and keep the slice narrow: validate the Replay-backed provisional snapshot path against one real contest slate with true SportsDataIO IDs, keep the official `FINAL`-gated results publish flow unchanged, avoid payments, withdrawals, compliance, auth work, and unrelated UI work, run typecheck plus focused tests, refresh `docs/agent-handoff.md` if repo reality or the next move changes, and explain results business-first: what changed, why it matters, what passed, what remains risky, and what I need to do next.
+Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Before changing behavior, read `docs/agent-handoff.md`, `spec/product_spec.md`, `spec/features/stat_finalization.md`, `spec/features/results_reveal.md`, and `docs/replay-provisional-order-foundation.md`, plus the current stats-provider files already involved. Work carefully around the unrelated marketing/design edits in `main` and the detached lineup-verify worktree, and keep the slice narrow: validate the Replay-backed provisional snapshot path against one real contest slate with true SportsDataIO IDs, keep the official `FINAL`-gated results publish flow unchanged, avoid payments, withdrawals, compliance, auth work, and unrelated UI work, run typecheck plus focused tests, refresh `docs/agent-handoff.md` if repo reality or the next move changes, and explain results business-first: what changed, why it matters, what passed, what remains risky, and what I need to do next.
 ```
 
 ## Generated Files to Avoid Committing
