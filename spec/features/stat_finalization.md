@@ -9,6 +9,8 @@ Locked for MVP direction. Specific data provider selection remains open.
 ## Anchor
 MVP stat finalization requires a trusted external NFL stats provider, uses official final passing yards to rank slate quarterbacks, allows tied player stat ranks without additional QB stat tie-breakers, waits until all slate games are final before scoring, applies a defined stat correction window before payouts, and does not show live scoring during games.
 
+For implementation purposes, PickRank may store separate provisional live snapshots for future live-ordering work, but those snapshots are not the official finalization source of truth and must remain separate from the human-confirmed final-results publish path.
+
 ---
 
 ## Important Distinction
@@ -51,6 +53,14 @@ The selected provider must support:
 - team identifiers
 - stat correction handling or updated final stats
 - reliable API access
+
+### Internal path split
+PickRank now distinguishes between:
+
+- provisional live ordering snapshots for internal or future live-leaderboard use
+- official final stat input that drives saved results, saved leaderboard standings, and the typed `FINAL` confirmation step
+
+Do not treat provisional live data as sufficient to publish official contest results.
 
 ---
 

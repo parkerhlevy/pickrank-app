@@ -140,6 +140,109 @@ export type Database = {
           team_abbreviation?: string;
         };
       };
+      contest_provisional_stat_snapshot_rows: {
+        Row: {
+          game_status: string;
+          home_away: string;
+          opponent_abbreviation: string;
+          passing_touchdowns: number;
+          passing_yards: number;
+          player_id: string;
+          player_name: string;
+          provisional_rank: number;
+          provisional_rank_display: string;
+          provisional_rank_max: number;
+          provisional_rank_min: number;
+          provider_game_id: string;
+          provider_player_id: string;
+          snapshot_id: string;
+          sort_order: number;
+          team_abbreviation: string;
+        };
+        Insert: {
+          game_status: string;
+          home_away: string;
+          opponent_abbreviation: string;
+          passing_touchdowns?: number;
+          passing_yards: number;
+          player_id: string;
+          player_name: string;
+          provisional_rank: number;
+          provisional_rank_display: string;
+          provisional_rank_max: number;
+          provisional_rank_min: number;
+          provider_game_id: string;
+          provider_player_id: string;
+          snapshot_id: string;
+          sort_order: number;
+          team_abbreviation: string;
+        };
+        Update: {
+          game_status?: string;
+          home_away?: string;
+          opponent_abbreviation?: string;
+          passing_touchdowns?: number;
+          passing_yards?: number;
+          player_id?: string;
+          player_name?: string;
+          provisional_rank?: number;
+          provisional_rank_display?: string;
+          provisional_rank_max?: number;
+          provisional_rank_min?: number;
+          provider_game_id?: string;
+          provider_player_id?: string;
+          snapshot_id?: string;
+          sort_order?: number;
+          team_abbreviation?: string;
+        };
+      };
+      contest_provisional_stat_snapshots: {
+        Row: {
+          all_games_final: boolean;
+          contest_id: string;
+          created_at: string;
+          games_final: number;
+          games_in_progress: number;
+          games_scheduled: number;
+          games_total: number;
+          metadata: Json | null;
+          provider_key: string;
+          provider_name: string;
+          provider_snapshot_time: string;
+          snapshot_id: string;
+          status: string;
+        };
+        Insert: {
+          all_games_final?: boolean;
+          contest_id: string;
+          created_at?: string;
+          games_final?: number;
+          games_in_progress?: number;
+          games_scheduled?: number;
+          games_total?: number;
+          metadata?: Json | null;
+          provider_key: string;
+          provider_name: string;
+          provider_snapshot_time: string;
+          snapshot_id?: string;
+          status?: string;
+        };
+        Update: {
+          all_games_final?: boolean;
+          contest_id?: string;
+          created_at?: string;
+          games_final?: number;
+          games_in_progress?: number;
+          games_scheduled?: number;
+          games_total?: number;
+          metadata?: Json | null;
+          provider_key?: string;
+          provider_name?: string;
+          provider_snapshot_time?: string;
+          snapshot_id?: string;
+          status?: string;
+        };
+      };
       entries: {
         Row: {
           contest_id: string;

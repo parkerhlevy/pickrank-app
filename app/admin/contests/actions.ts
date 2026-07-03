@@ -15,6 +15,7 @@ import {
 import { canFinalizeContestStatus, parseFinalStatRows } from '@/lib/contest-finalization';
 import { requireContestOperator } from '@/lib/contest-operator-access';
 import { finalizeContestResults } from '@/lib/contest-results';
+import { fetchAndPersistContestStatSnapshot } from '@/lib/stats-provider';
 
 const createDraftContestSchema = z.object({
   title: z.string().trim().min(1, 'Add a contest title.'),
@@ -42,7 +43,7 @@ const finalizeContestSchema = z.object({
 });
 
 function buildAdminContestsRedirect(
-  status: 'created' | 'saved' | 'validated' | 'published' | 'finalized' | 'error',
+  status: 'created' | 'saved' | 'validated' | 'published' | 'fetched' | 'finalized' | 'error',
   message?: string,
 ) {
   const params = new URLSearchParams({ status });
@@ -239,6 +240,60 @@ export async function finalizeContestAction(formData: FormData) {
     }
 
     const message = error instanceof Error ? error.message : 'Unable to run final scoring right now.';
+
+    redirect(buildAdminContestsRedirect('error', message));
+  }
+}
+
+export async function fetchContestStatSnapshotAction(formData: FormData) {
+  await requireContestOperator('/admin/contests');
+  const parsed = contestIdSchema.safeParse({
+    contestId: String(formData.get('contestId') || ''),
+  });
+
+  if (!parsed.success) {
+    redirect(buildAdminContestsRedirect('error', parsed.error.issues[0]?.message || 'Contest not found.'));
+  }
+
+  try {
+    const contest = await getContestById(parsed.data.contestId, {
+      includeHidden: true,
+    });
+
+    if (!canFinalizeContestStatus(contest.contestStatus)) {
+      redirect(
+        buildAdminContestsRedirect(
+          'error',
+          `${contest.title} cannot fetch final stats from ${contest.contestStatus}.`,
+        ),
+      );
+    }
+
+    const snapshot = await fetchAndPersistContestStatSnapshot({
+      id: contest.id,
+      title: contest.title,
+      slatePlayers: contest.slatePlayers.map((player) => ({
+        playerId: player.playerId,
+        providerPlayerId: player.providerPlayerId,
+        providerGameId: player.providerGameId,
+        displayName: player.displayName,
+      })),
+    });
+
+    revalidateAdminContestPaths(contest.id);
+
+    redirect(
+      buildAdminContestsRedirect(
+        'fetched',
+        `Stored ${snapshot.providerName} snapshot for ${contest.title}. Review the saved rows, then type FINAL to publish when ready.`,
+      ),
+    );
+  } catch (error) {
+    if (isRedirectError(error)) {
+      throw error;
+    }
+
+    const message = error instanceof Error ? error.message : 'Unable to fetch the provider snapshot right now.';
 
     redirect(buildAdminContestsRedirect('error', message));
   }

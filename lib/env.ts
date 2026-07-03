@@ -56,6 +56,26 @@ export function getPersistedStatsSnapshotFilePath() {
   return process.env.PICKRANK_STATS_SNAPSHOT_FILE_PATH || `${process.cwd()}/data/contest-stat-snapshots.json`;
 }
 
+export function getProvisionalStatsSnapshotFilePath() {
+  return process.env.PICKRANK_PROVISIONAL_STATS_SNAPSHOT_FILE_PATH || `${process.cwd()}/data/contest-provisional-snapshots.json`;
+}
+
+export function getStatsProviderFetchUrl() {
+  return process.env.PICKRANK_STATS_PROVIDER_FETCH_URL || '';
+}
+
+export function getStatsProviderFetchToken() {
+  return process.env.PICKRANK_STATS_PROVIDER_FETCH_TOKEN || '';
+}
+
+export function getSportsDataIoReplayBaseUrl() {
+  return process.env.PICKRANK_SPORTSDATAIO_REPLAY_BASE_URL || 'https://api.sportsdata.io/v3/nfl';
+}
+
+export function getSportsDataIoReplayApiKey() {
+  return process.env.PICKRANK_SPORTSDATAIO_REPLAY_API_KEY || '';
+}
+
 export function getRequestOrigin(headers: HeaderSource, fallbackOrigin = getAppUrl()) {
   const host = headers.get('x-forwarded-host') || headers.get('host');
 

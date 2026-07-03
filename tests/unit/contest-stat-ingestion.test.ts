@@ -1,7 +1,7 @@
-import { mkdtemp, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   buildContestStatIngestionPreview,
   loadProviderBackedFinalStats,
@@ -9,6 +9,7 @@ import {
 import {
   FileStatsProviderAdapter,
   PersistedStatsSnapshotAdapter,
+  fetchAndPersistContestStatSnapshot,
   resolveStatsProviderAdapter,
 } from '../../lib/stats-provider';
 
@@ -64,6 +65,10 @@ async function writePersistedSnapshotStore(payload: unknown) {
 }
 
 describe('contest stat ingestion preview', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('resolves the file-backed provider adapter when configured', async () => {
     const providerStoreFilePath = await writeProviderStore({
       version: 1,
@@ -331,6 +336,90 @@ describe('contest stat ingestion preview', () => {
         status: 'provider_ready',
         sourceLabel: 'Stored Stats Feed snapshot',
         rows: ['qb-josh-allen|Josh Allen|325|3', 'qb-lamar-jackson|Lamar Jackson|330|4'].join('\n'),
+      }),
+    );
+  });
+
+  it('fetches a remote provider snapshot, persists it, and then serves prefills from the stored snapshot', async () => {
+    const persistedSnapshotFilePath = await writePersistedSnapshotStore({
+      version: 1,
+      snapshots: [],
+    });
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          contestId: contest.id,
+          providerName: 'Live Stats Bridge',
+          providerSnapshotTime: '2026-09-09T00:20:00.000Z',
+          rows: [
+            {
+              providerPlayerId: 'provider-qb-josh-allen',
+              providerGameId: 'buf-bal-2026-wk1',
+              playerName: 'Josh Allen',
+              finalStat: 326,
+              passingTouchdowns: 3,
+              gameStatus: 'final',
+            },
+            {
+              providerPlayerId: 'provider-qb-lamar-jackson',
+              providerGameId: 'bal-buf-2026-wk1',
+              playerName: 'Lamar Jackson',
+              finalStat: 331,
+              passingTouchdowns: 4,
+              gameStatus: 'final',
+            },
+          ],
+        }),
+      }),
+    );
+
+    await expect(
+      fetchAndPersistContestStatSnapshot(contest, {
+        fetchUrl: 'https://stats.example.test/final-snapshot',
+        fetchToken: 'secret-token',
+        persistedSnapshotFilePath,
+      }),
+    ).resolves.toEqual(
+      expect.objectContaining({
+        contestId: contest.id,
+        providerName: 'Live Stats Bridge',
+        status: 'validated',
+      }),
+    );
+
+    const persistedStore = JSON.parse(await readFile(persistedSnapshotFilePath, 'utf8'));
+    expect(persistedStore.snapshots).toHaveLength(1);
+    expect(persistedStore.snapshots[0]).toEqual(
+      expect.objectContaining({
+        contestId: contest.id,
+        providerName: 'Live Stats Bridge',
+      }),
+    );
+
+    await expect(
+      buildContestStatIngestionPreview(contest, {
+        providerMode: 'persisted_snapshot',
+        persistedSnapshotFilePath,
+      }),
+    ).resolves.toEqual(
+      expect.objectContaining({
+        status: 'provider_ready',
+        sourceLabel: 'Live Stats Bridge snapshot',
+        rows: ['qb-josh-allen|Josh Allen|326|3', 'qb-lamar-jackson|Lamar Jackson|331|4'].join('\n'),
+      }),
+    );
+
+    expect(fetch).toHaveBeenCalledWith(
+      'https://stats.example.test/final-snapshot',
+      expect.objectContaining({
+        method: 'POST',
+        headers: expect.objectContaining({
+          authorization: 'Bearer secret-token',
+          'content-type': 'application/json',
+        }),
       }),
     );
   });

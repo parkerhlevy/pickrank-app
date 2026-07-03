@@ -3,6 +3,7 @@ import type { InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from 'rea
 import { AlertCircle, CheckCircle2, EyeOff, FileText, ShieldCheck } from 'lucide-react';
 import {
   createDraftContestAction,
+  fetchContestStatSnapshotAction,
   finalizeContestAction,
   publishContestAction,
   saveContestSlateAction,
@@ -57,20 +58,20 @@ export default async function AdminContestsPage({
       {message ? (
         <Card
           className={
-            status === 'created' || status === 'saved' || status === 'validated' || status === 'published' || status === 'finalized'
+            status === 'created' || status === 'saved' || status === 'validated' || status === 'published' || status === 'fetched' || status === 'finalized'
               ? 'border-emerald-200 bg-emerald-50'
               : 'border-amber-200 bg-amber-50'
           }
         >
           <CardContent className="flex items-start gap-3 pt-6 text-sm">
-            {status === 'created' || status === 'saved' || status === 'validated' || status === 'published' || status === 'finalized' ? (
+            {status === 'created' || status === 'saved' || status === 'validated' || status === 'published' || status === 'fetched' || status === 'finalized' ? (
               <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-700" aria-hidden="true" />
             ) : (
               <AlertCircle className="mt-0.5 h-4 w-4 text-amber-700" aria-hidden="true" />
             )}
             <p
               className={
-                status === 'created' || status === 'saved' || status === 'validated' || status === 'published' || status === 'finalized'
+                status === 'created' || status === 'saved' || status === 'validated' || status === 'published' || status === 'fetched' || status === 'finalized'
                   ? 'text-emerald-900'
                   : 'text-amber-900'
               }
@@ -264,6 +265,11 @@ export default async function AdminContestsPage({
                   {canFinalizeContestStatus(contest.contestStatus) ? (
                     <form action={finalizeContestAction} className="mt-3 space-y-3 rounded-lg border bg-slate-50 p-3">
                       <input type="hidden" name="contestId" value={contest.id} />
+                      <div className="flex gap-2">
+                        <Button formAction={fetchContestStatSnapshotAction} type="submit" variant="ghost" className="w-full">
+                          Fetch Latest Stat Snapshot
+                        </Button>
+                      </div>
                       <div className="space-y-1.5">
                         <Label htmlFor={`finalStatRows-${contest.id}`}>Confirmed final QB stats</Label>
                         <TextArea
