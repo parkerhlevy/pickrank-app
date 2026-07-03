@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "entryId": "demo-entry-open",
+      "contestId": "week-1-qb-passing-yards",
+      "lineupOrder": [
+        "Josh Allen",
+        "Joe Burrow",
+        "Derek Carr",
+        "Kirk Cousins",
+        "Justin Herbert",
+        "Jalen Hurts",
+        "Lamar Jackson",
+        "Jordan Love",
+        "Dak Prescott",
+        "Brock Purdy"
+      ],
+      "lastSavedAt": null,
+      "source": "default_assigned",
+      "createdAt": "2026-06-22T00:00:00.000Z",
+      "updatedAt": "2026-06-22T00:00:00.000Z",
+      "userId": "00000000-0000-4000-8000-000000000001"
+    }
+  ]
+}
