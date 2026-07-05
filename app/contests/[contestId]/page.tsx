@@ -89,7 +89,7 @@ export default async function ContestDetailPage({
                 after scoring is saved.
               </CardDescription>
             </div>
-            <span className="status-pill shrink-0">
+            <span className="status-pill status-pill-muted shrink-0">
               <Lock className="mr-1 h-3 w-3" aria-hidden="true" />
               Single Entry
             </span>
@@ -131,7 +131,7 @@ export default async function ContestDetailPage({
         </CardHeader>
         <CardContent className="space-y-2">
           {contest.payoutRows.map((row) => (
-            <div key={row.place} className="flex items-center justify-between rounded-lg border bg-slate-50 px-3 py-2">
+            <div key={row.place} className="detail-row bg-white">
               <span className="font-medium">{row.place}</span>
               <span className="font-semibold">{row.value}</span>
             </div>
@@ -177,7 +177,7 @@ function DetailStat({
   value: string;
 }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-slate-50 p-2.5">
+    <div className="metric-tile">
       <div className="mb-1 flex items-center gap-1 text-[11px] text-muted-foreground">
         <Icon className="h-3 w-3" aria-hidden="true" />
         {label}

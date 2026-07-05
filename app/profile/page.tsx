@@ -6,6 +6,7 @@ import { getMissingBrowserSupabaseKeys, hasBrowserSupabaseConfig } from '@/lib/e
 import { createClient } from '@/lib/supabase/server';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Notice } from '@/components/ui/notice';
 import { completeProfile } from './actions';
 
 type ProfilePageProps = {
@@ -82,27 +83,37 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
 
       <Card className="section-card overflow-hidden">
         <CardHeader className="section-card-header">
-            <div className="flex items-center gap-2">
-              <UserCircle className="h-5 w-5 text-blue-300" aria-hidden="true" />
-              <CardTitle>{user ? 'Signed-In Session' : 'Signed-Out State'}</CardTitle>
-            </div>
+          <div className="flex items-center gap-2">
+            <UserCircle className="h-5 w-5 text-blue-300" aria-hidden="true" />
+            <CardTitle>{user ? 'Signed-In Session' : 'Signed-Out State'}</CardTitle>
+          </div>
           <CardDescription className="text-slate-300">
-            {user ? 'Your account session is active.' : 'Create an account or log in to continue from contest browsing into entry, lineup, and wallet views.'}
+            {user
+              ? 'Your account session is active.'
+              : 'Create an account or log in to continue from contest browsing into entry, lineup, and wallet views.'}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 pt-5">
           {status === 'profile-saved' ? (
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-3 text-sm text-emerald-900">
-              Your username is saved.
-            </div>
+            <Notice
+              variant="success"
+              icon={UserCircle}
+              title="Username saved"
+              description="Your public profile name is ready for contest-entry flow."
+              badge="Saved"
+            />
           ) : null}
           {status === 'error' ? (
-            <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-950">
-              {message || 'Profile setup is not ready yet.'}
-            </div>
+            <Notice
+              variant="warning"
+              icon={ShieldCheck}
+              title="Profile setup needs attention"
+              description={message || 'Profile setup is not ready yet.'}
+              badge="Action needed"
+            />
           ) : null}
           {!authConfigured ? (
-            <div className="space-y-3 rounded-lg border bg-slate-50 p-4 text-sm text-muted-foreground">
+            <div className="soft-panel space-y-3 text-sm text-muted-foreground">
               <p className="font-medium text-foreground">Add Supabase environment values before testing sign-in here.</p>
               <ul className="space-y-2">
                 {missingKeys.map((key) => (
@@ -121,7 +132,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
             </Button>
           ) : null}
           {user ? (
-            <div className="space-y-3 rounded-lg border bg-slate-50 p-4 text-sm">
+            <div className="soft-panel space-y-3 text-sm">
               <p className="font-medium text-foreground">Signed in as {identity.email}</p>
               <form action={signOut}>
                 <Button className="w-full" type="submit" variant="secondary">
@@ -146,9 +157,13 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                 <p className="text-lg font-bold">{identity.displayName || identity.username}</p>
               </div>
               {!identity.isEmailVerified && next !== defaultReturnPath ? (
-                <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-950">
-                  Verify your email to enter contests. After you confirm your email, come back here and continue to {returnStep.shortLabel.toLowerCase()}.
-                </div>
+                <Notice
+                  variant="warning"
+                  icon={ShieldCheck}
+                  title="Verify your email to enter contests"
+                  description={`After you confirm your email, come back here and continue to ${returnStep.shortLabel.toLowerCase()}.`}
+                  badge="Pending"
+                />
               ) : null}
               {identity.isEmailVerified && next !== defaultReturnPath ? (
                 <Button asChild className="w-full">

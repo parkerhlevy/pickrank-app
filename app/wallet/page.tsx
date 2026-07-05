@@ -1,7 +1,8 @@
 import Link from 'next/link';
-import { CreditCard, Info, WalletCards } from 'lucide-react';
+import { CreditCard, Info, ShieldCheck, WalletCards } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Notice } from '@/components/ui/notice';
 
 export default function WalletPage() {
   return (
@@ -12,13 +13,17 @@ export default function WalletPage() {
             <p className="eyebrow">Wallet</p>
             <h1 className="text-3xl font-black leading-tight">Cash Balance & Site Credit</h1>
           </div>
-          <Link href="/how-it-works" className="text-sm font-bold text-primary">
+          <span className="status-pill shrink-0">Placeholder-safe</span>
+        </div>
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-muted-foreground">
+            Placeholder balance cards for the future wallet system. Deposits, withdrawals, and ledger history are not
+            live in the current product.
+          </p>
+          <Link href="/how-it-works" className="inline-link shrink-0">
             How It Works
           </Link>
         </div>
-        <p className="text-muted-foreground">
-          Placeholder balance cards for the future wallet system. Deposits, withdrawals, and ledger history are not live in the current product.
-        </p>
       </section>
 
       <Card className="section-card overflow-hidden">
@@ -50,9 +55,20 @@ export default function WalletPage() {
             <CardTitle>Wallet Status</CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="space-y-3 text-sm text-muted-foreground">
-          <p>Payment providers, external deposits, cash withdrawals, and wallet ledger history are not live yet.</p>
-          <p>Site Credit cannot be withdrawn. Public real-money launch still requires legal, provider, and compliance review.</p>
+        <CardContent className="space-y-3">
+          <Notice
+            variant="muted"
+            icon={Info}
+            title="Wallet actions are not live yet"
+            description="Payment providers, external deposits, cash withdrawals, and wallet ledger history are not live in the current product."
+          />
+          <Notice
+            variant="warning"
+            icon={ShieldCheck}
+            title="Compliance and provider review still required"
+            description="Site Credit cannot be withdrawn. Public real-money launch still requires legal, provider, and compliance review."
+            badge="Not live"
+          />
         </CardContent>
       </Card>
 
@@ -65,9 +81,13 @@ export default function WalletPage() {
           <CardDescription>Future entries review Cash Balance and Site Credit before any remaining amount is handled externally.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="empty-state-card text-sm text-muted-foreground">
-            Payment review stays placeholder-only here until provider-backed entry funding is live.
-          </div>
+          <Notice
+            variant="muted"
+            icon={CreditCard}
+            title="Payment review stays placeholder-only"
+            description="Cash Balance and Site Credit labels are in place here now, but provider-backed entry funding is not live yet."
+            badge="Preview"
+          />
           <Button className="w-full" disabled>
             Wallet Actions Not Available
           </Button>

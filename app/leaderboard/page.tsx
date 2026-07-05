@@ -19,14 +19,28 @@ export default async function LeaderboardPage({
   if (!contestId) {
     return (
       <div className="space-y-6">
-      <section className="screen-header space-y-2">
-        <p className="eyebrow">Leaderboard</p>
-        <h1 className="text-3xl font-black leading-tight">Final Leaderboard</h1>
-        <p className="text-muted-foreground">No public final contests are ready yet. Leaderboards appear only after saved final scoring is confirmed.</p>
-      </section>
-        <Button asChild className="w-full">
-          <Link href="/contests">View Open Contests</Link>
-        </Button>
+        <section className="screen-header space-y-2">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="eyebrow">Leaderboard</p>
+              <h1 className="text-3xl font-black leading-tight">Final Leaderboard</h1>
+            </div>
+            <span className="status-pill shrink-0 status-pill-muted">Final only</span>
+          </div>
+          <p className="text-muted-foreground">
+            No public final contests are ready yet. Leaderboards appear only after saved final scoring is confirmed.
+          </p>
+        </section>
+        <Card className="section-card">
+          <CardContent className="space-y-4 pt-6">
+            <div className="empty-state-card text-sm text-muted-foreground">
+              Final contests and saved standings will appear here once scoring is confirmed.
+            </div>
+            <Button asChild className="w-full">
+              <Link href="/contests">View Open Contests</Link>
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }

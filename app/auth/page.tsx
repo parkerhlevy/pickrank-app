@@ -28,8 +28,13 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
   return (
     <div className="space-y-6">
       <section className="screen-header space-y-2">
-        <p className="eyebrow">Auth</p>
-        <h1 className="text-3xl font-black leading-tight">Account Access</h1>
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-2">
+            <p className="eyebrow">Auth</p>
+            <h1 className="text-3xl font-black leading-tight">Account Access</h1>
+          </div>
+          <span className="status-pill shrink-0">{returnStep.isContestFlow ? 'Contest flow' : 'Account setup'}</span>
+        </div>
         <p className="text-muted-foreground">
           {returnStep.isContestFlow
             ? `You need to be signed in to enter any contest. Sign in now, finish one quick username step if needed, and then resume ${returnStep.shortLabel.toLowerCase()}.`
@@ -38,19 +43,20 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
       </section>
 
       {next !== defaultReturnPath ? (
-        <Card>
+        <Card className="section-card">
           <CardHeader>
             <CardTitle>Before You Enter</CardTitle>
             <CardDescription>{returnStep.detail}</CardDescription>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
-            Sign in first, then PickRank will send you back to {returnStep.shortLabel.toLowerCase()}. If this is a new account, you may also need to choose a username before you continue.
+            Sign in first, then PickRank will send you back to {returnStep.shortLabel.toLowerCase()}. If this is a new
+            account, you may also need to choose a username before you continue.
           </CardContent>
         </Card>
       ) : null}
 
-      <Card className="overflow-hidden">
-        <CardHeader className="bg-slate-950 text-white">
+      <Card className="section-card overflow-hidden">
+        <CardHeader className="section-card-header">
           <div className="flex items-center gap-2">
             <Globe className="h-5 w-5 text-blue-300" aria-hidden="true" />
             <CardTitle>Google Sign In</CardTitle>
@@ -97,14 +103,14 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
                 </Button>
               </form>
               {next !== defaultReturnPath ? (
-              <div className="rounded-lg border bg-slate-50 px-3 py-3 text-sm text-muted-foreground">
-                <p className="font-medium text-foreground">After sign-in</p>
-                <p>You&apos;ll go to {returnStep.detail}.</p>
-              </div>
+                <div className="soft-panel text-sm text-muted-foreground">
+                  <p className="font-medium text-foreground">After sign-in</p>
+                  <p>You&apos;ll go to {returnStep.detail}.</p>
+                </div>
               ) : null}
             </>
           ) : (
-            <div className="space-y-3 rounded-lg border bg-slate-50 p-4 text-sm text-muted-foreground">
+            <div className="soft-panel space-y-3 text-sm text-muted-foreground">
               <p className="font-medium text-foreground">Missing environment values</p>
               <ul className="space-y-2">
                 {missingKeys.map((key) => (
@@ -120,8 +126,8 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
         </CardContent>
       </Card>
 
-      <Card className="overflow-hidden">
-        <CardHeader className="bg-white">
+      <Card className="section-card overflow-hidden">
+        <CardHeader>
           <div className="flex items-center gap-2">
             <Mail className="h-5 w-5 text-primary" aria-hidden="true" />
             <CardTitle>Email Sign In</CardTitle>
@@ -139,27 +145,36 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
               </p>
             </>
           ) : (
-            <div className="rounded-lg border bg-slate-50 px-3 py-3 text-sm text-muted-foreground">
-              Email sign-in will activate automatically once Supabase environment values are present.
-            </div>
+            <Notice
+              variant="muted"
+              icon={Mail}
+              title="Email sign-in not ready"
+              description="Email sign-in will activate automatically once Supabase environment values are present."
+              badge="Setup required"
+            />
           )}
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="section-card">
         <CardHeader>
           <div className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-primary" aria-hidden="true" />
-          <CardTitle>Before Paid Entry</CardTitle>
+            <CardTitle>Before Paid Entry</CardTitle>
           </div>
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
-          <p>PickRank uses account sign-in, username setup, and entry review so each contest step feels clear and tied to one account.</p>
-          <div className="rounded-lg border bg-white px-3 py-3">New users complete a username step after sign-in before returning to the saved contest step.</div>
+          <p>
+            PickRank uses account sign-in, username setup, and entry review so each contest step feels clear and tied
+            to one account.
+          </p>
+          <div className="soft-panel text-foreground">
+            New users complete a username step after sign-in before returning to the saved contest step.
+          </div>
           {next !== defaultReturnPath ? (
-            <div className="flex items-center gap-2 rounded-lg border bg-slate-50 px-3 py-3 text-foreground">
-              <ArrowRight className="h-4 w-4 text-primary" aria-hidden="true" />
+            <div className="detail-row bg-white text-foreground">
               <span>{returnStep.actionLabel}</span>
+              <ArrowRight className="h-4 w-4 text-primary" aria-hidden="true" />
             </div>
           ) : null}
           <Button asChild variant="secondary" className="w-full">
