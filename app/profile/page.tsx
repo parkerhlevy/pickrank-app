@@ -56,7 +56,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
       </section>
 
       {next !== defaultReturnPath ? (
-        <Card>
+        <Card className="section-card">
           <CardHeader>
             <CardTitle>One Quick Step Left</CardTitle>
             <CardDescription>
@@ -64,15 +64,15 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2 text-sm text-muted-foreground">
-            <div className="flex items-center justify-between rounded-lg border bg-white px-3 py-2">
+            <div className="detail-row bg-white">
               <span>Signed in</span>
               <span className="text-emerald-700">Complete</span>
             </div>
-            <div className="flex items-center justify-between rounded-lg border bg-slate-50 px-3 py-2">
+            <div className="detail-row">
               <span>Choose public username</span>
               <span className="font-medium text-foreground">Current</span>
             </div>
-            <div className="flex items-center justify-between rounded-lg border bg-slate-50 px-3 py-2">
+            <div className="detail-row">
               <span>Resume saved contest step</span>
               <span>{returnStep.shortLabel}</span>
             </div>
@@ -80,8 +80,8 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         </Card>
       ) : null}
 
-      <Card className="overflow-hidden">
-        <CardHeader className="bg-slate-950 text-white">
+      <Card className="section-card overflow-hidden">
+        <CardHeader className="section-card-header">
             <div className="flex items-center gap-2">
               <UserCircle className="h-5 w-5 text-blue-300" aria-hidden="true" />
               <CardTitle>{user ? 'Signed-In Session' : 'Signed-Out State'}</CardTitle>
@@ -135,13 +135,13 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
 
       {user ? (
         identity.isProfileComplete ? (
-          <Card>
+          <Card className="section-card">
             <CardHeader>
               <CardTitle>Profile Identity</CardTitle>
               <CardDescription>Your current contest-entry flow can use this public username.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
-              <div className="rounded-lg border bg-slate-50 px-3 py-3">
+              <div className="section-card-muted px-3 py-3">
                 <p className="text-muted-foreground">Username</p>
                 <p className="text-lg font-bold">{identity.displayName || identity.username}</p>
               </div>
@@ -158,7 +158,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
             </CardContent>
           </Card>
         ) : (
-          <Card>
+          <Card className="section-card">
             <CardHeader>
               <CardTitle>Complete Your Profile</CardTitle>
               <CardDescription>
@@ -181,7 +181,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                   Use 3-20 lowercase letters, numbers, or underscores. This is the public name shown for your account.
                 </p>
                 {next !== defaultReturnPath ? (
-                  <div className="rounded-lg border bg-slate-50 px-3 py-3 text-sm text-muted-foreground">
+                  <div className="section-card-muted px-3 py-3 text-sm text-muted-foreground">
                     After you save, PickRank will send you straight to {returnStep.detail}.
                   </div>
                 ) : null}
@@ -195,23 +195,25 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         )
       ) : null}
 
-      <Card>
+      <Card className="section-card">
         <CardHeader>
           <div className="flex items-center gap-2">
             <WalletCards className="h-5 w-5 text-primary" aria-hidden="true" />
             <CardTitle>Wallet & Balances</CardTitle>
           </div>
-          <CardDescription>Wallet balances will appear here for signed-in accounts as contest funding and payouts expand.</CardDescription>
+          <CardDescription>Wallet balances appear here for signed-in accounts as contest funding and payout support expands.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div className="metric-tile">
               <p className="text-sm text-muted-foreground">Cash Balance</p>
               <p className="text-xl font-bold">$0.00</p>
+              <p className="mt-1 text-xs text-muted-foreground">Withdrawable winnings after provider review.</p>
             </div>
             <div className="metric-tile">
               <p className="text-sm text-muted-foreground">Site Credit</p>
               <p className="text-xl font-bold">$0.00</p>
+              <p className="mt-1 text-xs text-muted-foreground">Non-withdrawable refunds or promotional credit.</p>
             </div>
           </div>
           <Button asChild variant="secondary" className="w-full">
@@ -220,21 +222,21 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="section-card">
         <CardHeader>
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-primary" aria-hidden="true" />
-            <CardTitle>Account Readiness</CardTitle>
+            <CardTitle>Entry Readiness</CardTitle>
           </div>
-          <CardDescription>These checks help PickRank confirm when an account is ready for contest entry and future withdrawals.</CardDescription>
+          <CardDescription>These checks help PickRank confirm when an account is ready for contest entry and later wallet actions.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
-          <div className="flex items-center justify-between rounded-lg border bg-slate-50 px-3 py-2">
+          <div className="detail-row">
             <span>Email verification</span>
             <span className="text-muted-foreground">{identity.isEmailVerified ? 'Verified' : 'Pending'}</span>
           </div>
-          {['Age and location review', 'Responsible play controls'].map((label) => (
-            <div key={label} className="flex items-center justify-between rounded-lg border bg-slate-50 px-3 py-2">
+          {['Age and location review', 'Responsible play controls', 'Withdrawal verification'].map((label) => (
+            <div key={label} className="detail-row">
               <span>{label}</span>
               <span className="text-muted-foreground">Not started</span>
             </div>

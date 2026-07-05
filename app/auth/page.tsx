@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import { ArrowRight, Globe, Mail, Shield } from 'lucide-react';
+import { AlertTriangle, ArrowRight, CheckCircle2, Globe, Info, Mail, Shield } from 'lucide-react';
 import { EmailSignInForm } from '@/components/auth/email-sign-in-form';
+import { Notice } from '@/components/ui/notice';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { defaultReturnPath, getReturnStepCopy, normalizeReturnPath } from '@/lib/auth-profile';
@@ -62,19 +63,30 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
         </CardHeader>
         <CardContent className="space-y-3 pt-5">
           {status === 'check-email' ? (
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-3 text-sm text-emerald-900">
-              Check your email for the PickRank sign-in link. After sign-in, you&apos;ll resume {returnStep.shortLabel.toLowerCase()}.
-            </div>
+            <Notice
+              variant="success"
+              icon={CheckCircle2}
+              title="Check your email"
+              description={`Check your email for the PickRank sign-in link. After sign-in, you'll resume ${returnStep.shortLabel.toLowerCase()}.`}
+              badge="Sign-in link sent"
+            />
           ) : null}
           {status === 'signed-out' ? (
-            <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-900">
-              You have been signed out.
-            </div>
+            <Notice
+              variant="muted"
+              icon={Info}
+              title="Signed out"
+              description="You have been signed out."
+            />
           ) : null}
           {status === 'error' ? (
-            <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-950">
-              {message || 'Sign-in is temporarily unavailable here. Add the required environment values and try again.'}
-            </div>
+            <Notice
+              variant="error"
+              icon={AlertTriangle}
+              title="Sign-in unavailable"
+              description={message || 'Sign-in is temporarily unavailable here. Add the required environment values and try again.'}
+              badge="Needs attention"
+            />
           ) : null}
           {authConfigured ? (
             <>
@@ -85,10 +97,10 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
                 </Button>
               </form>
               {next !== defaultReturnPath ? (
-                <div className="rounded-lg border bg-slate-50 px-3 py-3 text-sm text-muted-foreground">
-                  <p className="font-medium text-foreground">After sign-in</p>
-                  <p>You&apos;ll go to {returnStep.detail}.</p>
-                </div>
+              <div className="rounded-lg border bg-slate-50 px-3 py-3 text-sm text-muted-foreground">
+                <p className="font-medium text-foreground">After sign-in</p>
+                <p>You&apos;ll go to {returnStep.detail}.</p>
+              </div>
               ) : null}
             </>
           ) : (

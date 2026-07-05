@@ -56,17 +56,19 @@ export default async function ContestDetailPage({
             <h1 className="text-3xl font-black leading-tight">{contest.title}</h1>
             <p className="text-muted-foreground">{contest.task}</p>
           </div>
-          <Link href="/how-it-works" className="shrink-0 text-sm font-bold text-primary">
+          <Link href="/how-it-works" className="inline-link shrink-0">
             How It Works
           </Link>
         </div>
       </div>
 
-      <Card className="overflow-hidden">
-        <CardHeader className="bg-slate-950 py-4 text-white">
+      <Card className="section-card overflow-hidden">
+        <CardHeader className="section-card-header py-4">
           <CardTitle className="text-base">Contest Details</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-2 pt-4 text-sm">
+          <DetailStat icon={Users} label="Slate" value={contest.slate} />
+          <DetailStat icon={Clock} label="Stat Category" value={contest.statCategory} />
           <DetailStat icon={DollarSign} label="Prize Pool" value={contest.prizePool} />
           <DetailStat icon={Users} label="Entries" value={contest.entries} />
           <DetailStat icon={DollarSign} label="Entry Fee" value={contest.entryFee} />
@@ -77,16 +79,19 @@ export default async function ContestDetailPage({
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="section-card">
         <CardHeader>
           <div className="flex items-start justify-between gap-3">
             <div>
-              <CardTitle>Before You Enter</CardTitle>
-              <CardDescription>This contest follows a simple path: enter, set your rankings before lock, and compete for the top payouts.</CardDescription>
+              <CardTitle>Contest Flow</CardTitle>
+              <CardDescription>
+                Review the contest, confirm your entry, Build Your Lineup before lock, then return for final results
+                after scoring is saved.
+              </CardDescription>
             </div>
             <span className="status-pill shrink-0">
               <Lock className="mr-1 h-3 w-3" aria-hidden="true" />
-              Entry Required
+              Single Entry
             </span>
           </div>
         </CardHeader>
@@ -94,19 +99,20 @@ export default async function ContestDetailPage({
           <div className="space-y-2">
             {[
               'Review your entry fee before you confirm.',
-              'Pick and rank 10 quarterbacks from the 15-player slate.',
+              `Pick and rank your top 10 quarterbacks from the ${contest.slateSize}-player slate.`,
               `Save your lineup before ${contest.lockTime.replace('Locks ', '')}.`,
             ].map((step) => (
-              <div key={step} className="flex items-center justify-between rounded-lg border bg-white px-3 py-2 text-sm">
+              <div key={step} className="step-row text-sm">
                 <span className="font-medium">{step}</span>
                 <ChevronRight className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
               </div>
             ))}
           </div>
-          <div className="rounded-lg border bg-slate-50 px-3 py-3 text-sm">
+          <div className="section-card-muted px-3 py-3 text-sm">
             <p className="font-medium">Scoring at a glance</p>
             <p className="mt-1 text-muted-foreground">
-              Rank the quarterbacks as close to their real finish as possible. Each pick adds its rank miss to your total, so lower score wins.
+              Rank each quarterback as close to the final {contest.statCategory.toLowerCase()} order as possible. Each
+              pick adds its rank miss to your total, so lower score wins.
             </p>
           </div>
           <Button asChild variant="secondary" className="w-full">
@@ -115,12 +121,12 @@ export default async function ContestDetailPage({
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="section-card">
         <CardHeader>
           <CardTitle>Projected Payouts</CardTitle>
           <CardDescription>
-            Current payout examples based on the prize pool shown today. Final settled results and payout processing will
-            appear here after contests close.
+            Current projected top-three payouts based on the prize pool shown today. Final settled results and payout
+            processing appear only after the contest closes and saved scoring is confirmed.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
@@ -134,19 +140,19 @@ export default async function ContestDetailPage({
       </Card>
 
       {!viewerIdentity.isAuthenticated ? (
-        <Card>
+        <Card className="section-card">
           <CardHeader>
             <CardTitle>What You Can Do Now</CardTitle>
-            <CardDescription>Browse the contest details today, then sign in when you&apos;re ready to continue.</CardDescription>
+            <CardDescription>Browse the contest details now, then sign in when you&apos;re ready to continue.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground">
-            <p>You can review the format, lock time, and payout structure on this page right now.</p>
+            <p>You can review the format, lock time, and projected payouts on this page right now.</p>
             <p>After you sign in, PickRank will take you into Payment Review and keep your next step pointed at this contest.</p>
           </CardContent>
         </Card>
       ) : null}
 
-      <div className="rounded-lg border bg-white p-3 shadow-lg">
+      <div className="action-panel">
         {primaryAction.href ? (
           <Button asChild className="w-full">
             <Link href={primaryAction.href}>{primaryAction.label}</Link>

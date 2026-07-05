@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Notice } from '@/components/ui/notice';
 import {
   type LineupState,
   addLineupPlayer,
@@ -353,7 +354,7 @@ export function LineupBuilderClient({
 
   return (
     <>
-      <div className="space-y-5 pb-24">
+      <div className="space-y-6 pb-28">
         <Button asChild variant="ghost" size="sm" className="-ml-3 justify-start">
           <Link href={`/contests/${contest.id}`}>
             <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
@@ -361,68 +362,89 @@ export function LineupBuilderClient({
           </Link>
         </Button>
 
-        <div className="screen-header space-y-2">
+        <div className="screen-header space-y-3">
           <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="eyebrow">Lineup Builder</p>
+            <div className="space-y-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="eyebrow">Lineup Builder</p>
+                <span className="status-pill status-pill-muted shrink-0">Single Entry</span>
+              </div>
               <h1 className="text-3xl font-black leading-tight">Build Your Lineup</h1>
             </div>
-            <span className="status-pill">{contest.entryFee} Entry</span>
+            <Link href="/how-it-works" className="inline-link shrink-0">
+              How It Works
+            </Link>
           </div>
           <p className="text-muted-foreground">
-            Step 4 is where lineup editing actually happens. Choose 10 quarterbacks from the full slate, rank them, and save one lineup for your single contest entry until lock.
+            Choose your top 10 quarterbacks from the full slate, rank them, and save one lineup for this single contest entry before lock.
           </p>
         </div>
 
         {showSavedBanner ? (
-          <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-950">
-            <div className="flex items-start gap-2">
-              <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-700" aria-hidden="true" />
-              <div>
-                <p className="font-semibold">Lineup Saved</p>
-                <p className="text-emerald-800">Lineup saved. You can edit your rankings until lock.</p>
-              </div>
-            </div>
-          </div>
+          <Notice
+            variant="success"
+            icon={CheckCircle2}
+            title="Lineup Saved"
+            description="Lineup saved. You can edit your rankings until lock."
+            badge="Saved"
+          />
         ) : null}
 
         {saveError ? (
-          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-950">
-            <div className="flex items-start gap-2">
-              <AlertTriangle className="mt-0.5 h-4 w-4 text-red-700" aria-hidden="true" />
-              <div>
-                <p className="font-semibold">Lineup Not Saved</p>
-                <p className="text-red-800">{saveError}</p>
-              </div>
-            </div>
-          </div>
+          <Notice
+            variant="error"
+            icon={AlertTriangle}
+            title="Lineup Not Saved"
+            description={saveError}
+            badge="Action needed"
+          />
         ) : null}
 
         {!isEditable ? (
-          <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
-            <div className="flex items-start gap-2">
-              <Clock className="mt-0.5 h-4 w-4 text-amber-700" aria-hidden="true" />
-              <div>
-                <p className="font-semibold">Lineup Locked</p>
-                <p className="text-amber-800">This contest is no longer open, so your saved lineup is now read-only.</p>
-              </div>
-            </div>
-          </div>
+          <Notice
+            variant="warning"
+            icon={Clock}
+            title="Lineup Locked"
+            description="This contest is no longer open, so your saved lineup is now read-only."
+            badge="Read only"
+          />
         ) : null}
 
-        <Card>
-          <CardHeader>
+        <Card className="section-card overflow-hidden">
+          <CardHeader className="section-card-header">
+            <div className="flex items-start justify-between gap-3">
+              <div className="space-y-1">
+                <CardTitle>{contest.title}</CardTitle>
+                <CardDescription className="text-slate-300">
+                  {isEditable
+                    ? 'This saved entry is ready for lineup edits until contest lock.'
+                    : 'This saved entry is now locked and available for read-only review.'}
+                </CardDescription>
+              </div>
+              <span className="status-pill shrink-0 bg-white/10 border-white/15 text-white">{contest.status}</span>
+            </div>
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 gap-3 pt-5 text-sm">
+            <ContextTile label="Lock Time" value={contest.lockTime.replace('Locks ', '')} />
+            <ContextTile label="Entry Fee" value={contest.entryFee} />
+            <ContextTile label="Lineup State" value={isEditable ? 'Editing open' : 'Locked for review'} />
+            <ContextTile label="Saved Entry" value={lineupState.source === 'user_saved' ? 'User saved' : 'Assigned order'} />
+          </CardContent>
+        </Card>
+
+        <Card className="section-card overflow-hidden">
+          <CardHeader className="section-card-header">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <CardTitle>{stateCopy.title}</CardTitle>
-                <CardDescription>{stateCopy.description}</CardDescription>
+                <CardTitle>Entry Progress</CardTitle>
+                <CardDescription className="text-slate-300">{stateCopy.description}</CardDescription>
               </div>
-              <span className="status-pill shrink-0">{stateCopy.badge}</span>
+              <span className="status-pill status-pill-muted shrink-0 bg-white/10 text-white border-white/15">{stateCopy.badge}</span>
             </div>
           </CardHeader>
           <CardContent className="space-y-2">
             {flowSteps.map((step) => (
-              <div key={step.key} className="rounded-lg border bg-white px-3 py-3 text-sm">
+              <div key={step.key} className="detail-row items-start text-sm">
                 <div className="flex items-center justify-between gap-3">
                   <span className="font-medium">
                     Step {step.stepNumber}: {step.label}
@@ -445,26 +467,34 @@ export function LineupBuilderClient({
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="section-card">
           <CardHeader>
-            <CardTitle>{contest.title}</CardTitle>
-            <CardDescription>
-              {isEditable
-                ? 'Choose and rank your top 10 quarterbacks by passing yards, then use Save Lineup before contest lock.'
-                : 'This is your saved lineup for the current entry. Rankings are read-only because the contest is locked.'}
-            </CardDescription>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <CardTitle>{isEditable ? 'Your Ranked 10' : 'Locked Lineup'}</CardTitle>
+                <CardDescription>
+                  {isEditable
+                    ? 'Choose and rank your top 10 quarterbacks by passing yards, then use Save Lineup before contest lock.'
+                    : 'This is your saved lineup for the current entry. Rankings are read-only because the contest is locked.'}
+                </CardDescription>
+              </div>
+              <span className="status-pill shrink-0">
+                {isEditable ? `${lineupState.selectedOrder.length}/10 Ranked` : 'Read Only'}
+              </span>
+            </div>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-950">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-red-600" aria-hidden="true" />
-                <span className="font-bold uppercase tracking-[0.02em] text-red-700">Lineups Lock</span>
-              </div>
-              <div className="mt-1 flex items-center gap-2">
-                <Clock className="h-4 w-4 text-red-600" aria-hidden="true" />
-                <span className="text-base font-black">{contest.lockTime.replace('Locks ', '')}</span>
-              </div>
-            </div>
+            <Notice
+              variant={isEditable ? 'warning' : 'muted'}
+              icon={isEditable ? AlertTriangle : Clock}
+              title={isEditable ? 'Lineups Lock' : 'Locked lineup'}
+              description={
+                isEditable
+                  ? `Save all changes before ${contest.lockTime.replace('Locks ', '')}.`
+                  : `This lineup is locked and available for review after ${contest.lockTime.replace('Locks ', '')}.`
+              }
+              badge={contest.lockTime.replace('Locks ', '')}
+            />
             <div className="soft-panel text-sm">
               <p className="font-medium">{isEditable ? 'Before you save' : 'Saved lineup status'}</p>
               <p className="text-muted-foreground">
@@ -473,17 +503,19 @@ export function LineupBuilderClient({
                   : 'This lineup reflects the saved order on your entry when the contest locked.'}
               </p>
             </div>
-            <div className="rounded-lg border bg-slate-50 px-3 py-3 text-sm">
+            <div className="section-card-muted px-3 py-3 text-sm">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="font-semibold">Your Ranked 10</p>
+                  <p className="font-semibold">{isEditable ? 'Lineup Progress' : 'Saved Lineup Status'}</p>
                   <p className="text-muted-foreground">
-                    {needsMoreSelections
+                    {isEditable && needsMoreSelections
                       ? `${10 - lineupState.selectedOrder.length} more quarterback${10 - lineupState.selectedOrder.length === 1 ? '' : 's'} needed before you can save.`
-                      : 'All 10 lineup spots are filled and ready to rank.'}
+                      : isEditable
+                        ? 'All 10 lineup spots are filled and ready to rank.'
+                        : 'All 10 saved lineup spots are locked in for this entry.'}
                   </p>
                 </div>
-                <span className="status-pill shrink-0">{lineupState.selectedOrder.length}/10 Selected</span>
+                <span className="status-pill shrink-0">{lineupState.selectedOrder.length}/10 Ranked</span>
               </div>
             </div>
             <div className="space-y-2">
@@ -491,7 +523,7 @@ export function LineupBuilderClient({
                 <div
                   key={name}
                   data-lineup-player={name}
-                  className={`flex items-center justify-between rounded-lg border bg-white px-3 py-3 text-sm shadow-sm transition ${
+                  className={`section-card flex items-center justify-between px-3 py-3 text-sm transition ${
                     draggingPlayer === name ? 'border-primary bg-blue-50 shadow-md' : ''
                   }`}
                 >
@@ -500,11 +532,11 @@ export function LineupBuilderClient({
                       {index + 1}. {name}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {draggingPlayer === name
-                        ? 'Move into place, then release to drop'
-                        : lineupState.savedSelectedOrder[index] === name
-                          ? 'Saved position'
-                          : 'Unsaved position change'}
+                        {draggingPlayer === name
+                          ? 'Move into place, then release to drop'
+                          : lineupState.savedSelectedOrder[index] === name
+                          ? 'Saved rank'
+                          : 'Unsaved rank change'}
                     </p>
                   </div>
                   <div className="ml-3 flex shrink-0 items-center gap-2">
@@ -543,40 +575,46 @@ export function LineupBuilderClient({
                   <p className="font-semibold">Available Quarterbacks</p>
                   <p className="text-xs text-muted-foreground">Use the full 15-player slate to fill any open lineup spots.</p>
                 </div>
-                <span className="text-xs text-muted-foreground">{lineupState.availablePlayers.length} Remaining</span>
+                <span className="text-xs text-muted-foreground">{lineupState.availablePlayers.length} Left in Slate</span>
               </div>
-              <div className="space-y-2">
-                {lineupState.availablePlayers.map((name) => (
-                  <div key={name} className="flex items-center justify-between rounded-lg border bg-slate-50 px-3 py-2 text-sm">
-                    <div>
-                      <p className="font-medium">{name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {isEditable
-                          ? needsMoreSelections
-                            ? 'Available to add to your ranked 10.'
-                            : 'Remove someone from your ranked 10 before adding another.'
-                          : 'Not included in the saved lineup.'}
-                      </p>
+              {lineupState.availablePlayers.length > 0 ? (
+                <div className="space-y-2">
+                  {lineupState.availablePlayers.map((name) => (
+                    <div key={name} className="detail-row text-sm">
+                      <div>
+                        <p className="font-medium">{name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {isEditable
+                            ? needsMoreSelections
+                              ? 'Available to add to your ranked 10.'
+                              : 'Remove someone from your ranked 10 before adding another.'
+                            : 'Not included in the saved lineup.'}
+                        </p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        className="gap-1"
+                        onClick={() => handleAddPlayer(name)}
+                        disabled={!isEditable || lineupState.selectedOrder.length >= 10}
+                      >
+                        <Plus className="h-4 w-4" aria-hidden="true" />
+                        Add
+                      </Button>
                     </div>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="sm"
-                      className="gap-1"
-                      onClick={() => handleAddPlayer(name)}
-                      disabled={!isEditable || lineupState.selectedOrder.length >= 10}
-                    >
-                      <Plus className="h-4 w-4" aria-hidden="true" />
-                      Add
-                    </Button>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="empty-state-card text-sm text-muted-foreground">
+                  All 10 lineup spots are filled. Reorder your saved lineup above or remove someone to open a spot.
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="section-card">
           <CardHeader>
             <CardTitle>Lineup Status</CardTitle>
             <CardDescription>
@@ -611,7 +649,7 @@ export function LineupBuilderClient({
           </CardContent>
         </Card>
 
-        <div className="sticky bottom-20 rounded-lg border bg-white p-3 shadow-lg">
+        <div className="action-panel sticky bottom-20">
           <Button
             className="w-full"
             onClick={handleSaveLineup}
@@ -658,5 +696,14 @@ export function LineupBuilderClient({
         </div>
       ) : null}
     </>
+  );
+}
+
+function ContextTile({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="metric-tile">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="mt-1 text-sm font-semibold">{value}</p>
+    </div>
   );
 }

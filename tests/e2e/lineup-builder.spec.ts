@@ -153,7 +153,9 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
     await page.goto('/contests/week-1-qb-passing-yards/lineup');
 
     await expect(page.locator('h1').filter({ hasText: 'Build Your Lineup' })).toBeVisible();
-    await expect(page.getByText('10/10 Selected')).toBeVisible();
+    const rankedLineupCard = page.locator('.section-card').filter({ has: page.getByText('Your Ranked 10') });
+
+    await expect(rankedLineupCard.locator('.status-pill').first()).toHaveText('10/10 Ranked');
     await expect(page.getByRole('button', { name: 'Save Lineup' })).toBeDisabled();
     await expect(page.locator('[data-lineup-player]').first()).toContainText('1. Josh Allen');
     await expect(page.getByText(/Add quarterbacks from the available slate/i)).toBeVisible();
@@ -210,8 +212,10 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
 
     await page.goto('/contests/week-1-qb-passing-yards/lineup');
     await expect(page.locator('[data-lineup-player]')).toHaveCount(10);
-    await expect(page.getByText('10/10 Selected')).toBeVisible();
-    await expect(page.getByText('5 Remaining')).toBeVisible();
+    const rankedLineupCard = page.locator('.section-card').filter({ has: page.getByText('Your Ranked 10') });
+
+    await expect(rankedLineupCard.locator('.status-pill').first()).toHaveText('10/10 Ranked');
+    await expect(page.getByText('5 Left in Slate')).toBeVisible();
     await expect(page.getByText('C.J. Stroud')).toBeVisible();
     await expect(page.getByText('Patrick Mahomes')).toBeVisible();
   });

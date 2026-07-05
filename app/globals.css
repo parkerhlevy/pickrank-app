@@ -33,7 +33,7 @@ body {
   border: 1px solid hsl(222 47% 11% / 0.1);
   border-radius: var(--radius);
   background: hsl(0 0% 100%);
-  padding: 1rem;
+  padding: 1.125rem;
   box-shadow: 0 1px 2px hsl(222 47% 11% / 0.06);
 }
 
@@ -60,6 +60,7 @@ body {
 .status-pill {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   border: 1px solid hsl(var(--primary) / 0.15);
   border-radius: 9999px;
   background: hsl(var(--primary) / 0.1);
@@ -68,6 +69,12 @@ body {
   font-weight: 800;
   line-height: 1rem;
   padding: 0.25rem 0.625rem;
+}
+
+.status-pill-muted {
+  border-color: hsl(214 22% 83%);
+  background: hsl(214 35% 96%);
+  color: hsl(220 18% 35%);
 }
 
 .metric-tile {
@@ -82,4 +89,148 @@ body {
   border-radius: var(--radius);
   background: hsl(210 40% 98%);
   padding: 1rem;
+}
+
+.section-card {
+  border: 1px solid hsl(214 32% 91%);
+  border-radius: calc(var(--radius) + 0.125rem);
+  background: hsl(0 0% 100%);
+  box-shadow: 0 1px 2px hsl(222 47% 11% / 0.04);
+}
+
+.section-card-muted {
+  border: 1px solid hsl(214 32% 91%);
+  border-radius: calc(var(--radius) + 0.125rem);
+  background: hsl(210 40% 98%);
+}
+
+.section-card-header {
+  border-bottom: 1px solid hsl(214 32% 91%);
+  background: linear-gradient(180deg, hsl(218 33% 15%) 0%, hsl(219 28% 18%) 100%);
+  color: hsl(0 0% 100%);
+}
+
+.section-card-header p,
+.section-card-header span {
+  color: hsl(214 32% 82%);
+}
+
+.notice-panel {
+  border: 1px solid hsl(var(--notice-border, 214 32% 91%));
+  border-radius: calc(var(--radius) + 0.125rem);
+  background: hsl(var(--notice-background, 210 40% 98%));
+  color: hsl(var(--notice-foreground, var(--foreground)));
+  padding: 0.9375rem 1rem;
+}
+
+.notice-panel-success {
+  --notice-background: 151 55% 96%;
+  --notice-border: 151 34% 80%;
+  --notice-foreground: 152 47% 19%;
+  --notice-accent: 155 63% 33%;
+}
+
+.notice-panel-warning {
+  --notice-background: 39 100% 96%;
+  --notice-border: 37 90% 82%;
+  --notice-foreground: 26 71% 19%;
+  --notice-accent: 30 89% 40%;
+}
+
+.notice-panel-error {
+  --notice-background: 0 100% 97%;
+  --notice-border: 0 72% 84%;
+  --notice-foreground: 0 63% 24%;
+  --notice-accent: 0 72% 45%;
+}
+
+.notice-panel-muted {
+  --notice-background: 210 40% 98%;
+  --notice-border: 214 32% 91%;
+  --notice-foreground: 219 45% 10%;
+  --notice-accent: 220 18% 35%;
+}
+
+.notice-panel-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 9999px;
+  background: hsl(var(--notice-accent) / 0.12);
+  color: hsl(var(--notice-accent));
+  flex-shrink: 0;
+}
+
+.notice-panel-title {
+  color: hsl(var(--notice-foreground));
+  font-size: 0.875rem;
+  font-weight: 800;
+  line-height: 1.25rem;
+}
+
+.notice-panel-description {
+  color: hsl(var(--notice-foreground) / 0.82);
+  font-size: 0.875rem;
+  line-height: 1.35rem;
+}
+
+.notice-panel-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: hsl(var(--notice-accent) / 0.12);
+  color: hsl(var(--notice-accent));
+  font-size: 0.6875rem;
+  font-weight: 800;
+  line-height: 1rem;
+  padding: 0.25rem 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border: 1px solid hsl(214 32% 91%);
+  border-radius: var(--radius);
+  background: hsl(210 40% 98%);
+  padding: 0.75rem;
+}
+
+.step-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border: 1px solid hsl(214 32% 91%);
+  border-radius: var(--radius);
+  background: hsl(0 0% 100%);
+  padding: 0.875rem 0.875rem;
+}
+
+.action-panel {
+  border: 1px solid hsl(214 32% 91%);
+  border-radius: calc(var(--radius) + 0.125rem);
+  background: hsl(0 0% 100%);
+  box-shadow: 0 12px 32px hsl(222 47% 11% / 0.08);
+  padding: 0.875rem;
+}
+
+.inline-link {
+  color: hsl(var(--primary));
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.empty-state-card {
+  border: 1px dashed hsl(214 24% 82%);
+  border-radius: calc(var(--radius) + 0.125rem);
+  background: linear-gradient(180deg, hsl(210 40% 99%) 0%, hsl(210 40% 97%) 100%);
+  padding: 1rem;
+  text-align: center;
 }

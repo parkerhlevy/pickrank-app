@@ -18,70 +18,89 @@ export default async function ContestsPage() {
             <p className="eyebrow">Contests</p>
             <h1 className="text-3xl font-black leading-tight">Open Contests</h1>
           </div>
-          <Link href="/how-it-works" className="text-sm font-bold text-primary">
+          <Link href="/how-it-works" className="inline-link">
             How It Works
           </Link>
         </div>
         <p className="text-muted-foreground">
-          Browse this week&apos;s contest slate now. After you sign in, PickRank preserves your place and sends you into
-          entry and lineup setup for the contest you choose.
+          Browse the current contest slate now. After you sign in, PickRank preserves your place and sends you into
+          entry, payment review, and lineup setup for the contest you choose.
         </p>
       </div>
 
       {featuredContest ? (
-        <Card className="overflow-hidden">
-          <CardHeader className="bg-slate-950 text-white">
+        <Card className="section-card overflow-hidden">
+          <CardHeader className="section-card-header">
             <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="mb-1 text-xs font-bold uppercase text-blue-300">Featured</p>
+              <div className="space-y-1">
+                <p className="text-xs font-bold uppercase text-blue-300">Featured</p>
                 <CardTitle>{featuredContest.title}</CardTitle>
                 <CardDescription className="text-slate-300">{featuredContest.task}</CardDescription>
               </div>
-              <span className="rounded-full border border-blue-300/30 bg-blue-400/15 px-2.5 py-1 text-xs font-bold text-blue-200">
-                {featuredContest.status}
-              </span>
+              <span className="status-pill shrink-0 bg-white/10 text-white border-white/15">{featuredContest.status}</span>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <ContestStats contest={featuredContest} />
             <Button asChild className="w-full">
-              <Link href={`/contests/${featuredContest.id}`}>Enter Contest</Link>
+              <Link href={`/contests/${featuredContest.id}`}>
+                {featuredContest.contestStatus === 'open' ? 'Enter Contest' : 'View Contest'}
+              </Link>
             </Button>
           </CardContent>
         </Card>
       ) : (
-        <Card>
-          <CardContent className="space-y-2 pt-6 text-sm text-muted-foreground">
-            <p className="font-semibold text-foreground">No contests are available right now.</p>
-            <p>An internal contest operator can create, validate, and publish the next contest from admin.</p>
+        <Card className="section-card">
+          <CardContent className="pt-6">
+            <div className="empty-state-card space-y-2 text-sm text-muted-foreground">
+              <p className="font-semibold text-foreground">No contests are available right now.</p>
+              <p>Check back soon for the next published contest.</p>
+            </div>
           </CardContent>
         </Card>
       )}
 
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold">More Open Contests</h2>
-        {supportingContests.map((contest) => (
-          <Card key={contest.id}>
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <CardTitle className="text-base">{contest.title}</CardTitle>
-                  <CardDescription>{formatLockTime(contest.lockTime)}</CardDescription>
+        <div className="screen-header space-y-1">
+          <p className="eyebrow">More to Browse</p>
+          <h2 className="text-xl font-bold">More Open Contests</h2>
+          <p className="text-sm text-muted-foreground">
+            Keep browsing public contest details now. Sign in only when you are ready to continue into payment review
+            and Build Your Lineup.
+          </p>
+        </div>
+        {supportingContests.length > 0 ? (
+          supportingContests.map((contest) => (
+            <Card key={contest.id} className="section-card">
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <CardTitle className="text-base">{contest.title}</CardTitle>
+                    <CardDescription>{formatLockTime(contest.lockTime)}</CardDescription>
+                  </div>
+                  <span className="status-pill">{contest.status}</span>
                 </div>
-                <span className="status-pill">{contest.status}</span>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <ContestStats contest={contest} compact />
+                <Button asChild variant="secondary" className="w-full">
+                  <Link href={`/contests/${contest.id}`} className="gap-2">
+                    View Contest
+                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <Card className="section-card">
+            <CardContent className="pt-6">
+              <div className="empty-state-card text-sm text-muted-foreground">
+                Featured contest details are live now. Additional Open Contests have not been published yet.
               </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <ContestStats contest={contest} compact />
-              <Button asChild variant="secondary" className="w-full">
-                <Link href={`/contests/${contest.id}`} className="gap-2">
-                  View Contest
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </Link>
-              </Button>
             </CardContent>
           </Card>
-        ))}
+        )}
       </section>
     </div>
   );
@@ -96,6 +115,7 @@ function ContestStats({
 }) {
   return (
     <div className={compact ? 'grid grid-cols-2 gap-3 text-sm' : 'grid grid-cols-2 gap-3 text-sm'}>
+      <Stat icon={Clock} label="Slate" value={contest.slate} />
       <Stat icon={DollarSign} label="Prize Pool" value={contest.prizePool} />
       <Stat icon={Users} label="Entries" value={contest.entries} />
       <Stat icon={Clock} label="Lock Time" value={formatLockTime(contest.lockTime)} />

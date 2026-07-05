@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { ArrowLeft, CheckCircle2, Clock, ListChecks } from 'lucide-react';
 import { redirect } from 'next/navigation';
+import { Notice } from '@/components/ui/notice';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getProtectedContestEntryRedirect } from '@/lib/contest-entry-access';
@@ -70,39 +71,38 @@ export default async function EntrySuccessPage({
       <div className="screen-header space-y-2">
         <p className="eyebrow">Entry Success</p>
         <h1 className="text-3xl font-black leading-tight">{contest.title}</h1>
-        <p className="text-muted-foreground">Your entry is confirmed. Head into your lineup now and keep editing until the contest locks.</p>
+        <p className="text-muted-foreground">
+          Your entry is confirmed. Head into Build Your Lineup now and keep editing until the contest locks.
+        </p>
       </div>
 
-      <Card className="overflow-hidden">
-        <CardHeader className="bg-emerald-950 text-white">
-          <CardTitle className="flex items-center gap-2">
-            <CheckCircle2 className="h-5 w-5" aria-hidden="true" />
-            You&apos;re In
-          </CardTitle>
+      <Card className="section-card overflow-hidden">
+        <CardHeader className="border-b border-emerald-900/60 bg-[linear-gradient(180deg,hsl(151_63%_18%)_0%,hsl(160_55%_20%)_100%)] text-white">
+          <CardTitle>You&apos;re In</CardTitle>
           <CardDescription className="text-emerald-200">
             Your contest entry is confirmed and your lineup is ready for your rankings.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 pt-5 text-sm">
-          <div className="flex items-center justify-between gap-3 rounded-lg border border-emerald-100 bg-emerald-50 p-3">
-            <div>
-              <p className="font-semibold">{stateCopy.title}</p>
-              <p className="mt-1 text-muted-foreground">{stateCopy.description}</p>
-            </div>
-            <span className="status-pill shrink-0">{stateCopy.badge}</span>
-          </div>
+          <Notice
+            variant="success"
+            icon={CheckCircle2}
+            title={stateCopy.title}
+            description={stateCopy.description}
+            badge={stateCopy.badge}
+          />
           <div className="flex items-start gap-2">
             <Clock className="mt-0.5 h-4 w-4 text-primary" aria-hidden="true" />
             <p>Set your rankings before {contest.lockTime.replace('Locks ', '')}. You can keep editing until the contest locks.</p>
           </div>
           <div className="flex items-start gap-2">
             <ListChecks className="mt-0.5 h-4 w-4 text-primary" aria-hidden="true" />
-            <p>Your lineup screen is ready with one clear next step: rank your quarterbacks and save your order.</p>
+            <p>Your lineup screen is ready with one clear next step: rank your top 10 quarterbacks and save your order.</p>
           </div>
         </CardContent>
       </Card>
 
-      <div className="rounded-lg border bg-white p-3 shadow-lg">
+      <div className="action-panel">
         <Button asChild className="w-full">
           <Link href={getContestEntryProgressHref(contest.id, 'lineup')}>Continue to Build Your Lineup</Link>
         </Button>

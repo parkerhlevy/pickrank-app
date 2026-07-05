@@ -47,11 +47,11 @@ export default function HomePage() {
                 priority
               />
               <h1 className="max-w-xl text-4xl font-black leading-tight text-white sm:text-5xl">
-                Rank the slate. Climb the standings.
+                Rank the slate. Climb the leaderboard.
               </h1>
               <p className="max-w-2xl text-base leading-7 text-slate-200 sm:text-lg">
-                PickRank is a skill-based NFL contest where you rank 10 quarterbacks from a 15-player slate and compete
-                based on how close your order is to the final results.
+                PickRank is a skill-based ranking contest app. The current live format asks you to rank your top 10
+                quarterbacks from a 15-player slate and compete based on how close your order is to the final results.
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
@@ -66,9 +66,9 @@ export default function HomePage() {
               </Button>
             </div>
             <div className="grid gap-3 text-sm text-slate-200 sm:grid-cols-3">
-              <div className="rounded-xl border border-white/12 bg-white/6 px-4 py-3">Browse contests and rules today</div>
-              <div className="rounded-xl border border-white/12 bg-white/6 px-4 py-3">See exactly how weekly ranking play works</div>
-              <div className="rounded-xl border border-white/12 bg-white/6 px-4 py-3">Sign in to get ready for entry and lineup setup</div>
+              <div className="rounded-xl border border-white/12 bg-white/6 px-4 py-3">Browse open contests and lock times</div>
+              <div className="rounded-xl border border-white/12 bg-white/6 px-4 py-3">See scoring, tiebreakers, and final-results flow</div>
+              <div className="rounded-xl border border-white/12 bg-white/6 px-4 py-3">Create an account to save your place in the flow</div>
             </div>
           </div>
 
@@ -108,7 +108,7 @@ export default function HomePage() {
 
       <section className="grid gap-4 lg:grid-cols-3">
         {proofPoints.map(({ title, description, icon: Icon }) => (
-          <Card key={title} className="border-slate-200/80 bg-white/95">
+          <Card key={title} className="section-card">
             <CardHeader className="space-y-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-blue-600">
                 <Icon className="h-5 w-5" aria-hidden="true" />
@@ -123,26 +123,39 @@ export default function HomePage() {
       </section>
 
       <section className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
-        <Card>
+        <Card className="section-card">
           <CardHeader>
             <CardTitle>What PickRank is</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm leading-6 text-muted-foreground">
-            <p>PickRank runs weekly skill-based contests built around one stat category.</p>
-            <p>You choose and rank 10 players from the featured slate, then receive a miss score based on how far each pick lands from the final finish. Lower total score wins.</p>
-            <p>The goal is simple: reward sharp sports judgment with a format that feels clear from the first screen.</p>
+            <p>PickRank runs skill-based contests built around one stat category at a time.</p>
+            <p>
+              In the current MVP format, you choose and rank your top 10 quarterbacks from the featured 15-player slate,
+              then receive a miss score based on how far each pick lands from the final finish.
+            </p>
+            <p>The goal is simple: reward sharp judgment with a format that feels clear from the first screen.</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="section-card">
           <CardHeader>
             <CardTitle>What to do next</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm leading-6 text-muted-foreground">
-              Browse contests and learn the format now. After you sign in, PickRank can send you straight into the saved
-              entry step for the contest you choose.
+              Browse the live contest flow now. After you sign in, PickRank can send you straight into the saved entry
+              and lineup steps for the contest you choose.
             </p>
+            <div className="section-card-muted space-y-3 px-4 py-4 text-sm">
+              <div className="detail-row bg-white">
+                <span>Open Contests</span>
+                <span className="font-medium text-foreground">Browse public contest details</span>
+              </div>
+              <div className="detail-row bg-white">
+                <span>Build Your Lineup</span>
+                <span className="text-muted-foreground">Available after entry confirmation</span>
+              </div>
+            </div>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Button asChild className="sm:flex-1">
                 <Link href="/auth">Create Account</Link>

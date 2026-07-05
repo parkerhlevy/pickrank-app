@@ -4,9 +4,11 @@ test('homepage loads as a landing page with sign-up CTA and no bottom nav', asyn
   await page.goto('/');
 
   await expect(page.getByRole('img', { name: 'PickRank' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Rank the slate. Climb the standings.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Rank the slate. Climb the leaderboard.' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Sign Up' })).toHaveAttribute('href', '/auth');
-  await expect(page.getByText('Walkthrough video coming soon')).toBeVisible();
+  await expect(
+    page.locator('video[aria-label="PickRank product walkthrough video"]').or(page.getByText('Walkthrough video coming soon')),
+  ).toBeVisible();
   await expect(page.getByRole('navigation')).toHaveCount(0);
 
   await page.getByRole('link', { name: 'Sign Up' }).click();
