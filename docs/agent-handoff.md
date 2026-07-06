@@ -61,10 +61,11 @@ The repo is past bare Phase 0 and currently includes:
 - Vitest wired
 - Basic route smoke tests
 
-Current branch reality on `main` as of 2026-07-03:
+Current branch reality on `main` as of 2026-07-06:
 
-- `main` and `origin/main` are back in sync after the provisional Replay snapshot foundation slice landed on GitHub
-- the synced baseline now includes `49802ba Add server-backed saved entry lineup flow`, `b085fae Add contest final scoring and results foundation`, and `3b5b9af Track contest entry fixture data`
+- `main` is now ahead of `origin/main` by three local commits: `6002569 Unify shared-shell notice and status treatment`, `bf3bf0f Polish shared-shell account and leaderboard surfaces`, and `c73b2f1 Add in-season live provisional validation lane`
+- the latest local provider/admin baseline now includes the repeatable Replay validation harness, the hidden 2026 in-season live validation contest prep and fetch helpers, and the `/admin/contests` provisional preview plus refresh surface
+- pushing those three local commits back to GitHub is currently blocked on this machine because `git push origin main` fails with `could not read Username for 'https://github.com': Device not configured`
 - the current Remotion source baseline is a motion-polished `34.5s` waitlist-focused cut under `assets/marketing/video/`, aligned to the 15-player / pick-10 product framing and the `pickrankgames.com` brand
 - the latest rendered review asset is `assets/marketing/video/out/pickrank-landing-video.mp4`
 - the latest local video pass on 2026-07-02 loosened headline tracking for readability, removed the misleading ranking arrow marker, and rebuilt the scoring beat into a simpler two-example points equation so the slide reads as "lowest total wins" instead of a dense rule card
