@@ -24,11 +24,19 @@ export const RankingScene = ({
   const intro = entrance(frame, 20);
   const ui = entrance(Math.max(frame - 8, 0), 24);
   const holdProgress = Math.min(1, Math.max(0, (frame - 20) / 12));
-  const dragProgress = Math.min(1, Math.max(0, (frame - 34) / 34));
-  const settleProgress = Math.min(1, Math.max(0, (frame - 70) / 16));
+  const dragProgress = Math.min(1, Math.max(0, (frame - 34) / 28));
+  const settleProgress = Math.min(1, Math.max(0, (frame - 66) / 16));
 
   const fromIndex = draggedFrom - 1;
   const toIndex = draggedTo - 1;
+  const rowHeight = 58;
+  const rowGap = 10;
+  const listTop = 62;
+  const rowStep = rowHeight + rowGap;
+
+  const finalRankedPlayers = [...rankedPlayers];
+  const [movedPlayer] = finalRankedPlayers.splice(fromIndex, 1);
+  finalRankedPlayers.splice(toIndex, 0, movedPlayer);
 
   return (
     <AbsoluteFill
@@ -46,7 +54,7 @@ export const RankingScene = ({
           display: "flex",
           flexDirection: "column",
           gap: 18,
-          maxWidth: 520,
+          maxWidth: 620,
           opacity: intro,
           transform: `translateY(${rise(intro, 24)}px)`,
         }}
@@ -55,18 +63,18 @@ export const RankingScene = ({
         <div
           style={{
             color: theme.colors.text,
-            fontSize: 86,
+            fontSize: 82,
             fontWeight: 900,
-            letterSpacing: "-0.06em",
+            letterSpacing: "-0.03em",
             lineHeight: 0.94,
           }}
         >
-          Drag into
+          Drag & drop
           <br />
           your order.
         </div>
         <div style={{ color: theme.colors.mutedText, fontSize: 28, fontWeight: 600 }}>
-          Put your #1 where you think the week will finish.
+          Put your players where you think they will finish each week.
         </div>
       </div>
       <div
@@ -79,62 +87,66 @@ export const RankingScene = ({
         <PhoneFrame>
           <div
             style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 10,
               padding: 18,
               height: "100%",
               background: "linear-gradient(180deg, #f8fbff 0%, #edf3fb 100%)",
             }}
           >
             <div style={{ color: "#1e293b", fontSize: 20, fontWeight: 900 }}>Top 10 order</div>
-            {rankedPlayers.map((player, index) => {
-              const isDragged = player === draggedPlayer;
-              const movingUp = index >= toIndex && index < fromIndex && dragProgress > 0;
-              const y =
-                isDragged
-                  ? (toIndex - fromIndex) * 64 * dragProgress
-                  : movingUp
-                    ? 64 * dragProgress
-                    : 0;
-              const draggedScale = isDragged ? 1 + holdProgress * 0.03 - settleProgress * 0.03 : 1;
-              const draggedRotate = isDragged ? -3 * holdProgress + 3 * settleProgress : 0;
-              return (
-                <div
-                  key={player}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 12,
-                    padding: "10px 12px",
-                    borderRadius: 18,
-                    background: isDragged ? "rgba(37,99,235,0.14)" : "rgba(255,255,255,0.92)",
-                    border: isDragged
-                      ? `1px solid ${accentColor}`
-                      : "1px solid rgba(15,23,42,0.08)",
-                    transform: `translateY(${y}px) scale(${draggedScale}) rotate(${draggedRotate}deg)`,
-                    boxShadow: isDragged ? "0 16px 28px rgba(37,99,235,0.18)" : "none",
-                  }}
-                >
-                  <div style={{ color: accentColor, fontSize: 16, fontWeight: 900 }}>{index + 1}</div>
-                  <div style={{ color: "#0f172a", fontSize: 17, fontWeight: 700 }}>{player}</div>
+            <div style={{ position: "relative", height: listTop + rowStep * rankedPlayers.length }}>
+              {rankedPlayers.map((player, originalIndex) => {
+                const isDragged = player === draggedPlayer;
+                const finalIndex = finalRankedPlayers.indexOf(player);
+                const currentY =
+                  (originalIndex + (finalIndex - originalIndex) * dragProgress) * rowStep;
+                const draggedScale = isDragged ? 1 + holdProgress * 0.03 - settleProgress * 0.03 : 1;
+                const draggedRotate = isDragged ? -3 * holdProgress + 1.5 * settleProgress : 0;
+
+                return (
                   <div
+                    key={player}
                     style={{
-                      marginLeft: "auto",
-                      color: "#64748b",
-                      fontSize: 18,
-                      fontWeight: 900,
+                      position: "absolute",
+                      top: listTop + currentY,
+                      left: 0,
+                      right: 0,
+                      zIndex: isDragged ? 4 : 2,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 12,
+                      height: rowHeight,
+                      padding: "10px 12px",
+                      borderRadius: 18,
+                      background: isDragged ? "rgba(37,99,235,0.14)" : "rgba(255,255,255,0.92)",
+                      border: isDragged
+                        ? `1px solid ${accentColor}`
+                        : "1px solid rgba(15,23,42,0.08)",
+                      transform: `scale(${draggedScale}) rotate(${draggedRotate}deg)`,
+                      boxShadow: isDragged ? "0 16px 28px rgba(37,99,235,0.18)" : "none",
                     }}
                   >
-                    ≡
+                    <div style={{ color: accentColor, fontSize: 16, fontWeight: 900 }}>
+                      {dragProgress > 0.55 ? finalIndex + 1 : originalIndex + 1}
+                    </div>
+                    <div style={{ color: "#0f172a", fontSize: 17, fontWeight: 700 }}>{player}</div>
+                    <div
+                      style={{
+                        marginLeft: "auto",
+                        color: "#64748b",
+                        fontSize: 18,
+                        fontWeight: 900,
+                      }}
+                    >
+                      ≡
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
             <div
               style={{
                 position: "absolute",
-                top: 118 + (toIndex + 0.5) * 56,
+                top: listTop + toIndex * rowStep - 6,
                 left: 18,
                 right: 18,
                 height: 3,
@@ -145,24 +157,21 @@ export const RankingScene = ({
             <div
               style={{
                 position: "absolute",
-                top: 126 + (fromIndex - 0.2) * 56 + (toIndex - fromIndex) * 56 * dragProgress,
-                left: 420,
-                width: 48,
-                height: 48,
+                top:
+                  listTop +
+                  fromIndex * rowStep +
+                  rowHeight / 2 -
+                  5 +
+                  (toIndex - fromIndex) * rowStep * dragProgress,
+                right: 22,
+                width: 10,
+                height: 10,
                 borderRadius: 999,
-                background: "rgba(15,23,42,0.92)",
-                color: "#fff",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 24,
-                fontWeight: 900,
-                boxShadow: "0 12px 28px rgba(0,0,0,0.22)",
-                transform: `scale(${0.9 + holdProgress * 0.12})`,
+                background: accentColor,
+                boxShadow: "0 0 0 8px rgba(37,99,235,0.16), 0 10px 22px rgba(37,99,235,0.24)",
+                transform: `scale(${0.85 + holdProgress * 0.2})`,
               }}
-            >
-              ↓
-            </div>
+            />
           </div>
         </PhoneFrame>
       </div>

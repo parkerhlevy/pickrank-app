@@ -59,7 +59,7 @@ export const KineticHeadline = ({
                 color: highlighted ? accentColor : theme.colors.text,
                 fontSize,
                 fontWeight: 900,
-                letterSpacing: "-0.07em",
+                letterSpacing: "-0.035em",
                 lineHeight: 0.92,
                 opacity: progress,
                 filter: `blur(${blurIn(progress)}px)`,

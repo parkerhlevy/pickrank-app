@@ -1,4 +1,4 @@
-import { AbsoluteFill, Sequence } from "remotion";
+import { AbsoluteFill, Audio, Sequence, interpolate, staticFile } from "remotion";
 import type { PickRankLaunchVideoProps } from "./schema";
 import { theme } from "./lib/theme";
 import { CtaScene } from "./scenes/CtaScene";
@@ -14,8 +14,26 @@ import { pickRankTimeline } from "./timeline";
 export const PICKRANK_LANDING_VIDEO_DURATION = pickRankTimeline.totalDuration;
 
 export const PickRankLandingVideo = (props: PickRankLaunchVideoProps) => {
+  const audioBedFile = props.audio?.bedFile ?? "audio/pickrank-hype-bed-arcade-drive.wav";
+  const audioTrimBeforeFrames = props.audio?.trimBeforeFrames ?? 0;
+
   return (
     <AbsoluteFill style={{ background: theme.colors.background }}>
+      <Audio
+        src={staticFile(audioBedFile)}
+        trimBefore={audioTrimBeforeFrames}
+        volume={(frame) =>
+          interpolate(
+            frame,
+            [0, 24, PICKRANK_LANDING_VIDEO_DURATION - 45, PICKRANK_LANDING_VIDEO_DURATION - 1],
+            [0, 0.16, 0.16, 0],
+            {
+              extrapolateLeft: "clamp",
+              extrapolateRight: "clamp",
+            },
+          )
+        }
+      />
       <Sequence
         from={pickRankTimeline.hook.from}
         durationInFrames={pickRankTimeline.hook.duration}
@@ -68,12 +86,10 @@ export const PickRankLandingVideo = (props: PickRankLaunchVideoProps) => {
         premountFor={30}
       >
         <ScoringScene
-          player={props.scenes.scoring.player}
-          pickedRank={props.scenes.scoring.pickedRank}
-          actualRank={props.scenes.scoring.actualRank}
-          distance={props.scenes.scoring.distance}
-          scoreSummary={props.scenes.scoring.scoreSummary}
+          headline={props.scenes.scoring.headline}
           supportingLine={props.scenes.scoring.supportingLine}
+          examples={props.scenes.scoring.examples}
+          totalPoints={props.scenes.scoring.totalPoints}
           accentColor={props.brand.accentColor}
         />
       </Sequence>

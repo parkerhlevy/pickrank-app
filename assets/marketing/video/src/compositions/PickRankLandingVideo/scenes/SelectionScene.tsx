@@ -47,16 +47,16 @@ export const SelectionScene = ({
         <SectionEyebrow label="Step 1" />
         <div
           style={{
-            color: theme.colors.text,
             fontSize: 88,
             fontWeight: 900,
-            letterSpacing: "-0.06em",
+            letterSpacing: "-0.03em",
             lineHeight: 0.94,
+            display: "flex",
+            flexDirection: "column",
           }}
         >
-          Get 15 players.
-          <br />
-          Pick your 10.
+          <div style={{ color: theme.colors.text }}>Get 15 players.</div>
+          <div style={{ color: accentColor }}>Pick your 10.</div>
         </div>
         <div
           style={{
@@ -97,7 +97,7 @@ export const SelectionScene = ({
                 background: "rgba(255,255,255,0.88)",
               }}
             >
-              <div style={{ color: "#334155", fontSize: 18, fontWeight: 900 }}>Slate of 15</div>
+              <div style={{ color: "#334155", fontSize: 18, fontWeight: 900 }}>Slate</div>
               {allPlayers.map((player) => {
                 const selected = selectedPlayers.includes(player) && selectedPlayers.indexOf(player) < selectedCount;
                 return (
@@ -144,7 +144,7 @@ export const SelectionScene = ({
                 background: "rgba(15,23,42,0.94)",
               }}
             >
-              <div style={{ color: "#fff", fontSize: 18, fontWeight: 900 }}>Your 10</div>
+              <div style={{ color: "#fff", fontSize: 18, fontWeight: 900 }}>Your Board</div>
               {selectedPlayers.slice(0, Math.max(1, selectedCount)).map((player, index) => (
                 <div
                   key={player}

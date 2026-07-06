@@ -4,6 +4,10 @@ export type PickRankLaunchVideoProps = {
     fps: number;
     durationInFrames: number;
   };
+  audio?: {
+    bedFile: string;
+    trimBeforeFrames?: number;
+  };
   brand: {
     wordmarkText: string;
     accentColor: string;
@@ -31,12 +35,15 @@ export type PickRankLaunchVideoProps = {
       draggedTo: number;
     };
     scoring: {
-      player: string;
-      pickedRank: number;
-      actualRank: number;
-      distance: number;
-      scoreSummary: string;
+      headline: string;
       supportingLine: string;
+      examples: Array<{
+        player: string;
+        pickedRank: number;
+        actualRank: number;
+        points: number;
+      }>;
+      totalPoints: number;
     };
     differentiator: {
       headline: string;

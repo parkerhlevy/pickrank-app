@@ -35,7 +35,7 @@ export const HookScene = ({ lines, accentColor }: HookSceneProps) => {
           transform: `translateY(${rise(intro, 30)}px)`,
         }}
       >
-        <SectionEyebrow label="New fantasy format" />
+        <SectionEyebrow label="Your new favorite fantasy game" />
         <KineticHeadline
           lines={lines}
           accentColor={accentColor}
@@ -53,7 +53,7 @@ export const HookScene = ({ lines, accentColor }: HookSceneProps) => {
             opacity: shimmer(frame, 0.74, 1, 24),
           }}
         >
-          Simple fantasy. Real money upside.
+          Simple fantasy. Real cash winnings.
         </div>
       </div>
       <div
@@ -67,8 +67,8 @@ export const HookScene = ({ lines, accentColor }: HookSceneProps) => {
       >
         {[
           ["Slate", "15 players"],
-          ["Entry", "Pick 10"],
-          ["Prize", "Real money"],
+          ["Skill", "Pick 10"],
+          ["Prize", "Cash"],
         ].map(([title, value], index) => {
           const progress = entrance(Math.max(frame - 18 - index * 6, 0), 18);
           return (

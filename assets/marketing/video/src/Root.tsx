@@ -8,6 +8,20 @@ import {
 import { pickRankLaunchVideoData } from "./data/pickrank-launch-video";
 
 export const RemotionRoot: React.FC = () => {
+  const designInMotionProps = {
+    ...pickRankLaunchVideoData,
+    audio: {
+      bedFile: "audio/design-in-motion-preview.mp3",
+    },
+  };
+
+  const lockedInProps = {
+    ...pickRankLaunchVideoData,
+    audio: {
+      bedFile: "audio/locked-in-preview.mp3",
+    },
+  };
+
   return (
     <Folder name="Marketing">
       <Composition
@@ -18,6 +32,24 @@ export const RemotionRoot: React.FC = () => {
         width={1920}
         height={1080}
         defaultProps={pickRankLaunchVideoData}
+      />
+      <Composition
+        id="PickRankLandingVideoDesignInMotionReview"
+        component={PickRankLandingVideo}
+        durationInFrames={PICKRANK_LANDING_VIDEO_DURATION}
+        fps={30}
+        width={1920}
+        height={1080}
+        defaultProps={designInMotionProps}
+      />
+      <Composition
+        id="PickRankLandingVideoLockedInReview"
+        component={PickRankLandingVideo}
+        durationInFrames={PICKRANK_LANDING_VIDEO_DURATION}
+        fps={30}
+        width={1920}
+        height={1080}
+        defaultProps={lockedInProps}
       />
       <Still
         id="PickRankLandingThumb"

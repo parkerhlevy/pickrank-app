@@ -44,7 +44,7 @@ export const NationalScene = ({
           transform: `translateY(${rise(intro, 24)}px)`,
         }}
       >
-        <SectionEyebrow label="Nationwide board" />
+        <SectionEyebrow label="Compete to win" />
         <KineticHeadline
           lines={[headline]}
           accentColor={theme.colors.accent}

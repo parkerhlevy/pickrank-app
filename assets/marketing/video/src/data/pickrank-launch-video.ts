@@ -7,6 +7,10 @@ export const pickRankLaunchVideoData: PickRankLaunchVideoProps = {
     fps: 30,
     durationInFrames: pickRankTimeline.totalDuration,
   },
+  audio: {
+    bedFile: "audio/locked-in-final.wav",
+    trimBeforeFrames: 75,
+  },
   brand: {
     wordmarkText: "PickRank",
     accentColor: "#2563eb",
@@ -14,7 +18,7 @@ export const pickRankLaunchVideoData: PickRankLaunchVideoProps = {
   },
   scenes: {
     hook: {
-      lines: ["15 NFL QBs.", "Pick 10.", "Rank them."],
+      lines: ["15 NFL Players.", "Pick 10.", "Rank them."],
       backgroundVariant: "texture-grid",
     },
     intro: {
@@ -72,31 +76,42 @@ export const pickRankLaunchVideoData: PickRankLaunchVideoProps = {
       draggedTo: 1,
     },
     scoring: {
-      player: "Patrick Mahomes",
-      pickedRank: 1,
-      actualRank: 6,
-      distance: 5,
-      scoreSummary: "5 spots off",
-      supportingLine: "Every spot away adds distance.",
+      headline: "Lowest total wins.",
+      supportingLine: "Every spot away adds points.",
+      examples: [
+        {
+          player: "Patrick Mahomes",
+          pickedRank: 1,
+          actualRank: 6,
+          points: 5,
+        },
+        {
+          player: "Jalen Hurts",
+          pickedRank: 3,
+          actualRank: 2,
+          points: 1,
+        },
+      ],
+      totalPoints: 6,
     },
     differentiator: {
-      headline: "No full roster. No long season.",
+      headline: "No full roster.|No long season.|A new game every week.",
       lines: ["One slate.", "One ranking.", "One weekly result."],
     },
     national: {
       headline: "Beat the field.",
-      supportingLine: "Every entry lands on one nationwide leaderboard.",
+      supportingLine: "More entries = bigger prize pool.",
       leaderboardRows: [
-        { name: "Texas Tate", region: "TX", valueLabel: "Top finish" },
-        { name: "Philly Phil", region: "PA", valueLabel: "Right behind" },
-        { name: "Miami Max", region: "FL", valueLabel: "Still live" },
-        { name: "You", region: "CA", valueLabel: "Climbing" },
+        { name: "Texas Tate", region: "TX", valueLabel: "4 pts" },
+        { name: "Philly Phil", region: "PA", valueLabel: "6 pts" },
+        { name: "Miami Max", region: "FL", valueLabel: "8 pts" },
+        { name: "You", region: "CA", valueLabel: "11 pts" },
       ],
       highlightedUser: "You",
     },
     cta: {
       headline: "PickRank",
-      supportingLines: ["Rank the slate", "Beat the field", "Join the waitlist"],
+      supportingLines: ["Rank the slate.", "Beat the field.", "Win cash."],
       ctaLabel: "Join the waitlist",
       ctaUrlLabel: "pickrankgames.com",
     },

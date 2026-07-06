@@ -1,4 +1,4 @@
-import { useCurrentFrame } from "remotion";
+import { Img, staticFile, useCurrentFrame } from "remotion";
 import { bob, pulse, shimmer } from "../lib/motion";
 import { theme } from "../lib/theme";
 
@@ -46,17 +46,16 @@ export const EndCard = ({
           opacity: 0.45,
         }}
       />
-      <div
+      <Img
+        src={staticFile("brand/pickrank-wordmark-white-pick.png")}
+        alt={headline}
         style={{
-          color: theme.colors.text,
-          fontSize: 92,
-          fontWeight: 900,
-          letterSpacing: "-0.06em",
+          width: 540,
+          height: "auto",
+          mixBlendMode: "screen",
           transform: `translateY(${bob(frame, 3, 18)}px)`,
         }}
-      >
-        {headline}
-      </div>
+      />
       <div
         style={{
           display: "flex",

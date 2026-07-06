@@ -36,13 +36,14 @@ export const DifferentiatorScene = ({
           transform: `translateY(${rise(progress, 28)}px)`,
         }}
       >
-        <SectionEyebrow label="Why it lands" />
+        <SectionEyebrow label="How it's unique" />
         <KineticHeadline
-          lines={[headline]}
+          lines={headline.split("|")}
           accentColor={theme.colors.accent}
           fontSize={84}
-          gap={0}
-          maxWidth={860}
+          gap={6}
+          maxWidth={920}
+          accentLineIndices={[2]}
         />
       </div>
       <div
