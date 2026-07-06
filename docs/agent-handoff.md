@@ -63,9 +63,8 @@ The repo is past bare Phase 0 and currently includes:
 
 Current branch reality on `main` as of 2026-07-06:
 
-- `main` is currently ahead of `origin/main` with local hygiene and provider commits waiting to push, including `6002569 Unify shared-shell notice and status treatment`, `bf3bf0f Polish shared-shell account and leaderboard surfaces`, `c73b2f1 Add in-season live provisional validation lane`, and the follow-up handoff refresh commit from this run
+- `main` is currently synced with `origin/main`; the verified shared-shell cleanup, in-season live provisional validation lane, and locked Remotion music-cut commit `094bc04 Lock Remotion cut to licensed Locked In bed` are now pushed to GitHub
 - the latest local provider/admin baseline now includes the repeatable Replay validation harness, the hidden 2026 in-season live validation contest prep and fetch helpers, and the `/admin/contests` provisional preview plus refresh surface
-- pushing those three local commits back to GitHub is currently blocked on this machine because `git push origin main` fails with `could not read Username for 'https://github.com': Device not configured`
 - the current Remotion source baseline is a motion-polished `34.5s` waitlist-focused cut under `assets/marketing/video/`, aligned to the 15-player / pick-10 product framing and the `pickrankgames.com` brand
 - the latest rendered review asset is `assets/marketing/video/out/pickrank-landing-video.mp4`
 - the latest local video pass on 2026-07-02 loosened headline tracking for readability, removed the misleading ranking arrow marker, and rebuilt the scoring beat into a simpler two-example points equation so the slide reads as "lowest total wins" instead of a dense rule card
@@ -73,6 +72,7 @@ Current branch reality on `main` as of 2026-07-06:
 - the current cut lock now lives in `docs/marketing/remotion-current-cut.md`; future Remotion passes should read that file before editing scene copy, UI state, or CTA content so older brief ideas do not slip back into the active cut
 - the latest local video pass on 2026-07-03 also slowed the cut so every scene now runs at least four seconds, accented `Pick your 10.` in Selection, switched the Ranking header to `Drag & drop`, tightened the Scoring pills and player cards, and kept the CTA on the high-contrast white-`Pick` logo variant
 - the latest local video pass on 2026-07-03 now points the CTA to an interim white-`Pick` logo asset from the downloaded brand review set and layers in an original upbeat WAV music bed inside the Remotion project, which keeps the current export self-contained and free of third-party licensing dependency while a true transparent brand master is still pending
+- Parker has now completed the music-selection reset using real licensable reference tracks, chose PremiumBeat's `Locked In` over `Design in Motion` in direct video review, and the current default Remotion cut points at a licensed `Locked In` short WAV trimmed into the heavier groove so one natural break lands at the Scoring scene transition without over-syncing every beat
 - `lib/contest-data.ts` now reads and writes contest browse/admin data directly against Supabase/Postgres in normal app use, while keeping file-backed fixtures only for tests and explicit fixture-driven runs
 - `data/contest-entries.json` now belongs with that fixture-backed path and should be treated as intentional repo fixture data alongside `data/contests.json`, not ignored or deleted as throwaway runtime output
 - Supabase role foundations now exist in repo migrations for `roles` and `user_roles`, with `contest_operator` as the single enforced MVP internal role
@@ -135,6 +135,8 @@ Current branch reality on `main` as of 2026-07-06:
 - the 2026-07-04 shared-shell cleanup pass now carries the same header, status notice, section-card, badge, CTA, spacing, and placeholder framing system across the public and auth-gated shell surfaces, including `/`, `/contests`, `/contests/[contestId]`, `/payment`, `/success`, `/how-it-works`, `/auth`, `/profile`, `/wallet`, `/leaderboard`, `/contests/[contestId]/results`, and the saved and locked lineup states on `/contests/[contestId]/lineup`, without changing routing, auth gating, lineup rules, scoring, payouts, wallet rules, compliance boundaries, or admin/provider behavior
 - `docs/design/DESIGN.md` is now the canonical design entrypoint for future UI work, with `figma-screenshot-audit.md`, `figma-v1.md`, and `figma-make-reference.md` treated as supporting presentation references behind `/spec` and `docs/agent-handoff.md`
 - repo verification for that UI cleanup passes `npm run typecheck` and `npm run test`, and the focused lineup Playwright assertions are now aligned to the current `10/10 Ranked` and `Left in Slate` copy; direct sandbox startup still hits `listen EPERM` on `0.0.0.0:3000`, but the focused auth-gated entry-flow browser pass now succeeds when the local test server is allowed to start outside the sandbox via `npx playwright test tests/e2e/lineup-builder.spec.ts`
+- the locked Remotion music-cut slice now also passes repo `npm run typecheck`, repo `npm run test`, `npm run lint` inside `assets/marketing/video`, and a full unsandboxed `npm run render -- --timeout=120000` export of `PickRankLandingVideo`
+- the live `main` worktree is not fully clean yet: the remaining dirt is only compare-only Remotion media and helper files under `assets/marketing/video/public/audio/`, `assets/marketing/video/public/brand/`, and `assets/marketing/video/scripts/`, plus the usual generated `next-env.d.ts`; the locked default cut itself is committed and pushed
 
 ## Core Commands
 
@@ -248,31 +250,25 @@ The MVP includes:
 Next recommended slice:
 
 ```text
-Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Before changing behavior, read `docs/agent-handoff.md`, `spec/product_spec.md`, `spec/features/stat_finalization.md`, `spec/features/results_reveal.md`, `docs/replay-provisional-order-foundation.md`, and `docs/replay-provisional-live-validation-2026-07-03.md`, plus the current stats-provider files already involved. Work carefully around the unrelated marketing/design edits in `main` and the detached lineup-verify worktree, and keep the slice narrow: rerun `npm run validate:live-provisional` during a truthful preseason or in-season game window, confirm the hidden `week-1-qb-passing-yards-live-validation-2026` contest still saves a believable provisional snapshot, and capture any entitlement, payload-shape, or ordering drift without changing the official `FINAL`-gated results path. Avoid payments, withdrawals, compliance, auth work, and unrelated UI work, run typecheck plus focused tests, refresh `docs/agent-handoff.md` if the live snapshot state or next move changes, and explain results business-first: what changed, why it matters, what passed, what remains risky, and what I need to do next.
+Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Keep this slice limited to Remotion repo hygiene under `assets/marketing/video`. Before changing behavior, read `docs/agent-handoff.md`, `docs/marketing/remotion-current-cut.md`, `assets/marketing/video/README.md`, and the current untracked asset set under `assets/marketing/video/public/audio/`, `assets/marketing/video/public/brand/`, and `assets/marketing/video/scripts/`. Keep the slice narrow: classify the remaining compare-only audio beds, the large `locked-in-source` dump, the alternate light logo PNG, and the helper script into `keep in repo` versus `park outside the committed baseline`, then commit only the files that clearly support near-term review or repeatable generation. Leave the locked `Locked In` default cut unchanged unless a file is strictly required to preserve it, avoid unrelated product, provider, auth, or design-system work, refresh `docs/agent-handoff.md` if the kept asset set or next move changes, and explain results business-first: what changed, why it matters, what passed, what remains intentionally uncommitted, and what I need to do next.
 ```
 
 Definition of done:
 
-- At least one contest slate is saved with real SportsDataIO `PlayerID` and `ScoreID` values that the Replay adapter can match
-- The active Supabase project exposes `contest_provisional_stat_snapshots` and `contest_provisional_stat_snapshot_rows` through the REST schema used by the app
-- A credential-backed validation run stores a provisional snapshot into `contest_provisional_stat_snapshots` and `contest_provisional_stat_snapshot_rows`
-- The saved provisional snapshot shows the expected QB passing-yard order plus accurate scheduled / in-progress / final game counts
-- The internal admin surface shows the latest saved provisional QB order and game counts for the hidden Replay validation contest without affecting official finalization
-- The internal admin surface can manually refresh that hidden Replay validation snapshot without widening into public or official-final workflows
-- The repo clearly documents what must change before Replay validation mode can become true in-season live-data operation
-- The repo includes one repeatable in-season live validation harness that can prove key access plus field coverage for a chosen current-season contest slug without changing public or official-final behavior
-- At least one saved current-season contest slug in Supabase has fully numeric SportsDataIO `PlayerID` and `ScoreID` values instead of placeholder IDs before the live harness is treated as ready to run
-- One credential-backed `npm run validate:live-provisional` pass succeeds against that hidden current-season slug and stores a provisional snapshot with expected pre-kickoff or in-season game counts
-- The existing official finalization path remains unchanged: final stat review still reads from the official seam and still requires a human operator to type `FINAL`
-- `npm run typecheck` and focused unit tests pass, plus any narrow credential-backed validation that fits the slice
-- Update this handoff note with any later in-season live snapshot state change once Week 1 games actually start
+- The committed default cut stays anchored to `audio/locked-in-final.wav`, `brand/pickrank-wordmark-white-pick.png`, and the scene lock documented in `docs/marketing/remotion-current-cut.md`
+- Every remaining untracked Remotion asset is explicitly classified as either worth keeping in repo soon or intentionally left outside the committed baseline
+- No unrelated product, provider, auth, or app-shell files are mixed into the cleanup commit
+- If any compare-only asset is kept, the repo explains why that file matters for near-term review or repeatable generation
+- `assets/marketing/video` still passes `npm run lint` after the cleanup
+- Re-render the video only if the locked default cut changes; otherwise avoid churn in generated outputs
+- Update this handoff note with the final keep-versus-park decision so future chats do not reopen the same asset audit
 
 ## Starter Prompt For Future Chats
 
 Use this default starter prompt pattern unless the next slice needs a tighter scoped variation:
 
 ```text
-Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Before changing behavior, read `docs/agent-handoff.md`, `spec/product_spec.md`, `spec/features/stat_finalization.md`, `spec/features/results_reveal.md`, `docs/replay-provisional-order-foundation.md`, and `docs/replay-provisional-live-validation-2026-07-03.md`, plus the current stats-provider files already involved. Work carefully around the unrelated marketing/design edits in `main` and the detached lineup-verify worktree, and keep the slice narrow: rerun `npm run validate:live-provisional` during a truthful preseason or in-season game window, confirm the hidden `week-1-qb-passing-yards-live-validation-2026` contest still saves a believable provisional snapshot, and capture any entitlement, payload-shape, or ordering drift without changing the official `FINAL`-gated results path. Avoid payments, withdrawals, compliance, auth work, and unrelated UI work, run typecheck plus focused tests, refresh `docs/agent-handoff.md` if the live snapshot state or next move changes, and explain results business-first: what changed, why it matters, what passed, what remains risky, and what I need to do next.
+Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Keep this slice limited to Remotion repo hygiene under `assets/marketing/video`. Before changing behavior, read `docs/agent-handoff.md`, `docs/marketing/remotion-current-cut.md`, `assets/marketing/video/README.md`, and the current untracked asset set under `assets/marketing/video/public/audio/`, `assets/marketing/video/public/brand/`, and `assets/marketing/video/scripts/`. Keep the slice narrow: classify the remaining compare-only audio beds, the large `locked-in-source` dump, the alternate light logo PNG, and the helper script into `keep in repo` versus `park outside the committed baseline`, then commit only the files that clearly support near-term review or repeatable generation. Leave the locked `Locked In` default cut unchanged unless a file is strictly required to preserve it, avoid unrelated product, provider, auth, or design-system work, refresh `docs/agent-handoff.md` if the kept asset set or next move changes, and explain results business-first: what changed, why it matters, what passed, what remains intentionally uncommitted, and what I need to do next.
 ```
 
 ## Generated Files to Avoid Committing
