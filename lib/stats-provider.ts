@@ -3,6 +3,9 @@ import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { z } from 'zod';
 import {
+  getSportsDataIoLiveApiKey,
+  getSportsDataIoLiveAuthMode,
+  getSportsDataIoLiveBaseUrl,
   getProvisionalStatsSnapshotFilePath,
   getSportsDataIoReplayApiKey,
   getSportsDataIoReplayBaseUrl,
@@ -12,7 +15,7 @@ import {
   getStatsProviderFilePath,
   getStatsProviderMode,
   hasBrowserSupabaseConfig,
-} from '@/lib/env';
+} from './env';
 import {
   buildProvisionalOrderRows,
   buildProvisionalOrderSourceRows,
@@ -20,8 +23,8 @@ import {
   summarizeProvisionalGames,
   type ProvisionalGameStatus,
   type ProvisionalOrderRow,
-} from '@/lib/provisional-ordering';
-import type { Database, Json } from '@/lib/supabase/types';
+} from './provisional-ordering';
+import type { Database, Json } from './supabase/types';
 
 export type StatsProviderMode = 'disabled' | 'file' | 'persisted_snapshot';
 
@@ -84,6 +87,34 @@ export type ReplayBackedContestStatsProviderInput = ContestStatsProviderInput & 
 
 export type ProvisionalStatsSnapshotStatus = z.infer<typeof persistedSnapshotStatusSchema>;
 
+export type ReplayProvisionalValidationReadinessIssue = {
+  code:
+    | 'missing_replay_api_key'
+    | 'non_numeric_provider_player_ids'
+    | 'non_numeric_provider_game_ids';
+  message: string;
+  affectedPlayerIds?: string[];
+};
+
+export type ReplayProvisionalValidationReadiness = {
+  ready: boolean;
+  issues: ReplayProvisionalValidationReadinessIssue[];
+};
+
+export type SportsDataIoLiveValidationReadinessIssue = {
+  code:
+    | 'missing_live_api_key'
+    | 'non_numeric_provider_player_ids'
+    | 'non_numeric_provider_game_ids';
+  message: string;
+  affectedPlayerIds?: string[];
+};
+
+export type SportsDataIoLiveValidationReadiness = {
+  ready: boolean;
+  issues: SportsDataIoLiveValidationReadinessIssue[];
+};
+
 export type ProvisionalContestStatSnapshot = {
   snapshotId: string;
   snapshotKind: 'provisional_order';
@@ -107,6 +138,11 @@ type ProvisionalStatsProviderFetchOptions = {
   baseUrl?: string;
   persistedSnapshotFilePath?: string;
   now?: string;
+  createSupabaseClient?: () => Promise<any>;
+};
+
+type SportsDataIoLiveProvisionalStatsProviderFetchOptions = ProvisionalStatsProviderFetchOptions & {
+  authMode?: 'header' | 'query';
 };
 
 type ContestStatSnapshotDbRow = Database['public']['Tables']['contest_stat_snapshots']['Row'];
@@ -283,20 +319,23 @@ export async function fetchAndPersistReplayProvisionalSnapshot(
   options?: ProvisionalStatsProviderFetchOptions,
 ): Promise<ProvisionalContestStatSnapshot> {
   const apiKey = options?.apiKey ?? getSportsDataIoReplayApiKey();
+  const readiness = getReplayProvisionalValidationReadiness(contest, {
+    apiKey,
+  });
 
-  if (!apiKey) {
-    throw new Error('SportsDataIO Replay API key is not configured yet.');
+  if (!readiness.ready) {
+    throw new Error(formatReplayReadinessIssues(readiness.issues));
   }
 
   const baseUrl = (options?.baseUrl ?? getSportsDataIoReplayBaseUrl()).replace(/\/$/, '');
   const seasonKey = buildSportsDataIoSeasonKey(contest.season);
   const [scoresPayload, playerStatsPayload] = await Promise.all([
     fetchSportsDataIoReplayJson(
-      `${baseUrl}/scores/json/ScoresByWeek/${seasonKey}/${contest.week}`,
+      `${baseUrl}/stats/json/scoresbyweek/${seasonKey}/${contest.week}`,
       apiKey,
     ),
     fetchSportsDataIoReplayJson(
-      `${baseUrl}/stats/json/PlayerGameStatsByWeek/${seasonKey}/${contest.week}`,
+      `${baseUrl}/stats/json/playergamestatsbyweek/${seasonKey}/${contest.week}`,
       apiKey,
     ),
   ]);
@@ -344,17 +383,203 @@ export async function fetchAndPersistReplayProvisionalSnapshot(
       season: seasonKey,
       week: contest.week,
       endpoints: {
-        liveGames: 'ScoresByWeek',
-        livePlayerGameStats: 'PlayerGameStatsByWeek',
-        officialFinalizationHandoff: 'PlayerGameStatsByWeekFinal',
+        liveGames: 'stats/json/scoresbyweek',
+        livePlayerGameStats: 'stats/json/playergamestatsbyweek',
+        officialFinalizationHandoff: 'unverified_in_this_recording',
       },
     },
     rows: provisionalRows,
   });
 
-  await persistProvisionalContestStatSnapshot(snapshot, options?.persistedSnapshotFilePath);
+  await persistProvisionalContestStatSnapshot(
+    snapshot,
+    options?.persistedSnapshotFilePath,
+    options?.createSupabaseClient,
+  );
 
   return snapshot;
+}
+
+export async function fetchAndPersistSportsDataIoLiveProvisionalSnapshot(
+  contest: ReplayBackedContestStatsProviderInput,
+  options?: SportsDataIoLiveProvisionalStatsProviderFetchOptions,
+): Promise<ProvisionalContestStatSnapshot> {
+  const apiKey = options?.apiKey ?? getSportsDataIoLiveApiKey();
+  const readiness = getSportsDataIoLiveValidationReadiness(contest, {
+    apiKey,
+  });
+
+  if (!readiness.ready) {
+    throw new Error(formatSportsDataIoLiveReadinessIssues(readiness.issues));
+  }
+
+  const baseUrl = (options?.baseUrl ?? getSportsDataIoLiveBaseUrl()).replace(/\/$/, '');
+  const authMode = options?.authMode ?? getSportsDataIoLiveAuthMode();
+  const seasonKey = buildSportsDataIoSeasonKey(contest.season);
+  const [scoresPayload, playerStatsPayload] = await Promise.all([
+    fetchSportsDataIoJson(
+      `${baseUrl}/scores/json/ScoresByWeek/${seasonKey}/${contest.week}`,
+      {
+        apiKey,
+        authMode,
+        providerLabel: 'SportsDataIO live',
+      },
+    ),
+    fetchSportsDataIoJson(
+      `${baseUrl}/stats/json/PlayerGameStatsByWeek/${seasonKey}/${contest.week}`,
+      {
+        apiKey,
+        authMode,
+        providerLabel: 'SportsDataIO live',
+      },
+    ),
+  ]);
+
+  const scores = z.array(z.unknown()).parse(scoresPayload).map(parseSportsDataIoScore);
+  const playerStats = z.array(z.unknown()).parse(playerStatsPayload).map(parseSportsDataIoPlayerGameStat);
+  const scoreStatusByGameId = new Map(scores.map((score) => [score.providerGameId, score.gameStatus] as const));
+  const rowsByProviderKey = new Map<string, { passingYards: number; passingTouchdowns: number; gameStatus: ProvisionalGameStatus }>();
+
+  contest.slatePlayers.forEach((player) => {
+    const matchingPlayerStat = playerStats.find(
+      (stat) =>
+        stat.providerPlayerId === player.providerPlayerId &&
+        stat.providerGameId === player.providerGameId,
+    );
+    const gameStatus = scoreStatusByGameId.get(player.providerGameId) ?? matchingPlayerStat?.gameStatus ?? 'scheduled';
+
+    rowsByProviderKey.set(buildProviderRowKey(player.providerPlayerId, player.providerGameId), {
+      passingYards: matchingPlayerStat?.passingYards ?? 0,
+      passingTouchdowns: matchingPlayerStat?.passingTouchdowns ?? 0,
+      gameStatus,
+    });
+  });
+
+  const provisionalRows = buildProvisionalOrderRows(
+    buildProvisionalOrderSourceRows(contest.slatePlayers, rowsByProviderKey),
+  );
+  const gameSummary = summarizeProvisionalGames(provisionalRows);
+  const snapshotTimestamp = options?.now ?? new Date().toISOString();
+  const snapshot = provisionalContestSnapshotSchema.parse({
+    snapshotId: randomUUID(),
+    snapshotKind: 'provisional_order',
+    contestId: contest.id,
+    providerKey: 'sportsdataio_live',
+    providerName: 'SportsDataIO Live',
+    providerSnapshotTime: snapshotTimestamp,
+    createdAt: snapshotTimestamp,
+    status: 'validated',
+    gamesTotal: gameSummary.totalGames,
+    gamesScheduled: gameSummary.scheduledGames,
+    gamesInProgress: gameSummary.inProgressGames,
+    gamesFinal: gameSummary.finalGames,
+    allGamesFinal: gameSummary.allGamesFinal,
+    metadata: {
+      season: seasonKey,
+      week: contest.week,
+      authMode,
+      endpoints: {
+        liveGames: 'scores/json/ScoresByWeek',
+        livePlayerGameStats: 'stats/json/PlayerGameStatsByWeek',
+        officialFinalizationHandoff: 'separate_final_review_path_required',
+      },
+    },
+    rows: provisionalRows,
+  });
+
+  await persistProvisionalContestStatSnapshot(
+    snapshot,
+    options?.persistedSnapshotFilePath,
+    options?.createSupabaseClient,
+  );
+
+  return snapshot;
+}
+
+export function getReplayProvisionalValidationReadiness(
+  contest: ReplayBackedContestStatsProviderInput,
+  options?: { apiKey?: string },
+): ReplayProvisionalValidationReadiness {
+  const issues: ReplayProvisionalValidationReadinessIssue[] = [];
+
+  if (!(options?.apiKey ?? getSportsDataIoReplayApiKey())) {
+    issues.push({
+      code: 'missing_replay_api_key',
+      message: 'SportsDataIO Replay API key is not configured in the active environment.',
+    });
+  }
+
+  const nonNumericProviderPlayerIds = contest.slatePlayers
+    .filter((player) => !isNumericProviderIdentifier(player.providerPlayerId))
+    .map((player) => player.playerId);
+
+  if (nonNumericProviderPlayerIds.length > 0) {
+    issues.push({
+      code: 'non_numeric_provider_player_ids',
+      message: `${contest.id} still has ${nonNumericProviderPlayerIds.length} slate players without numeric SportsDataIO PlayerID values.`,
+      affectedPlayerIds: nonNumericProviderPlayerIds,
+    });
+  }
+
+  const nonNumericProviderGameIds = contest.slatePlayers
+    .filter((player) => !isNumericProviderIdentifier(player.providerGameId))
+    .map((player) => player.playerId);
+
+  if (nonNumericProviderGameIds.length > 0) {
+    issues.push({
+      code: 'non_numeric_provider_game_ids',
+      message: `${contest.id} still has ${nonNumericProviderGameIds.length} slate players without numeric SportsDataIO ScoreID values.`,
+      affectedPlayerIds: nonNumericProviderGameIds,
+    });
+  }
+
+  return {
+    ready: issues.length === 0,
+    issues,
+  };
+}
+
+export function getSportsDataIoLiveValidationReadiness(
+  contest: ReplayBackedContestStatsProviderInput,
+  options?: { apiKey?: string },
+): SportsDataIoLiveValidationReadiness {
+  const issues: SportsDataIoLiveValidationReadinessIssue[] = [];
+
+  if (!(options?.apiKey ?? getSportsDataIoLiveApiKey())) {
+    issues.push({
+      code: 'missing_live_api_key',
+      message: 'SportsDataIO live API key is not configured in the active environment.',
+    });
+  }
+
+  const nonNumericProviderPlayerIds = contest.slatePlayers
+    .filter((player) => !isNumericProviderIdentifier(player.providerPlayerId))
+    .map((player) => player.playerId);
+
+  if (nonNumericProviderPlayerIds.length > 0) {
+    issues.push({
+      code: 'non_numeric_provider_player_ids',
+      message: `${contest.id} still has ${nonNumericProviderPlayerIds.length} slate players without numeric SportsDataIO PlayerID values.`,
+      affectedPlayerIds: nonNumericProviderPlayerIds,
+    });
+  }
+
+  const nonNumericProviderGameIds = contest.slatePlayers
+    .filter((player) => !isNumericProviderIdentifier(player.providerGameId))
+    .map((player) => player.playerId);
+
+  if (nonNumericProviderGameIds.length > 0) {
+    issues.push({
+      code: 'non_numeric_provider_game_ids',
+      message: `${contest.id} still has ${nonNumericProviderGameIds.length} slate players without numeric SportsDataIO ScoreID values.`,
+      affectedPlayerIds: nonNumericProviderGameIds,
+    });
+  }
+
+  return {
+    ready: issues.length === 0,
+    issues,
+  };
 }
 
 export async function getLatestProvisionalContestStatSnapshot(
@@ -525,6 +750,7 @@ async function writePersistedSnapshotStore(
 async function persistProvisionalContestStatSnapshot(
   snapshot: PersistedProvisionalContestSnapshot,
   persistedSnapshotFilePath = getProvisionalStatsSnapshotFilePath(),
+  createSupabaseClientOverride?: () => Promise<any>,
 ) {
   if (shouldUsePersistedSnapshotFileStore(persistedSnapshotFilePath)) {
     const store = await readProvisionalSnapshotStoreOrEmpty(persistedSnapshotFilePath);
@@ -536,7 +762,7 @@ async function persistProvisionalContestStatSnapshot(
     return;
   }
 
-  await writeProvisionalSnapshotToDatabase(snapshot);
+  await writeProvisionalSnapshotToDatabase(snapshot, createSupabaseClientOverride);
 }
 
 async function readProvisionalSnapshotFromFileStore(
@@ -853,8 +1079,11 @@ async function readProvisionalSnapshotFromDatabase(contestSlug: string): Promise
   });
 }
 
-async function writeProvisionalSnapshotToDatabase(snapshot: PersistedProvisionalContestSnapshot) {
-  const supabase: any = await createSupabaseClient();
+async function writeProvisionalSnapshotToDatabase(
+  snapshot: PersistedProvisionalContestSnapshot,
+  createSupabaseClientOverride?: () => Promise<any>,
+) {
+  const supabase: any = await (createSupabaseClientOverride ?? createSupabaseClient)();
   const { data: contestRow, error: contestError } = await supabase
     .from('contests')
     .select('id')
@@ -957,31 +1186,58 @@ function buildStatsProviderFetchHeaders(fetchToken: string) {
   return headers;
 }
 
-function buildSportsDataIoReplayHeaders(apiKey: string) {
+function buildSportsDataIoHeaders(extraHeaders?: Record<string, string>) {
   return {
     'content-type': 'application/json',
-    'Ocp-Apim-Subscription-Key': apiKey,
+    ...(extraHeaders ?? {}),
   };
 }
 
 async function fetchSportsDataIoReplayJson(url: string, apiKey: string) {
-  const response = await fetch(url, {
+  return fetchSportsDataIoJson(url, {
+    apiKey,
+    authMode: 'query',
+    providerLabel: 'SportsDataIO Replay',
+  });
+}
+
+async function fetchSportsDataIoJson(
+  url: string,
+  options: {
+    apiKey: string;
+    authMode: 'header' | 'query';
+    providerLabel: string;
+  },
+) {
+  const requestUrl =
+    options.authMode === 'query' ? appendReplayApiKey(url, options.apiKey) : url;
+  const headers =
+    options.authMode === 'header'
+      ? buildSportsDataIoHeaders({ 'Ocp-Apim-Subscription-Key': options.apiKey })
+      : buildSportsDataIoHeaders();
+  const response = await fetch(requestUrl, {
     method: 'GET',
-    headers: buildSportsDataIoReplayHeaders(apiKey),
+    headers,
   });
 
   if (!response.ok) {
     const errorText = await response.text();
     throw new Error(
-      `SportsDataIO Replay request failed with ${response.status}${errorText ? `: ${errorText.slice(0, 200)}` : '.'}`,
+      `${options.providerLabel} request failed with ${response.status}${errorText ? `: ${errorText.slice(0, 200)}` : '.'}`,
     );
   }
 
   return response.json();
 }
 
+function appendReplayApiKey(url: string, apiKey: string) {
+  const requestUrl = new URL(url);
+  requestUrl.searchParams.set('key', apiKey);
+  return requestUrl.toString();
+}
+
 function buildSportsDataIoSeasonKey(season: number) {
-  return `${season}REG`;
+  return `${season}reg`;
 }
 
 function parseSportsDataIoScore(input: unknown) {
@@ -989,7 +1245,7 @@ function parseSportsDataIoScore(input: unknown) {
   const providerGameId = readString(row.ScoreID ?? row.scoreId ?? row.GameID ?? row.gameId);
 
   if (!providerGameId) {
-    throw new Error('SportsDataIO Replay score row is missing ScoreID.');
+    throw new Error('SportsDataIO score row is missing ScoreID.');
   }
 
   return {
@@ -1004,7 +1260,7 @@ function parseSportsDataIoPlayerGameStat(input: unknown) {
   const providerGameId = readString(row.ScoreID ?? row.scoreId ?? row.GameID ?? row.gameId);
 
   if (!providerPlayerId || !providerGameId) {
-    throw new Error('SportsDataIO Replay player stat row is missing PlayerID or ScoreID.');
+    throw new Error('SportsDataIO player stat row is missing PlayerID or ScoreID.');
   }
 
   return {
@@ -1022,6 +1278,18 @@ function safeFetchOrigin(fetchUrl: string) {
   } catch {
     return fetchUrl;
   }
+}
+
+function formatReplayReadinessIssues(issues: ReplayProvisionalValidationReadinessIssue[]) {
+  return `Replay provisional snapshot fetch is not ready: ${issues.map((issue) => issue.message).join(' ')}`;
+}
+
+function formatSportsDataIoLiveReadinessIssues(issues: SportsDataIoLiveValidationReadinessIssue[]) {
+  return `SportsDataIO live provisional snapshot fetch is not ready: ${issues.map((issue) => issue.message).join(' ')}`;
+}
+
+function isNumericProviderIdentifier(value: string) {
+  return /^\d+$/.test(value.trim());
 }
 
 async function createSupabaseClient() {
@@ -1070,7 +1338,7 @@ function normalizeSportsDataIoGameStatus(row: Record<string, unknown>): Provisio
 
 function readObject(input: unknown) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) {
-    throw new Error('SportsDataIO Replay payload row is malformed.');
+    throw new Error('SportsDataIO payload row is malformed.');
   }
 
   return input as Record<string, unknown>;

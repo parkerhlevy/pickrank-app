@@ -5,6 +5,9 @@ type BrowserSupabaseConfig = {
   anonKey: string;
 };
 
+export type ProvisionalStatsSourceMode = 'replay_validation' | 'in_season_live';
+export type SportsDataIoAuthMode = 'header' | 'query';
+
 type HeaderSource = Pick<Headers, 'get'>;
 
 function readRequiredEnv(name: string) {
@@ -69,11 +72,29 @@ export function getStatsProviderFetchToken() {
 }
 
 export function getSportsDataIoReplayBaseUrl() {
-  return process.env.PICKRANK_SPORTSDATAIO_REPLAY_BASE_URL || 'https://api.sportsdata.io/v3/nfl';
+  return process.env.PICKRANK_SPORTSDATAIO_REPLAY_BASE_URL || 'https://replay.sportsdata.io/api/v3/nfl';
 }
 
 export function getSportsDataIoReplayApiKey() {
   return process.env.PICKRANK_SPORTSDATAIO_REPLAY_API_KEY || '';
+}
+
+export function getProvisionalStatsSourceMode(): ProvisionalStatsSourceMode {
+  return process.env.PICKRANK_PROVISIONAL_STATS_SOURCE_MODE === 'in_season_live'
+    ? 'in_season_live'
+    : 'replay_validation';
+}
+
+export function getSportsDataIoLiveBaseUrl() {
+  return process.env.PICKRANK_SPORTSDATAIO_LIVE_BASE_URL || 'https://api.sportsdata.io/v3/nfl';
+}
+
+export function getSportsDataIoLiveApiKey() {
+  return process.env.PICKRANK_SPORTSDATAIO_LIVE_API_KEY || '';
+}
+
+export function getSportsDataIoLiveAuthMode(): SportsDataIoAuthMode {
+  return process.env.PICKRANK_SPORTSDATAIO_LIVE_AUTH_MODE === 'query' ? 'query' : 'header';
 }
 
 export function getRequestOrigin(headers: HeaderSource, fallbackOrigin = getAppUrl()) {

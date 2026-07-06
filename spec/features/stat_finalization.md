@@ -62,6 +62,18 @@ PickRank now distinguishes between:
 
 Do not treat provisional live data as sufficient to publish official contest results.
 
+For current development, SportsDataIO Replay may be used to validate provisional snapshot ingestion against recorded games. That Replay path is a validation mode, not the default documented plan for true in-season live operation.
+
+Before any in-season live provisional surface is treated as production-ready, PickRank must separately confirm the real live SportsDataIO product/license, host, auth pattern, and endpoint coverage needed for current-season data.
+
+Current documented expectation:
+
+- Replay validation uses `https://replay.sportsdata.io/api/v3/nfl/...?...key=...`
+- true in-season live mode should move to the standard SportsDataIO live NFL API host `https://api.sportsdata.io/v3/nfl`
+- the live path should use the standard SportsDataIO API key contract and prefer the `Ocp-Apim-Subscription-Key` header in app requests
+- the first live internal refresh should be limited to the live equivalents of `ScoresByWeek` and `PlayerGameStatsByWeek`
+- exact account-level live entitlement names remain an operator confirmation step in the SportsDataIO portal before production wiring
+
 ---
 
 ## MVP Stat Source of Truth

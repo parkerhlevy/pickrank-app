@@ -14,6 +14,11 @@ import {
 } from '@/lib/contest-data';
 import { canFinalizeContestStatus, parseFinalStatRows } from '@/lib/contest-finalization';
 import { requireContestOperator } from '@/lib/contest-operator-access';
+import {
+  buildReplayValidationRefreshMessage,
+  refreshReplayValidationContestSnapshot,
+  replayValidationContestId,
+} from '@/lib/replay-provisional-validation';
 import { finalizeContestResults } from '@/lib/contest-results';
 import { fetchAndPersistContestStatSnapshot } from '@/lib/stats-provider';
 
@@ -294,6 +299,37 @@ export async function fetchContestStatSnapshotAction(formData: FormData) {
     }
 
     const message = error instanceof Error ? error.message : 'Unable to fetch the provider snapshot right now.';
+
+    redirect(buildAdminContestsRedirect('error', message));
+  }
+}
+
+export async function refreshReplayValidationContestSnapshotAction(formData: FormData) {
+  await requireContestOperator('/admin/contests');
+  const parsed = contestIdSchema.safeParse({
+    contestId: String(formData.get('contestId') || ''),
+  });
+
+  if (!parsed.success) {
+    redirect(buildAdminContestsRedirect('error', parsed.error.issues[0]?.message || 'Contest not found.'));
+  }
+
+  if (parsed.data.contestId !== replayValidationContestId) {
+    redirect(buildAdminContestsRedirect('error', 'Replay preview refresh is only available for the hidden validation contest.'));
+  }
+
+  try {
+    const snapshot = await refreshReplayValidationContestSnapshot();
+
+    revalidateAdminContestPaths(parsed.data.contestId);
+
+    redirect(buildAdminContestsRedirect('fetched', buildReplayValidationRefreshMessage(snapshot)));
+  } catch (error) {
+    if (isRedirectError(error)) {
+      throw error;
+    }
+
+    const message = error instanceof Error ? error.message : 'Unable to refresh the Replay provisional snapshot right now.';
 
     redirect(buildAdminContestsRedirect('error', message));
   }

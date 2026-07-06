@@ -6,6 +6,7 @@ import {
   fetchContestStatSnapshotAction,
   finalizeContestAction,
   publishContestAction,
+  refreshReplayValidationContestSnapshotAction,
   saveContestSlateAction,
   validateDraftContestAction,
 } from '@/app/admin/contests/actions';
@@ -14,6 +15,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { canFinalizeContestStatus } from '@/lib/contest-finalization';
 import { listAdminContests, type ContestSummary } from '@/lib/contest-data';
 import { requireContestOperator } from '@/lib/contest-operator-access';
+import { buildProvisionalStatsPreview } from '@/lib/provisional-stats-preview';
+import { replayValidationContestId } from '@/lib/replay-provisional-validation';
 import { buildContestStatIngestionPreview } from '@/lib/contest-stat-ingestion';
 
 export default async function AdminContestsPage({
@@ -29,6 +32,8 @@ export default async function AdminContestsPage({
       finalStatPreview: canFinalizeContestStatus(contest.contestStatus)
         ? await buildContestStatIngestionPreview(contest)
         : null,
+      provisionalPreview:
+        contest.id === replayValidationContestId ? await buildProvisionalStatsPreview(contest.id) : null,
     })),
   );
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
@@ -174,7 +179,7 @@ export default async function AdminContestsPage({
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              {contestsWithStatPreview.map(({ contest, finalStatPreview }) => (
+              {contestsWithStatPreview.map(({ contest, finalStatPreview, provisionalPreview }) => (
                 <div key={contest.id} className="rounded-lg border bg-white p-3">
                   <div className="flex items-start justify-between gap-3">
                     <div>
@@ -214,6 +219,71 @@ export default async function AdminContestsPage({
                       </span>
                     )}
                   </div>
+                  {provisionalPreview ? (
+                    <div className="mt-3 rounded-lg border bg-slate-50 p-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold text-foreground">Replay Validation Preview</p>
+                          <p className="mt-1 text-xs text-muted-foreground">{provisionalPreview.helperText}</p>
+                        </div>
+                        <span className="status-pill shrink-0">
+                          {provisionalPreview.status === 'snapshot_ready' ? 'Snapshot Ready' : 'Snapshot Missing'}
+                        </span>
+                      </div>
+                      <form action={refreshReplayValidationContestSnapshotAction} className="mt-3">
+                        <input type="hidden" name="contestId" value={contest.id} />
+                        <Button type="submit" variant="secondary" className="w-full">
+                          Refresh Replay Preview Snapshot
+                        </Button>
+                      </form>
+                      <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-4">
+                        <div className="rounded-md border bg-white px-3 py-2">
+                          <p className="font-semibold text-foreground">Scheduled</p>
+                          <p>{provisionalPreview.gameCounts.scheduled}</p>
+                        </div>
+                        <div className="rounded-md border bg-white px-3 py-2">
+                          <p className="font-semibold text-foreground">In Progress</p>
+                          <p>{provisionalPreview.gameCounts.inProgress}</p>
+                        </div>
+                        <div className="rounded-md border bg-white px-3 py-2">
+                          <p className="font-semibold text-foreground">Final</p>
+                          <p>{provisionalPreview.gameCounts.final}</p>
+                        </div>
+                        <div className="rounded-md border bg-white px-3 py-2">
+                          <p className="font-semibold text-foreground">Total Games</p>
+                          <p>{provisionalPreview.gameCounts.total}</p>
+                        </div>
+                      </div>
+                      {provisionalPreview.rows.length > 0 ? (
+                        <div className="mt-3 rounded-md border bg-white">
+                          <div className="border-b px-3 py-2 text-xs font-semibold text-foreground">
+                            Latest saved QB passing-yard order
+                          </div>
+                          <div className="divide-y">
+                            {provisionalPreview.rows.map((row) => (
+                              <div
+                                key={`${row.playerId}-${row.provisionalRankDisplay}`}
+                                className="flex items-start justify-between gap-3 px-3 py-2 text-xs"
+                              >
+                                <div>
+                                  <p className="font-semibold text-foreground">
+                                    {row.provisionalRankDisplay}. {row.playerName}
+                                  </p>
+                                  <p className="text-muted-foreground">
+                                    {row.teamAbbreviation} {row.homeAway === 'home' ? 'vs' : '@'} {row.opponentAbbreviation}
+                                  </p>
+                                </div>
+                                <div className="text-right text-muted-foreground">
+                                  <p className="font-semibold text-foreground">{row.passingYards} pass yds</p>
+                                  <p>{formatGameStatus(row.gameStatus)}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
                   {contest.contestStatus === 'draft' ? (
                     <form action={saveContestSlateAction} className="mt-3 space-y-3">
                       <input type="hidden" name="contestId" value={contest.id} />
@@ -384,4 +454,15 @@ function buildSlatePlaceholder() {
     'qb-josh-allen|provider-qb-josh-allen|buf-bal-2026-wk2|Josh Allen|BUF|BAL|home|2026-09-10T00:20:00.000Z|QB|active',
     'qb-joe-burrow|provider-qb-joe-burrow|cin-cle-2026-wk2|Joe Burrow|CIN|CLE|away|2026-09-10T20:25:00.000Z|QB|active',
   ].join('\n');
+}
+
+function formatGameStatus(status: 'scheduled' | 'in_progress' | 'final') {
+  switch (status) {
+    case 'in_progress':
+      return 'In progress';
+    case 'final':
+      return 'Final';
+    default:
+      return 'Scheduled';
+  }
 }
