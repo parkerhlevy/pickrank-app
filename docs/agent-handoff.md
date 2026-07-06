@@ -63,7 +63,7 @@ The repo is past bare Phase 0 and currently includes:
 
 Current branch reality on `main` as of 2026-07-06:
 
-- `main` is now ahead of `origin/main` by three local commits: `6002569 Unify shared-shell notice and status treatment`, `bf3bf0f Polish shared-shell account and leaderboard surfaces`, and `c73b2f1 Add in-season live provisional validation lane`
+- `main` is currently ahead of `origin/main` with local hygiene and provider commits waiting to push, including `6002569 Unify shared-shell notice and status treatment`, `bf3bf0f Polish shared-shell account and leaderboard surfaces`, `c73b2f1 Add in-season live provisional validation lane`, and the follow-up handoff refresh commit from this run
 - the latest local provider/admin baseline now includes the repeatable Replay validation harness, the hidden 2026 in-season live validation contest prep and fetch helpers, and the `/admin/contests` provisional preview plus refresh surface
 - pushing those three local commits back to GitHub is currently blocked on this machine because `git push origin main` fails with `could not read Username for 'https://github.com': Device not configured`
 - the current Remotion source baseline is a motion-polished `34.5s` waitlist-focused cut under `assets/marketing/video/`, aligned to the 15-player / pick-10 product framing and the `pickrankgames.com` brand
