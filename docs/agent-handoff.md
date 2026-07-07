@@ -63,7 +63,7 @@ The repo is past bare Phase 0 and currently includes:
 
 Current branch reality on `main` as of 2026-07-07:
 
-- `main` is currently synced with `origin/main`; the verified homepage integration commit `a5dce0c Integrate locked homepage video` and the temporary handoff-status commit `bdfd11e Refresh handoff for homepage push blocker` are now pushed to GitHub
+- `main` is currently synced with `origin/main`; the verified homepage integration commit `a5dce0c Integrate locked homepage video`, the handoff follow-up `c9a05e4 Refresh handoff after auth restore`, and the homepage conversion commit `1c006c1 Clarify homepage contest conversion flow` are now pushed to GitHub
 - the homepage integration keeps the live landing page pointed at `public/marketing/pickrank-landing-video-locked-in-final.mp4` with `public/marketing/pickrank-landing-thumb.png` as the poster, adds the Remotion repo-hygiene helper notes and script, and updates homepage coverage in `tests/e2e/homepage.spec.ts`
 - the 2026-07-07 homepage conversion pass keeps that same video baseline but now leads with a clearer contest explainer, a stronger account-creation CTA, an explicit three-step contest flow, and tighter supporting copy aimed at moving visitors from understanding the format into account creation or contest browsing without changing product behavior
 - local verification for the homepage slice passes `npm run typecheck`, `npm run test` (`23` files, `109` tests passed), and `npx playwright test tests/e2e/homepage.spec.ts` when the local dev server is allowed to bind outside the sandbox
