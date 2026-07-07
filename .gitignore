@@ -10,3 +10,6 @@ playwright-report
 test-results
 .DS_Store
 tsconfig.tsbuildinfo
+assets/marketing/video/public/audio/pickrank-hype-bed*.wav
+assets/marketing/video/public/audio/locked-in-source/
+assets/marketing/video/public/brand/pickrank-wordmark-light.png

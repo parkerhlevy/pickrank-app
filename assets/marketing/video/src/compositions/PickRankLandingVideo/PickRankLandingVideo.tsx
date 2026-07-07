@@ -14,7 +14,7 @@ import { pickRankTimeline } from "./timeline";
 export const PICKRANK_LANDING_VIDEO_DURATION = pickRankTimeline.totalDuration;
 
 export const PickRankLandingVideo = (props: PickRankLaunchVideoProps) => {
-  const audioBedFile = props.audio?.bedFile ?? "audio/pickrank-hype-bed-arcade-drive.wav";
+  const audioBedFile = props.audio?.bedFile ?? "audio/locked-in-final.wav";
   const audioTrimBeforeFrames = props.audio?.trimBeforeFrames ?? 0;
 
   return (

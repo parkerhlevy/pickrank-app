@@ -6,7 +6,8 @@ import { ArrowRight, PlayCircle, ShieldCheck, Sparkles, Users } from 'lucide-rea
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-const landingVideoPath = '/marketing/pickrank-overview.mp4';
+const landingVideoPath = '/marketing/pickrank-landing-video-locked-in-final.mp4';
+const landingVideoPosterPath = '/marketing/pickrank-landing-thumb.png';
 const hasLandingVideo = existsSync(join(process.cwd(), 'public', landingVideoPath));
 
 const proofPoints = [
@@ -85,6 +86,8 @@ export default function HomePage() {
                 <video
                   controls
                   preload="metadata"
+                  playsInline
+                  poster={landingVideoPosterPath}
                   className="aspect-video w-full rounded-xl border border-white/10 bg-slate-900"
                   aria-label="PickRank product walkthrough video"
                 >

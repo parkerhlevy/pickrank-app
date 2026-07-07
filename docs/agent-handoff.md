@@ -67,6 +67,7 @@ Current branch reality on `main` as of 2026-07-06:
 - the latest local provider/admin baseline now includes the repeatable Replay validation harness, the hidden 2026 in-season live validation contest prep and fetch helpers, and the `/admin/contests` provisional preview plus refresh surface
 - the current Remotion source baseline is a motion-polished `34.5s` waitlist-focused cut under `assets/marketing/video/`, aligned to the 15-player / pick-10 product framing and the `pickrankgames.com` brand
 - the latest rendered review asset is `assets/marketing/video/out/pickrank-landing-video.mp4`
+- the live landing page now serves the finalized `Locked In` export from `public/marketing/pickrank-landing-video-locked-in-final.mp4` with `public/marketing/pickrank-landing-thumb.png` as the poster image, while the Remotion source-of-truth render remains under `assets/marketing/video/out/`
 - the latest local video pass on 2026-07-02 loosened headline tracking for readability, removed the misleading ranking arrow marker, and rebuilt the scoring beat into a simpler two-example points equation so the slide reads as "lowest total wins" instead of a dense rule card
 - the latest local video pass on 2026-07-03 restored several scene states that had drifted backward during earlier scoring/readability edits: selection now uses `Slate` and `Your Board`, ranking now animates to a clean final reorder with Mahomes landing in `#1`, scoring cards and rule pills are aligned more consistently, the differentiator headline is split into three lines, the weekly board shows actual point totals, and the CTA again uses the logo plus one waitlist button instead of duplicate waitlist copy
 - the current cut lock now lives in `docs/marketing/remotion-current-cut.md`; future Remotion passes should read that file before editing scene copy, UI state, or CTA content so older brief ideas do not slip back into the active cut
@@ -136,7 +137,8 @@ Current branch reality on `main` as of 2026-07-06:
 - `docs/design/DESIGN.md` is now the canonical design entrypoint for future UI work, with `figma-screenshot-audit.md`, `figma-v1.md`, and `figma-make-reference.md` treated as supporting presentation references behind `/spec` and `docs/agent-handoff.md`
 - repo verification for that UI cleanup passes `npm run typecheck` and `npm run test`, and the focused lineup Playwright assertions are now aligned to the current `10/10 Ranked` and `Left in Slate` copy; direct sandbox startup still hits `listen EPERM` on `0.0.0.0:3000`, but the focused auth-gated entry-flow browser pass now succeeds when the local test server is allowed to start outside the sandbox via `npx playwright test tests/e2e/lineup-builder.spec.ts`
 - the locked Remotion music-cut slice now also passes repo `npm run typecheck`, repo `npm run test`, `npm run lint` inside `assets/marketing/video`, and a full unsandboxed `npm run render -- --timeout=120000` export of `PickRankLandingVideo`
-- the live `main` worktree is not fully clean yet: the remaining dirt is only compare-only Remotion media and helper files under `assets/marketing/video/public/audio/`, `assets/marketing/video/public/brand/`, and `assets/marketing/video/scripts/`, plus the usual generated `next-env.d.ts`; the locked default cut itself is committed and pushed
+- the Remotion repo-hygiene pass now keeps the committed baseline anchored to `audio/locked-in-final.wav`, the `brand/pickrank-wordmark-white-pick.png` CTA asset, and the lightweight regeneration helper under `assets/marketing/video/scripts/`, while ignoring the disposable hype-bed WAV set, the bulky local `locked-in-source/` package dump, and the unused alternate `pickrank-wordmark-light.png`
+- the live `main` worktree should now be clean aside from the intentional homepage/video integration slice itself until any future local-only Remotion comparisons are reintroduced
 
 ## Core Commands
 
@@ -250,25 +252,24 @@ The MVP includes:
 Next recommended slice:
 
 ```text
-Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Keep this slice limited to Remotion repo hygiene under `assets/marketing/video`. Before changing behavior, read `docs/agent-handoff.md`, `docs/marketing/remotion-current-cut.md`, `assets/marketing/video/README.md`, and the current untracked asset set under `assets/marketing/video/public/audio/`, `assets/marketing/video/public/brand/`, and `assets/marketing/video/scripts/`. Keep the slice narrow: classify the remaining compare-only audio beds, the large `locked-in-source` dump, the alternate light logo PNG, and the helper script into `keep in repo` versus `park outside the committed baseline`, then commit only the files that clearly support near-term review or repeatable generation. Leave the locked `Locked In` default cut unchanged unless a file is strictly required to preserve it, avoid unrelated product, provider, auth, or design-system work, refresh `docs/agent-handoff.md` if the kept asset set or next move changes, and explain results business-first: what changed, why it matters, what passed, what remains intentionally uncommitted, and what I need to do next.
+Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Keep this slice limited to shipping the homepage marketing-video integration as a clean commit. Before changing behavior, read `docs/agent-handoff.md`, `docs/marketing/remotion-current-cut.md`, `docs/design/DESIGN.md`, `assets/marketing/video/README.md`, and the current homepage files that reference the live marketing asset. Keep the slice narrow: stage only the landing-page video asset swap, the homepage verification updates, the Remotion hygiene guardrails that keep compare-only audio out of git noise, and any directly related handoff notes. Leave unrelated provider, auth, scoring, admin, and design-system work untouched, avoid re-render churn unless the locked cut changes, and explain results business-first: what changed, why it matters, what passed, what remains intentionally uncommitted, and what I need to do next.
 ```
 
 Definition of done:
 
 - The committed default cut stays anchored to `audio/locked-in-final.wav`, `brand/pickrank-wordmark-white-pick.png`, and the scene lock documented in `docs/marketing/remotion-current-cut.md`
-- Every remaining untracked Remotion asset is explicitly classified as either worth keeping in repo soon or intentionally left outside the committed baseline
-- No unrelated product, provider, auth, or app-shell files are mixed into the cleanup commit
-- If any compare-only asset is kept, the repo explains why that file matters for near-term review or repeatable generation
-- `assets/marketing/video` still passes `npm run lint` after the cleanup
-- Re-render the video only if the locked default cut changes; otherwise avoid churn in generated outputs
-- Update this handoff note with the final keep-versus-park decision so future chats do not reopen the same asset audit
+- The homepage still serves the finalized `Locked In` export and poster from `public/marketing/`
+- Compare-only Remotion audio no longer pollutes `git status`, and the baseline fallback still points at `locked-in-final.wav`
+- No unrelated product, provider, auth, admin, or design-system files are mixed into the commit
+- `assets/marketing/video` still passes `npm run lint`, and repo verification still covers the homepage integration
+- Update this handoff note if the staged commit boundary or next recommended move changes again
 
 ## Starter Prompt For Future Chats
 
 Use this default starter prompt pattern unless the next slice needs a tighter scoped variation:
 
 ```text
-Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Keep this slice limited to Remotion repo hygiene under `assets/marketing/video`. Before changing behavior, read `docs/agent-handoff.md`, `docs/marketing/remotion-current-cut.md`, `assets/marketing/video/README.md`, and the current untracked asset set under `assets/marketing/video/public/audio/`, `assets/marketing/video/public/brand/`, and `assets/marketing/video/scripts/`. Keep the slice narrow: classify the remaining compare-only audio beds, the large `locked-in-source` dump, the alternate light logo PNG, and the helper script into `keep in repo` versus `park outside the committed baseline`, then commit only the files that clearly support near-term review or repeatable generation. Leave the locked `Locked In` default cut unchanged unless a file is strictly required to preserve it, avoid unrelated product, provider, auth, or design-system work, refresh `docs/agent-handoff.md` if the kept asset set or next move changes, and explain results business-first: what changed, why it matters, what passed, what remains intentionally uncommitted, and what I need to do next.
+Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Keep this slice limited to shipping the homepage marketing-video integration as a clean commit. Before changing behavior, read `docs/agent-handoff.md`, `docs/marketing/remotion-current-cut.md`, `docs/design/DESIGN.md`, `assets/marketing/video/README.md`, and the current homepage files that reference the live marketing asset. Keep the slice narrow: stage only the landing-page video asset swap, the homepage verification updates, the Remotion hygiene guardrails that keep compare-only audio out of git noise, and any directly related handoff notes. Leave unrelated provider, auth, scoring, admin, and design-system work untouched, avoid re-render churn unless the locked cut changes, and explain results business-first: what changed, why it matters, what passed, what remains intentionally uncommitted, and what I need to do next.
 ```
 
 ## Generated Files to Avoid Committing
