@@ -63,10 +63,10 @@ The repo is past bare Phase 0 and currently includes:
 
 Current branch reality on `main` as of 2026-07-07:
 
-- `main` is ahead of `origin/main` by one locally verified homepage commit: `a5dce0c Integrate locked homepage video`
-- that commit keeps the live homepage pointed at `public/marketing/pickrank-landing-video-locked-in-final.mp4` with `public/marketing/pickrank-landing-thumb.png` as the poster, adds the Remotion repo-hygiene helper notes and script, and updates homepage coverage in `tests/e2e/homepage.spec.ts`
-- local verification for `a5dce0c` passes `npm run typecheck`, `npm run test` (`23` files, `109` tests passed), and `npx playwright test tests/e2e/homepage.spec.ts` when the local dev server is allowed to bind outside the sandbox
-- the remaining blocker is GitHub auth on this machine, not repo health: sandboxed `git push origin main` still fails on DNS, and the unsandboxed retry still fails with `could not read Username for 'https://github.com': Device not configured`
+- `main` is currently synced with `origin/main`; the verified homepage integration commit `a5dce0c Integrate locked homepage video` and the temporary handoff-status commit `bdfd11e Refresh handoff for homepage push blocker` are now pushed to GitHub
+- the homepage integration keeps the live landing page pointed at `public/marketing/pickrank-landing-video-locked-in-final.mp4` with `public/marketing/pickrank-landing-thumb.png` as the poster, adds the Remotion repo-hygiene helper notes and script, and updates homepage coverage in `tests/e2e/homepage.spec.ts`
+- local verification for the homepage slice passes `npm run typecheck`, `npm run test` (`23` files, `109` tests passed), and `npx playwright test tests/e2e/homepage.spec.ts` when the local dev server is allowed to bind outside the sandbox
+- GitHub auth on this machine has now been restored through `gh auth login`, and `gh auth setup-git` is configured in `~/.gitconfig` so future HTTPS pushes use GitHub CLI's credential helper instead of failing on missing local credentials
 - the latest local provider/admin baseline now includes the repeatable Replay validation harness, the hidden 2026 in-season live validation contest prep and fetch helpers, and the `/admin/contests` provisional preview plus refresh surface
 - the current Remotion source baseline is a motion-polished `34.5s` waitlist-focused cut under `assets/marketing/video/`, aligned to the 15-player / pick-10 product framing and the `pickrankgames.com` brand
 - the latest rendered review asset is `assets/marketing/video/out/pickrank-landing-video.mp4`
@@ -99,7 +99,7 @@ Current branch reality on `main` as of 2026-07-07:
 - live browser verification now confirms Google sign-in returns correctly to `www.pickrankgames.com`, public `/contests` and `/contests/week-1-qb-passing-yards` work against the real contest records, and a signed-in `contest_operator` can reach `/admin/contests`
 - direct Vercel production deployment `dpl_GhDY7kEZxXn9Wvm6ACKmd8EwyDcQ` moved production onto the real admin contest UI, and follow-up deployment `dpl_EXHcfuUHrMokumP3wMcMkoE2iAtY` fixed the false `NEXT_REDIRECT` publish banner
 - live production verification now confirms the draft validation step passes, the publish button enables only after validation, the publish action succeeds, and the newly published contest appears in public browse
-- GitHub push access from this machine is currently blocked by local credential state, so the committed homepage integration baseline is only local until a credential-backed `git push origin main` succeeds
+- GitHub push access from this machine is working again, and the current committed repo baseline is back on GitHub; production deployment still needs to catch up separately when the next approved deploy happens
 - final live browser verification on 2026-06-30 confirms public `/contests` now shows Week 1 as `Open` and Week 2 as `Scheduled`, while signed-in admin `/admin/contests` shows both records as visible under the `contest_operator` gate with publish controls inactive for those already-published contests
 - contest finalization now has a saved-results foundation: operators can prefill final stat rows from a provider-backed adapter seam, still type `FINAL` to confirm scoring, and publish saved contest results plus final leaderboard standings without exposing live scoring
 - the official finalization seam still supports disabled, file-backed, and persisted-snapshot flows for final stat prefills, while the repo now also has a separate Replay-backed provisional snapshot foundation plus a manual admin fetch action for live QB passing-yard ordering and operator review prep
@@ -255,24 +255,24 @@ The MVP includes:
 Next recommended slice:
 
 ```text
-Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Keep this slice limited to clearing the verified homepage-video branch state. Before changing behavior, read `docs/agent-handoff.md`, `docs/marketing/remotion-current-cut.md`, `docs/design/DESIGN.md`, `assets/marketing/video/README.md`, and the current homepage files that reference the live marketing asset. Keep the slice narrow: restore GitHub push ability for the already-verified `a5dce0c Integrate locked homepage video` commit, avoid mixing in generated `next-env.d.ts` churn or unrelated provider/admin/auth work, and only move on to deploy-oriented follow-up if the push succeeds cleanly. Explain results business-first: what changed, why it matters, what passed, what remains blocked, and what I need to do next.
+Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Keep this slice limited to the next concrete product or deployment milestone, not git recovery. Before changing behavior, read `docs/agent-handoff.md`, `spec/product_spec.md`, and the relevant `spec/features/` file for the area you are touching, plus any route, QA, or marketing docs that directly govern that slice. Keep the slice narrow, avoid mixing provider/admin/auth/marketing work unless the files clearly belong together, and treat `next-env.d.ts` as generated noise unless a diff proves otherwise. Explain results business-first: what changed, why it matters, what passed, what remains risky, and what I need to do next.
 ```
 
 Definition of done:
 
-- The already-created `a5dce0c Integrate locked homepage video` commit is pushed to `origin/main` without changing its file boundary
+- The repo stays synced with `origin/main` after the next slice lands
 - The homepage still serves the finalized `Locked In` export and poster from `public/marketing/`
-- Generated `next-env.d.ts` churn stays out of any follow-up commit unless the exact diff is intentionally required
-- No unrelated product, provider, auth, admin, or design-system files are mixed into the push-clearing work
-- Repo verification for the homepage slice still includes `npm run typecheck`, `npm run test`, and `npx playwright test tests/e2e/homepage.spec.ts`
-- Update this handoff note again if push status or the next recommended move changes
+- Generated `next-env.d.ts` churn stays out of follow-up commits unless the exact diff is intentionally required
+- No unrelated product, provider, auth, admin, or design-system files are mixed into the next slice
+- Relevant repo verification still runs before closeout, with browser checks added when the slice touches rendered route behavior or QA contracts
+- Update this handoff note again if repo reality or the next recommended move changes
 
 ## Starter Prompt For Future Chats
 
 Use this default starter prompt pattern unless the next slice needs a tighter scoped variation:
 
 ```text
-Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Keep this slice limited to clearing the verified homepage-video branch state. Before changing behavior, read `docs/agent-handoff.md`, `docs/marketing/remotion-current-cut.md`, `docs/design/DESIGN.md`, `assets/marketing/video/README.md`, and the current homepage files that reference the live marketing asset. Keep the slice narrow: restore GitHub push ability for the already-verified `a5dce0c Integrate locked homepage video` commit, avoid mixing in generated `next-env.d.ts` churn or unrelated provider/admin/auth work, and only move on to deploy-oriented follow-up if the push succeeds cleanly. Explain results business-first: what changed, why it matters, what passed, what remains blocked, and what I need to do next.
+Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Keep this slice limited to the next concrete product or deployment milestone, not git recovery. Before changing behavior, read `docs/agent-handoff.md`, `spec/product_spec.md`, and the relevant `spec/features/` file for the area you are touching, plus any route, QA, or marketing docs that directly govern that slice. Keep the slice narrow, avoid mixing provider/admin/auth/marketing work unless the files clearly belong together, and treat `next-env.d.ts` as generated noise unless a diff proves otherwise. Explain results business-first: what changed, why it matters, what passed, what remains risky, and what I need to do next.
 ```
 
 ## Generated Files to Avoid Committing
