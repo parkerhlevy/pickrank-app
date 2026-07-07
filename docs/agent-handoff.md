@@ -65,6 +65,7 @@ Current branch reality on `main` as of 2026-07-07:
 
 - `main` is currently synced with `origin/main`; the verified homepage integration commit `a5dce0c Integrate locked homepage video` and the temporary handoff-status commit `bdfd11e Refresh handoff for homepage push blocker` are now pushed to GitHub
 - the homepage integration keeps the live landing page pointed at `public/marketing/pickrank-landing-video-locked-in-final.mp4` with `public/marketing/pickrank-landing-thumb.png` as the poster, adds the Remotion repo-hygiene helper notes and script, and updates homepage coverage in `tests/e2e/homepage.spec.ts`
+- the 2026-07-07 homepage conversion pass keeps that same video baseline but now leads with a clearer contest explainer, a stronger account-creation CTA, an explicit three-step contest flow, and tighter supporting copy aimed at moving visitors from understanding the format into account creation or contest browsing without changing product behavior
 - local verification for the homepage slice passes `npm run typecheck`, `npm run test` (`23` files, `109` tests passed), and `npx playwright test tests/e2e/homepage.spec.ts` when the local dev server is allowed to bind outside the sandbox
 - GitHub auth on this machine has now been restored through `gh auth login`, and `gh auth setup-git` is configured in `~/.gitconfig` so future HTTPS pushes use GitHub CLI's credential helper instead of failing on missing local credentials
 - the latest local provider/admin baseline now includes the repeatable Replay validation harness, the hidden 2026 in-season live validation contest prep and fetch helpers, and the `/admin/contests` provisional preview plus refresh surface
@@ -261,7 +262,7 @@ Continue PickRank using the repo as source of truth. Keep explanations business-
 Definition of done:
 
 - The repo stays synced with `origin/main` after the next slice lands
-- The homepage still serves the finalized `Locked In` export and poster from `public/marketing/`
+- The homepage still serves the finalized `Locked In` export and poster from `public/marketing/`, while preserving the clearer contest explainer, CTA hierarchy, and three-step conversion framing from the 2026-07-07 pass
 - Generated `next-env.d.ts` churn stays out of follow-up commits unless the exact diff is intentionally required
 - No unrelated product, provider, auth, admin, or design-system files are mixed into the next slice
 - Relevant repo verification still runs before closeout, with browser checks added when the slice touches rendered route behavior or QA contracts

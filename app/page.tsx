@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, PlayCircle, ShieldCheck, Sparkles, Users } from 'lucide-react';
+import { ArrowRight, CheckCircle2, PlayCircle, ShieldCheck, Sparkles, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -12,20 +12,41 @@ const hasLandingVideo = existsSync(join(process.cwd(), 'public', landingVideoPat
 
 const proofPoints = [
   {
-    title: 'Easy to understand',
-    description: 'See the weekly contest format, the 15-QB slate, and how rankings turn into standings.',
+    title: 'Clear weekly format',
+    description: 'Each contest centers on one stat category, one slate, and one scoring system you can understand quickly.',
     icon: Sparkles,
   },
   {
-    title: 'Built around skill',
-    description: 'PickRank rewards how close your rankings are to the real results, not random swings.',
+    title: 'Skill-based scoring',
+    description: 'Your score comes from how close each ranking lands to the final order, so sharp calls matter.',
     icon: ShieldCheck,
   },
   {
-    title: 'Ready for sign-in',
-    description: 'Create an account now so you can move straight into entry and lineup steps as access expands.',
+    title: 'Simple next step',
+    description: 'Create your account now so you are ready to move from contest details into entry and lineup setup.',
     icon: Users,
   },
+];
+
+const steps = [
+  {
+    title: 'Start with the slate',
+    description: 'Open the weekly contest, review the stat category, and see which 15 players are in the pool.',
+  },
+  {
+    title: 'Rank your top 10',
+    description: 'Build your lineup by choosing the 10 players you trust most and ordering them from first to tenth.',
+  },
+  {
+    title: 'Let the final results decide it',
+    description: 'After the games finish, lower miss scores rise to the top of the leaderboard and final results.',
+  },
+];
+
+const formatHighlights = [
+  'One stat category per contest',
+  '15-player slate',
+  'Rank your top 10',
 ];
 
 export default function HomePage() {
@@ -48,28 +69,39 @@ export default function HomePage() {
                 priority
               />
               <h1 className="max-w-xl text-4xl font-black leading-tight text-white sm:text-5xl">
-                Rank the slate. Climb the leaderboard.
+                Understand the contest. Be ready for the slate.
               </h1>
               <p className="max-w-2xl text-base leading-7 text-slate-200 sm:text-lg">
-                PickRank is a skill-based ranking contest app. The current live format asks you to rank your top 10
-                quarterbacks from a 15-player slate and compete based on how close your order is to the final results.
+                PickRank is a skill-based ranking contest app where you study a slate, rank your top picks, and compete
+                based on how close your order is to the final results. The current live format centers on ranking the
+                top 10 quarterbacks from a 15-player slate by passing yards.
               </p>
+            </div>
+            <div className="flex flex-wrap gap-2 text-sm text-blue-50">
+              {formatHighlights.map((highlight) => (
+                <div
+                  key={highlight}
+                  className="rounded-full border border-white/12 bg-white/6 px-3 py-1.5 font-medium"
+                >
+                  {highlight}
+                </div>
+              ))}
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Button asChild size="lg" className="text-sm font-bold">
                 <Link href="/auth">
-                  Sign Up
+                  Create Account
                   <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
                 </Link>
               </Button>
               <Button asChild size="lg" variant="secondary" className="text-sm font-bold">
-                <Link href="/how-it-works">See How It Works</Link>
+                <Link href="/contests">Browse Open Contests</Link>
               </Button>
             </div>
             <div className="grid gap-3 text-sm text-slate-200 sm:grid-cols-3">
-              <div className="rounded-xl border border-white/12 bg-white/6 px-4 py-3">Browse open contests and lock times</div>
-              <div className="rounded-xl border border-white/12 bg-white/6 px-4 py-3">See scoring, tiebreakers, and final-results flow</div>
-              <div className="rounded-xl border border-white/12 bg-white/6 px-4 py-3">Create an account to save your place in the flow</div>
+              <div className="rounded-xl border border-white/12 bg-white/6 px-4 py-3">See open contests, lock times, and the featured slate.</div>
+              <div className="rounded-xl border border-white/12 bg-white/6 px-4 py-3">Learn how rankings turn into lower scores and final standings.</div>
+              <div className="rounded-xl border border-white/12 bg-white/6 px-4 py-3">Create your account when you are ready to move into contest entry.</div>
             </div>
           </div>
 
@@ -79,9 +111,9 @@ export default function HomePage() {
                 <PlayCircle className="h-4 w-4" aria-hidden="true" />
                 Product walkthrough
               </div>
-              <CardTitle className="text-2xl">See how the weekly contest flow comes together.</CardTitle>
+              <CardTitle className="text-2xl">See the contest flow before you sign up.</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               {hasLandingVideo ? (
                 <video
                   controls
@@ -104,9 +136,35 @@ export default function HomePage() {
                   </p>
                 </div>
               )}
+              <div className="grid gap-2 text-sm text-slate-200">
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 text-blue-200" aria-hidden="true" />
+                  <span>Understand the weekly contest structure before you commit to the flow.</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 text-blue-200" aria-hidden="true" />
+                  <span>See how contest details, lineup setup, and final results connect.</span>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-3">
+        {steps.map((step, index) => (
+          <Card key={step.title} className="section-card">
+            <CardHeader className="space-y-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-sm font-bold text-blue-600">
+                {index + 1}
+              </div>
+              <CardTitle className="text-lg">{step.title}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm leading-6 text-muted-foreground">{step.description}</p>
+            </CardContent>
+          </Card>
+        ))}
       </section>
 
       <section className="grid gap-4 lg:grid-cols-3">
@@ -128,35 +186,38 @@ export default function HomePage() {
       <section className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
         <Card className="section-card">
           <CardHeader>
-            <CardTitle>What PickRank is</CardTitle>
+            <CardTitle>Why the format is easy to follow</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm leading-6 text-muted-foreground">
-            <p>PickRank runs skill-based contests built around one stat category at a time.</p>
+            <p>PickRank keeps each contest focused on one stat category at a time so the challenge is easy to follow.</p>
             <p>
-              In the current MVP format, you choose and rank your top 10 quarterbacks from the featured 15-player slate,
-              then receive a miss score based on how far each pick lands from the final finish.
+              In the current MVP format, you rank your top 10 quarterbacks from a 15-player slate and receive a miss
+              score based on how far each ranking lands from the final order.
             </p>
-            <p>The goal is simple: reward sharp judgment with a format that feels clear from the first screen.</p>
+            <p>The goal is to make the path from contest details to final results feel understandable from the first screen.</p>
           </CardContent>
         </Card>
 
         <Card className="section-card">
           <CardHeader>
-            <CardTitle>What to do next</CardTitle>
+            <CardTitle>Take the next step</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm leading-6 text-muted-foreground">
-              Browse the live contest flow now. After you sign in, PickRank can send you straight into the saved entry
-              and lineup steps for the contest you choose.
+              Browse the contest flow now, then create your account when you want to be ready for entry and lineup setup.
             </p>
             <div className="section-card-muted space-y-3 px-4 py-4 text-sm">
               <div className="detail-row bg-white">
-                <span>Open Contests</span>
-                <span className="font-medium text-foreground">Browse public contest details</span>
+                <span>1. Browse Open Contests</span>
+                <span className="font-medium text-foreground">Review the featured slate and lock timing</span>
               </div>
               <div className="detail-row bg-white">
-                <span>Build Your Lineup</span>
-                <span className="text-muted-foreground">Available after entry confirmation</span>
+                <span>2. See How It Works</span>
+                <span className="text-muted-foreground">Learn the scoring and final-results flow</span>
+              </div>
+              <div className="detail-row bg-white">
+                <span>3. Create Account</span>
+                <span className="text-muted-foreground">Be ready for contest entry and lineup setup</span>
               </div>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
@@ -164,7 +225,7 @@ export default function HomePage() {
                 <Link href="/auth">Create Account</Link>
               </Button>
               <Button asChild variant="secondary" className="sm:flex-1">
-                <Link href="/contests">Browse the App Preview</Link>
+                <Link href="/how-it-works">See How It Works</Link>
               </Button>
             </div>
           </CardContent>
