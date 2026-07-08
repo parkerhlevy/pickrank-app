@@ -61,9 +61,10 @@ The repo is past bare Phase 0 and currently includes:
 - Vitest wired
 - Basic route smoke tests
 
-Current branch reality on `main` as of 2026-07-07:
+Current branch reality on `main` as of 2026-07-08:
 
-- `main` is currently synced with `origin/main`; the verified homepage integration commit `a5dce0c Integrate locked homepage video`, the handoff follow-up `c9a05e4 Refresh handoff after auth restore`, and the homepage conversion commit `1c006c1 Clarify homepage contest conversion flow` are now pushed to GitHub
+- `main` is currently synced with `origin/main` at `9a323dc Harden leaderboard states and Supabase access`; there are no committed-but-unpushed changes on this machine
+- the latest pushed repo baseline now includes the 2026-07-07 leaderboard hardening plus Supabase access tightening that keeps `/leaderboard?contest=...` in explicit placeholder states for non-final contests and moves the hidden replay/live validation scripts onto `SUPABASE_SERVICE_ROLE_KEY`
 - the homepage integration keeps the live landing page pointed at `public/marketing/pickrank-landing-video-locked-in-final.mp4` with `public/marketing/pickrank-landing-thumb.png` as the poster, adds the Remotion repo-hygiene helper notes and script, and updates homepage coverage in `tests/e2e/homepage.spec.ts`
 - the 2026-07-07 homepage conversion pass keeps that same video baseline but now leads with a clearer contest explainer, a stronger account-creation CTA, an explicit three-step contest flow, and tighter supporting copy aimed at moving visitors from understanding the format into account creation or contest browsing without changing product behavior
 - local verification for the homepage slice passes `npm run typecheck`, `npm run test` (`23` files, `109` tests passed), and `npx playwright test tests/e2e/homepage.spec.ts` when the local dev server is allowed to bind outside the sandbox
@@ -137,9 +138,9 @@ Current branch reality on `main` as of 2026-07-07:
 - `next-env.d.ts` should usually be treated as generated noise unless a slice specifically requires it
 - security hardening is now an explicit repo boundary: migration `db/migrations/0009_rls_hardening.sql` enables RLS on the main public-schema app tables, keeps public reads narrow to visible contests and final results, limits entry and lineup mutations to the signed-in owner during `open`, and reserves admin and snapshot writes for `contest_operator`
 - the internal replay/live validation scripts now require `SUPABASE_SERVICE_ROLE_KEY` instead of the browser anon key because those hidden validation contests and snapshot tables should no longer depend on public-table access
-- the active marketing/Remotion and design-doc work was intentionally parked on 2026-07-02 in the local stashes `parked-remotion-design-2026-07-02` and `parked-next-env-noise-2026-07-02`, but there is now also a live resumed marketing edit set in `assets/marketing/video/` that remains intentionally uncommitted
+- the active marketing/Remotion and design-doc work was intentionally parked on 2026-07-02 in the local stashes `parked-remotion-design-2026-07-02` and `parked-next-env-noise-2026-07-02`; there is no active marketing dirt in the live `main` worktree right now
 - there is also a separate detached worktree at `/private/tmp/pickrank-lineup-verify` with active contest-entry edits; preserve it as in-progress work until that slice is either resumed or intentionally parked
-- the live `main` worktree is not fully clean yet: the remaining dirt is the resumed marketing/Remotion polish bundle plus generated `next-env.d.ts`
+- the live `main` worktree is effectively clean aside from generated `next-env.d.ts` churn from local Next.js and Playwright runs
 - the 2026-07-04 shared-shell cleanup pass now carries the same header, status notice, section-card, badge, CTA, spacing, and placeholder framing system across the public and auth-gated shell surfaces, including `/`, `/contests`, `/contests/[contestId]`, `/payment`, `/success`, `/how-it-works`, `/auth`, `/profile`, `/wallet`, `/leaderboard`, `/contests/[contestId]/results`, and the saved and locked lineup states on `/contests/[contestId]/lineup`, without changing routing, auth gating, lineup rules, scoring, payouts, wallet rules, compliance boundaries, or admin/provider behavior
 - `docs/design/DESIGN.md` is now the canonical design entrypoint for future UI work, with `figma-screenshot-audit.md`, `figma-v1.md`, and `figma-make-reference.md` treated as supporting presentation references behind `/spec` and `docs/agent-handoff.md`
 - repo verification for that UI cleanup passes `npm run typecheck` and `npm run test`, and the focused lineup Playwright assertions are now aligned to the current `10/10 Ranked` and `Left in Slate` copy; direct sandbox startup still hits `listen EPERM` on `0.0.0.0:3000`, but the focused auth-gated entry-flow browser pass now succeeds when the local test server is allowed to start outside the sandbox via `npx playwright test tests/e2e/lineup-builder.spec.ts`
@@ -262,14 +263,14 @@ Next recommended slice:
 ```text
 Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Before changing behavior, read `docs/agent-handoff.md`, `spec/product_spec.md`, and the relevant `spec/features/` files for the slice you are about to work on, plus any in-progress worktree files already involved. Work carefully with existing in-progress files. Keep the slice narrow, avoid payouts, scoring, real-money, compliance, and other broader lifecycle work unless explicitly requested, and run typecheck, tests, and browser verification before closing. Before you finish, refresh `docs/agent-handoff.md` if the slice changed repo reality or the next recommended move.
 
-For this slice: apply `db/migrations/0009_rls_hardening.sql` to the active Supabase project, then verify public contest reads, signed-in lineup save, final leaderboard plus personal results, `/admin/contests`, and the hidden replay/live validation refresh paths against the live database.
+For this slice: rerun `npm run validate:live-provisional` during the first preseason or in-progress 2026 games, confirm the hidden `week-1-qb-passing-yards-live-validation-2026` snapshot shows non-zero player stats plus truthful game-state counts, and record the observed ordering and counts in repo docs if the live feed behavior changes.
 ```
 
 Definition of done:
 
 - The repo stays synced with `origin/main` after the next slice lands
-- The live Supabase project has the RLS hardening migration applied before the incident is considered closed
-- Public contest reads, signed-in entry and lineup flows, final results reads, and operator-only admin paths all still behave correctly after the live migration
+- The hidden 2026 live-validation contest records at least one realistic non-zero SportsDataIO provisional snapshot before the operator lane is treated as season-ready
+- Any changed live-feed behavior, entitlement surprise, or snapshot-shape drift is written back into repo docs before the slice closes
 - Generated `next-env.d.ts` churn stays out of follow-up commits unless the exact diff is intentionally required
 - No unrelated product, provider, auth, admin, or design-system files are mixed into the next slice
 - Relevant repo verification still runs before closeout, with browser checks added when the slice touches rendered route behavior or QA contracts
