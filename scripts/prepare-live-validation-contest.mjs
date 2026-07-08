@@ -14,22 +14,22 @@ main().catch((error) => {
 async function main() {
   const env = await loadEnvFile(path.join(process.cwd(), '.env.local'));
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_SERVICE_ROLE_KEY;
   const liveApiKey = process.env.PICKRANK_SPORTSDATAIO_LIVE_API_KEY || env.PICKRANK_SPORTSDATAIO_LIVE_API_KEY;
   const liveBaseUrl =
     process.env.PICKRANK_SPORTSDATAIO_LIVE_BASE_URL ||
     env.PICKRANK_SPORTSDATAIO_LIVE_BASE_URL ||
     'https://api.sportsdata.io/v3/nfl';
 
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY for live validation contest prep.');
+  if (!supabaseUrl || !supabaseServiceRoleKey) {
+    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY for live validation contest prep.');
   }
 
   if (!liveApiKey) {
     throw new Error('Missing PICKRANK_SPORTSDATAIO_LIVE_API_KEY for live validation contest prep.');
   }
 
-  const supabase = createClient(supabaseUrl, supabaseAnonKey);
+  const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
   const sourceContest = await loadSourceContest(supabase, 'week-1-qb-passing-yards');
   const normalizedLiveBaseUrl = liveBaseUrl.replace(/\/$/, '');
   const [scores, depthCharts, teams] = await Promise.all([

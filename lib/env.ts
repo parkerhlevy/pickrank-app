@@ -5,6 +5,11 @@ type BrowserSupabaseConfig = {
   anonKey: string;
 };
 
+type ServiceRoleSupabaseConfig = {
+  url: string;
+  serviceRoleKey: string;
+};
+
 export type ProvisionalStatsSourceMode = 'replay_validation' | 'in_season_live';
 export type SportsDataIoAuthMode = 'header' | 'query';
 
@@ -24,6 +29,13 @@ export function getBrowserSupabaseConfig(): BrowserSupabaseConfig {
   return {
     url: readRequiredEnv('NEXT_PUBLIC_SUPABASE_URL'),
     anonKey: readRequiredEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY'),
+  };
+}
+
+export function getServiceRoleSupabaseConfig(): ServiceRoleSupabaseConfig {
+  return {
+    url: readRequiredEnv('NEXT_PUBLIC_SUPABASE_URL'),
+    serviceRoleKey: readRequiredEnv('SUPABASE_SERVICE_ROLE_KEY'),
   };
 }
 

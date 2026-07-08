@@ -55,18 +55,18 @@ main().catch((error) => {
 async function main() {
   const env = await loadEnvFile(path.join(process.cwd(), '.env.local'));
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_SERVICE_ROLE_KEY;
   const replayApiKey = process.env.PICKRANK_SPORTSDATAIO_REPLAY_API_KEY || env.PICKRANK_SPORTSDATAIO_REPLAY_API_KEY;
 
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY for live validation.');
+  if (!supabaseUrl || !supabaseServiceRoleKey) {
+    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY for live validation.');
   }
 
   if (!replayApiKey) {
     throw new Error('Missing PICKRANK_SPORTSDATAIO_REPLAY_API_KEY for live validation.');
   }
 
-  const supabase = createClient(supabaseUrl, supabaseAnonKey);
+  const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
   const contestId = await upsertReplayValidationContest(supabase);
   const snapshot = await fetchReplaySnapshot(replayApiKey);
   await persistReplaySnapshot(supabase, contestId, snapshot);

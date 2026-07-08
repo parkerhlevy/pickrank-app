@@ -29,6 +29,19 @@ describe('env helpers', () => {
     expect(hasBrowserSupabaseConfig()).toBe(true);
   });
 
+  it('returns configured service-role Supabase values', async () => {
+    vi.resetModules();
+    vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://example.supabase.co');
+    vi.stubEnv('SUPABASE_SERVICE_ROLE_KEY', 'service-role-key');
+
+    const { getServiceRoleSupabaseConfig } = await import('../../lib/env');
+
+    expect(getServiceRoleSupabaseConfig()).toEqual({
+      url: 'https://example.supabase.co',
+      serviceRoleKey: 'service-role-key',
+    });
+  });
+
   it('builds the request origin from forwarded headers', async () => {
     vi.resetModules();
     vi.stubEnv('NEXT_PUBLIC_APP_URL', 'https://pickrank-app.vercel.app');

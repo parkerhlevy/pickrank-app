@@ -21,7 +21,7 @@ main().catch((error) => {
 async function main() {
   const env = await loadEnvFile(path.join(process.cwd(), '.env.local'));
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_SERVICE_ROLE_KEY;
   const liveApiKey = process.env.PICKRANK_SPORTSDATAIO_LIVE_API_KEY || env.PICKRANK_SPORTSDATAIO_LIVE_API_KEY;
   const liveBaseUrl =
     process.env.PICKRANK_SPORTSDATAIO_LIVE_BASE_URL ||
@@ -34,8 +34,8 @@ async function main() {
   const contestSlug =
     process.env.PICKRANK_IN_SEASON_LIVE_CONTEST_SLUG || env.PICKRANK_IN_SEASON_LIVE_CONTEST_SLUG || '';
 
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY for in-season live validation.');
+  if (!supabaseUrl || !supabaseServiceRoleKey) {
+    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY for in-season live validation.');
   }
 
   if (!liveApiKey) {
@@ -46,7 +46,7 @@ async function main() {
     throw new Error('Missing PICKRANK_IN_SEASON_LIVE_CONTEST_SLUG for in-season live validation.');
   }
 
-  const supabase = createClient(supabaseUrl, supabaseAnonKey);
+  const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
   const createSupabaseClient = async () => supabase;
   const contest = await loadInSeasonLiveValidationContestInput(contestSlug, createSupabaseClient);
   const snapshot = await saveSportsDataIoLiveProvisionalSnapshot({

@@ -582,7 +582,7 @@ export async function updateContestEntryCounts(
   }
 
   const { row } = await getDatabaseContestBySlug(contestId);
-  const supabase: any = await createSupabaseClient();
+  const supabase: any = await createSupabaseAdminClient();
   const { error } = await supabase
     .from('contests')
     .update({
@@ -911,6 +911,11 @@ function shouldUseFileStore(options?: ContestDataOptions) {
 async function createSupabaseClient() {
   const { createClient } = await import('@/lib/supabase/server');
   return createClient();
+}
+
+async function createSupabaseAdminClient() {
+  const { createAdminClient } = await import('@/lib/supabase/admin');
+  return createAdminClient();
 }
 
 async function getDatabaseContestBySlug(contestSlug: string) {

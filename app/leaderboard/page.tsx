@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { getContestById, listPublicFinalContests } from '@/lib/contest-data';
 import { getContestLeaderboard } from '@/lib/contest-results';
+import { getLeaderboardPlaceholderState, hasPublishedContestResults } from '@/lib/leaderboard-state';
 
 export default async function LeaderboardPage({
   searchParams,
@@ -46,7 +47,53 @@ export default async function LeaderboardPage({
   }
 
   const contest = await getContestById(contestId);
-  const leaderboard = await getContestLeaderboard(contestId);
+  const hasPublishedResults = hasPublishedContestResults(contest.contestStatus);
+  const leaderboard = hasPublishedResults ? await getContestLeaderboard(contestId) : null;
+
+  if (!hasPublishedResults) {
+    const placeholder = getLeaderboardPlaceholderState(contest.contestStatus);
+
+    return (
+      <div className="space-y-6">
+        <section className="screen-header space-y-2">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="eyebrow">Leaderboard</p>
+              <h1 className="text-3xl font-black leading-tight">{placeholder.title}</h1>
+            </div>
+            <span className="status-pill shrink-0 status-pill-muted">{contest.status}</span>
+          </div>
+          <p className="text-muted-foreground">{placeholder.description}</p>
+        </section>
+
+        <Card className="section-card overflow-hidden">
+          <CardHeader className="section-card-header">
+            <div className="flex items-start justify-between gap-3">
+              <div className="space-y-1">
+                <CardTitle>{contest.title}</CardTitle>
+                <CardDescription className="text-slate-300">
+                  {contest.status}. Final leaderboard and results stay placeholder-only until saved final scoring is confirmed.
+                </CardDescription>
+              </div>
+              <span className="status-pill shrink-0 bg-white/10 text-white border-white/15">Final only</span>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4 pt-6">
+            <div className="empty-state-card text-sm text-muted-foreground">{placeholder.description}</div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Button asChild variant="secondary">
+                <Link href={`/contests/${contest.id}`}>View Contest Details</Link>
+              </Button>
+              <Button asChild>
+                <Link href="/contests">View Open Contests</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   const topThree = leaderboard?.rows.slice(0, 3) ?? [];
   const remainingRows = leaderboard?.rows.slice(3) ?? [];
 
