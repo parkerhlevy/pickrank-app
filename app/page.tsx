@@ -55,11 +55,11 @@ export default function HomePage() {
             </div>
             <div className="space-y-3">
               <Image
-                src="/brand/pickrank-wordmark-white-pick.png"
+                src="/brand/pickrank-wordmark-football-transparent-light.png"
                 alt="PickRank"
-                width={240}
-                height={86}
-                className="h-auto w-[184px] sm:w-[220px]"
+                width={520}
+                height={173}
+                className="h-auto w-[240px] sm:w-[320px]"
                 priority
               />
               <h1 className="max-w-xl text-4xl font-black leading-tight text-white sm:text-5xl">

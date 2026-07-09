@@ -77,6 +77,7 @@ App-facing files:
 - `public/brand/pickrank-wordmark-dark.png`
 - `public/brand/pickrank-wordmark-light.png`
 - `public/brand/pickrank-wordmark-clean.png`
+- `public/brand/pickrank-wordmark-football-transparent-light.png`
 - `public/brand/pickrank-app-icon.png`
 
 Source exports are stored in:
@@ -85,13 +86,16 @@ Source exports are stored in:
 
 Transparent source exports:
 
-- `public/brand/source/pickrank-wordmark-football-transparent.png`
 - `public/brand/source/pickrank-wordmark-transparent.png`
 - `public/brand/source/pickrank-monogram-transparent.png`
 - `public/brand/source/pickrank-app-icon-dark-transparent.png`
 - `public/brand/source/pickrank-hero-concept-transparent.png`
 
-Use the app-facing wordmark on a deliberate light chip when placed on the current dark hero surface because the `PICK` lettering is navy. Avoid using the full generated hero concept in production UI because it includes generated player/phone imagery and is better treated as visual reference only.
+Preview/reference exports:
+
+- `public/brand/source/pickrank-wordmark-football-transparent-light-preview-dark.png`
+
+Use `public/brand/pickrank-wordmark-football-transparent-light.png` as the approved dark-surface homepage or marketing variant when the football-trace treatment helps the composition. Keep the simpler app-facing wordmarks as the default brand set for lighter surfaces and tighter UI placements. The `*-preview-dark.png` file is a review/reference mock, not the canonical transparent asset. Avoid using the full generated hero concept in production UI because it includes generated player/phone imagery and is better treated as visual reference only.
 
 ## Parker Review Notes After First Visual Pass
 
