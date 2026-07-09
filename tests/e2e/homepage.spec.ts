@@ -4,18 +4,20 @@ test('homepage loads as a landing page with sign-up CTA and no bottom nav', asyn
   await page.goto('/');
 
   await expect(page.getByRole('img', { name: 'PickRank' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Understand the contest. Be ready for the slate.' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Create Account' })).toHaveCount(2);
-  await expect(page.getByRole('link', { name: 'Create Account' }).first()).toHaveAttribute('href', '/auth');
-  await expect(page.getByRole('link', { name: 'Browse Open Contests' })).toHaveAttribute('href', '/contests');
+  await expect(page.getByRole('heading', { name: '15 players. Pick 10. Rank them.' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Sign up for the waitlist' })).toHaveAttribute('href', '/auth');
+  await expect(page.getByRole('link', { name: 'Browse Open Contests' })).toHaveCount(0);
+  await expect(page.getByText('Your new favorite fantasy game')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Learn how to play today' })).toBeVisible();
   const walkthroughVideo = page.getByLabel('PickRank product walkthrough video');
   await expect(walkthroughVideo).toBeVisible();
   await expect(walkthroughVideo).toHaveAttribute('poster', '/marketing/pickrank-landing-thumb.png');
   await expect(page.locator('video source')).toHaveAttribute('src', '/marketing/pickrank-landing-video-locked-in-final.mp4');
   await expect(page.getByText('Walkthrough video coming soon')).toHaveCount(0);
+  await expect(page.getByText('Understand the weekly contest structure before you commit to the flow.')).toHaveCount(0);
   await expect(page.getByRole('navigation')).toHaveCount(0);
 
-  await page.getByRole('link', { name: 'Create Account' }).first().click();
+  await page.getByRole('link', { name: 'Sign up for the waitlist' }).click();
   await expect(page).toHaveURL('/auth');
   await expect(page.getByRole('heading', { name: 'Account Access' })).toBeVisible();
 });

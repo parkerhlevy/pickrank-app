@@ -63,11 +63,11 @@ The repo is past bare Phase 0 and currently includes:
 
 Current branch reality on `main` as of 2026-07-08:
 
-- `main` is currently synced with `origin/main` at `9a323dc Harden leaderboard states and Supabase access`; there are no committed-but-unpushed changes on this machine
-- the latest pushed repo baseline now includes the 2026-07-07 leaderboard hardening plus Supabase access tightening that keeps `/leaderboard?contest=...` in explicit placeholder states for non-final contests and moves the hidden replay/live validation scripts onto `SUPABASE_SERVICE_ROLE_KEY`
+- `main` is currently synced with `origin/main`; there are no committed-but-unpushed changes on this machine when the worktree is clean
+- the latest pushed repo baseline includes the 2026-07-07 leaderboard hardening plus Supabase access tightening that keeps `/leaderboard?contest=...` in explicit placeholder states for non-final contests and moves the hidden replay/live validation scripts onto `SUPABASE_SERVICE_ROLE_KEY`
 - the homepage integration keeps the live landing page pointed at `public/marketing/pickrank-landing-video-locked-in-final.mp4` with `public/marketing/pickrank-landing-thumb.png` as the poster, adds the Remotion repo-hygiene helper notes and script, and updates homepage coverage in `tests/e2e/homepage.spec.ts`
-- the 2026-07-07 homepage conversion pass keeps that same video baseline but now leads with a clearer contest explainer, a stronger account-creation CTA, an explicit three-step contest flow, and tighter supporting copy aimed at moving visitors from understanding the format into account creation or contest browsing without changing product behavior
-- local verification for the homepage slice passes `npm run typecheck`, `npm run test` (`23` files, `109` tests passed), and `npx playwright test tests/e2e/homepage.spec.ts` when the local dev server is allowed to bind outside the sandbox
+- the 2026-07-08 homepage landing-page polish pass keeps that same video baseline but now uses the white-`Pick` hero wordmark from `public/brand/pickrank-wordmark-white-pick.png`, restores the tighter video-line headline `15 players. Pick 10. Rank them.`, shortens the hero copy, collapses the above-the-fold CTA to a single waitlist-focused action, and trims the extra helper copy in the hero and video card without changing product behavior
+- repo verification for that homepage lane passes `npm run typecheck`, `npm run test` (`25` files, `115` tests passed), and `npx playwright test tests/e2e/homepage.spec.ts` when the local dev server is allowed to bind outside the sandbox
 - GitHub auth on this machine has now been restored through `gh auth login`, and `gh auth setup-git` is configured in `~/.gitconfig` so future HTTPS pushes use GitHub CLI's credential helper instead of failing on missing local credentials
 - the latest local provider/admin baseline now includes the repeatable Replay validation harness, the hidden 2026 in-season live validation contest prep and fetch helpers, and the `/admin/contests` provisional preview plus refresh surface
 - the current Remotion source baseline is a motion-polished `34.5s` waitlist-focused cut under `assets/marketing/video/`, aligned to the 15-player / pick-10 product framing and the `pickrankgames.com` brand
@@ -263,14 +263,14 @@ Next recommended slice:
 ```text
 Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Before changing behavior, read `docs/agent-handoff.md`, `spec/product_spec.md`, and the relevant `spec/features/` files for the slice you are about to work on, plus any in-progress worktree files already involved. Work carefully with existing in-progress files. Keep the slice narrow, avoid payouts, scoring, real-money, compliance, and other broader lifecycle work unless explicitly requested, and run typecheck, tests, and browser verification before closing. Before you finish, refresh `docs/agent-handoff.md` if the slice changed repo reality or the next recommended move.
 
-For this slice: rerun `npm run validate:live-provisional` during the first preseason or in-progress 2026 games, confirm the hidden `week-1-qb-passing-yards-live-validation-2026` snapshot shows non-zero player stats plus truthful game-state counts, and record the observed ordering and counts in repo docs if the live feed behavior changes.
+For this slice: run a broader security review immediately after repo hygiene is clean, focused on the newly hardened auth, entry, results, admin, provisional snapshot, and hidden validation-script access boundaries before more provider or operator workflow changes land.
 ```
 
 Definition of done:
 
 - The repo stays synced with `origin/main` after the next slice lands
-- The hidden 2026 live-validation contest records at least one realistic non-zero SportsDataIO provisional snapshot before the operator lane is treated as season-ready
-- Any changed live-feed behavior, entitlement surprise, or snapshot-shape drift is written back into repo docs before the slice closes
+- The focused security scan confirms there is no obvious regression in public reads, signed-in entry writes, admin-only actions, final-results access, or service-role-only hidden validation paths
+- Any validated security finding or meaningful residual risk is written back into repo docs before the slice closes
 - Generated `next-env.d.ts` churn stays out of follow-up commits unless the exact diff is intentionally required
 - No unrelated product, provider, auth, admin, or design-system files are mixed into the next slice
 - Relevant repo verification still runs before closeout, with browser checks added when the slice touches rendered route behavior or QA contracts

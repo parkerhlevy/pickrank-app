@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, CheckCircle2, PlayCircle, ShieldCheck, Sparkles, Users } from 'lucide-react';
+import { ArrowRight, PlayCircle, ShieldCheck, Sparkles, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -43,12 +43,6 @@ const steps = [
   },
 ];
 
-const formatHighlights = [
-  'One stat category per contest',
-  '15-player slate',
-  'Rank your top 10',
-];
-
 export default function HomePage() {
   return (
     <div className="space-y-8 pb-6">
@@ -61,7 +55,7 @@ export default function HomePage() {
             </div>
             <div className="space-y-3">
               <Image
-                src="/brand/pickrank-wordmark-clean.png"
+                src="/brand/pickrank-wordmark-white-pick.png"
                 alt="PickRank"
                 width={240}
                 height={86}
@@ -69,39 +63,20 @@ export default function HomePage() {
                 priority
               />
               <h1 className="max-w-xl text-4xl font-black leading-tight text-white sm:text-5xl">
-                Understand the contest. Be ready for the slate.
+                15 players. Pick 10. Rank them.
               </h1>
               <p className="max-w-2xl text-base leading-7 text-slate-200 sm:text-lg">
                 PickRank is a skill-based ranking contest app where you study a slate, rank your top picks, and compete
-                based on how close your order is to the final results. The current live format centers on ranking the
-                top 10 quarterbacks from a 15-player slate by passing yards.
+                based on how close your order is to the final results.
               </p>
-            </div>
-            <div className="flex flex-wrap gap-2 text-sm text-blue-50">
-              {formatHighlights.map((highlight) => (
-                <div
-                  key={highlight}
-                  className="rounded-full border border-white/12 bg-white/6 px-3 py-1.5 font-medium"
-                >
-                  {highlight}
-                </div>
-              ))}
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Button asChild size="lg" className="text-sm font-bold">
                 <Link href="/auth">
-                  Create Account
+                  Sign up for the waitlist
                   <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="secondary" className="text-sm font-bold">
-                <Link href="/contests">Browse Open Contests</Link>
-              </Button>
-            </div>
-            <div className="grid gap-3 text-sm text-slate-200 sm:grid-cols-3">
-              <div className="rounded-xl border border-white/12 bg-white/6 px-4 py-3">See open contests, lock times, and the featured slate.</div>
-              <div className="rounded-xl border border-white/12 bg-white/6 px-4 py-3">Learn how rankings turn into lower scores and final standings.</div>
-              <div className="rounded-xl border border-white/12 bg-white/6 px-4 py-3">Create your account when you are ready to move into contest entry.</div>
             </div>
           </div>
 
@@ -109,11 +84,11 @@ export default function HomePage() {
             <CardHeader className="space-y-2">
               <div className="inline-flex items-center gap-2 text-sm font-semibold text-blue-100">
                 <PlayCircle className="h-4 w-4" aria-hidden="true" />
-                Product walkthrough
+                Your new favorite fantasy game
               </div>
-              <CardTitle className="text-2xl">See the contest flow before you sign up.</CardTitle>
+              <CardTitle className="text-2xl">Learn how to play today</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent>
               {hasLandingVideo ? (
                 <video
                   controls
@@ -136,16 +111,6 @@ export default function HomePage() {
                   </p>
                 </div>
               )}
-              <div className="grid gap-2 text-sm text-slate-200">
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 text-blue-200" aria-hidden="true" />
-                  <span>Understand the weekly contest structure before you commit to the flow.</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 text-blue-200" aria-hidden="true" />
-                  <span>See how contest details, lineup setup, and final results connect.</span>
-                </div>
-              </div>
             </CardContent>
           </Card>
         </div>
