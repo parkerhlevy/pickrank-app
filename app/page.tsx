@@ -31,15 +31,15 @@ const proofPoints = [
 const steps = [
   {
     title: 'Start with the slate',
-    description: 'Open the weekly contest, review the stat category, and see which 15 players are in the pool.',
+    description: 'Each week, you’ll get 15 players competing in one stat category.',
   },
   {
     title: 'Rank your top 10',
-    description: 'Build your lineup by choosing the 10 players you trust most and ordering them from first to tenth.',
+    description: 'Choose who you think will finish highest and put them in order.',
   },
   {
-    title: 'Let the final results decide it',
-    description: 'After the games finish, lower miss scores rise to the top of the leaderboard and final results.',
+    title: 'See how you stack up',
+    description: 'When the games are over, the most accurate rankings rise to the top and win cash prizes.',
   },
 ];
 
@@ -116,20 +116,26 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-3">
-        {steps.map((step, index) => (
-          <Card key={step.title} className="section-card">
-            <CardHeader className="space-y-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-sm font-bold text-blue-600">
-                {index + 1}
-              </div>
-              <CardTitle className="text-lg">{step.title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm leading-6 text-muted-foreground">{step.description}</p>
-            </CardContent>
-          </Card>
-        ))}
+      <section className="space-y-4">
+        <div className="space-y-1">
+          <h2 className="text-2xl font-black leading-tight">How PickRank works</h2>
+          <p className="text-muted-foreground">Three simple steps. One weekly challenge.</p>
+        </div>
+        <div className="grid gap-4 lg:grid-cols-3">
+          {steps.map((step, index) => (
+            <Card key={step.title} className="section-card">
+              <CardHeader className="space-y-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-sm font-bold text-blue-600">
+                  {index + 1}
+                </div>
+                <CardTitle className="text-lg">{step.title}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm leading-6 text-muted-foreground">{step.description}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </section>
 
       <section className="grid gap-4 lg:grid-cols-3">
