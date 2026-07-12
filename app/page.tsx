@@ -66,14 +66,14 @@ export default function HomePage() {
                 15 players. Pick 10. Rank them.
               </h1>
               <p className="max-w-2xl text-base leading-7 text-slate-200 sm:text-lg">
-                PickRank is a skill-based ranking contest app where you study a slate, rank your top picks, and compete
-                based on how close your order is to the final results.
+                Think you know who’s going off this week? Prove it. Rank your top 10 players, then see how your picks
+                stack up when the games are over and compete for the top spot.
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Button asChild size="lg" className="text-sm font-bold">
                 <Link href="/auth">
-                  Sign up for the waitlist
+                  Join the waitlist
                   <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
                 </Link>
               </Button>
@@ -84,9 +84,9 @@ export default function HomePage() {
             <CardHeader className="space-y-2">
               <div className="inline-flex items-center gap-2 text-sm font-semibold text-blue-100">
                 <PlayCircle className="h-4 w-4" aria-hidden="true" />
-                Your new favorite fantasy game
+                See PickRank in action
               </div>
-              <CardTitle className="text-2xl">Learn how to play today</CardTitle>
+              <CardTitle className="text-2xl">Learn the game in 34 seconds</CardTitle>
             </CardHeader>
             <CardContent>
               {hasLandingVideo ? (
