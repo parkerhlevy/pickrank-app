@@ -8,7 +8,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { getProtectedContestEntryRedirect } from '@/lib/contest-entry-access';
 import {
   contestEntryCookieName,
-  getContestEntryProgressHref,
   getContestEntryRouteState,
   getContestEntryStateCopy,
   getContestEntrySteps,
@@ -23,6 +22,8 @@ import {
 } from '@/lib/contest-data';
 import { getPersistedContestEntry } from '@/lib/persisted-contest-entry';
 import { getViewerIdentity } from '@/lib/viewer-identity';
+import { getContestEntryConfirmationError } from '@/lib/contest-entry-confirmation';
+import { confirmContestEntryAction } from './actions';
 
 export default async function PaymentReviewPage({
   params,
@@ -64,6 +65,7 @@ export default async function PaymentReviewPage({
   const stateCopy = getContestEntryStateCopy(routeState.stage);
   const flowSteps = getContestEntrySteps(routeState.stage);
   const breakdown = getPaymentReviewBreakdown(contest.entryFeeCents);
+  const confirmationError = getContestEntryConfirmationError(contest.entryFeeCents);
 
   const upcomingSteps = flowSteps.filter((step) => step.status === 'upcoming');
 
@@ -153,9 +155,26 @@ export default async function PaymentReviewPage({
       </Card>
 
       <div className="action-panel">
-        <Button asChild className="w-full">
-          <Link href={getContestEntryProgressHref(contest.id, 'entered')}>Confirm Entry</Link>
-        </Button>
+        {confirmationError ? (
+          <div className="space-y-3">
+            <Notice
+              variant="warning"
+              icon={AlertTriangle}
+              title="Entry confirmation unavailable"
+              description={confirmationError}
+            />
+            <Button className="w-full" disabled>
+              Confirm Entry
+            </Button>
+          </div>
+        ) : (
+          <form action={confirmContestEntryAction}>
+            <input type="hidden" name="contestId" value={contest.id} />
+            <Button type="submit" className="w-full">
+              Confirm Entry
+            </Button>
+          </form>
+        )}
       </div>
     </div>
   );

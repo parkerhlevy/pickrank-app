@@ -92,28 +92,10 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
     await page.goto('/contests/week-1-qb-passing-yards/payment');
     await expect(page.getByText('Step 2 of 4')).toBeVisible();
     await expect(page.getByText('Review your entry before you confirm')).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Confirm Entry' })).toBeVisible();
-
-    await seedEntryStore([
-      {
-        entryId: 'demo-entry-open',
-        contestId: 'week-1-qb-passing-yards',
-        lineupOrder: demoSavedLineup,
-        lastSavedAt: null,
-        source: 'default_assigned',
-        createdAt: '2026-06-22T00:00:00.000Z',
-        updatedAt: '2026-06-22T00:00:00.000Z',
-      },
-    ]);
-    await page.context().addCookies([
-      {
-        name: 'pickrank_demo_entry_state',
-        value: JSON.stringify({ 'week-1-qb-passing-yards': 'entered' }),
-        url: appUrl,
-      },
-    ]);
-
-    await page.goto('/contests/week-1-qb-passing-yards/success');
+    const confirmEntryButton = page.getByRole('button', { name: 'Confirm Entry' });
+    await expect(confirmEntryButton).toBeVisible();
+    await confirmEntryButton.click();
+    await expect(page).toHaveURL(/\/contests\/week-1-qb-passing-yards\/success$/);
     await expect(page.getByText('Step 3 of 4')).toBeVisible();
     await expect(page.getByRole('link', { name: 'Continue to Build Your Lineup' })).toBeVisible();
 

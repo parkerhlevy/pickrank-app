@@ -960,6 +960,9 @@ Before public real-money launch:
 - refund idempotent
 - payout idempotent
 - wallet ledger reconciles
+- migrations `0001` through the current payment/wallet migration apply cleanly to a disposable database
+- existing `db/tests/0010_entry_integrity_hardening.sql` protections still pass
+- paid-entry creation and cancellation database tests prove ownership enforcement, payment/refund coupling, atomic rollback, idempotent retries, contest-state cutoffs, and entry/lineup/count/ledger reconciliation
 - support process defined
 
 ---

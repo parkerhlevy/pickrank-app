@@ -61,9 +61,9 @@ The repo is past bare Phase 0 and currently includes:
 - Vitest wired
 - Basic route smoke tests
 
-Current branch reality on `main` as of 2026-07-09:
+Current branch reality on `main` as of 2026-07-10:
 
-- `main` is currently synced with `origin/main`; there are no committed-but-unpushed changes on this machine when the worktree is clean
+- `main` is currently synced with `origin/main`; there are no committed-but-unpushed changes on this machine, and the only local branch is still `main`
 - the latest pushed repo baseline includes the 2026-07-07 leaderboard hardening plus Supabase access tightening that keeps `/leaderboard?contest=...` in explicit placeholder states for non-final contests and moves the hidden replay/live validation scripts onto `SUPABASE_SERVICE_ROLE_KEY`
 - the homepage integration keeps the live landing page pointed at `public/marketing/pickrank-landing-video-locked-in-final.mp4` with `public/marketing/pickrank-landing-thumb.png` as the poster, adds the Remotion repo-hygiene helper notes and script, and updates homepage coverage in `tests/e2e/homepage.spec.ts`
 - the 2026-07-08 homepage landing-page polish pass keeps that same video baseline, keeps the tighter video-line headline `15 players. Pick 10. Rank them.`, shortens the hero copy, collapses the above-the-fold CTA to a single waitlist-focused action, and trims the extra helper copy in the hero and video card without changing product behavior
@@ -134,10 +134,17 @@ Current branch reality on `main` as of 2026-07-09:
 - public `/contests/[contestId]/results` and `/leaderboard?contest=...` now read from saved final results after a contest reaches `final` or `paid_out`
 - the 2026-07-07 leaderboard hardening pass now treats open, live, finalizing, canceled, and under-review contests as explicit placeholder states on `/leaderboard?contest=...` instead of falling through the final-results read path, so public Week 1 open-contest visits render a status-aware placeholder with contest-detail and open-contests CTAs rather than a live server crash
 - repo verification for the committed scoring/results slice includes unit coverage for stat ingestion, ranking, tie handling, finalization, and saved results plus Playwright coverage for operator finalization and signed-in final-results viewing; the current provisional snapshot foundation additionally passes `npm run typecheck`, focused provisional/provider tests, and the full Vitest suite via `npx vitest run --maxWorkers=1` in this constrained environment
-- the 2026-07-03 weekly repo-maintenance pass deleted six fully merged local `codex/*` branches, so the active local branch set is now just `main`
+- the 2026-07-03 weekly repo-maintenance pass deleted six fully merged local `codex/*` branches, so the active local branch set is still just `main`
+- the 2026-07-10 weekly repo-maintenance pass confirmed there is no second local worktree and no committed-but-unpushed branch work to consolidate
 - merged remote refs still include the older `origin/codex/*` stack plus `origin/spec/results-reveal-clean`; treat those as optional remote-side cleanup candidates later, not as local blockers
+- live remote-prune verification was not completed on 2026-07-10 because GitHub DNS/network access was unavailable from this environment, so no remote-tracking refs were deleted during this maintenance pass
 - `next-env.d.ts` should usually be treated as generated noise unless a slice specifically requires it
 - security hardening is now an explicit repo boundary: migration `db/migrations/0009_rls_hardening.sql` enables RLS on the main public-schema app tables, keeps public reads narrow to visible contests and final results, limits entry and lineup mutations to the signed-in owner during `open`, and reserves admin and snapshot writes for `contest_operator`
+- the focused security-remediation lane now fails paid entry confirmation closed until verified payment infrastructure exists, moves free/test entry creation behind a POST server action, keeps E2E entry mode non-production-only, and adds migration `0010_entry_integrity_hardening.sql` for atomic free-entry creation, same-contest lineup membership, and immutable entry ownership fields
+- migration `0010_entry_integrity_hardening.sql` is now runtime-verified against a disposable local Supabase database after a clean reset through migrations `0001`-`0010`; `db/tests/0010_entry_integrity_hardening.sql` covers successful and idempotent free entry, count integrity, paid/cross-contest/duplicate rejection, verified-profile gates, and denial of direct entry and cross-contest lineup writes
+- file-backed E2E/test entries increment total entry count but no longer increment `paidEntryCount`; only a future verified payment or wallet-entitlement path may mark an entry paid
+- deferred security release gate: the database branch of `removePersistedContestEntry` is intentionally denied by migration `0010` and must not be enabled by restoring direct authenticated `INSERT`, `UPDATE`, or `DELETE` access on `entries`; future paid-entry, wallet, refund, or cancellation work must replace it with narrow server-authoritative RPCs that validate ownership, contest state, and payment/refund entitlement while updating the entry, lineup, contest counts, payment status, and append-only wallet ledger atomically
+- before any payment/wallet or entry-cancellation slice closes, rerun `db/tests/0010_entry_integrity_hardening.sql` and add executable database coverage for unauthorized and cross-user cancellation, payment/refund coupling, atomic rollback, idempotent retries, contest-state cutoffs, and ledger/count reconciliation; failure of any case is release-blocking
 - the internal replay/live validation scripts now require `SUPABASE_SERVICE_ROLE_KEY` instead of the browser anon key because those hidden validation contests and snapshot tables should no longer depend on public-table access
 - the active marketing/Remotion and design-doc work was intentionally parked on 2026-07-02 in the local stashes `parked-remotion-design-2026-07-02` and `parked-next-env-noise-2026-07-02`; there is no active marketing dirt in the live `main` worktree right now
 - the earlier `/private/tmp/pickrank-lineup-verify` detached worktree is no longer present on disk; its stale git pointer was pruned on 2026-07-09, so there is no second active local worktree to preserve right now
@@ -148,7 +155,8 @@ Current branch reality on `main` as of 2026-07-09:
 - the latest local browser verification on 2026-07-07 confirms `http://localhost:3000/leaderboard?contest=week-1-qb-passing-yards` now returns `200` with the new non-final placeholder state, `http://localhost:3000/contests/week-1-qb-passing-yards` still returns `200`, and the unauthenticated open-contest results path still redirects cleanly to `/auth?next=%2Fcontests%2Fweek-1-qb-passing-yards%2Fresults` without a browser-visible server error
 - the locked Remotion music-cut slice now also passes repo `npm run typecheck`, repo `npm run test`, `npm run lint` inside `assets/marketing/video`, and a full unsandboxed `npm run render -- --timeout=120000` export of `PickRankLandingVideo`
 - the Remotion repo-hygiene pass now keeps the committed baseline anchored to `audio/locked-in-final.wav`, the `brand/pickrank-wordmark-white-pick.png` CTA asset, and the lightweight regeneration helper under `assets/marketing/video/scripts/`, while ignoring the disposable hype-bed WAV set, the bulky local `locked-in-source/` package dump, and the unused alternate `pickrank-wordmark-light.png`
-- the live `main` worktree is clean aside from generated `next-env.d.ts` churn from local Next.js and Playwright runs; treat that file as noise unless a future slice explicitly needs the new typed-route import footer
+- the live `main` worktree is not fully clean on 2026-07-10: active uncommitted spec clarification edits are present in `spec/product_spec.md`, `spec/features/account_profile_auth.md`, `spec/features/open_questions_decision_log.md`, and `spec/features/stat_finalization.md`
+- `next-env.d.ts` is also modified with the newer typed-route import/footer form; treat that file as generated noise unless a future slice explicitly needs that exact diff
 
 ## Core Commands
 
@@ -264,12 +272,13 @@ Next recommended slice:
 ```text
 Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Before changing behavior, read `docs/agent-handoff.md`, `spec/product_spec.md`, and the relevant `spec/features/` files for the slice you are about to work on, plus any in-progress worktree files already involved. Work carefully with existing in-progress files. Keep the slice narrow, avoid payouts, scoring, real-money, compliance, and other broader lifecycle work unless explicitly requested, and run typecheck, tests, and browser verification before closing. Before you finish, refresh `docs/agent-handoff.md` if the slice changed repo reality or the next recommended move.
 
-For this slice: run a broader security review immediately after repo hygiene is clean, focused on the newly hardened auth, entry, results, admin, provisional snapshot, and hidden validation-script access boundaries before more provider or operator workflow changes land.
+For this slice: either finish or intentionally isolate the current auth/provider spec clarification draft first, then run a broader security review focused on the newly hardened auth, entry, results, admin, provisional snapshot, and hidden validation-script access boundaries before more provider or operator workflow changes land.
 ```
 
 Definition of done:
 
 - The repo stays synced with `origin/main` after the next slice lands
+- The current uncommitted spec clarification draft is either completed into a narrow documented change set or intentionally left isolated from unrelated cleanup/security work
 - The focused security scan confirms there is no obvious regression in public reads, signed-in entry writes, admin-only actions, final-results access, or service-role-only hidden validation paths
 - Any validated security finding or meaningful residual risk is written back into repo docs before the slice closes
 - Generated `next-env.d.ts` churn stays out of follow-up commits unless the exact diff is intentionally required

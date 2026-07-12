@@ -4,7 +4,7 @@
 Define how PickRank sources NFL player stats, determines final player rankings, handles tied player stats, applies stat corrections, and decides when contest scoring becomes official.
 
 ## Status
-Locked for MVP direction. Specific data provider selection remains open.
+Locked for MVP direction. The repo currently implements a SportsDataIO-based validation seam for provisional stats, while exact production launch entitlements and final provider operations still require operator confirmation before public live use.
 
 ## Anchor
 MVP stat finalization requires a trusted external NFL stats provider, uses official final passing yards to rank slate quarterbacks, allows tied player stat ranks without additional QB stat tie-breakers, waits until all slate games are final before scoring, applies a defined stat correction window before payouts, and does not show live scoring during games.
@@ -41,7 +41,13 @@ PickRank should use a trusted external sports data provider for NFL stats.
 
 Do not manually enter stats for real contests unless operating in a controlled test environment.
 
-Provider selection is still open.
+The current repo seam is SportsDataIO-based:
+
+- SportsDataIO Replay is used for internal recorded-game provisional validation
+- SportsDataIO live endpoints are the intended in-season provisional path
+- the official saved-results publish path remains separate and still requires the typed `FINAL` confirmation step
+
+That means the implementation direction is no longer provider-agnostic, even though the exact live entitlement package, operator account setup, and public-launch readiness still need confirmation before production dependence.
 
 The selected provider must support:
 

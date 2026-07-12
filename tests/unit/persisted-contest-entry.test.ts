@@ -97,7 +97,7 @@ describe('persisted contest entry store', () => {
 
     const afterCounts = await readContestCounts(contestDataFilePath, 'week-1-qb-passing-yards');
     expect(afterCounts.entryCount).toBe(beforeCounts.entryCount + 1);
-    expect(afterCounts.paidEntryCount).toBe(beforeCounts.paidEntryCount + 1);
+    expect(afterCounts.paidEntryCount).toBe(beforeCounts.paidEntryCount);
   });
 
   it('reuses an existing entry and saved lineup order', async () => {
@@ -128,7 +128,7 @@ describe('persisted contest entry store', () => {
 
     const afterCounts = await readContestCounts(contestDataFilePath, 'week-1-qb-passing-yards');
     expect(afterCounts.entryCount).toBe(beforeCounts.entryCount + 1);
-    expect(afterCounts.paidEntryCount).toBe(beforeCounts.paidEntryCount + 1);
+    expect(afterCounts.paidEntryCount).toBe(beforeCounts.paidEntryCount);
   });
 
   it('updates the saved lineup order for the current entry', async () => {

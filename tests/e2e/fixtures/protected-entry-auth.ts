@@ -21,6 +21,11 @@ export const test = base.extend({
         value: readyAccountCookieValue,
         url: baseURL,
       },
+      {
+        name: e2eAuthCookieName,
+        value: readyAccountCookieValue,
+        url: 'http://localhost:3000',
+      },
     ]);
 
     await use(context);

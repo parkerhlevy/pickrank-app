@@ -49,8 +49,6 @@ const persistedContestEntryStoreSchema = z.object({
 const defaultContestEntryDataPath = path.join(process.cwd(), 'data', 'contest-entries.json');
 
 type EntryDbRow = Database['public']['Tables']['entries']['Row'];
-type EntryDbInsert = Database['public']['Tables']['entries']['Insert'];
-type EntryDbUpdate = Database['public']['Tables']['entries']['Update'];
 type EntryLineupDbRow = Database['public']['Tables']['entry_lineups']['Row'];
 type EntryLineupDbInsert = Database['public']['Tables']['entry_lineups']['Insert'];
 type ContestDbRow = Database['public']['Tables']['contests']['Row'];
@@ -128,7 +126,7 @@ export async function ensurePersistedContestEntry({
 
     await updateContestEntryCounts(contestId, {
       entryDelta: 1,
-      paidEntryDelta: 1,
+      paidEntryDelta: 0,
       now,
       dataFilePath: options?.contestDataFilePath,
     });
@@ -158,7 +156,6 @@ export async function ensurePersistedContestEntry({
     viewerId,
     players,
     defaultSelectedOrder,
-    now,
   });
 
   return {
@@ -341,7 +338,7 @@ export async function removePersistedContestEntry({
     if (existingEntry) {
       await updateContestEntryCounts(contestId, {
         entryDelta: -1,
-        paidEntryDelta: -1,
+        paidEntryDelta: 0,
         dataFilePath: options?.contestDataFilePath,
       });
     }
@@ -374,7 +371,7 @@ export async function removePersistedContestEntry({
 
   await updateContestEntryCounts(contestId, {
     entryDelta: -1,
-    paidEntryDelta: -1,
+    paidEntryDelta: 0,
     dataFilePath: options?.contestDataFilePath,
   });
 }
@@ -497,13 +494,11 @@ async function createPersistedContestEntryInDatabase({
   viewerId,
   players,
   defaultSelectedOrder,
-  now,
 }: {
   contestId: string;
   viewerId: string;
   players: string[];
   defaultSelectedOrder: string[];
-  now: string;
 }) {
   const supabase: any = await createSupabaseClient();
   const contestRow = await getDatabaseContestRow(contestId);
@@ -518,80 +513,37 @@ async function createPersistedContestEntryInDatabase({
 
   const normalizedOrder = normalizeLineupOrder(defaultSelectedOrder, players, defaultSelectedOrder);
   const slateIdByName = buildSlatePlayerIdByName((slateRows || []) as ContestSlatePlayerDbRow[]);
-  const entryInsert: EntryDbInsert = {
-    contest_id: contestRow.id,
-    user_id: viewerId,
-    status: 'created',
-    created_at: now,
-    updated_at: now,
-  };
-  const { data: entryRow, error: entryError } = await supabase
-    .from('entries')
-    .insert(entryInsert)
-    .select('*')
-    .single();
-
-  if (entryError) {
-    if (isDuplicateEntryError(entryError)) {
-      const existingEntry = await readPersistedContestEntryFromDatabase({
-        contestId,
-        viewerId,
-        players,
-        defaultSelectedOrder,
-      });
-
-      if (existingEntry) {
-        return existingEntry;
-      }
-    }
-
-    throw new Error(`Unable to create the contest entry: ${entryError.message}`);
-  }
-
-  const lineupInsert = normalizedOrder.map((playerName, index) => {
+  const slatePlayerIds = normalizedOrder.map((playerName) => {
     const slatePlayerId = slateIdByName.get(playerName);
 
     if (!slatePlayerId) {
       throw new Error(`Unable to create the contest entry: missing slate player for ${playerName}.`);
     }
 
-    return {
-      entry_id: entryRow.id,
-      slate_player_id: slatePlayerId,
-      rank_position: index + 1,
-      created_at: now,
-      updated_at: now,
-    } satisfies EntryLineupDbInsert;
+    return slatePlayerId;
   });
 
-  const { error: lineupError } = await supabase.from('entry_lineups').insert(lineupInsert);
+  const { error: confirmationError } = await supabase.rpc('confirm_free_contest_entry', {
+    target_contest_id: contestRow.id,
+    target_slate_player_ids: slatePlayerIds,
+  });
 
-  if (lineupError) {
-    await supabase.from('entries').delete().eq('id', entryRow.id);
-    throw new Error(`Unable to save the default lineup: ${lineupError.message}`);
+  if (confirmationError) {
+    throw new Error(`Unable to confirm the free contest entry: ${confirmationError.message}`);
   }
 
-  await updateContestEntryCounts(contestId, {
-    entryDelta: 1,
-    paidEntryDelta: 1,
-    now,
-  });
-
-  return toPersistedContestEntry({
+  const confirmedEntry = await readPersistedContestEntryFromDatabase({
     contestId,
-    entryRow: entryRow as EntryDbRow,
-    lineupRows: lineupInsert.map((lineup, index) => ({
-      id: `lineup-${index + 1}`,
-      entry_id: lineup.entry_id,
-      slate_player_id: lineup.slate_player_id,
-      rank_position: lineup.rank_position,
-      created_at: lineup.created_at ?? now,
-      updated_at: lineup.updated_at ?? now,
-    })),
-    slateRows: (slateRows || []) as ContestSlatePlayerDbRow[],
+    viewerId,
     players,
     defaultSelectedOrder,
   });
+
+  if (!confirmedEntry) {
+    throw new Error('Unable to read the confirmed free contest entry.');
+  }
+
+  return confirmedEntry;
 }
 
 async function updatePersistedContestEntryLineupInDatabase({
@@ -664,23 +616,9 @@ async function updatePersistedContestEntryLineupInDatabase({
     throw new Error(`Unable to save the lineup: ${insertError.message}`);
   }
 
-  const entryUpdate: EntryDbUpdate = {
-    updated_at: now,
-  };
-  const { data: updatedEntryRow, error: updateError } = await supabase
-    .from('entries')
-    .update(entryUpdate)
-    .eq('id', entryRow.id)
-    .select('*')
-    .single();
-
-  if (updateError) {
-    throw new Error(`Unable to update the contest entry: ${updateError.message}`);
-  }
-
   return toPersistedContestEntry({
     contestId,
-    entryRow: updatedEntryRow as EntryDbRow,
+    entryRow: entryRow as EntryDbRow,
     lineupRows: lineupInsert.map((lineup, index) => ({
       id: `lineup-${index + 1}`,
       entry_id: lineup.entry_id,
@@ -752,10 +690,6 @@ function normalizeLineupOrder(value: unknown, players: string[], defaultSelected
   }
 
   return filteredPlayers;
-}
-
-function isDuplicateEntryError(error: { code?: string; message?: string } | null | undefined) {
-  return error?.code === '23505' || error?.message?.includes('entries_user_id_contest_id_key') === true;
 }
 
 function shouldUseFileStore(options?: PersistedContestEntryOptions) {

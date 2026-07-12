@@ -325,6 +325,15 @@ Use this copy:
 - Canceled-contest refunds should not run more than once for the same contest entry.
 - Withdrawals should not run more than once for the same withdrawal request.
 
+### Entry cancellation and refund integrity
+
+- Do not grant authenticated users direct mutation access to `entries` to support cancellation or refunds.
+- Cancellation must use a narrow server-authoritative RPC or equivalent transaction that validates ownership, contest state, and refund entitlement.
+- Entry status, lineup state, contest counts, payment status, refund event, and append-only wallet ledger changes must commit together or roll back together.
+- A paid entry must not disappear without the required refund and ledger event.
+- Unauthorized, cross-user, repeated, and post-cutoff cancellation attempts must fail without changing balances, entries, lineups, or counts.
+- Payment/wallet implementation is not complete until these rules and the existing migration `0010` protections pass executable database regression tests.
+
 ---
 
 ## MVP Constraints

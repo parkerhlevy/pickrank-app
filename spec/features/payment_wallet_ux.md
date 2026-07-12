@@ -328,6 +328,12 @@ Backend should use:
 - atomic wallet updates
 - duplicate entry checks
 
+### Entry lifecycle security gate
+
+Do not restore direct authenticated `INSERT`, `UPDATE`, or `DELETE` access on `entries` when payment support is added. Paid entry creation, cancellation, and refund handling must use narrow server-authoritative RPCs or equivalent transactional service boundaries that validate entry ownership, contest state, and payment or refund entitlement.
+
+The entry, lineup, contest entry counts, payment status, and append-only wallet ledger must either all change in one transaction or all roll back. Repeated provider callbacks or user retries must be idempotent. An entry must never be created without confirmed funding, and a paid entry must never be removed without the required refund and ledger event.
+
 ---
 
 ## Backend Requirements
@@ -342,6 +348,7 @@ Frontend states rely on backend support for:
 - payment status tracking
 - refund event handling
 - payout status tracking
+- executable database regression coverage that preserves migration `0010` entry protections and verifies paid-entry creation/cancellation atomicity
 
 ---
 

@@ -212,13 +212,13 @@ Public real-money launch.
 
 | Field | Value |
 |---|---|
-| Status | open |
+| Status | recommended |
 | Launch classification | pre_beta or pre_real_money_launch depending on beta mode |
 | Owner | TBD |
 | Related specs | stat_finalization.md, backend_data_architecture.md |
 
 ### Question
-Which provider supplies official NFL game/player stats?
+What exactly still needs to be confirmed before the current SportsDataIO-based stats path is safe to treat as the production-ready provider path?
 
 ### Requirements
 Provider must support:
@@ -233,7 +233,13 @@ Provider must support:
 - reliable API availability
 
 ### Current recommendation
-Use manual/test stats for early build. Select provider before realistic beta or public contests.
+The repo is no longer fully provider-agnostic:
+
+- SportsDataIO Replay is the current internal validation path for recorded-game provisional testing
+- SportsDataIO live endpoints are the intended in-season provisional path
+- the official saved-results path still stays behind the separate typed `FINAL` confirmation flow
+
+The remaining open decision is not "pick any provider from scratch." It is confirming the exact live entitlement package, operator account setup, endpoint coverage, and launch-readiness details needed before realistic external-stat beta use or public paid contests.
 
 ### Decision needed before
 External-stat beta or real-money launch.

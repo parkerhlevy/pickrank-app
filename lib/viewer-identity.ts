@@ -44,7 +44,7 @@ export type E2eAuthFixture = {
 };
 
 export function getE2eAuthFixture(cookieValue: string | undefined): E2eAuthFixture | null {
-  if (process.env.PICKRANK_E2E_AUTH !== '1' || !cookieValue) {
+  if (process.env.NODE_ENV === 'production' || process.env.PICKRANK_E2E_AUTH !== '1' || !cookieValue) {
     return null;
   }
 

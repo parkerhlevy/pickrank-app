@@ -7,7 +7,7 @@ Define MVP requirements for user accounts, authentication, profile identity, eli
 Locked for MVP direction.
 
 ## Anchor
-MVP account/auth requires a verified user account before paid contest entry, uses email-based authentication with a unique username/display name, supports basic profile and wallet access, enforces single-entry rules by user account, and includes age, location, and account-status hooks needed before public real-money launch.
+MVP account/auth requires a verified user account before paid contest entry, uses Supabase-backed authentication with a unique username/display name, supports basic profile and wallet access, enforces single-entry rules by user account, and includes age, location, and account-status hooks needed before public real-money launch.
 
 ---
 
@@ -48,23 +48,22 @@ Users may be allowed to browse the lobby before account creation, but cannot ent
 ## Authentication Methods
 
 ### MVP Recommended
-Use email-based authentication.
+Use Supabase-backed authentication with supported sign-in methods that preserve return-to-flow behavior.
 
 Supported MVP auth options:
 
-- email + password
 - magic link
-- one-time email code
+- Google OAuth
 
-Final implementation may depend on the auth provider selected.
+The current repo implementation uses Google sign-in plus email magic-link sign-in. Additional methods like password auth or one-time email code can remain future options, but they are not required for the current MVP baseline.
 
 ### Social login
-Do not require social login for MVP.
+Do not require social login for MVP, but allow it when it reduces friction and still preserves the same account and contest-entry rules.
 
 Future options:
 
 - Apple
-- Google
+- other provider-backed OAuth methods
 
 ---
 

@@ -8,10 +8,7 @@ import {
   getUpdatedContestEntryCookieValue,
   type ContestEntryStage,
 } from '@/lib/contest-entry-flow';
-import {
-  ensurePersistedContestEntry,
-  getPersistedContestEntry,
-} from '@/lib/persisted-contest-entry';
+import { getPersistedContestEntry } from '@/lib/persisted-contest-entry';
 import { getProtectedContestEntryRedirect } from '@/lib/contest-entry-access';
 import {
   getContestById,
@@ -65,7 +62,9 @@ export async function GET(
       ? requestedLineupAccess
         ? 'lineup'
         : 'entered'
-      : stage;
+      : stage === 'entered' || stage === 'lineup'
+        ? 'payment-review'
+        : stage;
   const updatedCookieValue = getUpdatedContestEntryCookieValue({
     contestId,
     currentCookieValue: cookieValue,
@@ -78,15 +77,6 @@ export async function GET(
     sameSite: 'lax',
     path: '/',
   });
-
-  if (nextStage === 'entered' || (requestedLineupAccess && contestIsOpen)) {
-    await ensurePersistedContestEntry({
-      contestId,
-      viewerId: viewerIdentity.userId ?? '',
-      players: selectablePlayers,
-      defaultSelectedOrder,
-    });
-  }
 
   return response;
 }

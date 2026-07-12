@@ -117,7 +117,7 @@ See /spec/features/frontend_navigation.md
 ---
 6. Account + Authentication
 Users must have a verified account before entering paid contests.
-MVP uses email-based authentication, unique username/display name, basic Profile screen, account status, wallet access, and eligibility hooks for age, jurisdiction, and KYC/provider verification.
+MVP uses Supabase-backed authentication with currently supported Google and magic-link email sign-in, unique username/display name, basic Profile screen, account status, wallet access, and eligibility hooks for age, jurisdiction, and KYC/provider verification.
 Detailed design:
 See /spec/features/account_profile_auth.md
 ---

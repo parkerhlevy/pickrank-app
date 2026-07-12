@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   defaultE2eViewerUserId,
   getE2eAuthFixture,
@@ -8,6 +8,7 @@ import {
 describe('viewer identity', () => {
   afterEach(() => {
     delete process.env.PICKRANK_E2E_AUTH;
+    vi.unstubAllEnvs();
   });
 
   it('reads a ready signed-in identity from the e2e auth cookie when enabled', () => {
@@ -64,6 +65,21 @@ describe('viewer identity', () => {
         JSON.stringify({
           email: 'playwright@pickrank.test',
           username: 'playwright_user',
+        }),
+      ),
+    ).toBeNull();
+  });
+
+  it('ignores the e2e auth cookie in production even when the flag is enabled', () => {
+    vi.stubEnv('NODE_ENV', 'production');
+    process.env.PICKRANK_E2E_AUTH = '1';
+
+    expect(
+      getE2eAuthFixture(
+        JSON.stringify({
+          email: 'operator@pickrank.test',
+          username: 'operator_user',
+          roleSlugs: ['contest_operator'],
         }),
       ),
     ).toBeNull();
