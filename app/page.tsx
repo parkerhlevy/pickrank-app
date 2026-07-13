@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, PlayCircle, ShieldCheck, Sparkles, Users } from 'lucide-react';
+import { ArrowRight, Brain, CalendarDays, PlayCircle, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -10,21 +10,21 @@ const landingVideoPath = '/marketing/pickrank-landing-video-locked-in-final.mp4'
 const landingVideoPosterPath = '/marketing/pickrank-landing-thumb.png';
 const hasLandingVideo = existsSync(join(process.cwd(), 'public', landingVideoPath));
 
-const proofPoints = [
+const whyPickRankCards = [
   {
-    title: 'Clear weekly format',
-    description: 'Each contest centers on one stat category, one slate, and one scoring system you can understand quickly.',
-    icon: Sparkles,
+    title: 'No drafting. No season-long commitment.',
+    description: 'One slate. One ranking. One week at a time.',
+    icon: CalendarDays,
   },
   {
-    title: 'Skill-based scoring',
-    description: 'Your score comes from how close each ranking lands to the final order, so sharp calls matter.',
-    icon: ShieldCheck,
+    title: 'Your sports knowledge actually matters.',
+    description: 'The closer your rankings are to the final results, the better you score.',
+    icon: Brain,
   },
   {
-    title: 'Simple next step',
-    description: 'Create your account now so you are ready to move from contest details into entry and lineup setup.',
-    icon: Users,
+    title: 'Easy to play. Hard to master.',
+    description: 'Anyone can rank 10 players. Getting the order right is another story.',
+    icon: Trophy,
   },
 ];
 
@@ -138,69 +138,23 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-3">
-        {proofPoints.map(({ title, description, icon: Icon }) => (
-          <Card key={title} className="section-card">
-            <CardHeader className="space-y-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-blue-600">
-                <Icon className="h-5 w-5" aria-hidden="true" />
-              </div>
-              <CardTitle className="text-lg">{title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm leading-6 text-muted-foreground">{description}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </section>
-
-      <section className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
-        <Card className="section-card">
-          <CardHeader>
-            <CardTitle>Why the format is easy to follow</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-6 text-muted-foreground">
-            <p>PickRank keeps each contest focused on one stat category at a time so the challenge is easy to follow.</p>
-            <p>
-              In the current MVP format, you rank your top 10 quarterbacks from a 15-player slate and receive a miss
-              score based on how far each ranking lands from the final order.
-            </p>
-            <p>The goal is to make the path from contest details to final results feel understandable from the first screen.</p>
-          </CardContent>
-        </Card>
-
-        <Card className="section-card">
-          <CardHeader>
-            <CardTitle>Take the next step</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm leading-6 text-muted-foreground">
-              Browse the contest flow now, then create your account when you want to be ready for entry and lineup setup.
-            </p>
-            <div className="section-card-muted space-y-3 px-4 py-4 text-sm">
-              <div className="detail-row bg-white">
-                <span>1. Browse Open Contests</span>
-                <span className="font-medium text-foreground">Review the featured slate and lock timing</span>
-              </div>
-              <div className="detail-row bg-white">
-                <span>2. See How It Works</span>
-                <span className="text-muted-foreground">Learn the scoring and final-results flow</span>
-              </div>
-              <div className="detail-row bg-white">
-                <span>3. Create Account</span>
-                <span className="text-muted-foreground">Be ready for contest entry and lineup setup</span>
-              </div>
-            </div>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Button asChild className="sm:flex-1">
-                <Link href="/auth">Create Account</Link>
-              </Button>
-              <Button asChild variant="secondary" className="sm:flex-1">
-                <Link href="/how-it-works">See How It Works</Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+      <section className="space-y-4">
+        <h2 className="text-2xl font-black leading-tight">Why PickRank</h2>
+        <div className="grid gap-4 lg:grid-cols-3">
+          {whyPickRankCards.map(({ title, description, icon: Icon }) => (
+            <Card key={title} className="section-card">
+              <CardHeader className="space-y-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+                  <Icon className="h-5 w-5" aria-hidden="true" />
+                </div>
+                <CardTitle className="text-lg">{title}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm leading-6 text-muted-foreground">{description}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </section>
     </div>
   );
