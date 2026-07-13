@@ -156,6 +156,21 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+
+      <section className="section-card space-y-5 rounded-lg border border-slate-200 bg-card px-6 py-8 text-center shadow-sm sm:px-8">
+        <div className="mx-auto max-w-2xl space-y-3">
+          <h2 className="text-2xl font-black leading-tight">Think you can rank them better?</h2>
+          <p className="text-sm leading-6 text-muted-foreground sm:text-base">
+            PickRank is coming soon. Join the waitlist and be among the first to play for cash prizes.
+          </p>
+        </div>
+        <Button asChild size="lg" className="text-sm font-bold">
+          <Link href="/auth">
+            Join the waitlist
+            <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+          </Link>
+        </Button>
+      </section>
     </div>
   );
 }

@@ -5,7 +5,10 @@ test('homepage loads as a landing page with sign-up CTA and no bottom nav', asyn
 
   await expect(page.getByRole('img', { name: 'PickRank' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '15 players. Pick 10. Rank them.' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Join the waitlist' })).toHaveAttribute('href', '/auth');
+  const waitlistLinks = page.getByRole('link', { name: 'Join the waitlist' });
+  await expect(waitlistLinks).toHaveCount(2);
+  await expect(waitlistLinks.first()).toHaveAttribute('href', '/auth');
+  await expect(waitlistLinks.last()).toHaveAttribute('href', '/auth');
   await expect(page.getByRole('link', { name: 'Browse Open Contests' })).toHaveCount(0);
   await expect(page.getByText('See PickRank in action')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Learn the game in 34 seconds' })).toBeVisible();
@@ -17,7 +20,7 @@ test('homepage loads as a landing page with sign-up CTA and no bottom nav', asyn
   await expect(page.getByText('Understand the weekly contest structure before you commit to the flow.')).toHaveCount(0);
   await expect(page.getByRole('navigation')).toHaveCount(0);
 
-  await page.getByRole('link', { name: 'Join the waitlist' }).click();
+  await waitlistLinks.first().click();
   await expect(page).toHaveURL('/auth');
   await expect(page.getByRole('heading', { name: 'Account Access' })).toBeVisible();
 });
