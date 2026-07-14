@@ -157,8 +157,8 @@ Current branch reality on `main` as of 2026-07-12:
 - the latest local browser verification on 2026-07-07 confirms `http://localhost:3000/leaderboard?contest=week-1-qb-passing-yards` now returns `200` with the new non-final placeholder state, `http://localhost:3000/contests/week-1-qb-passing-yards` still returns `200`, and the unauthenticated open-contest results path still redirects cleanly to `/auth?next=%2Fcontests%2Fweek-1-qb-passing-yards%2Fresults` without a browser-visible server error
 - the locked Remotion music-cut slice now also passes repo `npm run typecheck`, repo `npm run test`, `npm run lint` inside `assets/marketing/video`, and a full unsandboxed `npm run render -- --timeout=120000` export of `PickRankLandingVideo`
 - the Remotion repo-hygiene pass now keeps the committed baseline anchored to `audio/locked-in-final.wav`, the `brand/pickrank-wordmark-white-pick.png` CTA asset, and the lightweight regeneration helper under `assets/marketing/video/scripts/`, while ignoring the disposable hype-bed WAV set, the bulky local `locked-in-source/` package dump, and the unused alternate `pickrank-wordmark-light.png`
-- the live `main` worktree is not fully clean on 2026-07-10: active uncommitted spec clarification edits are present in `spec/product_spec.md`, `spec/features/account_profile_auth.md`, `spec/features/open_questions_decision_log.md`, and `spec/features/stat_finalization.md`
-- `next-env.d.ts` is also modified with the newer typed-route import/footer form; treat that file as generated noise unless a future slice explicitly needs that exact diff
+- the live `main` worktree is still effectively clean on 2026-07-13 aside from generated `next-env.d.ts` churn; there is no active uncommitted spec clarification draft in `spec/` right now
+- `next-env.d.ts` is currently modified with the newer typed-route import/footer form; treat that file as generated noise unless a future slice explicitly needs that exact diff
 
 ## Core Commands
 
@@ -274,13 +274,13 @@ Next recommended slice:
 ```text
 Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Before changing behavior, read `docs/agent-handoff.md`, `spec/product_spec.md`, and the relevant `spec/features/` files for the slice you are about to work on, plus any in-progress worktree files already involved. Work carefully with existing in-progress files. Keep the slice narrow, avoid payouts, scoring, real-money, compliance, and other broader lifecycle work unless explicitly requested, and run typecheck, tests, and browser verification before closing. Before you finish, refresh `docs/agent-handoff.md` if the slice changed repo reality or the next recommended move.
 
-For this slice: either finish or intentionally isolate the current auth/provider spec clarification draft first, then run a broader security review focused on the newly hardened auth, entry, results, admin, provisional snapshot, and hidden validation-script access boundaries before more provider or operator workflow changes land.
+For this slice: run a broader security review focused on the newly hardened auth, entry, results, admin, provisional snapshot, and hidden validation-script access boundaries before more provider or operator workflow changes land.
 ```
 
 Definition of done:
 
 - The repo stays synced with `origin/main` after the next slice lands
-- The current uncommitted spec clarification draft is either completed into a narrow documented change set or intentionally left isolated from unrelated cleanup/security work
+- The worktree remains single-lane and effectively clean aside from intentional generated noise like `next-env.d.ts`
 - The focused security scan confirms there is no obvious regression in public reads, signed-in entry writes, admin-only actions, final-results access, or service-role-only hidden validation paths
 - Any validated security finding or meaningful residual risk is written back into repo docs before the slice closes
 - Generated `next-env.d.ts` churn stays out of follow-up commits unless the exact diff is intentionally required
