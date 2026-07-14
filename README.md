@@ -16,7 +16,7 @@ Implemented in the repo today:
 - internal `/admin/contests` workflow with operator gating, draft creation, validation, publish, and finalization surfaces
 - saved final-results and final leaderboard reads for final contests
 - Replay-backed and SportsDataIO-live provisional validation harnesses for internal stats testing
-- Supabase/Postgres migrations through `db/migrations/0009_rls_hardening.sql`
+- Supabase/Postgres migrations through `db/migrations/0011_waitlist_signups.sql`
 - unit and Playwright test coverage for the current app surfaces and core contest logic
 
 Still intentionally incomplete or blocked:

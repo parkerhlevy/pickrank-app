@@ -50,6 +50,7 @@ The repo is past bare Phase 0 and currently includes:
 - Global layout
 - Bottom navigation
 - Public marketing copy
+- Public homepage waitlist form backed by server-side Supabase storage and Resend contact/welcome-email sync once production configuration is added
 - Auth sign-in and profile-completion flow
 - Public contest browse pages backed by a persisted contest data layer instead of hard-coded demo contest records
 - Internal `/admin/contests` contest-operator workflow with server-side role gating
@@ -67,8 +68,9 @@ Current branch reality on `main` as of 2026-07-12:
 - the latest pushed repo baseline includes the 2026-07-07 leaderboard hardening plus Supabase access tightening that keeps `/leaderboard?contest=...` in explicit placeholder states for non-final contests and moves the hidden replay/live validation scripts onto `SUPABASE_SERVICE_ROLE_KEY`
 - the homepage integration keeps the live landing page pointed at `public/marketing/pickrank-landing-video-locked-in-final.mp4` with `public/marketing/pickrank-landing-thumb.png` as the poster, adds the Remotion repo-hygiene helper notes and script, and updates homepage coverage in `tests/e2e/homepage.spec.ts`
 - the 2026-07-08 homepage landing-page polish pass keeps that same video baseline, keeps the tighter video-line headline `15 players. Pick 10. Rank them.`, shortens the hero copy, collapses the above-the-fold CTA to a single waitlist-focused action, and trims the extra helper copy in the hero and video card without changing product behavior
-- the approved 2026-07-12 homepage hero, `How PickRank works`, `Why PickRank`, and final waitlist CTA are live in production at `https://www.pickrankgames.com` through Vercel deployment `dpl_3WqaWZoFabyhtmFvghNbjNDGrZof`; the production build is `READY`, the hero and final waitlist CTAs route to `/auth`, and the lower homepage now ends with the single `Think you can rank them better?` conversion section
-- the matching source in `app/page.tsx` and focused homepage coverage in `tests/e2e/homepage.spec.ts` are aligned with this handoff update on `main`, keeping GitHub aligned with the live wording
+- the approved 2026-07-12 homepage hero, `How PickRank works`, `Why PickRank`, and final waitlist CTA remain the current production copy at `https://www.pickrankgames.com` through Vercel deployment `dpl_3WqaWZoFabyhtmFvghNbjNDGrZof`; production still routes the hero and final waitlist CTAs to `/auth` until the waitlist workflow branch is reviewed, configured, migrated, deployed, and verified
+- the waitlist workflow branch replaces the homepage `/auth` CTA links with a reusable unauthenticated email form, keeps `/auth` available for real account access, writes normalized signups to `public.waitlist_signups`, and attempts Resend contact segment sync plus one branded welcome email for new signups
+- waitlist docs now live in `docs/waitlist-workflow.md`, including Supabase export steps, Resend contact/broadcast steps, DNS/sending-domain setup, duplicate/unsubscribed behavior, and the `What Parker Must Configure` checklist
 - the 2026-07-08 brand follow-up now approves `public/brand/pickrank-wordmark-football-transparent-light.png` as a secondary dark-surface homepage and marketing variant, keeps `public/brand/source/pickrank-wordmark-football-transparent-light-preview-dark.png` as a reference preview only, and points the homepage hero at the transparent asset instead of the earlier white-`Pick` fallback
 - repo verification for the latest homepage CTA lane passes `npm run typecheck`, `npm run test` (`27` files, `124` tests passed), focused `npx eslint app/page.tsx tests/e2e/homepage.spec.ts`, `git diff --check`, and `npx playwright test tests/e2e/homepage.spec.ts` when the local dev server is allowed to bind outside the sandbox
 - GitHub auth on this machine has now been restored through `gh auth login`, and `gh auth setup-git` is configured in `~/.gitconfig` so future HTTPS pushes use GitHub CLI's credential helper instead of failing on missing local credentials
@@ -148,6 +150,8 @@ Current branch reality on `main` as of 2026-07-12:
 - deferred security release gate: the database branch of `removePersistedContestEntry` is intentionally denied by migration `0010` and must not be enabled by restoring direct authenticated `INSERT`, `UPDATE`, or `DELETE` access on `entries`; future paid-entry, wallet, refund, or cancellation work must replace it with narrow server-authoritative RPCs that validate ownership, contest state, and payment/refund entitlement while updating the entry, lineup, contest counts, payment status, and append-only wallet ledger atomically
 - before any payment/wallet or entry-cancellation slice closes, rerun `db/tests/0010_entry_integrity_hardening.sql` and add executable database coverage for unauthorized and cross-user cancellation, payment/refund coupling, atomic rollback, idempotent retries, contest-state cutoffs, and ledger/count reconciliation; failure of any case is release-blocking
 - the internal replay/live validation scripts now require `SUPABASE_SERVICE_ROLE_KEY` instead of the browser anon key because those hidden validation contests and snapshot tables should no longer depend on public-table access
+- waitlist migration `db/migrations/0011_waitlist_signups.sql` intentionally follows the reserved security migration `0010`; it enables RLS, grants no direct `anon` or `authenticated` table access, and relies on trusted server-side code rather than a public insert policy
+- production waitlist launch is still blocked on reviewing and applying migration `0011`, adding `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `RESEND_REPLY_TO_EMAIL`, and `RESEND_WAITLIST_SEGMENT_ID` in Vercel, verifying the PickRank sending domain in Resend/DNS, sending one real delivery test, deploying, and confirming one production signup in both Supabase and Resend
 - the active marketing/Remotion and design-doc work was intentionally parked on 2026-07-02 in the local stashes `parked-remotion-design-2026-07-02` and `parked-next-env-noise-2026-07-02`; there is no active marketing dirt in the live `main` worktree right now
 - the earlier `/private/tmp/pickrank-lineup-verify` detached worktree is no longer present on disk; its stale git pointer was pruned on 2026-07-09, so there is no second active local worktree to preserve right now
 - the live `main` worktree is effectively clean aside from generated `next-env.d.ts` churn from local Next.js and Playwright runs
@@ -274,15 +278,16 @@ Next recommended slice:
 ```text
 Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Before changing behavior, read `docs/agent-handoff.md`, `spec/product_spec.md`, and the relevant `spec/features/` files for the slice you are about to work on, plus any in-progress worktree files already involved. Work carefully with existing in-progress files. Keep the slice narrow, avoid payouts, scoring, real-money, compliance, and other broader lifecycle work unless explicitly requested, and run typecheck, tests, and browser verification before closing. Before you finish, refresh `docs/agent-handoff.md` if the slice changed repo reality or the next recommended move.
 
-For this slice: run a broader security review focused on the newly hardened auth, entry, results, admin, provisional snapshot, and hidden validation-script access boundaries before more provider or operator workflow changes land.
+For this slice: review the waitlist diff, validate migration `0011` against Supabase without weakening RLS, configure Resend/DNS/Vercel, then deploy and verify one real production waitlist signup end to end.
 ```
 
 Definition of done:
 
 - The repo stays synced with `origin/main` after the next slice lands
 - The worktree remains single-lane and effectively clean aside from intentional generated noise like `next-env.d.ts`
-- The focused security scan confirms there is no obvious regression in public reads, signed-in entry writes, admin-only actions, final-results access, or service-role-only hidden validation paths
-- Any validated security finding or meaningful residual risk is written back into repo docs before the slice closes
+- Migration `0011` is reviewed and applied safely before production deployment
+- Resend sender domain, segment, API key, reply-to, and unsubscribe behavior are confirmed before public email delivery
+- One production signup is confirmed in Supabase, Resend contacts, and welcome-email delivery after deployment
 - Generated `next-env.d.ts` churn stays out of follow-up commits unless the exact diff is intentionally required
 - No unrelated product, provider, auth, admin, or design-system files are mixed into the next slice
 - Relevant repo verification still runs before closeout, with browser checks added when the slice touches rendered route behavior or QA contracts
