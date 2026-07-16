@@ -3,6 +3,13 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const migrationPath = path.join(process.cwd(), 'db', 'migrations', '0009_rls_hardening.sql');
+const profileReadHardeningMigrationPath = path.join(
+  process.cwd(),
+  'db',
+  'migrations',
+  '0011_final_results_profile_read_hardening.sql',
+);
+const contestResultsPath = path.join(process.cwd(), 'lib', 'contest-results.ts');
 
 describe('Supabase RLS hardening migration', () => {
   it('enables RLS on exposed public tables', async () => {
@@ -27,5 +34,25 @@ describe('Supabase RLS hardening migration', () => {
     expect(sql).toContain('create policy "contest operators manage contest scoring results"');
     expect(sql).toContain('create policy "contest operators manage provisional stat snapshots"');
     expect(sql).toContain('create or replace function public.is_contest_operator()');
+  });
+
+  it('replaces broad profile exposure with a final-results-only profile policy', async () => {
+    const sql = await readFile(profileReadHardeningMigrationPath, 'utf8');
+
+    expect(sql).toContain('drop policy if exists "public can read leaderboard profiles" on public.profiles;');
+    expect(sql).toContain('create policy "public can read final results profiles"');
+    expect(sql).toContain('create policy "contest operators can read profiles for finalization"');
+    expect(sql).toContain("entry_scoring_results.user_id = profiles.id");
+    expect(sql).toContain("contests.visibility_status = 'visible'");
+    expect(sql).toContain("contests.status in ('final', 'paid_out')");
+    expect(sql).toContain('using (public.is_contest_operator())');
+    expect(sql).not.toContain('using (true)');
+  });
+
+  it('keeps final-results profile queries limited to public display columns', async () => {
+    const source = await readFile(contestResultsPath, 'utf8');
+
+    expect(source).toContain("const publicProfileDisplayColumns = 'id, username, display_name';");
+    expect(source).not.toContain("from('profiles').select('*')");
   });
 });

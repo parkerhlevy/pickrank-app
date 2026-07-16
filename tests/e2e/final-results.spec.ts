@@ -416,7 +416,7 @@ test('finalizes the locked contest from admin and keeps leaderboard/results surf
   await expect(entrantPage.getByRole('link', { name: 'View Results' })).toBeVisible();
 
   await entrantPage.goto(`/leaderboard?contest=${targetContestId}`);
-  await expect(entrantPage.getByRole('heading', { name: 'Final Results' })).toBeVisible();
+  await expect(entrantPage.getByRole('heading', { name: 'Final Leaderboard' })).toBeVisible();
   await expect(entrantPage.getByText(persistedContestResults!.entryResults[0]!.displayName)).toBeVisible();
   await expect(entrantPage.getByText(persistedContestResults!.entryResults[1]!.displayName)).toBeVisible();
   await expect(entrantPage.getByText(persistedContestResults!.entryResults[2]!.displayName)).toBeVisible();
@@ -433,7 +433,7 @@ test('finalizes the locked contest from admin and keeps leaderboard/results surf
   await expect(entrantPage.getByText('You finished 2')).toBeVisible();
   await expect(entrantPage.getByText('Your Score')).toBeVisible();
   await expect(entrantPage.getByText('8 pts')).toBeVisible();
-  await expect(entrantPage.getByText('$1,050.00')).toBeVisible();
+  await expect(entrantPage.getByText('$1,050.00').first()).toBeVisible();
   await entrantPage.getByText('View Player Breakdown').click();
   await expect(entrantPage.getByText('#1 Lamar Jackson (BAL)')).toBeVisible();
   await expect(entrantPage.getByText('You: 1 | Actual: 1 | 0 pts')).toBeVisible();
@@ -500,7 +500,7 @@ test('reruns finalization after a stat correction and replaces saved rows withou
   const entrantContext = await createSignedInContext(browser, entrantCookieValue);
   const entrantPage = await entrantContext.newPage();
   await entrantPage.goto(`/leaderboard?contest=${targetContestId}`);
-  await expect(entrantPage.getByRole('heading', { name: 'Final Results' })).toBeVisible();
+  await expect(entrantPage.getByRole('heading', { name: 'Final Leaderboard' })).toBeVisible();
   await expect(entrantPage.getByText(correctedSavedResults.entryResults[0]!.displayName)).toBeVisible();
   await expect(entrantPage.getByText(correctedSavedResults.entryResults[1]!.displayName)).toBeVisible();
   await expect(entrantPage.getByText(correctedSavedResults.entryResults[2]!.displayName)).toBeVisible();
@@ -514,7 +514,7 @@ test('reruns finalization after a stat correction and replaces saved rows withou
   await entrantPage.goto(`/contests/${targetContestId}/results`);
   await expect(entrantPage.getByText(`You finished ${correctedEntrantRow!.finalRankDisplay}`)).toBeVisible();
   await expect(entrantPage.getByText(`${correctedEntrantRow!.totalScore} pts`)).toBeVisible();
-  await expect(entrantPage.getByText(formatUsd(correctedEntrantRow!.payoutAmountCents))).toBeVisible();
+  await expect(entrantPage.getByText(formatUsd(correctedEntrantRow!.payoutAmountCents)).first()).toBeVisible();
   await entrantPage.getByText('View Player Breakdown').click();
   await expect(entrantPage.getByText('#1 Lamar Jackson (BAL)')).toBeVisible();
 
@@ -624,7 +624,7 @@ test('renders a saved shared paid tie consistently across leaderboard cards, ran
   await expect(entrantPage.getByText('You finished T-3')).toBeVisible();
   await expect(entrantPage.getByText('Your Score')).toBeVisible();
   await expect(entrantPage.getByText('8 pts')).toBeVisible();
-  await expect(entrantPage.getByText('$350.00')).toBeVisible();
+  await expect(entrantPage.getByText('$350.00').first()).toBeVisible();
 
   await operatorContext.close();
   await entrantContext.close();

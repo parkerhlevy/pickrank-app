@@ -130,7 +130,9 @@ type EntryScoringResultDbInsert = Database['public']['Tables']['entry_scoring_re
 type EntryScoringResultDbRow = Database['public']['Tables']['entry_scoring_results']['Row'];
 type EntryPlayerScoreDbInsert = Database['public']['Tables']['entry_player_scores']['Insert'];
 type EntryPlayerScoreDbRow = Database['public']['Tables']['entry_player_scores']['Row'];
-type ProfileDbRow = Database['public']['Tables']['profiles']['Row'];
+type PublicProfileDisplayRow = Pick<Database['public']['Tables']['profiles']['Row'], 'id' | 'username' | 'display_name'>;
+
+const publicProfileDisplayColumns = 'id, username, display_name';
 
 export async function finalizeContestResults({
   contestId,
@@ -390,14 +392,14 @@ async function loadDisplayNamesByUserId(userIds: string[], options?: ContestResu
   }
 
   const supabase: any = await createSupabaseClient();
-  const { data, error } = await supabase.from('profiles').select('*').in('id', uniqueUserIds);
+  const { data, error } = await supabase.from('profiles').select(publicProfileDisplayColumns).in('id', uniqueUserIds);
 
   if (error) {
     throw new Error(`Unable to read profiles for finalized results: ${error.message}`);
   }
 
   return new Map(
-    ((data || []) as ProfileDbRow[]).map((profile) => [
+    ((data || []) as PublicProfileDisplayRow[]).map((profile) => [
       profile.id,
       profile.display_name || profile.username || formatFallbackDisplayName(profile.id),
     ]),
@@ -527,12 +529,10 @@ async function readFinalizedContestResultFromDatabase(contestSlug: string) {
     { data: playerResultRows, error: playerResultsError },
     { data: entryResultRows, error: entryResultsError },
     { data: entryPlayerScoreRows, error: entryPlayerScoresError },
-    { data: profileRows, error: profilesError },
   ] = await Promise.all([
     supabase.from('contest_player_results').select('*').eq('contest_id', contestId),
     supabase.from('entry_scoring_results').select('*').eq('contest_id', contestId).order('final_rank', { ascending: true }),
     supabase.from('entry_player_scores').select('*').eq('contest_id', contestId).order('user_rank', { ascending: true }),
-    supabase.from('profiles').select('*'),
   ]);
 
   if (playerResultsError) {
@@ -547,16 +547,24 @@ async function readFinalizedContestResultFromDatabase(contestSlug: string) {
     throw new Error(`Unable to read entry player scores: ${entryPlayerScoresError.message}`);
   }
 
-  if (profilesError) {
-    throw new Error(`Unable to read leaderboard display names: ${profilesError.message}`);
-  }
-
   if (!entryResultRows || entryResultRows.length === 0) {
     return null;
   }
 
+  const displayUserIds = [
+    ...new Set(((entryResultRows || []) as EntryScoringResultDbRow[]).map((entryResultRow) => entryResultRow.user_id)),
+  ];
+  const { data: profileRows, error: profilesError } = await supabase
+    .from('profiles')
+    .select(publicProfileDisplayColumns)
+    .in('id', displayUserIds);
+
+  if (profilesError) {
+    throw new Error(`Unable to read leaderboard display names: ${profilesError.message}`);
+  }
+
   const displayNameByUserId = new Map(
-    ((profileRows || []) as ProfileDbRow[]).map((profile) => [
+    ((profileRows || []) as PublicProfileDisplayRow[]).map((profile) => [
       profile.id,
       profile.display_name || profile.username || formatFallbackDisplayName(profile.id),
     ]),

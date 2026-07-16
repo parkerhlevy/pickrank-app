@@ -109,15 +109,6 @@ export function getSportsDataIoLiveAuthMode(): SportsDataIoAuthMode {
   return process.env.PICKRANK_SPORTSDATAIO_LIVE_AUTH_MODE === 'query' ? 'query' : 'header';
 }
 
-export function getRequestOrigin(headers: HeaderSource, fallbackOrigin = getAppUrl()) {
-  const host = headers.get('x-forwarded-host') || headers.get('host');
-
-  if (!host) {
-    return fallbackOrigin;
-  }
-
-  const fallbackUrl = new URL(fallbackOrigin);
-  const protocol = headers.get('x-forwarded-proto') || fallbackUrl.protocol.replace(':', '');
-
-  return `${protocol}://${host}`;
+export function getRequestOrigin(_headers: HeaderSource, fallbackOrigin = getAppUrl()) {
+  return new URL(fallbackOrigin).origin;
 }

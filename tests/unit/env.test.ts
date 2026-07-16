@@ -42,18 +42,18 @@ describe('env helpers', () => {
     });
   });
 
-  it('builds the request origin from forwarded headers', async () => {
+  it('ignores forwarded host headers when building the request origin', async () => {
     vi.resetModules();
     vi.stubEnv('NEXT_PUBLIC_APP_URL', 'https://pickrank-app.vercel.app');
 
     const { getRequestOrigin } = await import('../../lib/env');
     const headers = new Headers({
       host: '127.0.0.1:3000',
-      'x-forwarded-host': 'pickrank-preview.vercel.app',
+      'x-forwarded-host': 'attacker.example',
       'x-forwarded-proto': 'https',
     });
 
-    expect(getRequestOrigin(headers)).toBe('https://pickrank-preview.vercel.app');
+    expect(getRequestOrigin(headers)).toBe('https://pickrank-app.vercel.app');
   });
 
   it('falls back to NEXT_PUBLIC_APP_URL when host headers are missing', async () => {
