@@ -40,6 +40,8 @@ describe('Supabase RLS hardening migration', () => {
     const sql = await readFile(profileReadHardeningMigrationPath, 'utf8');
 
     expect(sql).toContain('drop policy if exists "public can read leaderboard profiles" on public.profiles;');
+    expect(sql).toContain("to_regclass('public.entry_scoring_results') is not null");
+    expect(sql).toContain("to_regprocedure('public.is_contest_operator()') is not null");
     expect(sql).toContain('create policy "public can read final results profiles"');
     expect(sql).toContain('create policy "contest operators can read profiles for finalization"');
     expect(sql).toContain("entry_scoring_results.user_id = profiles.id");

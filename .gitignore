@@ -4,6 +4,7 @@ out
 .env.local
 .env*.local
 .vercel
+supabase/.temp/
 .cache
 coverage
 playwright-report
