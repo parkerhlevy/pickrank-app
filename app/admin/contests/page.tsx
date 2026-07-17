@@ -184,7 +184,7 @@ export default async function AdminContestsPage({
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="font-semibold">{contest.title}</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="numeric text-xs text-muted-foreground">
                         Week {contest.week} • {contest.entryFee} entry • Opens{' '}
                         {contest.entryOpenTimeIso ? contest.entryOpenTimeIso : 'Not set'} • {contest.lockTime}
                       </p>
@@ -195,7 +195,7 @@ export default async function AdminContestsPage({
                     <p className="font-semibold text-foreground">
                       Validation: {contest.validation.status === 'not_run' ? 'Not run' : contest.validation.status}
                     </p>
-                    <p className="mt-1 text-muted-foreground">
+                    <p className="numeric mt-1 text-muted-foreground">
                       Slate setup: {contest.slatePlayers.length}/15 quarterbacks saved
                     </p>
                     {contest.validation.errors.length > 0 ? (
@@ -239,19 +239,19 @@ export default async function AdminContestsPage({
                       <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-4">
                         <div className="rounded-md border bg-white px-3 py-2">
                           <p className="font-semibold text-foreground">Scheduled</p>
-                          <p>{provisionalPreview.gameCounts.scheduled}</p>
+                          <p className="numeric">{provisionalPreview.gameCounts.scheduled}</p>
                         </div>
                         <div className="rounded-md border bg-white px-3 py-2">
                           <p className="font-semibold text-foreground">In Progress</p>
-                          <p>{provisionalPreview.gameCounts.inProgress}</p>
+                          <p className="numeric">{provisionalPreview.gameCounts.inProgress}</p>
                         </div>
                         <div className="rounded-md border bg-white px-3 py-2">
                           <p className="font-semibold text-foreground">Final</p>
-                          <p>{provisionalPreview.gameCounts.final}</p>
+                          <p className="numeric">{provisionalPreview.gameCounts.final}</p>
                         </div>
                         <div className="rounded-md border bg-white px-3 py-2">
                           <p className="font-semibold text-foreground">Total Games</p>
-                          <p>{provisionalPreview.gameCounts.total}</p>
+                          <p className="numeric">{provisionalPreview.gameCounts.total}</p>
                         </div>
                       </div>
                       {provisionalPreview.rows.length > 0 ? (
@@ -267,14 +267,14 @@ export default async function AdminContestsPage({
                               >
                                 <div>
                                   <p className="font-semibold text-foreground">
-                                    {row.provisionalRankDisplay}. {row.playerName}
+                                    <span className="numeric">{row.provisionalRankDisplay}</span>. {row.playerName}
                                   </p>
                                   <p className="text-muted-foreground">
                                     {row.teamAbbreviation} {row.homeAway === 'home' ? 'vs' : '@'} {row.opponentAbbreviation}
                                   </p>
                                 </div>
                                 <div className="text-right text-muted-foreground">
-                                  <p className="font-semibold text-foreground">{row.passingYards} pass yds</p>
+                                  <p className="numeric font-semibold text-foreground">{row.passingYards} pass yds</p>
                                   <p>{formatGameStatus(row.gameStatus)}</p>
                                 </div>
                               </div>
@@ -412,7 +412,7 @@ function TextInput(props: InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
+      className="numeric w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-base shadow-sm outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15 sm:text-sm"
     />
   );
 }
@@ -421,7 +421,7 @@ function TextArea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (
     <textarea
       {...props}
-      className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
+      className="numeric w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-base shadow-sm outline-none transition-[border-color,box-shadow] focus:border-primary focus:ring-2 focus:ring-primary/15 sm:text-sm"
     />
   );
 }

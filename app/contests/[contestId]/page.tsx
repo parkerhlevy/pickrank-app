@@ -103,7 +103,7 @@ export default async function ContestDetailPage({
               `Save your lineup before ${contest.lockTime.replace('Locks ', '')}.`,
             ].map((step) => (
               <div key={step} className="step-row text-sm">
-                <span className="font-medium">{step}</span>
+                <span className="numeric font-medium">{step}</span>
                 <ChevronRight className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
               </div>
             ))}
@@ -133,7 +133,7 @@ export default async function ContestDetailPage({
           {contest.payoutRows.map((row) => (
             <div key={row.place} className="detail-row bg-white">
               <span className="font-medium">{row.place}</span>
-              <span className="font-semibold">{row.value}</span>
+              <span className="numeric font-semibold">{row.value}</span>
             </div>
           ))}
         </CardContent>
@@ -182,7 +182,7 @@ function DetailStat({
         <Icon className="h-3 w-3" aria-hidden="true" />
         {label}
       </div>
-      <p className="text-sm font-semibold leading-tight">{value}</p>
+      <p className="numeric text-sm font-semibold leading-tight">{value}</p>
     </div>
   );
 }

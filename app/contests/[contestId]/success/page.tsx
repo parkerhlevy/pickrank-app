@@ -93,11 +93,11 @@ export default async function EntrySuccessPage({
           />
           <div className="flex items-start gap-2">
             <Clock className="mt-0.5 h-4 w-4 text-primary" aria-hidden="true" />
-            <p>Set your rankings before {contest.lockTime.replace('Locks ', '')}. You can keep editing until the contest locks.</p>
+            <p className="numeric">Set your rankings before {contest.lockTime.replace('Locks ', '')}. You can keep editing until the contest locks.</p>
           </div>
           <div className="flex items-start gap-2">
             <ListChecks className="mt-0.5 h-4 w-4 text-primary" aria-hidden="true" />
-            <p>Your lineup screen is ready with one clear next step: rank your top 10 quarterbacks and save your order.</p>
+            <p className="numeric">Your lineup screen is ready with one clear next step: rank your top 10 quarterbacks and save your order.</p>
           </div>
         </CardContent>
       </Card>

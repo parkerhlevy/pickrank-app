@@ -49,13 +49,15 @@ export default async function ContestResultsPage({
         <CardHeader className="section-card-header">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <CardTitle>You finished {result.entry.finalRankDisplay}</CardTitle>
+              <CardTitle>
+                You finished <span className="numeric">{result.entry.finalRankDisplay}</span>
+              </CardTitle>
               <CardDescription className="text-slate-300">
                 Lower total score ranks higher after the locked contest tiebreakers are applied.
               </CardDescription>
             </div>
             <span className="status-pill shrink-0 bg-white/10 text-white border-white/15">
-              {result.entry.payoutAmountCents > 0 ? result.entry.payoutAmount : 'No payout'}
+              <span className="numeric">{result.entry.payoutAmountCents > 0 ? result.entry.payoutAmount : 'No payout'}</span>
             </span>
           </div>
         </CardHeader>
@@ -67,7 +69,7 @@ export default async function ContestResultsPage({
           {result.averageMissDistance !== null ? (
             <div className="section-card-muted col-span-2 px-3 py-3">
               <p className="text-xs text-muted-foreground">Average Miss Distance</p>
-              <p className="text-sm font-semibold">{result.averageMissDistance} spots</p>
+              <p className="numeric text-sm font-semibold">{result.averageMissDistance} spots</p>
             </div>
           ) : null}
         </CardContent>
@@ -84,7 +86,7 @@ export default async function ContestResultsPage({
         <CardContent className="space-y-2 text-sm">
           <div className="detail-row">
             <span className="font-medium">Final placement</span>
-            <span className="text-muted-foreground">{result.entry.finalRankDisplay}</span>
+            <span className="numeric text-muted-foreground">{result.entry.finalRankDisplay}</span>
           </div>
           <div className="detail-row">
             <span className="font-medium">Leaderboard path</span>
@@ -104,8 +106,10 @@ export default async function ContestResultsPage({
               {result.bestUniquePick.playerName} ({result.bestUniquePick.teamAbbreviation})
             </p>
             <p className="text-muted-foreground">
-              You: {result.bestUniquePick.userRank} | Field: {Math.round(result.bestUniquePick.fieldAverageRank)} | Actual:{' '}
-              {result.bestUniquePick.actualRankDisplay} | {result.bestUniquePick.pointsAwarded} pts
+              <span className="numeric">
+                You: {result.bestUniquePick.userRank} | Field: {Math.round(result.bestUniquePick.fieldAverageRank)} | Actual:{' '}
+                {result.bestUniquePick.actualRankDisplay} | {result.bestUniquePick.pointsAwarded} pts
+              </span>
             </p>
           </CardContent>
         </Card>
@@ -127,12 +131,14 @@ export default async function ContestResultsPage({
                 <div key={`${row.entryId}-${row.userRank}`} className="section-card px-3 py-3 text-sm">
                   <div className="flex items-center justify-between gap-3">
                     <p className="font-semibold">
-                      #{row.userRank} {row.playerName} ({row.teamAbbreviation})
+                      #<span className="numeric">{row.userRank}</span> {row.playerName} ({row.teamAbbreviation})
                     </p>
                     <ResultTone distance={row.distance} />
                   </div>
                   <p className="mt-1 text-muted-foreground">
-                    You: {row.userRank} | Actual: {row.actualRankDisplay} | {row.pointsAwarded} pts
+                    <span className="numeric">
+                      You: {row.userRank} | Actual: {row.actualRankDisplay} | {row.pointsAwarded} pts
+                    </span>
                   </p>
                 </div>
               ))}
@@ -163,7 +169,7 @@ function ResultStat({ label, value }: { label: string; value: string }) {
   return (
     <div className="section-card-muted px-3 py-3">
       <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="text-sm font-semibold">{value}</p>
+      <p className="numeric text-sm font-semibold">{value}</p>
     </div>
   );
 }

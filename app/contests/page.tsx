@@ -143,7 +143,7 @@ function Stat({
         <Icon className="h-3.5 w-3.5" aria-hidden="true" />
         {label}
       </div>
-      <p className="font-semibold">{value}</p>
+      <p className="numeric font-semibold">{value}</p>
     </div>
   );
 }

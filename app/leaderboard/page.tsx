@@ -133,10 +133,12 @@ export default async function LeaderboardPage({
                 <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-full bg-blue-50 text-primary">
                   <Medal className="h-5 w-5" aria-hidden="true" />
                 </div>
-                <p className="text-xs font-semibold uppercase tracking-[0.02em] text-muted-foreground">Rank {row.finalRankDisplay}</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.02em] text-muted-foreground">
+                  Rank <span className="numeric">{row.finalRankDisplay}</span>
+                </p>
                 <p className="mt-1 truncate text-sm font-semibold">{row.displayName}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{row.totalScore} pts</p>
-                <p className="mt-2 text-xs font-medium text-primary">
+                <p className="numeric mt-1 text-sm text-muted-foreground">{row.totalScore} pts</p>
+                <p className="numeric mt-2 text-xs font-medium text-primary">
                   {row.payoutAmountCents > 0 ? row.payoutAmount : 'No payout'}
                 </p>
               </div>
@@ -156,9 +158,9 @@ export default async function LeaderboardPage({
                 remainingRows.map((row) => (
                   <div key={row.entryId} className="detail-row text-sm">
                     <span className="font-medium">
-                      {row.finalRankDisplay}. {row.displayName}
+                      <span className="numeric">{row.finalRankDisplay}</span>. {row.displayName}
                     </span>
-                    <span className="text-right text-muted-foreground">
+                    <span className="numeric text-right text-muted-foreground">
                       <span className="block">{row.totalScore} pts</span>
                       <span className={row.payoutAmountCents > 0 ? 'block text-primary' : 'block'}>
                         {row.payoutAmountCents > 0 ? row.payoutAmount : 'No payout'}

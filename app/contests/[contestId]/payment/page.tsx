@@ -141,7 +141,7 @@ export default async function PaymentReviewPage({
               {upcomingSteps.map((step) => (
                 <div key={step.key} className="step-row bg-white">
                   <div>
-                    <p className="font-medium">
+                    <p className="numeric font-medium">
                       Step {step.stepNumber}: {step.label}
                     </p>
                     <p className="text-xs text-muted-foreground">{step.summary}</p>
@@ -184,7 +184,7 @@ function ReviewRow({ label, value, strong = false }: { label: string; value: str
   return (
     <div className="flex items-center justify-between gap-3 py-1">
       <span className={strong ? 'font-bold' : 'text-muted-foreground'}>{label}</span>
-      <span className={strong ? 'font-black' : 'font-semibold'}>{value}</span>
+      <span className={strong ? 'numeric font-black' : 'numeric font-semibold'}>{value}</span>
     </div>
   );
 }

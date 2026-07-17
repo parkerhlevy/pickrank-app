@@ -189,7 +189,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                     type="text"
                     name="username"
                     placeholder="pickrank_user"
-                    className="w-full rounded-lg border bg-slate-50 px-3 py-3 text-sm text-foreground outline-none ring-0 transition focus:border-slate-950"
+                    className="w-full rounded-lg border bg-slate-50 px-3 py-3 text-base text-foreground outline-none ring-0 transition-[border-color] focus:border-slate-950 sm:text-sm"
                   />
                 </label>
                 <p className="text-sm text-muted-foreground">
@@ -222,12 +222,12 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           <div className="grid grid-cols-2 gap-3">
             <div className="metric-tile">
               <p className="text-sm text-muted-foreground">Cash Balance</p>
-              <p className="text-xl font-bold">$0.00</p>
+              <p className="numeric text-xl font-bold">$0.00</p>
               <p className="mt-1 text-xs text-muted-foreground">Withdrawable winnings after provider review.</p>
             </div>
             <div className="metric-tile">
               <p className="text-sm text-muted-foreground">Site Credit</p>
-              <p className="text-xl font-bold">$0.00</p>
+              <p className="numeric text-xl font-bold">$0.00</p>
               <p className="mt-1 text-xs text-muted-foreground">Non-withdrawable refunds or promotional credit.</p>
             </div>
           </div>

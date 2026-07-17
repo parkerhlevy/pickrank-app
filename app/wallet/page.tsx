@@ -37,12 +37,12 @@ export default function WalletPage() {
         <CardContent className="grid grid-cols-2 gap-3 pt-5">
           <div className="metric-tile">
             <p className="text-sm text-muted-foreground">Cash Balance</p>
-            <p className="text-2xl font-bold">$0.00</p>
+            <p className="numeric text-2xl font-bold">$0.00</p>
             <p className="mt-1 text-xs text-muted-foreground">Withdrawable winnings after provider and compliance review.</p>
           </div>
           <div className="metric-tile">
             <p className="text-sm text-muted-foreground">Site Credit</p>
-            <p className="text-2xl font-bold">$0.00</p>
+            <p className="numeric text-2xl font-bold">$0.00</p>
             <p className="mt-1 text-xs text-muted-foreground">Non-withdrawable value for refunds or promotions.</p>
           </div>
         </CardContent>

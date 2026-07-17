@@ -16,7 +16,7 @@ export function EmailSignInForm({
           type="email"
           name="email"
           placeholder="you@example.com"
-          className="w-full rounded-lg border bg-slate-50 px-3 py-3 text-sm text-foreground outline-none ring-0 transition focus:border-slate-950"
+          className="w-full rounded-lg border bg-slate-50 px-3 py-3 text-base text-foreground outline-none ring-0 transition-[border-color] focus:border-slate-950 sm:text-sm"
         />
       </label>
       <input type="hidden" name="next" value={next} />

@@ -62,6 +62,7 @@ export function LineupBuilderClient({
 }: LineupBuilderClientProps) {
   const router = useRouter();
   const [lineupState, setLineupState] = useState<LineupState>(initialLineupState);
+  const [previousInitialLineupState, setPreviousInitialLineupState] = useState<LineupState>(initialLineupState);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [showSavedBanner, setShowSavedBanner] = useState(false);
@@ -74,9 +75,10 @@ export function LineupBuilderClient({
   const hasUnsavedChanges = hasUnsavedLineupChanges(lineupState.selectedOrder, lineupState.savedSelectedOrder);
   const needsMoreSelections = lineupState.selectedOrder.length < 10;
 
-  useEffect(() => {
+  if (previousInitialLineupState !== initialLineupState) {
+    setPreviousInitialLineupState(initialLineupState);
     setLineupState(initialLineupState);
-  }, [initialLineupState]);
+  }
 
   useEffect(() => {
     if (!showSavedBanner) {
@@ -103,7 +105,7 @@ export function LineupBuilderClient({
     window.addEventListener('beforeunload', beforeUnloadHandler);
 
     return () => window.removeEventListener('beforeunload', beforeUnloadHandler);
-  }, [hasUnsavedChanges]);
+  }, [hasUnsavedChanges, isEditable]);
 
   useEffect(() => {
     const clickHandler = (event: MouseEvent) => {
@@ -478,7 +480,7 @@ export function LineupBuilderClient({
                     : 'This is your saved lineup for the current entry. Rankings are read-only because the contest is locked.'}
                 </CardDescription>
               </div>
-              <span className="status-pill shrink-0">
+              <span className="numeric status-pill shrink-0">
                 {isEditable ? `${lineupState.selectedOrder.length}/10 Ranked` : 'Read Only'}
               </span>
             </div>
@@ -515,7 +517,7 @@ export function LineupBuilderClient({
                         : 'All 10 saved lineup spots are locked in for this entry.'}
                   </p>
                 </div>
-                <span className="status-pill shrink-0">{lineupState.selectedOrder.length}/10 Ranked</span>
+                <span className="numeric status-pill shrink-0">{lineupState.selectedOrder.length}/10 Ranked</span>
               </div>
             </div>
             <div className="space-y-2">
@@ -523,18 +525,18 @@ export function LineupBuilderClient({
                 <div
                   key={name}
                   data-lineup-player={name}
-                  className={`section-card flex items-center justify-between px-3 py-3 text-sm transition ${
-                    draggingPlayer === name ? 'border-primary bg-blue-50 shadow-md' : ''
+                  className={`section-card flex items-center justify-between px-3 py-3 text-sm transition-[background-color,border-color,box-shadow,scale] ${
+                    draggingPlayer === name ? 'scale-[0.99] border-primary bg-blue-50 shadow-md' : ''
                   }`}
                 >
                   <div className="min-w-0">
                     <p className="font-semibold">
-                      {index + 1}. {name}
+                      <span className="numeric">{index + 1}</span>. {name}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                        {draggingPlayer === name
-                          ? 'Move into place, then release to drop'
-                          : lineupState.savedSelectedOrder[index] === name
+                      {draggingPlayer === name
+                        ? 'Move into place, then release to drop'
+                        : lineupState.savedSelectedOrder[index] === name
                           ? 'Saved rank'
                           : 'Unsaved rank change'}
                     </p>
@@ -545,7 +547,7 @@ export function LineupBuilderClient({
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="h-9 w-9 rounded-full px-0"
+                        className="h-11 w-11 min-h-11 min-w-11 rounded-full px-0"
                         onClick={() => handleRemovePlayer(name)}
                         aria-label={`Remove ${name} from your ranked lineup`}
                       >
@@ -556,7 +558,7 @@ export function LineupBuilderClient({
                       type="button"
                       variant="secondary"
                       size="sm"
-                      className={`h-11 w-11 shrink-0 rounded-full px-0 touch-none ${
+                      className={`h-11 w-11 min-h-11 min-w-11 shrink-0 rounded-full px-0 touch-none ${
                         draggingPlayer === name ? 'cursor-grabbing' : 'cursor-grab'
                       }`}
                       onPointerDown={(event) => handleDragStart(name, event)}
@@ -575,7 +577,7 @@ export function LineupBuilderClient({
                   <p className="font-semibold">Available Quarterbacks</p>
                   <p className="text-xs text-muted-foreground">Use the full 15-player slate to fill any open lineup spots.</p>
                 </div>
-                <span className="text-xs text-muted-foreground">{lineupState.availablePlayers.length} Left in Slate</span>
+                <span className="numeric text-xs text-muted-foreground">{lineupState.availablePlayers.length} Left in Slate</span>
               </div>
               {lineupState.availablePlayers.length > 0 ? (
                 <div className="space-y-2">
@@ -703,7 +705,7 @@ function ContextTile({ label, value }: { label: string; value: string }) {
   return (
     <div className="metric-tile">
       <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="mt-1 text-sm font-semibold">{value}</p>
+      <p className="numeric mt-1 text-sm font-semibold">{value}</p>
     </div>
   );
 }
