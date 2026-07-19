@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { ArrowLeft, CheckCircle2, Clock, ListChecks } from 'lucide-react';
 import { redirect } from 'next/navigation';
+import { ContestBoardStagePanel } from '@/components/contests/contest-board-preview';
 import { Notice } from '@/components/ui/notice';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -75,6 +76,16 @@ export default async function EntrySuccessPage({
           Your entry is confirmed. Head into Build Your Lineup now and keep editing until the contest locks.
         </p>
       </div>
+
+      <ContestBoardStagePanel
+        title={contest.title}
+        description="Your entry is confirmed for this contest board. Continue to Build Your Lineup and save the ranked 10 before lock."
+        slateLabel={contest.slate}
+        statCategory={contest.statCategory}
+        lockTimeLabel={contest.lockTime.replace('Locks ', '')}
+        rankedCountLabel="Lineup ready"
+        stateLabel="Entry Confirmed"
+      />
 
       <Card className="section-card overflow-hidden">
         <CardHeader className="border-b border-emerald-900/60 bg-[linear-gradient(180deg,hsl(151_63%_18%)_0%,hsl(160_55%_20%)_100%)] text-white">

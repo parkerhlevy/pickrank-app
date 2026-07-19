@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { ArrowRight, Clock, DollarSign, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { ContestBoardPreview } from '@/components/contests/contest-board-preview';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { listPublicContests, type ContestSummary } from '@/lib/contest-data';
+import { getContestDefaultLineupOrder, getContestSelectablePlayers, listPublicContests, type ContestSummary } from '@/lib/contest-data';
 
 export default async function ContestsPage() {
   const contests = await listPublicContests();
@@ -42,6 +43,15 @@ export default async function ContestsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <ContestStats contest={featuredContest} />
+            <ContestBoardPreview
+              title={featuredContest.title}
+              slateLabel={featuredContest.slate}
+              statCategory={featuredContest.statCategory}
+              lockTimeLabel={formatLockTime(featuredContest.lockTime)}
+              rankedPlayers={getContestDefaultLineupOrder(featuredContest)}
+              slatePlayers={getContestSelectablePlayers(featuredContest)}
+              variant="feature"
+            />
             <Button asChild className="w-full">
               <Link href={`/contests/${featuredContest.id}`}>
                 {featuredContest.contestStatus === 'open' ? 'Enter Contest' : 'View Contest'}
@@ -83,6 +93,14 @@ export default async function ContestsPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <ContestStats contest={contest} compact />
+                <ContestBoardPreview
+                  title={contest.title}
+                  slateLabel={contest.slate}
+                  statCategory={contest.statCategory}
+                  lockTimeLabel={formatLockTime(contest.lockTime)}
+                  rankedPlayers={getContestDefaultLineupOrder(contest)}
+                  slatePlayers={getContestSelectablePlayers(contest)}
+                />
                 <Button asChild variant="secondary" className="w-full">
                   <Link href={`/contests/${contest.id}`} className="gap-2">
                     View Contest

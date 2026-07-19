@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowLeft, ChevronRight, Clock, DollarSign, Lock, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { ContestBoardPreview } from '@/components/contests/contest-board-preview';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getContestDetailPrimaryAction } from '@/lib/contest-entry-flow';
@@ -21,13 +22,15 @@ export default async function ContestDetailPage({
   const { contestId } = await params;
   const contest = await getContestById(contestId);
   const viewerIdentity = await getViewerIdentity();
+  const selectablePlayers = getContestSelectablePlayers(contest);
+  const defaultLineupOrder = getContestDefaultLineupOrder(contest);
 
   const hasEntry = Boolean(
     await getPersistedContestEntry(
       contest.id,
       viewerIdentity.userId,
-      getContestSelectablePlayers(contest),
-      getContestDefaultLineupOrder(contest),
+      selectablePlayers,
+      defaultLineupOrder,
     ),
   );
   const primaryAction = getContestDetailPrimaryAction({
@@ -78,6 +81,16 @@ export default async function ContestDetailPage({
           </p>
         </CardContent>
       </Card>
+
+      <ContestBoardPreview
+        title={contest.title}
+        slateLabel={contest.slate}
+        statCategory={contest.statCategory}
+        lockTimeLabel={contest.lockTime.replace('Locks ', '')}
+        rankedPlayers={defaultLineupOrder}
+        slatePlayers={selectablePlayers}
+        variant="detail"
+      />
 
       <Card className="section-card">
         <CardHeader>

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { AlertTriangle, ArrowLeft, CheckCircle2, CreditCard, ShieldCheck } from 'lucide-react';
 import { redirect } from 'next/navigation';
+import { ContestBoardStagePanel } from '@/components/contests/contest-board-preview';
 import { Notice } from '@/components/ui/notice';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -45,11 +46,13 @@ export default async function PaymentReviewPage({
     cookieStore.get(contestEntryCookieName)?.value,
   );
   const viewerIdentity = await getViewerIdentity();
+  const selectablePlayers = getContestSelectablePlayers(contest);
+  const defaultLineupOrder = getContestDefaultLineupOrder(contest);
   const persistedEntry = await getPersistedContestEntry(
     contest.id,
     viewerIdentity.userId,
-    getContestSelectablePlayers(contest),
-    getContestDefaultLineupOrder(contest),
+    selectablePlayers,
+    defaultLineupOrder,
   );
   const routeState = getContestEntryRouteState({
     contestId: contest.id,
@@ -85,6 +88,16 @@ export default async function PaymentReviewPage({
           Review your entry fee and confirm how this entry is covered before you continue to lineup setup.
         </p>
       </div>
+
+      <ContestBoardStagePanel
+        title={contest.title}
+        description="This entry belongs to one contest board. Confirm the entry fee first, then Build Your Lineup by ranking your top 10 from the slate."
+        slateLabel={contest.slate}
+        statCategory={contest.statCategory}
+        lockTimeLabel={contest.lockTime.replace('Locks ', '')}
+        rankedCountLabel="Ready after entry"
+        stateLabel="Payment Review"
+      />
 
       <Card className="section-card overflow-hidden">
         <CardHeader className="section-card-header">

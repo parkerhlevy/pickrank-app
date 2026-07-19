@@ -13,6 +13,7 @@ import {
   X,
   Save,
 } from 'lucide-react';
+import { ContestBoardStagePanel } from '@/components/contests/contest-board-preview';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Notice } from '@/components/ui/notice';
@@ -32,6 +33,8 @@ type LineupBuilderClientProps = {
     title: string;
     entryFee: string;
     lockTime: string;
+    slate: string;
+    statCategory: string;
     status: string;
   };
   entryId: string;
@@ -411,6 +414,20 @@ export function LineupBuilderClient({
             badge="Read only"
           />
         ) : null}
+
+        <ContestBoardStagePanel
+          title={contest.title}
+          description={
+            isEditable
+              ? 'This is the active board for your saved entry. Build the ranked 10 from the full slate, then save before lock.'
+              : 'This contest board is locked for review. Your saved ranking is shown below without editing controls.'
+          }
+          slateLabel={contest.slate}
+          statCategory={contest.statCategory}
+          lockTimeLabel={contest.lockTime.replace('Locks ', '')}
+          rankedCountLabel={`${lineupState.selectedOrder.length}/10 ranked`}
+          stateLabel={isEditable ? 'Editing open' : 'Read only'}
+        />
 
         <Card className="section-card overflow-hidden">
           <CardHeader className="section-card-header">

@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Brain, CalendarDays, PlayCircle, Trophy } from 'lucide-react';
+import { ContestBoardPreview } from '@/components/contests/contest-board-preview';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -41,6 +42,28 @@ const steps = [
     title: 'See how you stack up',
     description: 'When the games are over, the most accurate rankings rise to the top and win cash prizes.',
   },
+];
+
+const demoBoardPlayers = [
+  'Josh Allen',
+  'Joe Burrow',
+  'Jalen Hurts',
+  'Lamar Jackson',
+  'Patrick Mahomes',
+  'Justin Herbert',
+  'Dak Prescott',
+  'Brock Purdy',
+  'Jordan Love',
+  'Kirk Cousins',
+];
+
+const demoSlatePlayers = [
+  'C.J. Stroud',
+  'Tua Tagovailoa',
+  'Trevor Lawrence',
+  'Matthew Stafford',
+  'Geno Smith',
+  ...demoBoardPlayers,
 ];
 
 export default function HomePage() {
@@ -114,6 +137,26 @@ export default function HomePage() {
             </CardContent>
           </Card>
         </div>
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+        <div className="screen-header space-y-3">
+          <p className="eyebrow">Contest-as-Board</p>
+          <h2 className="text-2xl font-black leading-tight">Each contest gets its own board.</h2>
+          <p className="text-sm leading-6 text-muted-foreground sm:text-base">
+            Open a contest, scan the slate, then turn that slate into a ranked 10 before lock. Multiple contests can run
+            in the same week because each one carries its own slate, lock time, entry path, and final accuracy score.
+          </p>
+        </div>
+        <ContestBoardPreview
+          title="Week 1 QB Passing Yards"
+          slateLabel="15-QB slate"
+          statCategory="Passing yards"
+          lockTimeLabel="Sun 1:00 PM ET"
+          rankedPlayers={demoBoardPlayers}
+          slatePlayers={demoSlatePlayers}
+          variant="feature"
+        />
       </section>
 
       <section className="space-y-4">

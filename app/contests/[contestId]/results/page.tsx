@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { ChevronDown, ListOrdered, Trophy } from 'lucide-react';
+import { ContestBoardStagePanel } from '@/components/contests/contest-board-preview';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getContestById, listPublicContests } from '@/lib/contest-data';
@@ -31,6 +32,7 @@ export default async function ContestResultsPage({
   }
 
   const nextContest = (await listPublicContests()).find((candidate) => candidate.id !== contest.id) ?? null;
+  const finalizedLabel = new Date(result.finalizedAt).toLocaleString();
 
   return (
     <div className="space-y-6 pb-28">
@@ -44,6 +46,20 @@ export default async function ContestResultsPage({
         </div>
         <p className="text-muted-foreground">Your final finish and lineup breakdown now read from the saved contest results.</p>
       </section>
+
+      <ContestBoardStagePanel
+        title={result.contestTitle}
+        description="Your contest board is resolved from saved final scoring. Review your finish, score, and saved ranked 10 against the final QB order."
+        slateLabel={contest.slate}
+        statCategory={contest.statCategory}
+        lockTimeLabel={finalizedLabel}
+        rankedCountLabel={`Rank ${result.entry.finalRankDisplay}`}
+        stateLabel="Saved Final"
+        rankedLabel="Your Result"
+        rankedDetail="Final placement"
+        timingLabel="Finalized"
+        timingDetail="Saved final scoring"
+      />
 
       <Card className="section-card overflow-hidden">
         <CardHeader className="section-card-header">

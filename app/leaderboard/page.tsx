@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Medal, Trophy } from 'lucide-react';
+import { ContestBoardStagePanel } from '@/components/contests/contest-board-preview';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { getContestById, listPublicFinalContests } from '@/lib/contest-data';
@@ -96,6 +97,7 @@ export default async function LeaderboardPage({
 
   const topThree = leaderboard?.rows.slice(0, 3) ?? [];
   const remainingRows = leaderboard?.rows.slice(3) ?? [];
+  const finalizedLabel = leaderboard ? new Date(leaderboard.finalizedAt).toLocaleString() : 'Not saved yet';
 
   return (
     <div className="space-y-6">
@@ -127,6 +129,20 @@ export default async function LeaderboardPage({
 
       {leaderboard ? (
         <>
+          <ContestBoardStagePanel
+            title={contest.title}
+            description="This contest board is resolved from saved final scoring. The slate is closed, rankings are final, and lower total score ranks higher."
+            slateLabel={contest.slate}
+            statCategory={contest.statCategory}
+            lockTimeLabel={finalizedLabel}
+            rankedCountLabel={`${leaderboard.rows.length} entries`}
+            stateLabel="Saved Final"
+            rankedLabel="Resolved Board"
+            rankedDetail="Final standings"
+            timingLabel="Finalized"
+            timingDetail="Saved final scoring"
+          />
+
           <div className="grid grid-cols-3 gap-3">
             {topThree.map((row) => (
               <div key={row.entryId} className="section-card p-3 text-center">
