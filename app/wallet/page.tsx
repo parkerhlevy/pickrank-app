@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { CreditCard, Info, ShieldCheck, WalletCards } from 'lucide-react';
+import { ArrowRight, CreditCard, Info, ShieldCheck, WalletCards } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Notice } from '@/components/ui/notice';
@@ -11,14 +11,14 @@ export default function WalletPage() {
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="eyebrow">Wallet</p>
-            <h1 className="text-3xl font-black leading-tight">Cash Balance & Site Credit</h1>
+            <h1 className="text-3xl font-black leading-tight">PickRank Wallet</h1>
           </div>
           <span className="status-pill shrink-0">Placeholder-safe</span>
         </div>
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-col gap-3">
           <p className="text-muted-foreground">
-            Placeholder balance cards for the future wallet system. Deposits, withdrawals, and ledger history are not
-            live in the current product.
+            Account balance preview for contest funding and future winnings. Cash Balance and Site Credit stay distinct,
+            and wallet actions remain disabled until provider and compliance review is complete.
           </p>
           <Link href="/how-it-works" className="inline-link shrink-0">
             How It Works
@@ -30,11 +30,13 @@ export default function WalletPage() {
         <CardHeader className="section-card-header">
           <div className="flex items-center gap-2">
             <WalletCards className="h-5 w-5 text-blue-300" aria-hidden="true" />
-            <CardTitle>Wallet Preview</CardTitle>
+            <CardTitle>Balance Overview</CardTitle>
           </div>
-          <CardDescription className="text-slate-300">Placeholder values for reviewing balance layout and labels.</CardDescription>
+          <CardDescription className="text-slate-300">
+            Placeholder values with product-accurate PickRank balance labels.
+          </CardDescription>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-3 pt-5">
+        <CardContent className="grid gap-3 pt-5 sm:grid-cols-2">
           <div className="metric-tile">
             <p className="text-sm text-muted-foreground">Cash Balance</p>
             <p className="numeric text-2xl font-bold">$0.00</p>
@@ -44,6 +46,32 @@ export default function WalletPage() {
             <p className="text-sm text-muted-foreground">Site Credit</p>
             <p className="numeric text-2xl font-bold">$0.00</p>
             <p className="mt-1 text-xs text-muted-foreground">Non-withdrawable value for refunds or promotions.</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="section-card">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <CreditCard className="h-5 w-5 text-primary" aria-hidden="true" />
+            <CardTitle>Contest Entry Funding</CardTitle>
+          </div>
+          <CardDescription>
+            Future contest entries will review available PickRank balances before any external amount due.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2 text-sm">
+          <div className="detail-row">
+            <span>Site Credit</span>
+            <span className="text-muted-foreground">Applied first</span>
+          </div>
+          <div className="detail-row">
+            <span>Cash Balance</span>
+            <span className="text-muted-foreground">Applied after Site Credit</span>
+          </div>
+          <div className="detail-row">
+            <span>Amount Due Today</span>
+            <span className="text-muted-foreground">External provider required</span>
           </div>
         </CardContent>
       </Card>
@@ -75,22 +103,31 @@ export default function WalletPage() {
       <Card className="section-card">
         <CardHeader>
           <div className="flex items-center gap-2">
-            <CreditCard className="h-5 w-5 text-primary" aria-hidden="true" />
-            <CardTitle>Payment Review</CardTitle>
+            <ShieldCheck className="h-5 w-5 text-primary" aria-hidden="true" />
+            <CardTitle>Account Controls</CardTitle>
           </div>
-          <CardDescription>Future entries review Cash Balance and Site Credit before any remaining amount is handled externally.</CardDescription>
+          <CardDescription>
+            Profile remains the main account surface. Wallet stays available here as the secondary balance route.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <Notice
             variant="muted"
-            icon={CreditCard}
-            title="Payment review stays placeholder-only"
-            description="Cash Balance and Site Credit labels are in place here now, but provider-backed entry funding is not live yet."
-            badge="Preview"
+            icon={WalletCards}
+            title="Wallet belongs to your PickRank account"
+            description="Use Profile for account identity and readiness. Use Wallet for the balance summary while actions are not live."
           />
-          <Button className="w-full" disabled>
-            Wallet Actions Not Available
-          </Button>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Button asChild variant="secondary" className="w-full">
+              <Link href="/profile" className="gap-2">
+                Back to Profile
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+            </Button>
+            <Button className="w-full" disabled>
+              Wallet Actions Not Available
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

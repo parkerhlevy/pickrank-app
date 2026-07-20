@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { ChevronDown, ListOrdered, Trophy } from 'lucide-react';
-import { ContestBoardStagePanel } from '@/components/contests/contest-board-preview';
+import { ContestBoardStagePanel, ContestJourneyRail } from '@/components/contests/contest-board-preview';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getContestById, listPublicContests } from '@/lib/contest-data';
@@ -61,10 +61,13 @@ export default async function ContestResultsPage({
         timingDetail="Saved final scoring"
       />
 
+      <ContestJourneyRail currentStage="final-results" />
+
       <Card className="section-card overflow-hidden">
         <CardHeader className="section-card-header">
           <div className="flex items-start justify-between gap-3">
-            <div>
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-[0.02em] text-blue-200">Saved Final Summary</p>
               <CardTitle>
                 You finished <span className="numeric">{result.entry.finalRankDisplay}</span>
               </CardTitle>
@@ -77,15 +80,20 @@ export default async function ContestResultsPage({
             </span>
           </div>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-3 pt-5 text-sm">
-          <ResultStat label="Your Score" value={`${result.entry.totalScore} pts`} />
-          <ResultStat label="Winnings" value={result.entry.payoutAmount} />
-          <ResultStat label="Exact Picks" value={String(result.entry.exactPicks)} />
-          <ResultStat label="One-Off-Or-Better" value={String(result.entry.oneOffOrBetterPicks)} />
+        <CardContent className="space-y-3 pt-5 text-sm">
+          <div className="grid grid-cols-2 gap-3">
+            <ResultStat label="Final Rank" value={result.entry.finalRankDisplay} emphasis />
+            <ResultStat label="Your Score" value={`${result.entry.totalScore} pts`} emphasis />
+          </div>
+          <div className="grid gap-2 sm:grid-cols-3">
+            <ResultStat label="Winnings" value={result.entry.payoutAmount} />
+            <ResultStat label="Exact Picks" value={String(result.entry.exactPicks)} />
+            <ResultStat label="One-Off-Or-Better" value={String(result.entry.oneOffOrBetterPicks)} />
+          </div>
           {result.averageMissDistance !== null ? (
-            <div className="section-card-muted col-span-2 px-3 py-3">
-              <p className="text-xs text-muted-foreground">Average Miss Distance</p>
-              <p className="numeric text-sm font-semibold">{result.averageMissDistance} spots</p>
+            <div className="section-card-muted flex items-center justify-between gap-3 px-3 py-2">
+              <p className="text-xs font-medium text-muted-foreground">Average Miss Distance</p>
+              <p className="numeric text-sm font-semibold text-slate-950">{result.averageMissDistance} spots</p>
             </div>
           ) : null}
         </CardContent>
@@ -93,16 +101,25 @@ export default async function ContestResultsPage({
 
       <Card className="section-card">
         <CardHeader>
-          <div className="flex items-center gap-2">
-            <Trophy className="h-5 w-5 text-primary" aria-hidden="true" />
-            <CardTitle>Results Snapshot</CardTitle>
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <Trophy className="h-5 w-5 text-primary" aria-hidden="true" />
+                <CardTitle>Results Snapshot</CardTitle>
+              </div>
+              <CardDescription>This screen reflects your saved final finish, score, and payout status.</CardDescription>
+            </div>
+            <span className="status-pill shrink-0 status-pill-muted">Saved rows</span>
           </div>
-          <CardDescription>Saved final rows only. This screen reflects your confirmed finish, score, and payout status.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
           <div className="detail-row">
             <span className="font-medium">Final placement</span>
             <span className="numeric text-muted-foreground">{result.entry.finalRankDisplay}</span>
+          </div>
+          <div className="detail-row">
+            <span className="font-medium">Payout status</span>
+            <span className="text-muted-foreground">{result.entry.payoutStatus === 'paid' ? 'Paid' : 'Pending'}</span>
           </div>
           <div className="detail-row">
             <span className="font-medium">Leaderboard path</span>
@@ -115,10 +132,12 @@ export default async function ContestResultsPage({
         <Card className="section-card">
           <CardHeader>
             <CardTitle>Best Unique Pick</CardTitle>
-            <CardDescription>{result.bestUniquePick.playerName} delivered your strongest differentiated call against the field.</CardDescription>
+            <CardDescription>
+              {result.bestUniquePick.playerName} delivered your strongest differentiated call against the field.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-1 text-sm">
-            <p className="font-semibold">
+            <p className="truncate font-semibold" title={result.bestUniquePick.playerName}>
               {result.bestUniquePick.playerName} ({result.bestUniquePick.teamAbbreviation})
             </p>
             <p className="text-muted-foreground">
@@ -138,24 +157,35 @@ export default async function ContestResultsPage({
         </CardHeader>
         <CardContent>
           <details>
-            <summary className="section-card-muted flex cursor-pointer list-none items-center justify-between px-3 py-3 text-sm font-semibold">
-              View Player Breakdown
-              <ChevronDown className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+            <summary className="section-card-muted flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-3 text-sm font-semibold">
+              <span>View Player Breakdown</span>
+              <span className="flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
+                <span className="numeric">{result.playerBreakdown.length} saved rows</span>
+                <ChevronDown className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+              </span>
             </summary>
-            <div className="mt-3 space-y-2">
+            <div className="mt-3 space-y-1.5">
               {result.playerBreakdown.map((row) => (
-                <div key={`${row.entryId}-${row.userRank}`} className="section-card px-3 py-3 text-sm">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="font-semibold">
+                <div
+                  key={`${row.entryId}-${row.userRank}`}
+                  className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p
+                      className="truncate font-semibold text-slate-950"
+                      title={`${row.playerName} (${row.teamAbbreviation})`}
+                    >
                       #<span className="numeric">{row.userRank}</span> {row.playerName} ({row.teamAbbreviation})
                     </p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      <span className="numeric">
+                        You: {row.userRank} | Actual: {row.actualRankDisplay} | {row.pointsAwarded} pts
+                      </span>
+                    </p>
+                  </div>
+                  <div className="shrink-0">
                     <ResultTone distance={row.distance} />
                   </div>
-                  <p className="mt-1 text-muted-foreground">
-                    <span className="numeric">
-                      You: {row.userRank} | Actual: {row.actualRankDisplay} | {row.pointsAwarded} pts
-                    </span>
-                  </p>
                 </div>
               ))}
             </div>
@@ -181,11 +211,15 @@ export default async function ContestResultsPage({
   );
 }
 
-function ResultStat({ label, value }: { label: string; value: string }) {
+function ResultStat({ label, value, emphasis = false }: { label: string; value: string; emphasis?: boolean }) {
   return (
-    <div className="section-card-muted px-3 py-3">
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="numeric text-sm font-semibold">{value}</p>
+    <div className="section-card-muted min-w-0 px-3 py-3">
+      <p className="truncate text-xs text-muted-foreground" title={label}>
+        {label}
+      </p>
+      <p className={`numeric truncate font-semibold ${emphasis ? 'text-lg text-slate-950' : 'text-sm'}`} title={value}>
+        {value}
+      </p>
     </div>
   );
 }

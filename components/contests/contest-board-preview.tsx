@@ -1,7 +1,8 @@
-import { ArrowRight, Clock, GripVertical, ListOrdered, Target } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Circle, Clock, Flag, GripVertical, ListOrdered, Target } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type ContestBoardPreviewVariant = 'compact' | 'feature' | 'detail';
+type ContestJourneyStage = 'slate' | 'entry-review' | 'entry-confirmed' | 'build' | 'lock' | 'final-results';
 
 type ContestBoardPreviewProps = {
   title: string;
@@ -28,6 +29,48 @@ type ContestBoardStagePanelProps = {
   timingDetail?: string;
   className?: string;
 };
+
+type ContestJourneyRailProps = {
+  currentStage: ContestJourneyStage;
+  className?: string;
+};
+
+const contestJourneyStages: {
+  key: ContestJourneyStage;
+  label: string;
+  detail: string;
+}[] = [
+  {
+    key: 'slate',
+    label: 'Slate',
+    detail: 'Review the board',
+  },
+  {
+    key: 'entry-review',
+    label: 'Entry Review',
+    detail: 'Confirm the contest',
+  },
+  {
+    key: 'entry-confirmed',
+    label: 'Entry Confirmed',
+    detail: 'Board is ready',
+  },
+  {
+    key: 'build',
+    label: 'Build',
+    detail: 'Rank your 10',
+  },
+  {
+    key: 'lock',
+    label: 'Lock',
+    detail: 'Rankings close',
+  },
+  {
+    key: 'final-results',
+    label: 'Final Results',
+    detail: 'Saved standings',
+  },
+];
 
 const previewLimits: Record<ContestBoardPreviewVariant, number> = {
   compact: 4,
@@ -128,6 +171,59 @@ export function ContestBoardPreview({
               {statCategory.toLowerCase()} order as possible.
             </p>
           ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function ContestJourneyRail({ currentStage, className }: ContestJourneyRailProps) {
+  const currentStageIndex = contestJourneyStages.findIndex((stage) => stage.key === currentStage);
+
+  return (
+    <div className={cn('section-card overflow-hidden', className)}>
+      <div className="border-b border-slate-200 px-4 py-3">
+        <p className="eyebrow">Contest Progression</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          One skill contest moves from slate review to ranked board, lock, and saved final results.
+        </p>
+      </div>
+      <div className="overflow-x-auto">
+        <div className="grid min-w-[44rem] grid-cols-6 gap-2 p-3">
+          {contestJourneyStages.map((stage, index) => {
+            const isCurrent = stage.key === currentStage;
+            const isComplete = index < currentStageIndex;
+            const Icon = isComplete ? CheckCircle2 : isCurrent ? Flag : Circle;
+
+            return (
+              <div
+                key={stage.key}
+                className={cn(
+                  'min-h-[6.25rem] rounded-lg border px-3 py-3 text-sm',
+                  isCurrent
+                    ? 'border-primary bg-blue-50 text-slate-950 shadow-sm'
+                    : isComplete
+                      ? 'border-emerald-200 bg-emerald-50 text-emerald-950'
+                      : 'border-slate-200 bg-slate-50 text-slate-700',
+                )}
+              >
+                <div
+                  className={cn(
+                    'mb-2 flex h-8 w-8 items-center justify-center rounded-full',
+                    isCurrent
+                      ? 'bg-primary text-white'
+                      : isComplete
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : 'bg-white text-slate-500',
+                  )}
+                >
+                  <Icon className="h-4 w-4" aria-hidden="true" />
+                </div>
+                <p className="font-black leading-tight">{stage.label}</p>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">{stage.detail}</p>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

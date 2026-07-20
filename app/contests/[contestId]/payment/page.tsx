@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { AlertTriangle, ArrowLeft, CheckCircle2, CreditCard, ShieldCheck } from 'lucide-react';
 import { redirect } from 'next/navigation';
-import { ContestBoardStagePanel } from '@/components/contests/contest-board-preview';
+import { ContestBoardStagePanel, ContestJourneyRail } from '@/components/contests/contest-board-preview';
 import { Notice } from '@/components/ui/notice';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -98,6 +98,8 @@ export default async function PaymentReviewPage({
         rankedCountLabel="Ready after entry"
         stateLabel="Payment Review"
       />
+
+      <ContestJourneyRail currentStage="entry-review" />
 
       <Card className="section-card overflow-hidden">
         <CardHeader className="section-card-header">

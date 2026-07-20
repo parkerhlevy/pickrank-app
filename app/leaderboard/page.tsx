@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Medal, Trophy } from 'lucide-react';
-import { ContestBoardStagePanel } from '@/components/contests/contest-board-preview';
+import { ContestBoardStagePanel, ContestJourneyRail } from '@/components/contests/contest-board-preview';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { getContestById, listPublicFinalContests } from '@/lib/contest-data';
@@ -143,42 +143,81 @@ export default async function LeaderboardPage({
             timingDetail="Saved final scoring"
           />
 
-          <div className="grid grid-cols-3 gap-3">
-            {topThree.map((row) => (
-              <div key={row.entryId} className="section-card p-3 text-center">
-                <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-full bg-blue-50 text-primary">
-                  <Medal className="h-5 w-5" aria-hidden="true" />
+          <ContestJourneyRail currentStage="final-results" />
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            {topThree.map((row, index) => (
+              <div
+                key={row.entryId}
+                className={`section-card min-w-0 p-3 ${
+                  index === 0 ? 'border-primary/30 bg-blue-50/60 sm:col-span-2 sm:py-4' : 'bg-white'
+                }`}
+              >
+                <div
+                  className={`mb-2 flex items-center gap-2 ${index === 0 ? 'justify-start' : 'justify-start'}`}
+                >
+                  <div
+                    className={`flex shrink-0 items-center justify-center rounded-full ${
+                      index === 0 ? 'h-10 w-10 bg-primary text-white' : 'h-8 w-8 bg-blue-50 text-primary'
+                    }`}
+                  >
+                    <Medal className="h-5 w-5" aria-hidden="true" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.02em] text-muted-foreground">
+                      Rank <span className="numeric">{row.finalRankDisplay}</span>
+                    </p>
+                    <p
+                      className={`truncate font-black leading-tight ${index === 0 ? 'text-base text-slate-950' : 'text-sm text-slate-900'}`}
+                      title={row.displayName}
+                    >
+                      {row.displayName}
+                    </p>
+                  </div>
                 </div>
-                <p className="text-xs font-semibold uppercase tracking-[0.02em] text-muted-foreground">
-                  Rank <span className="numeric">{row.finalRankDisplay}</span>
-                </p>
-                <p className="mt-1 truncate text-sm font-semibold">{row.displayName}</p>
-                <p className="numeric mt-1 text-sm text-muted-foreground">{row.totalScore} pts</p>
-                <p className="numeric mt-2 text-xs font-medium text-primary">
-                  {row.payoutAmountCents > 0 ? row.payoutAmount : 'No payout'}
-                </p>
+                <div className="flex items-end justify-between gap-2 border-t border-slate-200 pt-2 text-sm">
+                  <span className="numeric font-semibold text-slate-950">{row.totalScore} pts</span>
+                  <span className="numeric max-w-[8rem] truncate text-right text-xs font-medium text-primary">
+                    {row.payoutAmountCents > 0 ? row.payoutAmount : 'No payout'}
+                  </span>
+                </div>
               </div>
             ))}
           </div>
 
           <Card className="section-card">
             <CardHeader>
-              <div className="flex items-center gap-2">
-                <Trophy className="h-5 w-5 text-primary" aria-hidden="true" />
-                <CardTitle>Final Standings</CardTitle>
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <Trophy className="h-5 w-5 text-primary" aria-hidden="true" />
+                    <CardTitle>Final Standings</CardTitle>
+                  </div>
+                  <CardDescription>
+                    Saved final rows only. Lower score wins, with tied totals resolved by the locked contest tiebreakers before
+                    shared placements.
+                  </CardDescription>
+                </div>
+                <span className="numeric status-pill shrink-0">{leaderboard.rows.length} entries</span>
               </div>
-              <CardDescription>Saved final rows only. Lower score wins, with tied totals resolved by the locked contest tiebreakers before shared placements.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-2">
               {remainingRows.length > 0 ? (
                 remainingRows.map((row) => (
-                  <div key={row.entryId} className="detail-row text-sm">
-                    <span className="font-medium">
+                  <div
+                    key={row.entryId}
+                    className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm"
+                  >
+                    <span className="min-w-0 flex-1 truncate font-semibold text-slate-950" title={row.displayName}>
                       <span className="numeric">{row.finalRankDisplay}</span>. {row.displayName}
                     </span>
-                    <span className="numeric text-right text-muted-foreground">
-                      <span className="block">{row.totalScore} pts</span>
-                      <span className={row.payoutAmountCents > 0 ? 'block text-primary' : 'block'}>
+                    <span className="numeric shrink-0 text-right text-muted-foreground">
+                      <span className="block font-semibold text-slate-900">{row.totalScore} pts</span>
+                      <span
+                        className={
+                          row.payoutAmountCents > 0 ? 'block max-w-[7rem] truncate text-xs text-primary' : 'block text-xs'
+                        }
+                      >
                         {row.payoutAmountCents > 0 ? row.payoutAmount : 'No payout'}
                       </span>
                     </span>

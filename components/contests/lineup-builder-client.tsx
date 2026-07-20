@@ -13,7 +13,7 @@ import {
   X,
   Save,
 } from 'lucide-react';
-import { ContestBoardStagePanel } from '@/components/contests/contest-board-preview';
+import { ContestBoardStagePanel, ContestJourneyRail } from '@/components/contests/contest-board-preview';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Notice } from '@/components/ui/notice';
@@ -77,6 +77,20 @@ export function LineupBuilderClient({
 
   const hasUnsavedChanges = hasUnsavedLineupChanges(lineupState.selectedOrder, lineupState.savedSelectedOrder);
   const needsMoreSelections = lineupState.selectedOrder.length < 10;
+  const saveStateLabel = !isEditable
+    ? 'Read only'
+    : hasUnsavedChanges
+      ? 'Unsaved changes'
+      : lineupState.source === 'user_saved'
+        ? 'Saved'
+        : 'Assigned order';
+  const saveStateDescription = !isEditable
+    ? 'This saved lineup is locked for review.'
+    : hasUnsavedChanges
+      ? 'Review the ranked order below, then save before leaving.'
+      : lineupState.source === 'user_saved'
+        ? 'Your saved lineup is current.'
+        : 'This assigned lineup is current until you make a change.';
 
   if (previousInitialLineupState !== initialLineupState) {
     setPreviousInitialLineupState(initialLineupState);
@@ -373,6 +387,9 @@ export function LineupBuilderClient({
               <div className="flex flex-wrap items-center gap-2">
                 <p className="eyebrow">Lineup Builder</p>
                 <span className="status-pill status-pill-muted shrink-0">Single Entry</span>
+                <span className={`status-pill shrink-0 ${hasUnsavedChanges ? 'border-amber-200 bg-amber-50 text-amber-800' : ''}`}>
+                  {saveStateLabel}
+                </span>
               </div>
               <h1 className="text-3xl font-black leading-tight">Build Your Lineup</h1>
             </div>
@@ -383,6 +400,20 @@ export function LineupBuilderClient({
           <p className="text-muted-foreground">
             Choose your top 10 quarterbacks from the full slate, rank them, and save one lineup for this single contest entry before lock.
           </p>
+          <div className="grid gap-2 text-sm sm:grid-cols-3">
+            <div className="metric-tile">
+              <p className="text-xs text-muted-foreground">Ranked</p>
+              <p className="numeric mt-1 font-black">{lineupState.selectedOrder.length}/10</p>
+            </div>
+            <div className="metric-tile">
+              <p className="text-xs text-muted-foreground">Slate Left</p>
+              <p className="numeric mt-1 font-black">{lineupState.availablePlayers.length}</p>
+            </div>
+            <div className="metric-tile">
+              <p className="text-xs text-muted-foreground">Save State</p>
+              <p className="mt-1 font-black">{saveStateLabel}</p>
+            </div>
+          </div>
         </div>
 
         {showSavedBanner ? (
@@ -428,6 +459,8 @@ export function LineupBuilderClient({
           rankedCountLabel={`${lineupState.selectedOrder.length}/10 ranked`}
           stateLabel={isEditable ? 'Editing open' : 'Read only'}
         />
+
+        <ContestJourneyRail currentStage={isEditable ? 'build' : 'lock'} />
 
         <Card className="section-card overflow-hidden">
           <CardHeader className="section-card-header">
@@ -538,55 +571,79 @@ export function LineupBuilderClient({
               </div>
             </div>
             <div className="space-y-2">
-              {lineupState.selectedOrder.map((name, index) => (
-                <div
-                  key={name}
-                  data-lineup-player={name}
-                  className={`section-card flex items-center justify-between px-3 py-3 text-sm transition-[background-color,border-color,box-shadow,scale] ${
-                    draggingPlayer === name ? 'scale-[0.99] border-primary bg-blue-50 shadow-md' : ''
-                  }`}
-                >
-                  <div className="min-w-0">
-                    <p className="font-semibold">
-                      <span className="numeric">{index + 1}</span>. {name}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {draggingPlayer === name
-                        ? 'Move into place, then release to drop'
-                        : lineupState.savedSelectedOrder[index] === name
-                          ? 'Saved rank'
-                          : 'Unsaved rank change'}
-                    </p>
-                  </div>
-                  <div className="ml-3 flex shrink-0 items-center gap-2">
-                    {isEditable ? (
+              {lineupState.selectedOrder.map((name, index) => {
+                const savedIndex = lineupState.savedSelectedOrder.indexOf(name);
+                const isSavedRank = savedIndex === index;
+                const wasPreviouslySaved = savedIndex !== -1;
+                const rankStateLabel = draggingPlayer === name
+                  ? 'Drop target'
+                  : isSavedRank
+                    ? 'Saved rank'
+                    : wasPreviouslySaved
+                      ? `Moved from #${savedIndex + 1}`
+                      : 'New selection';
+                const rankStateClass = isSavedRank
+                  ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+                  : 'border-amber-200 bg-amber-50 text-amber-800';
+
+                return (
+                  <div
+                    key={name}
+                    data-lineup-player={name}
+                    className={`section-card flex items-center gap-3 border-l-4 border-l-primary px-3 py-3 text-sm transition-[background-color,border-color,box-shadow,scale] ${
+                      draggingPlayer === name ? 'scale-[0.99] border-primary bg-blue-50 shadow-md' : ''
+                    }`}
+                  >
+                    <div className="numeric flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-slate-950 text-base font-black text-white">
+                      #{index + 1}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="truncate font-semibold">{name}</p>
+                        <span className={`rounded-full border px-2 py-0.5 text-[0.6875rem] font-black uppercase tracking-[0.04em] ${rankStateClass}`}>
+                          {rankStateLabel}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {draggingPlayer === name
+                          ? 'Move into place, then release to drop.'
+                          : isEditable
+                            ? 'Hold the grip, drag through the ranked list, and release to reorder.'
+                            : 'Saved rank is locked for this contest.'}
+                      </p>
+                    </div>
+                    <div className="ml-auto flex shrink-0 items-center gap-2">
+                      {isEditable ? (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-11 w-11 min-h-11 min-w-11 rounded-full px-0"
+                          onClick={() => handleRemovePlayer(name)}
+                          aria-label={`Remove ${name} from your ranked lineup`}
+                        >
+                          <X className="h-4 w-4" aria-hidden="true" />
+                        </Button>
+                      ) : null}
                       <Button
                         type="button"
-                        variant="ghost"
+                        variant="secondary"
                         size="sm"
-                        className="h-11 w-11 min-h-11 min-w-11 rounded-full px-0"
-                        onClick={() => handleRemovePlayer(name)}
-                        aria-label={`Remove ${name} from your ranked lineup`}
+                        className={`h-11 w-11 min-h-11 min-w-11 shrink-0 rounded-full border-2 px-0 shadow-sm touch-none ${
+                          draggingPlayer === name
+                            ? 'cursor-grabbing border-primary bg-blue-100'
+                            : 'cursor-grab border-slate-300 bg-white hover:border-primary hover:bg-blue-50'
+                        }`}
+                        onPointerDown={(event) => handleDragStart(name, event)}
+                        disabled={!isEditable}
+                        aria-label={isEditable ? `Press and hold to drag ${name}` : `${name} lineup position is locked`}
                       >
-                        <X className="h-4 w-4" aria-hidden="true" />
+                        <GripVertical className="h-5 w-5 text-slate-700" aria-hidden="true" />
                       </Button>
-                    ) : null}
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="sm"
-                      className={`h-11 w-11 min-h-11 min-w-11 shrink-0 rounded-full px-0 touch-none ${
-                        draggingPlayer === name ? 'cursor-grabbing' : 'cursor-grab'
-                      }`}
-                      onPointerDown={(event) => handleDragStart(name, event)}
-                      disabled={!isEditable}
-                      aria-label={isEditable ? `Press and hold to drag ${name}` : `${name} lineup position is locked`}
-                    >
-                      <GripVertical className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
-                    </Button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
             <div className="space-y-2 border-t pt-3">
               <div className="flex items-center justify-between gap-3">
@@ -594,15 +651,15 @@ export function LineupBuilderClient({
                   <p className="font-semibold">Available Quarterbacks</p>
                   <p className="text-xs text-muted-foreground">Use the full 15-player slate to fill any open lineup spots.</p>
                 </div>
-                <span className="numeric text-xs text-muted-foreground">{lineupState.availablePlayers.length} Left in Slate</span>
+                <span className="numeric status-pill status-pill-muted shrink-0">{lineupState.availablePlayers.length} Left in Slate</span>
               </div>
               {lineupState.availablePlayers.length > 0 ? (
-                <div className="space-y-2">
+                <div className="grid gap-2">
                   {lineupState.availablePlayers.map((name) => (
-                    <div key={name} className="detail-row text-sm">
-                      <div>
-                        <p className="font-medium">{name}</p>
-                        <p className="text-xs text-muted-foreground">
+                    <div key={name} className="detail-row items-center text-sm">
+                      <div className="min-w-0">
+                        <p className="truncate font-semibold">{name}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">
                           {isEditable
                             ? needsMoreSelections
                               ? 'Available to add to your ranked 10.'
@@ -614,7 +671,7 @@ export function LineupBuilderClient({
                         type="button"
                         variant="secondary"
                         size="sm"
-                        className="gap-1"
+                        className="shrink-0 gap-1"
                         onClick={() => handleAddPlayer(name)}
                         disabled={!isEditable || lineupState.selectedOrder.length >= 10}
                       >
@@ -669,6 +726,23 @@ export function LineupBuilderClient({
         </Card>
 
         <div className="action-panel sticky bottom-20">
+          <div className="mb-3 flex items-start gap-3 text-sm">
+            <div
+              className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
+                hasUnsavedChanges ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'
+              }`}
+            >
+              {hasUnsavedChanges ? (
+                <AlertTriangle className="h-4 w-4" aria-hidden="true" />
+              ) : (
+                <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+              )}
+            </div>
+            <div className="min-w-0">
+              <p className="font-black">{saveStateLabel}</p>
+              <p className="text-xs text-muted-foreground">{showSavedBanner ? 'Lineup saved just now.' : saveStateDescription}</p>
+            </div>
+          </div>
           <Button
             className="w-full"
             onClick={handleSaveLineup}

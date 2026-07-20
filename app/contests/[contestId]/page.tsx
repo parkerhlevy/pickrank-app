@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { ArrowLeft, ChevronRight, Clock, DollarSign, Lock, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { ContestBoardPreview } from '@/components/contests/contest-board-preview';
+import { ContestBoardPreview, ContestJourneyRail } from '@/components/contests/contest-board-preview';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getContestDetailPrimaryAction } from '@/lib/contest-entry-flow';
@@ -91,6 +91,8 @@ export default async function ContestDetailPage({
         slatePlayers={selectablePlayers}
         variant="detail"
       />
+
+      <ContestJourneyRail currentStage="slate" />
 
       <Card className="section-card">
         <CardHeader>

@@ -1,4 +1,4 @@
-import { ShieldCheck, UserCircle, WalletCards } from 'lucide-react';
+import { ArrowRight, CheckCircle2, ShieldCheck, UserCircle, WalletCards } from 'lucide-react';
 import Link from 'next/link';
 import { signOut } from '@/app/auth/actions';
 import { buildAuthHref, defaultReturnPath, getProfileIdentity, getReturnStepCopy, normalizeReturnPath } from '@/lib/auth-profile';
@@ -46,13 +46,15 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="eyebrow">Profile</p>
-            <h1 className="text-3xl font-black leading-tight">{user ? 'Your Account' : 'Create Your Account'}</h1>
+            <h1 className="text-3xl font-black leading-tight">
+              {user ? 'PickRank Account' : 'Create Your PickRank Account'}
+            </h1>
           </div>
         </div>
         <p className="text-muted-foreground">
           {user
-            ? 'Manage your username, account session, and the basics tied to contest entry from one place.'
-            : 'You can browse contests without signing in. Create an account here to enter contests, save lineups, and keep your place in the flow.'}
+            ? 'Your profile connects public contest identity, entry readiness, and wallet access in one account surface.'
+            : 'Browse contests without signing in. Create an account to enter contests, save lineups, and keep your place in the flow.'}
         </p>
       </section>
 
@@ -85,12 +87,12 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         <CardHeader className="section-card-header">
           <div className="flex items-center gap-2">
             <UserCircle className="h-5 w-5 text-blue-300" aria-hidden="true" />
-            <CardTitle>{user ? 'Signed-In Session' : 'Signed-Out State'}</CardTitle>
+            <CardTitle>{user ? 'Account Session' : 'Account Access'}</CardTitle>
           </div>
           <CardDescription className="text-slate-300">
             {user
-              ? 'Your account session is active.'
-              : 'Create an account or log in to continue from contest browsing into entry, lineup, and wallet views.'}
+              ? 'Your PickRank session is active for profile, lineup, and wallet surfaces.'
+              : 'Create an account or log in to move from contest browsing into entry, lineup, and wallet views.'}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 pt-5">
@@ -133,7 +135,10 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           ) : null}
           {user ? (
             <div className="soft-panel space-y-3 text-sm">
-              <p className="font-medium text-foreground">Signed in as {identity.email}</p>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="font-medium text-foreground">Signed in as {identity.email}</p>
+                <span className="status-pill-muted">Active</span>
+              </div>
               <form action={signOut}>
                 <Button className="w-full" type="submit" variant="secondary">
                   Manage Auth Session
@@ -148,13 +153,16 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         identity.isProfileComplete ? (
           <Card className="section-card">
             <CardHeader>
-              <CardTitle>Profile Identity</CardTitle>
-              <CardDescription>Your current contest-entry flow can use this public username.</CardDescription>
+              <CardTitle>Contest Identity</CardTitle>
+              <CardDescription>This public username is what PickRank can show in contest and results surfaces.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
-              <div className="section-card-muted px-3 py-3">
-                <p className="text-muted-foreground">Username</p>
-                <p className="text-lg font-bold">{identity.displayName || identity.username}</p>
+              <div className="section-card-muted flex items-center justify-between gap-3 px-3 py-3">
+                <div>
+                  <p className="text-muted-foreground">Public username</p>
+                  <p className="text-lg font-bold">{identity.displayName || identity.username}</p>
+                </div>
+                <CheckCircle2 className="h-5 w-5 text-emerald-700" aria-hidden="true" />
               </div>
               {!identity.isEmailVerified && next !== defaultReturnPath ? (
                 <Notice
@@ -214,25 +222,34 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         <CardHeader>
           <div className="flex items-center gap-2">
             <WalletCards className="h-5 w-5 text-primary" aria-hidden="true" />
-            <CardTitle>Wallet & Balances</CardTitle>
+            <CardTitle>Account Wallet</CardTitle>
           </div>
-          <CardDescription>Wallet balances appear here for signed-in accounts as contest funding and payout support expands.</CardDescription>
+          <CardDescription>
+            Profile keeps the wallet one tap away while Cash Balance and Site Credit stay separated.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid gap-3 sm:grid-cols-2">
             <div className="metric-tile">
               <p className="text-sm text-muted-foreground">Cash Balance</p>
               <p className="numeric text-xl font-bold">$0.00</p>
-              <p className="mt-1 text-xs text-muted-foreground">Withdrawable winnings after provider review.</p>
+              <p className="mt-1 text-xs text-muted-foreground">Withdrawable winnings after provider and compliance review.</p>
             </div>
             <div className="metric-tile">
               <p className="text-sm text-muted-foreground">Site Credit</p>
               <p className="numeric text-xl font-bold">$0.00</p>
-              <p className="mt-1 text-xs text-muted-foreground">Non-withdrawable refunds or promotional credit.</p>
+              <p className="mt-1 text-xs text-muted-foreground">Non-withdrawable refunds or promotional credit for PickRank contests.</p>
             </div>
           </div>
+          <div className="detail-row">
+            <span>Wallet route</span>
+            <span className="font-medium text-foreground">Available from Profile</span>
+          </div>
           <Button asChild variant="secondary" className="w-full">
-            <Link href="/wallet">View Wallet Details</Link>
+            <Link href="/wallet" className="gap-2">
+              View Wallet Details
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
           </Button>
         </CardContent>
       </Card>
@@ -243,7 +260,9 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
             <ShieldCheck className="h-5 w-5 text-primary" aria-hidden="true" />
             <CardTitle>Entry Readiness</CardTitle>
           </div>
-          <CardDescription>These checks help PickRank confirm when an account is ready for contest entry and later wallet actions.</CardDescription>
+          <CardDescription>
+            These placeholder-safe checks show what PickRank needs before paid entry and future wallet actions.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
           <div className="detail-row">
@@ -253,7 +272,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           {['Age and location review', 'Responsible play controls', 'Withdrawal verification'].map((label) => (
             <div key={label} className="detail-row">
               <span>{label}</span>
-              <span className="text-muted-foreground">Not started</span>
+              <span className="text-muted-foreground">Provider review needed</span>
             </div>
           ))}
         </CardContent>

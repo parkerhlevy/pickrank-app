@@ -139,7 +139,8 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
 
     await expect(rankedLineupCard.locator('.status-pill').first()).toHaveText('10/10 Ranked');
     await expect(page.getByRole('button', { name: 'Save Lineup' })).toBeDisabled();
-    await expect(page.locator('[data-lineup-player]').first()).toContainText('1. Josh Allen');
+    await expect(page.locator('[data-lineup-player]').first()).toContainText('#1');
+    await expect(page.locator('[data-lineup-player]').first()).toContainText('Josh Allen');
     await expect(page.getByText(/Add quarterbacks from the available slate/i)).toBeVisible();
     await expect(page.getByText('Available Quarterbacks')).toBeVisible();
     await expect(page.getByText('C.J. Stroud')).toBeVisible();

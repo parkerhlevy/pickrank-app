@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { ArrowLeft, CheckCircle2, Clock, ListChecks } from 'lucide-react';
 import { redirect } from 'next/navigation';
-import { ContestBoardStagePanel } from '@/components/contests/contest-board-preview';
+import { ContestBoardStagePanel, ContestJourneyRail } from '@/components/contests/contest-board-preview';
 import { Notice } from '@/components/ui/notice';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -86,6 +86,8 @@ export default async function EntrySuccessPage({
         rankedCountLabel="Lineup ready"
         stateLabel="Entry Confirmed"
       />
+
+      <ContestJourneyRail currentStage="entry-confirmed" />
 
       <Card className="section-card overflow-hidden">
         <CardHeader className="border-b border-emerald-900/60 bg-[linear-gradient(180deg,hsl(151_63%_18%)_0%,hsl(160_55%_20%)_100%)] text-white">
