@@ -20,7 +20,7 @@ The table has RLS enabled and grants no direct table access to `anon` or `authen
 
 Email uniqueness is case-insensitive. A duplicate submission returns the same visitor success state as a new signup, does not create a second row, and does not reveal whether the address was already on the list.
 
-Duplicate submissions may refresh the Resend contact properties or segment membership, but the welcome email is not resent when the Supabase record already exists.
+Duplicate submissions may refresh Resend segment membership, but the welcome email is not resent when the Supabase record already exists.
 
 ## Honeypot Behavior
 
@@ -45,13 +45,7 @@ RESEND_WAITLIST_SEGMENT_ID
 
 The implementation uses the official Resend Node.js SDK, Resend contacts, and the current segment model. Resend audiences are deprecated in the current API, so the waitlist uses a dedicated segment ID.
 
-Synced contact properties:
-
-- `signup_source`
-- `signup_timestamp`
-- `utm_source`
-- `utm_medium`
-- `utm_campaign`
+Attribution stays in Supabase. Do not send UTM/source values to Resend as custom contact properties unless the matching properties are created and maintained in Resend first.
 
 No internal database IDs, secrets, raw provider errors, or unnecessary personal data are sent to Resend.
 
@@ -112,9 +106,8 @@ Do not change RLS or add public table policies to make exports easier.
 1. Open Resend.
 2. Go to Contacts.
 3. Filter by the PickRank waitlist segment.
-4. Review contact properties for source and campaign segmentation.
-5. Use Resend's unsubscribe and suppression views to inspect unsubscribed contacts.
-6. Export contacts from Resend when needed for campaign planning.
+4. Use Resend's unsubscribe and suppression views to inspect unsubscribed contacts.
+5. Export contacts from Resend when needed for campaign planning.
 
 ## Sending a Launch Broadcast
 

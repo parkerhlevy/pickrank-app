@@ -208,12 +208,11 @@ describe('waitlist signup workflow', () => {
         email: 'fan@example.com',
         unsubscribed: false,
         segments: [{ id: 'segment-id' }],
-        properties: expect.objectContaining({
-          signup_source: '/',
-          utm_source: 'codex',
-          utm_medium: 'test',
-          utm_campaign: 'launch',
-        }),
+      }),
+    );
+    expect(resend.contacts.create).toHaveBeenCalledWith(
+      expect.not.objectContaining({
+        properties: expect.anything(),
       }),
     );
     expect(resend.emails.send).toHaveBeenCalledTimes(1);

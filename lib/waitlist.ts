@@ -239,7 +239,6 @@ async function syncResendAfterSignup(
   const contactPayload = {
     email: record.email,
     unsubscribed: false,
-    properties: buildResendContactProperties(record),
     segments: [{ id: config.waitlistSegmentId }],
   };
 
@@ -267,7 +266,6 @@ async function syncResendAfterSignup(
     const contactResult = existingContact.data
       ? await resend.contacts.update({
           email: record.email,
-          properties: contactPayload.properties,
         })
       : await resend.contacts.create(contactPayload);
 
@@ -338,16 +336,6 @@ function getResendConfig(env: Record<string, string | undefined>) {
     fromEmail: env.RESEND_FROM_EMAIL,
     replyToEmail: env.RESEND_REPLY_TO_EMAIL,
     waitlistSegmentId: env.RESEND_WAITLIST_SEGMENT_ID,
-  };
-}
-
-function buildResendContactProperties(record: WaitlistRecord) {
-  return {
-    signup_source: record.source_path,
-    signup_timestamp: record.signed_up_at,
-    utm_source: record.utm_source ?? '',
-    utm_medium: record.utm_medium ?? '',
-    utm_campaign: record.utm_campaign ?? '',
   };
 }
 
