@@ -247,7 +247,7 @@ async function syncResendAfterSignup(
     const existingContact = await resend.contacts.get(record.email);
 
     if (existingContact.error && !isResendNotFound(existingContact.error)) {
-      throw new Error('resend_contact_lookup_failed');
+      throw createResendSyncError('resend_contact_lookup_failed', existingContact.error);
     }
 
     const isUnsubscribed = existingContact.data?.unsubscribed === true;
@@ -272,7 +272,7 @@ async function syncResendAfterSignup(
       : await resend.contacts.create(contactPayload);
 
     if (contactResult.error || !contactResult.data) {
-      throw new Error('resend_contact_sync_failed');
+      throw createResendSyncError('resend_contact_sync_failed', contactResult.error);
     }
 
     if (existingContact.data) {
@@ -282,7 +282,7 @@ async function syncResendAfterSignup(
       });
 
       if (segmentResult.error) {
-        throw new Error('resend_contact_segment_failed');
+        throw createResendSyncError('resend_contact_segment_failed', segmentResult.error);
       }
     }
 
@@ -315,7 +315,9 @@ async function syncResendAfterSignup(
       provider_retry_reason: welcomeStatus === 'failed_retryable' ? 'welcome_email_failed' : null,
       updated_at: nowIso(dependencies),
     });
-  } catch {
+  } catch (error) {
+    console.warn('waitlist_resend_sync_failed', summarizeResendSyncError(error));
+
     await updateWaitlistRecord(supabase, record.id, {
       resend_contact_sync_status: 'failed_retryable',
       resend_contact_sync_attempted_at: nowIso(dependencies),
@@ -362,6 +364,46 @@ function isResendNotFound(error: unknown) {
     candidate.name === 'not_found_error' ||
     candidate.message?.toLowerCase().includes('not found') === true
   );
+}
+
+function createResendSyncError(message: string, providerError: unknown) {
+  return new Error(message, { cause: providerError });
+}
+
+function summarizeResendSyncError(error: unknown) {
+  if (!(error instanceof Error)) {
+    return { message: 'unknown_resend_sync_failed' };
+  }
+
+  return {
+    message: error.message,
+    cause: summarizeProviderError(error.cause),
+  };
+}
+
+function summarizeProviderError(error: unknown): Record<string, unknown> | undefined {
+  if (!error || typeof error !== 'object') {
+    return undefined;
+  }
+
+  const candidate = error as {
+    message?: unknown;
+    name?: unknown;
+    statusCode?: unknown;
+    status?: unknown;
+    code?: unknown;
+  };
+
+  return {
+    name: typeof candidate.name === 'string' ? candidate.name : undefined,
+    message: typeof candidate.message === 'string' ? candidate.message : undefined,
+    statusCode:
+      typeof candidate.statusCode === 'number' || typeof candidate.statusCode === 'string'
+        ? candidate.statusCode
+        : undefined,
+    status: typeof candidate.status === 'number' || typeof candidate.status === 'string' ? candidate.status : undefined,
+    code: typeof candidate.code === 'string' ? candidate.code : undefined,
+  };
 }
 
 async function updateWaitlistRecord(supabase: SupabaseClientLike, id: string, payload: Record<string, unknown>) {
