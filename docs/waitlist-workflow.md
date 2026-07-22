@@ -147,17 +147,17 @@ Manual setup required:
 
 Do not modify DNS, Resend account settings, Vercel environment variables, or production deployments from this repo slice.
 
-## What Parker Must Configure
+## Parker Configuration Status
 
-- Create or access the Resend account
-- Add the PickRank sending domain
-- Add the required DNS records
-- Verify the sending domain
-- Create a Resend API key
-- Create or identify the PickRank waitlist audience or segment
-- Add required environment variables to Vercel
-- Confirm the sender and reply-to addresses
-- Apply migration `0012` after review
+- Resend account exists
+- Resend already has verified domain `auth.pickrankgames.com`
+- Resend API key has been created
+- Resend `PickRank Waitlist` segment has been created
+- Required Resend variables have been added to Vercel for Production and Preview
+- Migration `0012` has been applied to linked Supabase project `jmvzdspiobcjrewndhuf`
+
+Remaining:
+
 - Send a test welcome email
 - Confirm unsubscribe behavior
 - Deploy the waitlist workflow
@@ -168,4 +168,4 @@ Do not modify DNS, Resend account settings, Vercel environment variables, or pro
 
 ## Outstanding Production Steps
 
-Migration `0012` still requires safe Supabase validation and application. Production Resend configuration, DNS verification, Vercel environment variables, real delivery testing, deployment, and one production signup verification remain outstanding.
+Deployment, real delivery testing, unsubscribe-behavior confirmation, and one production signup verification remain outstanding.
