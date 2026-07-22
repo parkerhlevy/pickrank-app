@@ -69,6 +69,7 @@ Current branch reality on `main` as of 2026-07-20:
 - the 2026-07-08 homepage landing-page polish pass keeps that same video baseline, keeps the tighter video-line headline `15 players. Pick 10. Rank them.`, shortens the hero copy, collapses the above-the-fold CTA to a single waitlist-focused action, and trims the extra helper copy in the hero and video card without changing product behavior
 - the approved 2026-07-12 homepage hero, `How PickRank works`, `Why PickRank`, and final waitlist CTA are live in production at `https://www.pickrankgames.com` through Vercel deployment `dpl_3WqaWZoFabyhtmFvghNbjNDGrZof`; the production build is `READY`, the hero and final waitlist CTAs route to `/auth`, and the lower homepage now ends with the single `Think you can rank them better?` conversion section
 - the matching source in `app/page.tsx` and focused homepage coverage in `tests/e2e/homepage.spec.ts` are aligned with this handoff update on `main`, keeping GitHub aligned with the live wording
+- the 2026-07-21 waitlist reconciliation slice ports the parked `codex/waitlist-workflow` implementation onto current `main` without merging the stale side worktree: homepage waitlist CTAs become email-only forms with an explicit marketing-consent checkbox, `public.waitlist_signups` is introduced as migration `0012_waitlist_signups.sql`, Resend contact/welcome-email sync stays server-only behind the existing `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `RESEND_REPLY_TO_EMAIL`, and `RESEND_WAITLIST_SEGMENT_ID` names, and `/auth` remains reserved for protected account/contest flows; Parker has now applied `0012` to linked Supabase project `jmvzdspiobcjrewndhuf`, confirmed `public.waitlist_signups` exists, created the Resend `PickRank Waitlist` segment, and added the four Resend variables in Vercel for Production and Preview, leaving deployment and real welcome-email/signup verification as the remaining launch-readiness steps
 - the 2026-07-18 Contest-as-Board presentation slice adds reusable `components/contests/contest-board-preview.tsx` and wires it into Home, Open Contests, and Contest Detail so each contest reads as its own slate-to-ranked-10 board before the auth-gated lineup builder; this keeps routes, auth gates, scoring, entry, payout, wallet, and contest-data behavior unchanged
 - repo verification for the 2026-07-18 Contest-as-Board slice passes `npm run typecheck`, focused `npx eslint app/page.tsx app/contests/page.tsx 'app/contests/[contestId]/page.tsx' components/contests/contest-board-preview.tsx`, `npm run test` (`27` files, `126` tests passed), and `npx playwright test tests/e2e/homepage.spec.ts`; Playwright route screenshots were captured only after allowing Chromium outside the macOS sandbox because sandboxed browser launch failed at `MachPortRendezvousServer` permission setup
 - the follow-on 2026-07-18 auth-gated Contest-as-Board slice extends the same component with a non-interactive stage panel for Payment Review, Entry Success, and Build Your Lineup, preserving the pre-entry boundary by saying the ranked 10 is ready after entry instead of showing a fake assigned lineup before confirmation
@@ -290,17 +291,15 @@ The MVP includes:
 Next recommended slice:
 
 ```text
-Continue PickRank using the repo as source of truth. Keep explanations business-friendly. The grouped presentation-only visual-audit work is now one approved lane, so after it lands return to the repo's release-facing blocker: reconcile live Supabase project `jmvzdspiobcjrewndhuf` with the final-results migration baseline, confirm when `public.entry_scoring_results` and `public.contest_player_results` exist in the live schema, rerun the guarded `0011_final_results_profile_read_hardening.sql` verification against that truthful baseline, and then rerun deployed auth, leaderboard, and final-results smoke checks. Keep this slice narrow and do not mix in new presentation polish, payment, wallet-ledger, scoring-rule, or admin-behavior changes.
+Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Finish the waitlist launch-readiness follow-up: deploy the committed waitlist workflow, submit one controlled production signup with explicit consent, confirm the row appears in linked Supabase project `jmvzdspiobcjrewndhuf` under `public.waitlist_signups`, confirm the contact appears in the Resend `PickRank Waitlist` segment, and confirm one welcome email is delivered. Keep this separate from auth, eligibility, payments, wallet-ledger, scoring, and final-results schema reconciliation work.
 ```
 
 Definition of done:
 
-- The grouped presentation commit is closed without pulling in generated `next-env.d.ts`, untracked `docs/analysis/`, or unrelated fixture churn
-- Live Supabase schema reality is compared directly against the repo final-results migration baseline
-- Parker gets a clear answer on whether the missing final-results tables need migration application, backfill, or a different reconciliation step
-- The guarded `0011` profile-policy verification is rerun against the truthful live schema state
-- Deployed auth, leaderboard, and final-results smoke checks are rerun after reconciliation
-- No new product, provider, auth-flow widening, payment, wallet-ledger, scoring, or design-polish work is mixed into that follow-up
+- One controlled signup confirms Supabase persistence, Resend segment membership, and welcome email delivery
+- Homepage waitlist CTAs no longer send public traffic to `/auth`
+- The deployed homepage uses the committed email-only waitlist workflow
+- No auth, eligibility, payment, wallet-ledger, scoring, or final-results schema work is mixed into the waitlist launch-readiness follow-up
 - Update this handoff note again if repo reality or the next recommended move changes
 
 ## Starter Prompt For Future Chats
