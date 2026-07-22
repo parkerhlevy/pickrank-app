@@ -1,11 +1,10 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import Image from 'next/image';
-import Link from 'next/link';
-import { ArrowRight, Brain, CalendarDays, PlayCircle, Trophy } from 'lucide-react';
+import { Brain, CalendarDays, PlayCircle, Trophy } from 'lucide-react';
 import { ContestBoardPreview } from '@/components/contests/contest-board-preview';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { WaitlistForm } from '@/components/waitlist/waitlist-form';
 
 const landingVideoPath = '/marketing/pickrank-landing-video-locked-in-final.mp4';
 const landingVideoPosterPath = '/marketing/pickrank-landing-thumb.png';
@@ -66,7 +65,26 @@ const demoSlatePlayers = [
   ...demoBoardPlayers,
 ];
 
-export default function HomePage() {
+type HomePageProps = {
+  searchParams?: Promise<{
+    utm_source?: string;
+    utm_medium?: string;
+    utm_campaign?: string;
+    utm_content?: string;
+    utm_term?: string;
+  }>;
+};
+
+export default async function HomePage({ searchParams }: HomePageProps) {
+  const resolvedSearchParams = (await searchParams) || {};
+  const utm = {
+    utm_source: resolvedSearchParams.utm_source,
+    utm_medium: resolvedSearchParams.utm_medium,
+    utm_campaign: resolvedSearchParams.utm_campaign,
+    utm_content: resolvedSearchParams.utm_content,
+    utm_term: resolvedSearchParams.utm_term,
+  };
+
   return (
     <div className="space-y-8 pb-6">
       <section className="brand-panel relative overflow-hidden px-6 py-8 sm:px-8 sm:py-10">
@@ -93,13 +111,8 @@ export default function HomePage() {
                 stack up when the games are over and compete for the top spot.
               </p>
             </div>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Button asChild size="lg" className="text-sm font-bold">
-                <Link href="/auth">
-                  Join the waitlist
-                  <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
-                </Link>
-              </Button>
+            <div className="max-w-xl">
+              <WaitlistForm sourcePath="/" utm={utm} variant="hero" />
             </div>
           </div>
 
@@ -207,12 +220,9 @@ export default function HomePage() {
             PickRank is coming soon. Join the waitlist and be among the first to play for cash prizes.
           </p>
         </div>
-        <Button asChild size="lg" className="text-sm font-bold">
-          <Link href="/auth">
-            Join the waitlist
-            <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
-          </Link>
-        </Button>
+        <div className="mx-auto w-full max-w-xl">
+          <WaitlistForm sourcePath="/" utm={utm} />
+        </div>
       </section>
     </div>
   );

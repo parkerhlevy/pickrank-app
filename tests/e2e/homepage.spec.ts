@@ -1,14 +1,19 @@
 import { expect, test } from '@playwright/test';
 
-test('homepage loads as a landing page with sign-up CTA and no bottom nav', async ({ page }) => {
+test('homepage loads as a landing page with waitlist forms and no bottom nav', async ({ page }) => {
   await page.goto('/');
 
   await expect(page.getByRole('img', { name: 'PickRank' })).toBeVisible();
   await expect(page.getByRole('heading', { name: '15 players. Pick 10. Rank them.' })).toBeVisible();
-  const waitlistLinks = page.getByRole('link', { name: 'Join the waitlist' });
-  await expect(waitlistLinks).toHaveCount(2);
-  await expect(waitlistLinks.first()).toHaveAttribute('href', '/auth');
-  await expect(waitlistLinks.last()).toHaveAttribute('href', '/auth');
+  const waitlistButtons = page.getByRole('button', { name: 'Join the waitlist' });
+  await expect(waitlistButtons).toHaveCount(2);
+  await expect(page.getByRole('link', { name: 'Join the waitlist' })).toHaveCount(0);
+  await expect(page.locator('a[href="/auth"]')).toHaveCount(0);
+  await expect(page.getByLabel('Email address')).toHaveCount(2);
+  await expect(page.getByText('Enter your email and we’ll send launch updates before account signup opens.')).toHaveCount(2);
+  await expect(page.getByLabel('I agree to receive PickRank launch and product update emails. I can unsubscribe anytime.')).toHaveCount(2);
+  await expect(page.getByText('By joining, you agree to receive PickRank launch emails. Unsubscribe anytime.')).toHaveCount(0);
+  await expect(page.getByText('Contest-as-Board')).toBeVisible();
   await expect(page.getByRole('link', { name: 'Browse Open Contests' })).toHaveCount(0);
   await expect(page.getByText('See PickRank in action')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Learn the game in 34 seconds' })).toBeVisible();
@@ -19,10 +24,6 @@ test('homepage loads as a landing page with sign-up CTA and no bottom nav', asyn
   await expect(page.getByText('Walkthrough video coming soon')).toHaveCount(0);
   await expect(page.getByText('Understand the weekly contest structure before you commit to the flow.')).toHaveCount(0);
   await expect(page.getByRole('navigation')).toHaveCount(0);
-
-  await waitlistLinks.first().click();
-  await expect(page).toHaveURL('/auth');
-  await expect(page.getByRole('heading', { name: 'Account Access' })).toBeVisible();
 });
 
 test('bottom nav still renders on core app routes', async ({ page }) => {
@@ -33,4 +34,28 @@ test('bottom nav still renders on core app routes', async ({ page }) => {
   await expect(navigation).toBeVisible();
   await expect(navigation.getByRole('link', { name: 'Home' })).toBeVisible();
   await expect(navigation.getByRole('link', { name: 'Contests' })).toBeVisible();
+});
+
+test('waitlist form requires consent without routing visitors to auth', async ({ page }) => {
+  await page.goto('/');
+
+  const emailInput = page.getByLabel('Email address').first();
+  const consentCheckbox = page
+    .getByLabel('I agree to receive PickRank launch and product update emails. I can unsubscribe anytime.')
+    .first();
+
+  await emailInput.fill('fan@example.com');
+  await page.getByRole('button', { name: 'Join the waitlist' }).first().click();
+
+  await expect(page).toHaveURL('/');
+  await expect(page.getByText('You’re on the list.')).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Account Access' })).toHaveCount(0);
+  await expect(consentCheckbox).not.toBeChecked();
+  await expect(consentCheckbox).toHaveJSProperty('validity.valid', false);
+});
+
+test('auth remains available as a separate protected-flow route', async ({ page }) => {
+  await page.goto('/auth');
+
+  await expect(page.getByRole('heading', { name: 'Account Access' })).toBeVisible();
 });
