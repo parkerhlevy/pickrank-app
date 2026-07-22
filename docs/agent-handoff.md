@@ -61,9 +61,9 @@ The repo is past bare Phase 0 and currently includes:
 - Vitest wired
 - Basic route smoke tests
 
-Current branch reality on `main` as of 2026-07-20:
+Current branch reality on `codex/waitlist-deliverability-todo` as of 2026-07-22:
 
-- `main` has no committed-but-unpushed changes on this machine, and Parker approved one grouped presentation commit for the full 2026-07-19 visual-audit conversation: Build Your Lineup interaction quality, Wallet/Profile product feel, Leaderboard/Results final-state density, cross-route stage/scroll progression, and the matching `tests/e2e/lineup-builder.spec.ts` assertion update belong together as one presentation-only lane; keep generated `next-env.d.ts` churn and the untracked local analysis note under `docs/analysis/` out unless explicitly needed later
+- this machine is currently on `codex/waitlist-deliverability-todo`, which is cleanly pushed to `origin/codex/waitlist-deliverability-todo` and sits one docs-only handoff commit ahead of `origin/main`; the branch-specific delta is the waitlist deliverability follow-up recorded in this handoff, while generated `next-env.d.ts` typed-route churn remains unstaged noise
 - the latest pushed repo baseline includes the 2026-07-07 leaderboard hardening plus Supabase access tightening that keeps `/leaderboard?contest=...` in explicit placeholder states for non-final contests and moves the hidden replay/live validation scripts onto `SUPABASE_SERVICE_ROLE_KEY`
 - the homepage integration keeps the live landing page pointed at `public/marketing/pickrank-landing-video-locked-in-final.mp4` with `public/marketing/pickrank-landing-thumb.png` as the poster, adds the Remotion repo-hygiene helper notes and script, and updates homepage coverage in `tests/e2e/homepage.spec.ts`
 - the 2026-07-08 homepage landing-page polish pass keeps that same video baseline, keeps the tighter video-line headline `15 players. Pick 10. Rank them.`, shortens the hero copy, collapses the above-the-fold CTA to a single waitlist-focused action, and trims the extra helper copy in the hero and video card without changing product behavior
