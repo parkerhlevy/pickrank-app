@@ -20,6 +20,8 @@ Out of scope:
 - Resend account settings
 - DNS record changes
 
+The follow-up account, DNS, and Vercel changes below were completed later only after explicit approval.
+
 ## Repo Evidence
 
 The waitlist send path uses these server-only variables:
@@ -58,20 +60,56 @@ Checked from this machine on 2026-07-22 using `dig`.
 
 Public DNS does not prove the Resend dashboard status, because Resend may use account-specific DKIM records and dashboard-side verification state. It does show that `auth.pickrankgames.com` has the strongest public evidence of Resend return-path setup, while `pickrankgames.com` does not yet show matching Resend return-path records.
 
-## Resend Dashboard Checks Still Needed
+## Live Dashboard Verification
 
-Record these from Resend before changing production sender values:
+Checked in Vercel and Resend after the public DNS pass, then updated after the approved root-domain sender cutover.
 
-1. Domains list includes `auth.pickrankgames.com`, `pickrankgames.com`, or both.
-2. Sending capability status for each listed domain.
-3. SPF status shown by Resend.
-4. DKIM status shown by Resend.
-5. DMARC status shown by Resend.
-6. Return-path or bounce-domain host shown by Resend.
-7. Active production `RESEND_FROM_EMAIL` value in Vercel.
-8. Active production `RESEND_REPLY_TO_EMAIL` value in Vercel.
+Approved external deliverability changes completed on 2026-07-22:
 
-Resend's API can list authenticated domains with `GET /domains`, but it requires a valid `RESEND_API_KEY`. The local repo does not contain a production Resend key, and this audit did not pull Vercel secrets.
+- Deleted `auth.pickrankgames.com` from Resend because the current Resend plan allowed only one verified domain.
+- Added `pickrankgames.com` to Resend in North Virginia (`us-east-1`).
+- Moved authoritative DNS for `pickrankgames.com` from ZenBusiness SystemDNS to Cloudflare Free nameservers `gannon.ns.cloudflare.com` and `val.ns.cloudflare.com`.
+- Copied the existing web/mail records into Cloudflare and added the new Resend records for root `pickrankgames.com`.
+- Verified `pickrankgames.com` in Resend.
+- Updated Vercel `RESEND_FROM_EMAIL` to `PickRank <hello@pickrankgames.com>` for Production and Preview, leaving `RESEND_REPLY_TO_EMAIL` unchanged.
+- Redeployed the current Production deployment from `main` commit `5402c0a` so the saved sender value takes effect.
+
+Vercel environment-variable dashboard:
+
+| Variable | Vercel scope shown | Value status |
+| --- | --- | --- |
+| `RESEND_FROM_EMAIL` | Single sensitive Project variable scoped to Production and Preview | Updated to `PickRank <hello@pickrankgames.com>` and redeployed to Production. Vercel does not reveal sensitive values after save, but the following production send proves the effective value. |
+| `RESEND_REPLY_TO_EMAIL` | Single sensitive Project variable scoped to Production and Preview | Vercel confirms presence and shared Production/Preview scope, but does not reveal the stored sensitive value after creation. |
+
+Resend sent-email logs from the production waitlist test show the effective production sender values:
+
+| Sent test | From | Reply-to | Status |
+| --- | --- | --- | --- |
+| Gmail test to `parkerhlevy@gmail.com` | `PickRank <hello@auth.pickrankgames.com>` | `info@pickrankgames.com` | Delivered |
+| Work-email test to `parkerlevy@microsoft.com` | `PickRank <hello@auth.pickrankgames.com>` | `info@pickrankgames.com` | Delivered |
+| Gmail root-domain test to `parkerhlevy+pickrank-deliverability-20260723-002@gmail.com` | `PickRank <hello@pickrankgames.com>` | `info@pickrankgames.com` | Delivered |
+
+Because Vercel stores each sender variable as one sensitive entry scoped to both Production and Preview, Preview appears configured to use the same values. This was not independently proven by sending a Preview-environment waitlist email.
+
+Resend Domains dashboard:
+
+| Domain | Resend domain status | Region | Sending status |
+| --- | --- | --- | --- |
+| `auth.pickrankgames.com` | Deleted after approval | North Virginia (`us-east-1`) | Removed to avoid upgrading beyond the one-domain plan. |
+| `pickrankgames.com` | `verified` | North Virginia (`us-east-1`) | Resend says the domain is ready to send emails. |
+
+Resend records for `auth.pickrankgames.com`:
+
+| Record group | Host shown by Resend | Content shown by Resend | Status shown by Resend |
+| --- | --- | --- | --- |
+| DKIM | `resend._domainkey.auth` | TXT public key beginning `p=MIGfMA0GCSqGSIb3...` | `verified` |
+| Return-path / bounce MX | `send.auth` | `feedback-smtp.us-east-1.amazonses.com` priority `10` | `verified` |
+| Return-path SPF | `send.auth` | `v=spf1 include:amazonses.com ~all` | `verified` |
+| DMARC | `_dmarc` | `v=DMARC1; p=none;` | Optional row with no verified status shown |
+
+Fresh public DNS spot-checks matched the Resend dashboard for `auth.pickrankgames.com`: `resend._domainkey.auth.pickrankgames.com` returns the Resend DKIM TXT public key, `send.auth.pickrankgames.com` returns the Amazon SES SPF TXT record, and `send.auth.pickrankgames.com` returns the Amazon SES feedback MX record. Public DNS still did not show Resend return-path records for root `pickrankgames.com`, and root `pickrankgames.com` still showed only hosted-email SPF.
+
+After the Cloudflare cutover, public DNS spot-checks resolved the new root-domain Resend records: `resend._domainkey.pickrankgames.com` returned the Resend DKIM TXT public key, `send.pickrankgames.com` returned Amazon SES SPF, `send.pickrankgames.com` returned the Amazon SES feedback MX record, and `_dmarc.pickrankgames.com` returned `v=DMARC1; p=none;`.
 
 ## Sender Recommendation
 
@@ -81,12 +119,7 @@ Preferred target:
 PickRank <hello@pickrankgames.com>
 ```
 
-Use that only after `pickrankgames.com` is verified for sending in Resend and its required DNS records are present.
-
-If Resend currently only verifies `auth.pickrankgames.com`, use one of these two paths:
-
-1. Short-term: send from a monitored address on the verified subdomain, such as `PickRank <hello@auth.pickrankgames.com>`, with reply-to set to `hello@pickrankgames.com` or another monitored PickRank mailbox.
-2. Better long-term: verify the root sending domain `pickrankgames.com` in Resend, add the required DNS records, then use `PickRank <hello@pickrankgames.com>`.
+This is now the active Production and Preview sender value in Vercel, with root `pickrankgames.com` verified in Resend.
 
 Do not use a Resend testing sender or any non-PickRank sender for production waitlist mail.
 
@@ -119,10 +152,46 @@ Use fresh addresses or plus aliases where possible. For every test, submit throu
 | Outlook | Controlled Outlook/Hotmail inbox | Inbox or Other, not Junk | Placement, sender display, images, link, reply-to |
 | Work email | Parker's work provider or another Microsoft/Google Workspace tenant | Inbox, not Junk | Authentication pass indicators if visible, sender alignment, link/image treatment, any warning banner |
 
+## Matrix Run - 2026-07-22
+
+Fresh production testing started at 2026-07-22 20:47 PDT using the verified production sender `PickRank <hello@auth.pickrankgames.com>` and reply-to `info@pickrankgames.com`.
+
+| Provider | Test address | Submit status | Supabase row status | Resend contact / segment status | Resend welcome-email status | Inbox placement | Sender display | Authentication indicators | Image / link behavior | Reply-to behavior |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Gmail | `parkerhlevy+pickrank-deliverability-1784778476867@gmail.com` | Production homepage form returned the waitlist success state. Vercel runtime-error check found no project runtime errors in the surrounding two-hour window. | Not directly queryable from this machine: Vercel env pull masks sensitive Production values as `[SENSITIVE]`, and local `.env.local` does not include `SUPABASE_SERVICE_ROLE_KEY`. The successful welcome email is indirect evidence that the Supabase-first workflow created or found the row before Resend sync. | Not directly queryable from this machine for the same masked `RESEND_API_KEY` reason. Gmail receipt is indirect evidence that Resend accepted and sent the welcome email. Segment membership still needs Resend dashboard/API confirmation. | Delivered to Gmail at 2026-07-23 03:47:58 UTC. | Gmail labels: `INBOX`, `CATEGORY_PERSONAL`, `IMPORTANT`, `UNREAD`; no `SPAM` or `CATEGORY_PROMOTIONS` label. | Gmail shows `PickRank hello@auth.pickrankgames.com`. | Gmail raw headers show `dkim=pass` for `auth.pickrankgames.com`, `dkim=pass` for `amazonses.com`, and `spf=pass` for `send.auth.pickrankgames.com`. | Raw MIME contains the remote logo image and the `https://www.pickrankgames.com` link. Direct network checks returned `200` for both the homepage link and the PNG logo asset. Gmail visual image auto-load state was not available through the mailbox connector. | Raw headers show `Reply-To: info@pickrankgames.com`. No reply was sent during this verification-only pass. |
+| iCloud | Deferred | Parker decided this is not a near-term priority. | Not checked. | Not checked. | Not checked. | Not checked. | Not checked. | Not checked. | Not checked. | Not checked. |
+| Outlook/Hotmail | Deferred | Parker decided this is not a near-term priority. | Not checked. | Not checked. | Not checked. | Not checked. | Not checked. | Not checked. | Not checked. | Not checked. |
+| Work email | Deferred | Parker decided this is not a near-term priority. | Not checked. | Not checked. | Not checked. | Not checked. | Not checked. | Not checked. | Not checked. | Not checked. |
+
+No settings were changed during this matrix run. The only live submission with fully inspectable mailbox evidence was the Gmail plus-alias test. The remaining inbox-provider checks are intentionally deferred rather than launch-blocking.
+
+## Root Sender Verification - 2026-07-22
+
+Production was redeployed from the current `main` deployment after the Vercel sender update:
+
+| Deployment | Source | Status | Notes |
+| --- | --- | --- | --- |
+| `dpl_CJWc3epCEWjhxvCGH3UobkwC5JVv` | `main` commit `5402c0a` | Ready after about 49s | Redeploy of the current Production source with latest Project Settings. |
+
+The first submit immediately after redeploy failed because the browser still had the old pre-redeploy Server Action identifier loaded. Vercel logged `POST / 404` with `Failed to find Server Action`. After reloading the production homepage, the retry succeeded.
+
+| Provider | Test address | Submit status | Resend welcome-email status | Inbox placement | Sender display | Authentication indicators | Reply-to behavior |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Gmail | `parkerhlevy+pickrank-deliverability-20260723-002@gmail.com` | Production homepage form returned `You’re on the list.` Vercel runtime logs show `POST / 200` on `dpl_CJWc3epCEWjhxvCGH3UobkwC5JVv`. | Resend event `8212425d-cb61-4ea0-9127-4385d04d4fd8` shows `Sent` and `Delivered` at 2026-07-22 22:46 PDT. | Gmail labels: `INBOX`, `CATEGORY_UPDATES`, `IMPORTANT`, `UNREAD`; no `SPAM` label. | Gmail and raw headers show `PickRank <hello@pickrankgames.com>`. | Gmail raw headers show `dkim=pass` for `pickrankgames.com`, `dkim=pass` for `amazonses.com`, and `spf=pass` for the `send.pickrankgames.com` return-path. | Raw headers show `Reply-To: info@pickrankgames.com`, unchanged. |
+
+## Later Polish
+
+Rainy-day follow-ups, not launch blockers:
+
+- Retest iCloud, Outlook/Hotmail, and a Microsoft work inbox using fresh production waitlist aliases.
+- Add a custom Resend tracking subdomain only if PickRank enables open/click tracking.
+- Move DMARC beyond `p=none` only after there is more sending history and no legitimate mail stream is failing authentication.
+- Decide whether `RESEND_REPLY_TO_EMAIL` should stay `info@pickrankgames.com` or move to `hello@pickrankgames.com`.
+
 ## Current Verdict
 
 The repo-side email content is low risk and does not need app-code changes before testing.
 
-The likely deliverability gap is sender-domain alignment: repo examples prefer `hello@pickrankgames.com`, but public DNS currently shows Resend return-path records for `auth.pickrankgames.com`, not for `pickrankgames.com`.
+Production waitlist mail is now using the verified root-domain sender: `PickRank <hello@pickrankgames.com>`, with `info@pickrankgames.com` as reply-to. Resend and Gmail both confirm the new sender, and Gmail confirms DKIM/SPF pass on the root-domain path.
 
-Next move: verify the active production sender and domain state in Resend/Vercel, then either align production mail to the verified `auth.pickrankgames.com` sender for the immediate test or verify `pickrankgames.com` in Resend before sending the next production matrix.
+Next move: treat root-domain waitlist deliverability as good enough for the current priority level. Keep iCloud, Outlook/Hotmail, work-email retesting, tracking metrics, and a stricter DMARC policy as later polish rather than near-term blockers.
