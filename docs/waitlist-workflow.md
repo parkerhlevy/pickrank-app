@@ -84,7 +84,7 @@ You’re on the PickRank waitlist
 Preview text:
 
 ```text
-You’re officially on the list. We’ll let you know when it’s time to play.
+You’re officially on the list. We’ll send launch updates as PickRank gets closer.
 ```
 
 The send path uses Resend's React email rendering support with a plain-text fallback. It includes PickRank branding, a link to `https://www.pickrankgames.com`, and no account-creation, sign-in, eligibility, or play-now language.
@@ -119,26 +119,51 @@ Do not change RLS or add public table policies to make exports easier.
 6. Confirm links, unsubscribe behavior, sender identity, and reply-to address.
 7. Schedule or send the launch broadcast through Resend.
 
-## Sending Domain Setup
+## Deliverability Polish
 
-Prepare a verified PickRank-owned sender such as:
+The current waitlist path is production-tested for capture, Resend contact sync, and welcome-email sending. The remaining issue is deliverability polish because a successful test email reached Parker's work-email junk folder.
+
+Keep this pass limited to sender identity, DNS verification, welcome-email risk review, and test planning. Do not change waitlist capture, auth, eligibility, payments, wallet-ledger, scoring, final-results behavior, Supabase policies, Vercel environment values, Resend account settings, or DNS records from this repo slice.
+
+Preferred production sender after root-domain verification:
 
 ```text
 PickRank <hello@pickrankgames.com>
 ```
 
-Manual setup required:
+Use a PickRank-owned sending domain instead of a generic provider sender. Keep `RESEND_REPLY_TO_EMAIL` on a monitored PickRank-owned address such as `support@pickrankgames.com` or `hello@pickrankgames.com`.
 
-1. Add `pickrankgames.com` as a sending domain in Resend.
-2. Add the required DNS records shown by Resend.
-3. Wait for DNS propagation.
-4. Verify the domain in Resend.
-5. Create a Resend API key.
-6. Create or identify the dedicated PickRank waitlist segment.
-7. Add the required Resend variables to Vercel.
-8. Deploy only after migration and environment values are ready.
+The 2026-07-22 public DNS audit in `docs/waitlist-deliverability-audit-2026-07-22.md` found Resend return-path evidence for `auth.pickrankgames.com`, but not for root `pickrankgames.com`. If Resend currently only verifies `auth.pickrankgames.com`, either use a monitored sender on that verified subdomain for the immediate matrix or verify `pickrankgames.com` in Resend before using `hello@pickrankgames.com`.
 
-Do not modify DNS, Resend account settings, Vercel environment variables, or production deployments from this repo slice.
+Live Resend dashboard checks to record:
+
+1. Sending domain used by `RESEND_FROM_EMAIL`.
+2. Domain verification state.
+3. SPF record status.
+4. DKIM record status.
+5. DMARC record status.
+6. Return-path or bounce-domain status if Resend shows one.
+7. Whether the active production `RESEND_FROM_EMAIL` exactly matches the verified domain strategy.
+
+Welcome-email deliverability review:
+
+- Subject is short and transactional-adjacent: `You’re on the PickRank waitlist`.
+- Preview text matches the low-pressure launch-update purpose.
+- Body avoids urgent claims, winnings promises, play-now language, eligibility claims, account-creation prompts, and excessive links.
+- HTML has one homepage link plus a plain-text fallback.
+- Footer explains why the recipient is receiving the email and leaves future broadcast unsubscribe handling to Resend.
+- The linked logo asset is remote; if inbox image blocking becomes noisy in testing, consider a simpler text-first header before changing content tone.
+
+Cross-inbox test matrix:
+
+| Provider | Test address | Expected result | Checks |
+| --- | --- | --- | --- |
+| Gmail | Controlled Gmail inbox | Inbox or Promotions, not Spam | From name, subject, link, image handling, reply-to |
+| iCloud | Controlled iCloud inbox | Inbox, not Junk | From name, subject, link, image handling, reply-to |
+| Outlook | Controlled Outlook/Hotmail inbox | Inbox or Other, not Junk | From name, subject, link, image handling, reply-to |
+| Work email | Parker's work provider or another Microsoft/Google Workspace tenant | Inbox, not Junk | Authentication pass indicators if visible, from/reply-to alignment, link/image treatment |
+
+For each test, submit one production waitlist signup with a fresh address or plus alias, then confirm `public.waitlist_signups`, Resend contact membership, welcome-email send status, inbox placement, and reply-to behavior.
 
 ## Parker Configuration Status
 
@@ -148,17 +173,15 @@ Do not modify DNS, Resend account settings, Vercel environment variables, or pro
 - Resend `PickRank Waitlist` segment has been created
 - Required Resend variables have been added to Vercel for Production and Preview
 - Migration `0012` has been applied to linked Supabase project `jmvzdspiobcjrewndhuf`
+- Production testing confirmed Supabase capture, Resend contact sync, and welcome-email send
 
 Remaining:
 
-- Send a test welcome email
 - Confirm unsubscribe behavior
-- Deploy the waitlist workflow
-- Submit one real production waitlist signup
-- Confirm the Supabase record
-- Confirm the Resend contact
-- Confirm the welcome email delivery
+- Verify Resend SPF/DKIM/DMARC status for the active sending domain
+- Confirm production sender-address and reply-to strategy
+- Run the cross-inbox deliverability test matrix
 
 ## Outstanding Production Steps
 
-Deployment, real delivery testing, unsubscribe-behavior confirmation, and one production signup verification remain outstanding.
+Deliverability testing, sender-domain verification, and unsubscribe-behavior confirmation remain outstanding.
