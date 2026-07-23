@@ -61,9 +61,9 @@ The repo is past bare Phase 0 and currently includes:
 - Vitest wired
 - Basic route smoke tests
 
-Current branch reality on `codex/waitlist-deliverability-todo` as of 2026-07-22:
+Current branch reality on `codex/waitlist-deliverability-todo` as of 2026-07-23:
 
-- this machine is currently on `codex/waitlist-deliverability-todo`, which is cleanly pushed to `origin/codex/waitlist-deliverability-todo` and sits one docs-only handoff commit ahead of `origin/main`; the branch-specific delta is the waitlist deliverability follow-up recorded in this handoff, while generated `next-env.d.ts` typed-route churn remains unstaged noise
+- this machine is currently on `codex/waitlist-deliverability-todo`, which is cleanly pushed to `origin/codex/waitlist-deliverability-todo`; relative to `origin/main`, the branch is currently `3` commits ahead and `1` commit behind because `origin/main` already has a separate docs-only waitlist deliverability completion commit, while this branch keeps the narrower waitlist deliverability follow-up docs and generated `next-env.d.ts` typed-route churn remains unstaged noise
 - the latest pushed repo baseline includes the 2026-07-07 leaderboard hardening plus Supabase access tightening that keeps `/leaderboard?contest=...` in explicit placeholder states for non-final contests and moves the hidden replay/live validation scripts onto `SUPABASE_SERVICE_ROLE_KEY`
 - the homepage integration keeps the live landing page pointed at `public/marketing/pickrank-landing-video-locked-in-final.mp4` with `public/marketing/pickrank-landing-thumb.png` as the poster, adds the Remotion repo-hygiene helper notes and script, and updates homepage coverage in `tests/e2e/homepage.spec.ts`
 - the 2026-07-08 homepage landing-page polish pass keeps that same video baseline, keeps the tighter video-line headline `15 players. Pick 10. Rank them.`, shortens the hero copy, collapses the above-the-fold CTA to a single waitlist-focused action, and trims the extra helper copy in the hero and video card without changing product behavior
