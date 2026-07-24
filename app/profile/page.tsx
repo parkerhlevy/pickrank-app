@@ -46,6 +46,9 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
   }
 
   const identity = getProfileIdentity(user);
+  const needsUsername = Boolean(user && !identity.isProfileComplete);
+  const needsEligibility = Boolean(user && !identity.eligibility.isEligibilityComplete);
+  const needsAccountSetup = needsUsername || needsEligibility;
 
   return (
     <div className="space-y-6">
@@ -65,22 +68,67 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         </p>
       </section>
 
+      {user && needsAccountSetup ? (
+        <Card className="section-card overflow-hidden">
+          <CardHeader className="section-card-header">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-blue-300" aria-hidden="true" />
+              <CardTitle>Finish Account Setup</CardTitle>
+            </div>
+            <CardDescription className="text-slate-300">
+              Google sign-in verifies your email. PickRank still needs your contest identity and paid-entry eligibility details.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3 pt-5 text-sm">
+            <div className="grid gap-2">
+              <SetupRow label="Email verified through sign-in" value={identity.isEmailVerified ? 'Complete' : 'Pending'} />
+              <SetupRow label="Public username" value={identity.isProfileComplete ? 'Complete' : 'Required'} />
+              <SetupRow
+                label="Age, state, Terms, and Privacy"
+                value={identity.eligibility.isEligibilityComplete ? 'Captured' : 'Required'}
+              />
+            </div>
+            <Notice
+              variant="warning"
+              icon={ShieldCheck}
+              title="Secondary eligibility step required"
+              description="Google does not provide the age confirmation, state eligibility, Terms acceptance, or Privacy acceptance PickRank needs before paid contests."
+              badge="Action needed"
+            />
+            {needsUsername ? (
+              <Button asChild className="w-full">
+                <a href="#profile-identity">Choose Username</a>
+              </Button>
+            ) : null}
+            {!needsUsername && needsEligibility ? (
+              <Button asChild className="w-full">
+                <a href="#eligibility-details">Complete Eligibility Details</a>
+              </Button>
+            ) : null}
+          </CardContent>
+        </Card>
+      ) : null}
+
       {next !== defaultReturnPath ? (
         <Card className="section-card">
           <CardHeader>
             <CardTitle>One Quick Step Left</CardTitle>
             <CardDescription>
-              Save a public username here, then continue to {returnStep.detail}.
+              Finish any missing Profile setup here, then continue to {returnStep.detail}.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2 text-sm text-muted-foreground">
             <div className="detail-row bg-white">
               <span>Signed in</span>
-              <span className="text-emerald-700">Complete</span>
+              <span className={user ? 'text-emerald-700' : 'font-medium text-foreground'}>{user ? 'Complete' : 'Required'}</span>
             </div>
             <div className="detail-row">
               <span>Choose public username</span>
-              <span className="font-medium text-foreground">Current</span>
+              <span className="font-medium text-foreground">{identity.isProfileComplete ? 'Complete' : 'Current'}</span>
+            </div>
+            <div className="detail-row">
+              <span>Capture paid-entry eligibility</span>
+              <span>{identity.eligibility.isEligibilityComplete ? 'Complete' : 'Current'}</span>
             </div>
             <div className="detail-row">
               <span>Resume saved contest step</span>
@@ -157,14 +205,14 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
       </Card>
 
       {user ? (
-        <Card className="section-card">
+        <Card id="eligibility-details" className="section-card scroll-mt-6">
           <CardHeader>
             <div className="flex items-center gap-2">
               <MapPin className="h-5 w-5 text-primary" aria-hidden="true" />
-              <CardTitle>Eligibility Foundation</CardTitle>
+              <CardTitle>Paid-Entry Eligibility</CardTitle>
             </div>
             <CardDescription>
-              Capture the required age, location, Terms, and Privacy acknowledgements before paid entry.
+              Complete the secondary PickRank check that Google sign-in does not provide.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
@@ -261,15 +309,20 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                   badge="Pending"
                 />
               ) : null}
-              {identity.isEmailVerified && next !== defaultReturnPath ? (
+              {identity.isEmailVerified && next !== defaultReturnPath && identity.eligibility.isEligibilityComplete ? (
                 <Button asChild className="w-full">
                   <Link href={next}>{returnStep.actionLabel}</Link>
+                </Button>
+              ) : null}
+              {identity.isEmailVerified && next !== defaultReturnPath && !identity.eligibility.isEligibilityComplete ? (
+                <Button asChild className="w-full">
+                  <a href="#eligibility-details">Complete Eligibility Details</a>
                 </Button>
               ) : null}
             </CardContent>
           </Card>
         ) : (
-          <Card className="section-card">
+          <Card id="profile-identity" className="section-card scroll-mt-6">
             <CardHeader>
               <CardTitle>Complete Your Profile</CardTitle>
               <CardDescription>
@@ -381,6 +434,17 @@ function ReadinessRow({ label, value }: { label: string; value: string }) {
     <div className="detail-row">
       <span>{label}</span>
       <span className="text-muted-foreground">{value}</span>
+    </div>
+  );
+}
+
+function SetupRow({ label, value }: { label: string; value: string }) {
+  const isComplete = value === 'Complete' || value === 'Captured';
+
+  return (
+    <div className="detail-row bg-white">
+      <span>{label}</span>
+      <span className={isComplete ? 'font-medium text-emerald-700' : 'font-medium text-amber-700'}>{value}</span>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import {
   buildAuthHref,
   buildProfileHref,
+  eligibilityToEnterContestsMessage,
   verifyEmailToEnterContestsMessage,
 } from '@/lib/auth-profile';
 import { hasBrowserSupabaseConfig } from '@/lib/env';
@@ -12,12 +13,14 @@ export function getProtectedContestEntryHref({
   isAuthenticated,
   isProfileComplete,
   isEmailVerified,
+  isEligibilityComplete = true,
 }: {
   next: string;
   hasSupabaseConfig: boolean;
   isAuthenticated: boolean;
   isProfileComplete: boolean;
   isEmailVerified: boolean;
+  isEligibilityComplete?: boolean;
 }) {
   if (!hasSupabaseConfig || !isAuthenticated) {
     return buildAuthHref(next);
@@ -31,6 +34,13 @@ export function getProtectedContestEntryHref({
     return buildProfileHref(next, {
       status: 'error',
       message: verifyEmailToEnterContestsMessage,
+    });
+  }
+
+  if (!isEligibilityComplete) {
+    return buildProfileHref(next, {
+      status: 'error',
+      message: eligibilityToEnterContestsMessage,
     });
   }
 
@@ -49,6 +59,7 @@ export async function getProtectedContestEntryRedirect(next: string) {
       isAuthenticated: identity.isAuthenticated,
       isProfileComplete: identity.isProfileComplete,
       isEmailVerified: identity.isEmailVerified,
+      isEligibilityComplete: identity.eligibility.isEligibilityComplete,
     });
   } catch {
     return buildAuthHref(next);

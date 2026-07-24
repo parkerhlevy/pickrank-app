@@ -37,8 +37,8 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
         </div>
         <p className="text-muted-foreground">
           {returnStep.isContestFlow
-            ? `You need to be signed in to enter any contest. Sign in now, finish one quick username step if needed, and then resume ${returnStep.shortLabel.toLowerCase()}.`
-            : 'Create your account, choose a public username, and keep your contest and profile steps in one place.'}
+            ? `You need to be signed in to enter any contest. Sign in now, then finish username and paid-entry eligibility details before ${returnStep.shortLabel.toLowerCase()}.`
+            : 'Create your account, choose a public username, and keep eligibility and profile steps in one place.'}
         </p>
       </section>
 
@@ -49,8 +49,8 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
             <CardDescription>{returnStep.detail}</CardDescription>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
-            Sign in first, then PickRank will send you back to {returnStep.shortLabel.toLowerCase()}. If this is a new
-            account, you may also need to choose a username before you continue.
+            Google or email sign-in confirms account access. PickRank still captures public username, age confirmation,
+            state, Terms acceptance, and Privacy acceptance before paid entry.
           </CardContent>
         </Card>
       ) : null}
@@ -105,7 +105,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
               {next !== defaultReturnPath ? (
                 <div className="soft-panel text-sm text-muted-foreground">
                   <p className="font-medium text-foreground">After sign-in</p>
-                  <p>You&apos;ll go to {returnStep.detail}.</p>
+                  <p>You&apos;ll finish any missing Profile setup before {returnStep.shortLabel.toLowerCase()}.</p>
                 </div>
               ) : null}
             </>
@@ -165,11 +165,12 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
           <p>
-            PickRank uses account sign-in, username setup, and entry review so each contest step feels clear and tied
-            to one account.
+            PickRank uses account sign-in, username setup, eligibility capture, and entry review so each contest step
+            feels clear and tied to one account.
           </p>
           <div className="soft-panel text-foreground">
-            New users complete a username step after sign-in before returning to the saved contest step.
+            Google sign-in does not provide age, state eligibility, Terms acceptance, or Privacy acceptance. PickRank
+            captures those in Profile before paid contest entry.
           </div>
           {next !== defaultReturnPath ? (
             <div className="detail-row bg-white text-foreground">

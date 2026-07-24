@@ -9,13 +9,18 @@ import {
   getPersistedContestEntryStage,
   getUpdatedContestEntryCookieValue,
 } from '../../lib/contest-entry-flow';
-import { verifyEmailToEnterContestsMessage } from '../../lib/auth-profile';
+import { eligibilityToEnterContestsMessage, verifyEmailToEnterContestsMessage } from '../../lib/auth-profile';
 
 describe('contest entry flow state', () => {
   const verificationGateHref = new URLSearchParams({
     next: '/contests/week-1-qb-passing-yards/progress?stage=payment-review',
     status: 'error',
     message: verifyEmailToEnterContestsMessage,
+  }).toString();
+  const eligibilityGateHref = new URLSearchParams({
+    next: '/contests/week-1-qb-passing-yards/progress?stage=payment-review',
+    status: 'error',
+    message: eligibilityToEnterContestsMessage,
   }).toString();
 
   it('falls back to the expected stage when the entry param is missing or invalid', () => {
@@ -186,6 +191,25 @@ describe('contest entry flow state', () => {
     ).toEqual({
       label: 'Verify Email to Enter',
       href: `/profile?${verificationGateHref}`,
+      disabled: false,
+    });
+  });
+
+  it('routes signed-in users missing eligibility capture into the profile gate', () => {
+    expect(
+      getContestDetailPrimaryAction({
+        contestId: 'week-1-qb-passing-yards',
+        entryFee: '$5',
+        hasEntry: false,
+        isAuthenticated: true,
+        isContestOpen: true,
+        isProfileComplete: true,
+        isEmailVerified: true,
+        isEligibilityComplete: false,
+      }),
+    ).toEqual({
+      label: 'Complete Eligibility to Enter',
+      href: `/profile?${eligibilityGateHref}`,
       disabled: false,
     });
   });

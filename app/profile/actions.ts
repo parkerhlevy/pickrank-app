@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import {
   buildAuthHref,
   defaultReturnPath,
+  getProfileIdentity,
   normalizeJurisdiction,
   normalizeReturnPath,
   normalizeUsername,
@@ -60,11 +61,12 @@ export async function completeProfile(formData: FormData) {
     redirect(buildProfileRedirect(next, 'error', error.message));
   }
 
-  if (next !== defaultReturnPath) {
+  const identity = getProfileIdentity(user);
+  if (next !== defaultReturnPath && identity.isEmailVerified && identity.eligibility.isEligibilityComplete) {
     redirect(next);
   }
 
-  redirect(buildProfileRedirect(defaultReturnPath, 'profile-saved'));
+  redirect(buildProfileRedirect(next, 'profile-saved'));
 }
 
 export async function completeEligibilityProfile(formData: FormData) {

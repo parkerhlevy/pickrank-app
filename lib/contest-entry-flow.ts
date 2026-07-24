@@ -1,6 +1,7 @@
 import {
   buildAuthHref,
   buildProfileHref,
+  eligibilityToEnterContestsMessage,
   verifyEmailToEnterContestsMessage,
 } from '@/lib/auth-profile';
 
@@ -169,6 +170,7 @@ export function getContestDetailPrimaryAction({
   isContestOpen,
   isProfileComplete,
   isEmailVerified,
+  isEligibilityComplete = true,
   contestStatus = 'open',
 }: {
   contestId: string;
@@ -178,6 +180,7 @@ export function getContestDetailPrimaryAction({
   isContestOpen: boolean;
   isProfileComplete: boolean;
   isEmailVerified: boolean;
+  isEligibilityComplete?: boolean;
   contestStatus?: 'draft' | 'scheduled' | 'open' | 'locked' | 'canceled' | 'live' | 'finalizing' | 'final' | 'paid_out' | 'error_review';
 }) {
   if (contestStatus === 'final' || contestStatus === 'paid_out') {
@@ -228,6 +231,17 @@ export function getContestDetailPrimaryAction({
       href: buildProfileHref(next, {
         status: 'error',
         message: verifyEmailToEnterContestsMessage,
+      }),
+      disabled: false,
+    };
+  }
+
+  if (!isEligibilityComplete) {
+    return {
+      label: 'Complete Eligibility to Enter',
+      href: buildProfileHref(next, {
+        status: 'error',
+        message: eligibilityToEnterContestsMessage,
       }),
       disabled: false,
     };
