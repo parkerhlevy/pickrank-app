@@ -7,10 +7,15 @@ const readyAccountCookieValue = JSON.stringify({
   displayName: 'playwright_user',
   emailConfirmedAt: '2026-06-29T00:00:00.000Z',
   userId: defaultE2eViewerUserId,
+  ageConfirmed: true,
+  jurisdiction: 'CA',
+  termsAcceptedAt: '2026-06-29T00:00:00.000Z',
+  privacyPolicyAcceptedAt: '2026-06-29T00:00:00.000Z',
+  eligibilityStatus: 'eligible',
 });
 
 export const test = base.extend({
-  context: async ({ context, baseURL }, use) => {
+  context: async ({ context, baseURL }, run) => {
     if (!baseURL) {
       throw new Error('A baseURL is required for the protected entry auth fixture.');
     }
@@ -28,6 +33,6 @@ export const test = base.extend({
       },
     ]);
 
-    await use(context);
+    await run(context);
   },
 });

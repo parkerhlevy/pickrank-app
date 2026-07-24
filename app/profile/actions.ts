@@ -1,7 +1,15 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { buildAuthHref, defaultReturnPath, normalizeReturnPath, normalizeUsername, validateUsername } from '@/lib/auth-profile';
+import {
+  buildAuthHref,
+  defaultReturnPath,
+  normalizeJurisdiction,
+  normalizeReturnPath,
+  normalizeUsername,
+  validateEligibilityAcknowledgements,
+  validateUsername,
+} from '@/lib/auth-profile';
 import { hasBrowserSupabaseConfig } from '@/lib/env';
 import { createClient } from '@/lib/supabase/server';
 
@@ -57,4 +65,58 @@ export async function completeProfile(formData: FormData) {
   }
 
   redirect(buildProfileRedirect(defaultReturnPath, 'profile-saved'));
+}
+
+export async function completeEligibilityProfile(formData: FormData) {
+  const next = normalizeReturnPath(String(formData.get('next') || defaultReturnPath), defaultReturnPath);
+  const jurisdictionInput = String(formData.get('jurisdiction') || '');
+  const ageConfirmed = formData.get('ageConfirmed') === 'on';
+  const termsAccepted = formData.get('termsAccepted') === 'on';
+  const privacyPolicyAccepted = formData.get('privacyPolicyAccepted') === 'on';
+  const validationMessage = validateEligibilityAcknowledgements({
+    ageConfirmed,
+    termsAccepted,
+    privacyPolicyAccepted,
+    jurisdiction: jurisdictionInput,
+  });
+
+  if (validationMessage) {
+    redirect(buildProfileRedirect(next, 'error', validationMessage));
+  }
+
+  if (!hasBrowserSupabaseConfig()) {
+    redirect(buildProfileRedirect(next, 'error', 'Add the Supabase environment values before testing eligibility capture.'));
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect(buildAuthHref(next));
+  }
+
+  const now = new Date().toISOString();
+  const jurisdiction = normalizeJurisdiction(jurisdictionInput);
+  const { error } = await supabase.auth.updateUser({
+    data: {
+      age_confirmed: true,
+      jurisdiction,
+      terms_accepted_at: now,
+      privacy_policy_accepted_at: now,
+      account_status: 'active',
+      eligibility_status: 'pending_review',
+      eligibility_checked_at: now,
+      age_gate_status: 'confirmed',
+      kyc_status: 'not_required',
+      self_exclusion_status: 'none',
+    },
+  });
+
+  if (error) {
+    redirect(buildProfileRedirect(next, 'error', error.message));
+  }
+
+  redirect(buildProfileRedirect(next, 'profile-saved'));
 }

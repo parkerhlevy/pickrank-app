@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { expect, test } from '@playwright/test';
-import { defaultE2eViewerUserId } from '@/lib/viewer-identity';
+import { defaultE2eViewerUserId, e2eAuthCookieName } from '@/lib/viewer-identity';
 import { test as signedInTest } from './fixtures/protected-entry-auth';
 
 const appUrl = 'http://127.0.0.1:3000';
@@ -71,6 +71,38 @@ test('signed-out users are redirected to auth from protected entry routes and ke
     await expect(page.getByRole('heading', { name: 'Account Access' })).toBeVisible();
     await expect(page.getByText('Before You Enter')).toBeVisible();
   }
+});
+
+test('signed-in users with pending eligibility cannot confirm paid contest entry', async ({ page }) => {
+  await page.context().addCookies([
+    {
+      name: e2eAuthCookieName,
+      value: JSON.stringify({
+        email: 'pending-eligibility@pickrank.test',
+        username: 'pending_user',
+        displayName: 'pending_user',
+        emailConfirmedAt: '2026-07-24T00:00:00.000Z',
+        userId: '00000000-0000-4000-8000-000000000777',
+        ageConfirmed: true,
+        jurisdiction: 'CA',
+        termsAcceptedAt: '2026-07-24T00:00:00.000Z',
+        privacyPolicyAcceptedAt: '2026-07-24T00:00:00.000Z',
+        eligibilityStatus: 'pending_review',
+      }),
+      url: appUrl,
+    },
+    {
+      name: 'pickrank_demo_entry_state',
+      value: JSON.stringify({ 'week-1-qb-passing-yards': 'payment-review' }),
+      url: appUrl,
+    },
+  ]);
+
+  await page.goto('/contests/week-1-qb-passing-yards/payment');
+
+  await expect(page.getByText('Eligibility check')).toBeVisible();
+  await expect(page.getByText('Paid contest entry is unavailable while eligibility is pending legal and provider review.')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Confirm Entry' })).toBeDisabled();
 });
 
 signedInTest.describe('protected entry flow with signed-in auth fixture', () => {

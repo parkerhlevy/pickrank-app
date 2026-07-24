@@ -9,6 +9,12 @@ const profileReadHardeningMigrationPath = path.join(
   'migrations',
   '0011_final_results_profile_read_hardening.sql',
 );
+const eligibilityFoundationMigrationPath = path.join(
+  process.cwd(),
+  'db',
+  'migrations',
+  '0013_eligibility_foundation.sql',
+);
 const contestResultsPath = path.join(process.cwd(), 'lib', 'contest-results.ts');
 
 describe('Supabase RLS hardening migration', () => {
@@ -56,5 +62,19 @@ describe('Supabase RLS hardening migration', () => {
 
     expect(source).toContain("const publicProfileDisplayColumns = 'id, username, display_name';");
     expect(source).not.toContain("from('profiles').select('*')");
+  });
+
+  it('adds eligibility storage hooks without opening public write access', async () => {
+    const sql = await readFile(eligibilityFoundationMigrationPath, 'utf8');
+
+    expect(sql).toContain('add column if not exists age_confirmed boolean not null default false');
+    expect(sql).toContain('add column if not exists jurisdiction text');
+    expect(sql).toContain('create table if not exists public.jurisdiction_rules');
+    expect(sql).toContain('create table if not exists public.responsible_play_statuses');
+    expect(sql).toContain('create table if not exists public.compliance_eligibility_events');
+    expect(sql).toContain('alter table if exists public.compliance_eligibility_events enable row level security;');
+    expect(sql).toContain('create policy "users can read own eligibility events"');
+    expect(sql).not.toContain('for insert');
+    expect(sql).not.toContain('for delete');
   });
 });

@@ -39,13 +39,12 @@ export async function confirmContestEntryAction(formData: FormData) {
     redirect(`/contests/${contest.id}?status=error&message=${encodeURIComponent('This contest is no longer accepting entries.')}`);
   }
 
-  const confirmationError = getContestEntryConfirmationError(contest.entryFeeCents);
+  const viewerIdentity = await getViewerIdentity();
+  const confirmationError = getContestEntryConfirmationError(contest.entryFeeCents, viewerIdentity.eligibility);
 
   if (confirmationError) {
     redirect(`/contests/${contest.id}/payment?status=error&message=${encodeURIComponent(confirmationError)}`);
   }
-
-  const viewerIdentity = await getViewerIdentity();
 
   await ensurePersistedContestEntry({
     contestId: contest.id,

@@ -1,13 +1,20 @@
-import { ArrowRight, CheckCircle2, ShieldCheck, UserCircle, WalletCards } from 'lucide-react';
+import { ArrowRight, CheckCircle2, MapPin, ShieldCheck, UserCircle, WalletCards } from 'lucide-react';
 import Link from 'next/link';
 import { signOut } from '@/app/auth/actions';
-import { buildAuthHref, defaultReturnPath, getProfileIdentity, getReturnStepCopy, normalizeReturnPath } from '@/lib/auth-profile';
+import {
+  buildAuthHref,
+  defaultReturnPath,
+  getProfileIdentity,
+  getReturnStepCopy,
+  jurisdictionOptions,
+  normalizeReturnPath,
+} from '@/lib/auth-profile';
 import { getMissingBrowserSupabaseKeys, hasBrowserSupabaseConfig } from '@/lib/env';
 import { createClient } from '@/lib/supabase/server';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Notice } from '@/components/ui/notice';
-import { completeProfile } from './actions';
+import { completeEligibilityProfile, completeProfile } from './actions';
 
 type ProfilePageProps = {
   searchParams?: Promise<{
@@ -100,8 +107,8 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
             <Notice
               variant="success"
               icon={UserCircle}
-              title="Username saved"
-              description="Your public profile name is ready for contest-entry flow."
+              title="Profile saved"
+              description="Your PickRank account profile is updated for contest-entry flow."
               badge="Saved"
             />
           ) : null}
@@ -148,6 +155,87 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           ) : null}
         </CardContent>
       </Card>
+
+      {user ? (
+        <Card className="section-card">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-primary" aria-hidden="true" />
+              <CardTitle>Eligibility Foundation</CardTitle>
+            </div>
+            <CardDescription>
+              Capture the required age, location, Terms, and Privacy acknowledgements before paid entry.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm">
+            {identity.eligibility.isEligibilityComplete ? (
+              <div className="space-y-3">
+                <div className="section-card-muted grid gap-3 px-3 py-3 sm:grid-cols-2">
+                  <div>
+                    <p className="text-muted-foreground">State / jurisdiction</p>
+                    <p className="font-bold">{identity.eligibility.jurisdiction}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Eligibility status</p>
+                    <p className="font-bold">{formatEligibilityStatus(identity.eligibility.eligibilityStatus)}</p>
+                  </div>
+                </div>
+                <div className="grid gap-2">
+                  <ReadinessRow label="Age confirmation" value={identity.eligibility.ageGateStatus === 'confirmed' ? 'Confirmed' : 'Pending'} />
+                  <ReadinessRow label="Terms accepted" value={identity.eligibility.termsAcceptedAt ? 'Captured' : 'Pending'} />
+                  <ReadinessRow label="Privacy accepted" value={identity.eligibility.privacyPolicyAcceptedAt ? 'Captured' : 'Pending'} />
+                  <ReadinessRow label="KYC placeholder" value={formatEligibilityStatus(identity.eligibility.kycStatus)} />
+                  <ReadinessRow label="Responsible play status" value={formatEligibilityStatus(identity.eligibility.selfExclusionStatus)} />
+                </div>
+                {identity.eligibility.eligibilityStatus !== 'eligible' ? (
+                  <Notice
+                    variant="warning"
+                    icon={ShieldCheck}
+                    title="Paid entry still pending review"
+                    description="Your acknowledgements are saved. Paid contests stay blocked until approved jurisdiction and provider rules mark this account eligible."
+                    badge="Pending"
+                  />
+                ) : null}
+              </div>
+            ) : (
+              <form className="space-y-3" action={completeEligibilityProfile}>
+                <label className="block space-y-2 text-sm font-medium text-foreground">
+                  <span>State / jurisdiction</span>
+                  <select
+                    required
+                    name="jurisdiction"
+                    defaultValue={identity.eligibility.jurisdiction}
+                    className="w-full rounded-lg border bg-slate-50 px-3 py-3 text-base text-foreground outline-none ring-0 transition-[border-color] focus:border-slate-950 sm:text-sm"
+                  >
+                    <option value="">Choose state</option>
+                    {jurisdictionOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="flex items-start gap-3 rounded-lg border border-slate-200 bg-white px-3 py-3 text-sm text-foreground">
+                  <input className="mt-1 h-4 w-4" type="checkbox" name="ageConfirmed" />
+                  <span>I confirm I meet the age requirement to enter paid contests.</span>
+                </label>
+                <label className="flex items-start gap-3 rounded-lg border border-slate-200 bg-white px-3 py-3 text-sm text-foreground">
+                  <input className="mt-1 h-4 w-4" type="checkbox" name="termsAccepted" />
+                  <span>I accept the PickRank Terms before entering paid contests.</span>
+                </label>
+                <label className="flex items-start gap-3 rounded-lg border border-slate-200 bg-white px-3 py-3 text-sm text-foreground">
+                  <input className="mt-1 h-4 w-4" type="checkbox" name="privacyPolicyAccepted" />
+                  <span>I accept the PickRank Privacy Policy before entering paid contests.</span>
+                </label>
+                <input type="hidden" name="next" value={next} />
+                <Button className="w-full" type="submit">
+                  Save Eligibility Details
+                </Button>
+              </form>
+            )}
+          </CardContent>
+        </Card>
+      ) : null}
 
       {user ? (
         identity.isProfileComplete ? (
@@ -269,14 +357,37 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
             <span>Email verification</span>
             <span className="text-muted-foreground">{identity.isEmailVerified ? 'Verified' : 'Pending'}</span>
           </div>
-          {['Age and location review', 'Responsible play controls', 'Withdrawal verification'].map((label) => (
-            <div key={label} className="detail-row">
-              <span>{label}</span>
-              <span className="text-muted-foreground">Provider review needed</span>
-            </div>
-          ))}
+          <ReadinessRow
+            label="Age and location capture"
+            value={identity.eligibility.isEligibilityComplete ? 'Captured' : 'Needed before paid entry'}
+          />
+          <ReadinessRow
+            label="Eligibility status"
+            value={formatEligibilityStatus(identity.eligibility.eligibilityStatus)}
+          />
+          <ReadinessRow
+            label="Responsible play controls"
+            value={formatEligibilityStatus(identity.eligibility.selfExclusionStatus)}
+          />
+          <ReadinessRow label="Withdrawal verification" value="Provider review needed" />
         </CardContent>
       </Card>
     </div>
   );
+}
+
+function ReadinessRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="detail-row">
+      <span>{label}</span>
+      <span className="text-muted-foreground">{value}</span>
+    </div>
+  );
+}
+
+function formatEligibilityStatus(value: string) {
+  return value
+    .split('_')
+    .map((segment) => `${segment[0]?.toUpperCase() || ''}${segment.slice(1)}`)
+    .join(' ');
 }

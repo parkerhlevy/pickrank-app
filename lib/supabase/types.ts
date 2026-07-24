@@ -589,25 +589,175 @@ export type Database = {
       };
       profiles: {
         Row: {
+          account_status: string;
+          age_confirmed: boolean;
+          age_gate_status: string;
           created_at: string;
           display_name: string | null;
+          eligibility_checked_at: string | null;
+          eligibility_status: string;
           id: string;
+          jurisdiction: string | null;
+          kyc_status: string;
+          privacy_policy_accepted_at: string | null;
+          restricted_at: string | null;
+          restriction_reason: string | null;
+          restriction_source: string | null;
+          terms_accepted_at: string | null;
           updated_at: string;
           username: string | null;
         };
         Insert: {
+          account_status?: string;
+          age_confirmed?: boolean;
+          age_gate_status?: string;
           created_at?: string;
           display_name?: string | null;
+          eligibility_checked_at?: string | null;
+          eligibility_status?: string;
           id: string;
+          jurisdiction?: string | null;
+          kyc_status?: string;
+          privacy_policy_accepted_at?: string | null;
+          restricted_at?: string | null;
+          restriction_reason?: string | null;
+          restriction_source?: string | null;
+          terms_accepted_at?: string | null;
           updated_at?: string;
           username?: string | null;
         };
         Update: {
+          account_status?: string;
+          age_confirmed?: boolean;
+          age_gate_status?: string;
           created_at?: string;
           display_name?: string | null;
+          eligibility_checked_at?: string | null;
+          eligibility_status?: string;
           id?: string;
+          jurisdiction?: string | null;
+          kyc_status?: string;
+          privacy_policy_accepted_at?: string | null;
+          restricted_at?: string | null;
+          restriction_reason?: string | null;
+          restriction_source?: string | null;
+          terms_accepted_at?: string | null;
           updated_at?: string;
           username?: string | null;
+        };
+      };
+      jurisdiction_rules: {
+        Row: {
+          created_at: string;
+          jurisdiction_code: string;
+          kyc_required_for_entry: boolean;
+          kyc_required_for_withdrawal: boolean;
+          last_legal_review_at: string | null;
+          minimum_age: number;
+          notes: string | null;
+          paid_entry_status: string;
+          status: string;
+          updated_at: string;
+          withdrawal_status: string;
+        };
+        Insert: {
+          created_at?: string;
+          jurisdiction_code: string;
+          kyc_required_for_entry?: boolean;
+          kyc_required_for_withdrawal?: boolean;
+          last_legal_review_at?: string | null;
+          minimum_age?: number;
+          notes?: string | null;
+          paid_entry_status?: string;
+          status?: string;
+          updated_at?: string;
+          withdrawal_status?: string;
+        };
+        Update: {
+          created_at?: string;
+          jurisdiction_code?: string;
+          kyc_required_for_entry?: boolean;
+          kyc_required_for_withdrawal?: boolean;
+          last_legal_review_at?: string | null;
+          minimum_age?: number;
+          notes?: string | null;
+          paid_entry_status?: string;
+          status?: string;
+          updated_at?: string;
+          withdrawal_status?: string;
+        };
+      };
+      responsible_play_statuses: {
+        Row: {
+          entry_restriction_status: string;
+          restriction_reason: string | null;
+          self_exclusion_ends_at: string | null;
+          self_exclusion_started_at: string | null;
+          self_exclusion_status: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          entry_restriction_status?: string;
+          restriction_reason?: string | null;
+          self_exclusion_ends_at?: string | null;
+          self_exclusion_started_at?: string | null;
+          self_exclusion_status?: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          entry_restriction_status?: string;
+          restriction_reason?: string | null;
+          self_exclusion_ends_at?: string | null;
+          self_exclusion_started_at?: string | null;
+          self_exclusion_status?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+      };
+      compliance_eligibility_events: {
+        Row: {
+          age_gate_status: string;
+          created_at: string;
+          eligibility_status: string;
+          event_id: string;
+          event_type: string;
+          jurisdiction: string | null;
+          kyc_status: string;
+          metadata: Json;
+          restriction_reason: string | null;
+          self_exclusion_status: string;
+          source: string;
+          user_id: string;
+        };
+        Insert: {
+          age_gate_status?: string;
+          created_at?: string;
+          eligibility_status?: string;
+          event_id?: string;
+          event_type: string;
+          jurisdiction?: string | null;
+          kyc_status?: string;
+          metadata?: Json;
+          restriction_reason?: string | null;
+          self_exclusion_status?: string;
+          source?: string;
+          user_id: string;
+        };
+        Update: {
+          age_gate_status?: string;
+          created_at?: string;
+          eligibility_status?: string;
+          event_id?: string;
+          event_type?: string;
+          jurisdiction?: string | null;
+          kyc_status?: string;
+          metadata?: Json;
+          restriction_reason?: string | null;
+          self_exclusion_status?: string;
+          source?: string;
+          user_id?: string;
         };
       };
       roles: {
