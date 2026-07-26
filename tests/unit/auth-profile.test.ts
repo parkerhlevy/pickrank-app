@@ -6,6 +6,8 @@ import {
   getReturnStepCopy,
   getProfileIdentity,
   normalizeReturnPath,
+  validateEligibilityAcknowledgements,
+  validateJurisdiction,
   normalizeUsername,
   validateUsername,
   verifyEmailToEnterContestsMessage,
@@ -71,6 +73,27 @@ describe('auth profile helpers', () => {
     expect(validateUsername('valid_name')).toBeNull();
   });
 
+  it('validates paid-entry eligibility acknowledgements', () => {
+    expect(validateJurisdiction('CA')).toBeNull();
+    expect(validateJurisdiction('not-a-state')).toBe('Choose a supported U.S. state or jurisdiction.');
+    expect(
+      validateEligibilityAcknowledgements({
+        ageConfirmed: true,
+        termsAccepted: true,
+        privacyPolicyAccepted: true,
+        jurisdiction: 'ny',
+      }),
+    ).toBeNull();
+    expect(
+      validateEligibilityAcknowledgements({
+        ageConfirmed: false,
+        termsAccepted: true,
+        privacyPolicyAccepted: true,
+        jurisdiction: 'CA',
+      }),
+    ).toBe('Confirm you meet the age requirement to enter paid contests.');
+  });
+
   it('reads profile identity from Supabase user metadata', () => {
     const identity = getProfileIdentity({
       email: 'parkerhlevy@gmail.com',
@@ -78,16 +101,41 @@ describe('auth profile helpers', () => {
       user_metadata: {
         username: 'parkerhlevy1',
         display_name: 'parkerhlevy1',
+        age_confirmed: true,
+        jurisdiction: 'CA',
+        terms_accepted_at: '2026-07-24T00:00:00.000Z',
+        privacy_policy_accepted_at: '2026-07-24T00:00:00.000Z',
+        account_status: 'active',
+        eligibility_status: 'eligible',
+        eligibility_checked_at: '2026-07-24T00:00:00.000Z',
+        age_gate_status: 'confirmed',
+        kyc_status: 'not_required',
+        self_exclusion_status: 'none',
       },
     } as never);
 
-    expect(identity).toEqual({
+    expect(identity).toMatchObject({
       email: 'parkerhlevy@gmail.com',
       username: 'parkerhlevy1',
       displayName: 'parkerhlevy1',
       emailConfirmedAt: '2026-06-22T00:00:00.000Z',
       isProfileComplete: true,
       isEmailVerified: true,
+      eligibility: {
+        ageConfirmed: true,
+        jurisdiction: 'CA',
+        termsAcceptedAt: '2026-07-24T00:00:00.000Z',
+        privacyPolicyAcceptedAt: '2026-07-24T00:00:00.000Z',
+        accountStatus: 'active',
+        eligibilityStatus: 'eligible',
+        eligibilityCheckedAt: '2026-07-24T00:00:00.000Z',
+        ageGateStatus: 'confirmed',
+        kycStatus: 'not_required',
+        selfExclusionStatus: 'none',
+        restrictionReason: null,
+        isEligibilityComplete: true,
+        isEligibleForPaidEntry: true,
+      },
     });
   });
 });

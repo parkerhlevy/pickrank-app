@@ -42,6 +42,60 @@ describe('env helpers', () => {
     });
   });
 
+  it('uses the trusted Vercel deployment URL as the preview fallback app URL', async () => {
+    vi.resetModules();
+    vi.stubEnv('NEXT_PUBLIC_APP_URL', 'https://pickrankgames.com');
+    vi.stubEnv('VERCEL_ENV', 'preview');
+    vi.stubEnv('VERCEL_URL', 'pickrank-app-git-codex-eligibility-example.vercel.app');
+
+    const { getAppUrl } = await import('../../lib/env');
+
+    expect(getAppUrl()).toBe('https://pickrank-app-git-codex-eligibility-example.vercel.app');
+  });
+
+  it('uses the trusted Vercel preview request host for preview auth callbacks', async () => {
+    vi.resetModules();
+    vi.stubEnv('NEXT_PUBLIC_APP_URL', 'https://pickrankgames.com');
+    vi.stubEnv('VERCEL_ENV', 'preview');
+    vi.stubEnv('VERCEL_URL', 'pickrank-app-deployment-example.vercel.app');
+
+    const { getRequestOrigin } = await import('../../lib/env');
+    const headers = new Headers({
+      'x-forwarded-host': 'pickrank-app-git-codex-eligibility-95f79a-parker-levys-projects.vercel.app',
+      'x-forwarded-proto': 'https',
+    });
+
+    expect(getRequestOrigin(headers)).toBe(
+      'https://pickrank-app-git-codex-eligibility-95f79a-parker-levys-projects.vercel.app',
+    );
+  });
+
+  it('rejects untrusted forwarded hosts for preview auth callbacks', async () => {
+    vi.resetModules();
+    vi.stubEnv('NEXT_PUBLIC_APP_URL', 'https://pickrankgames.com');
+    vi.stubEnv('VERCEL_ENV', 'preview');
+    vi.stubEnv('VERCEL_URL', 'pickrank-app-deployment-example.vercel.app');
+
+    const { getRequestOrigin } = await import('../../lib/env');
+    const headers = new Headers({
+      'x-forwarded-host': 'attacker.example',
+      'x-forwarded-proto': 'https',
+    });
+
+    expect(getRequestOrigin(headers)).toBe('https://pickrank-app-deployment-example.vercel.app');
+  });
+
+  it('keeps production auth callbacks pinned to the configured app URL', async () => {
+    vi.resetModules();
+    vi.stubEnv('NEXT_PUBLIC_APP_URL', 'https://pickrankgames.com');
+    vi.stubEnv('VERCEL_ENV', 'production');
+    vi.stubEnv('VERCEL_URL', 'pickrank-app-production.vercel.app');
+
+    const { getAppUrl } = await import('../../lib/env');
+
+    expect(getAppUrl()).toBe('https://pickrankgames.com');
+  });
+
   it('ignores forwarded host headers when building the request origin', async () => {
     vi.resetModules();
     vi.stubEnv('NEXT_PUBLIC_APP_URL', 'https://pickrank-app.vercel.app');

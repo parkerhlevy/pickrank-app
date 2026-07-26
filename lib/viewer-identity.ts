@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import { getProfileIdentity, type ProfileIdentity } from '@/lib/auth-profile';
+import { getProfileIdentity, type EligibilityStatus, type ProfileIdentity } from '@/lib/auth-profile';
 import { hasBrowserSupabaseConfig } from '@/lib/env';
 import { createClient } from '@/lib/supabase/server';
 
@@ -12,13 +12,8 @@ export type ViewerIdentity = ProfileIdentity & {
 };
 
 const anonymousViewerIdentity: ViewerIdentity = {
-  email: '',
-  username: '',
-  displayName: '',
-  emailConfirmedAt: null,
+  ...getProfileIdentity(null),
   isAuthenticated: false,
-  isEmailVerified: false,
-  isProfileComplete: false,
   source: 'anonymous',
   userId: null,
 };
@@ -30,6 +25,11 @@ type E2eAuthCookiePayload = {
   emailConfirmedAt?: string;
   userId?: string;
   roleSlugs?: string[];
+  ageConfirmed?: boolean;
+  jurisdiction?: string;
+  termsAcceptedAt?: string;
+  privacyPolicyAcceptedAt?: string;
+  eligibilityStatus?: EligibilityStatus;
 };
 
 export const defaultE2eViewerUserId = '00000000-0000-4000-8000-000000000001';
@@ -41,6 +41,11 @@ export type E2eAuthFixture = {
   emailConfirmedAt: string;
   userId: string;
   roleSlugs: string[];
+  ageConfirmed: boolean;
+  jurisdiction: string;
+  termsAcceptedAt: string;
+  privacyPolicyAcceptedAt: string;
+  eligibilityStatus: EligibilityStatus;
 };
 
 export function getE2eAuthFixture(cookieValue: string | undefined): E2eAuthFixture | null {
@@ -66,6 +71,16 @@ export function getE2eAuthFixture(cookieValue: string | undefined): E2eAuthFixtu
         Array.isArray(parsed.roleSlugs) && parsed.roleSlugs.every((value) => typeof value === 'string')
           ? parsed.roleSlugs
           : [],
+      ageConfirmed: parsed.ageConfirmed === true,
+      jurisdiction: typeof parsed.jurisdiction === 'string' ? parsed.jurisdiction : '',
+      termsAcceptedAt:
+        typeof parsed.termsAcceptedAt === 'string' ? parsed.termsAcceptedAt : '',
+      privacyPolicyAcceptedAt:
+        typeof parsed.privacyPolicyAcceptedAt === 'string' ? parsed.privacyPolicyAcceptedAt : '',
+      eligibilityStatus:
+        parsed.eligibilityStatus === 'eligible' || parsed.eligibilityStatus === 'blocked' || parsed.eligibilityStatus === 'pending_review'
+          ? parsed.eligibilityStatus
+          : 'unknown',
     };
   } catch {
     return null;
@@ -85,6 +100,16 @@ export function getE2eViewerIdentity(cookieValue: string | undefined): ViewerIde
     user_metadata: {
       username: fixture.username,
       display_name: fixture.displayName,
+      age_confirmed: fixture.ageConfirmed,
+      jurisdiction: fixture.jurisdiction,
+      terms_accepted_at: fixture.termsAcceptedAt,
+      privacy_policy_accepted_at: fixture.privacyPolicyAcceptedAt,
+      account_status: 'active',
+      eligibility_status: fixture.eligibilityStatus,
+      eligibility_checked_at: fixture.termsAcceptedAt || null,
+      age_gate_status: fixture.ageConfirmed ? 'confirmed' : 'unknown',
+      kyc_status: 'not_required',
+      self_exclusion_status: 'none',
     },
   } as never);
 

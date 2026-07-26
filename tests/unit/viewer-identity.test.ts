@@ -22,9 +22,14 @@ describe('viewer identity', () => {
           displayName: 'playwright_user',
           emailConfirmedAt: '2026-06-29T00:00:00.000Z',
           userId: defaultE2eViewerUserId,
+          ageConfirmed: true,
+          jurisdiction: 'CA',
+          termsAcceptedAt: '2026-06-29T00:00:00.000Z',
+          privacyPolicyAcceptedAt: '2026-06-29T00:00:00.000Z',
+          eligibilityStatus: 'eligible',
         }),
       ),
-    ).toEqual({
+    ).toMatchObject({
       email: 'playwright@pickrank.test',
       username: 'playwright_user',
       displayName: 'playwright_user',
@@ -34,6 +39,16 @@ describe('viewer identity', () => {
       isProfileComplete: true,
       source: 'e2e-fixture',
       userId: defaultE2eViewerUserId,
+      eligibility: {
+        ageConfirmed: true,
+        jurisdiction: 'CA',
+        termsAcceptedAt: '2026-06-29T00:00:00.000Z',
+        privacyPolicyAcceptedAt: '2026-06-29T00:00:00.000Z',
+        eligibilityStatus: 'eligible',
+        ageGateStatus: 'confirmed',
+        isEligibilityComplete: true,
+        isEligibleForPaidEntry: true,
+      },
     });
   });
 
@@ -56,6 +71,11 @@ describe('viewer identity', () => {
       emailConfirmedAt: expect.any(String),
       userId: defaultE2eViewerUserId,
       roleSlugs: ['contest_operator'],
+      ageConfirmed: false,
+      jurisdiction: '',
+      termsAcceptedAt: '',
+      privacyPolicyAcceptedAt: '',
+      eligibilityStatus: 'unknown',
     });
   });
 

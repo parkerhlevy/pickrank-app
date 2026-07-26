@@ -7,6 +7,7 @@ import { Notice } from '@/components/ui/notice';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getProtectedContestEntryRedirect } from '@/lib/contest-entry-access';
+import { buildProfileHref } from '@/lib/auth-profile';
 import {
   contestEntryCookieName,
   getContestEntryRouteState,
@@ -28,10 +29,16 @@ import { confirmContestEntryAction } from './actions';
 
 export default async function PaymentReviewPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ contestId: string }>;
+  searchParams?: Promise<{
+    message?: string;
+    status?: string;
+  }>;
 }) {
   const { contestId } = await params;
+  const resolvedSearchParams = (await searchParams) || {};
   const contest = await getContestById(contestId);
   const next = `/contests/${contest.id}/payment`;
   const protectedRedirect = await getProtectedContestEntryRedirect(next);
@@ -68,7 +75,8 @@ export default async function PaymentReviewPage({
   const stateCopy = getContestEntryStateCopy(routeState.stage);
   const flowSteps = getContestEntrySteps(routeState.stage);
   const breakdown = getPaymentReviewBreakdown(contest.entryFeeCents);
-  const confirmationError = getContestEntryConfirmationError(contest.entryFeeCents);
+  const confirmationError = getContestEntryConfirmationError(contest.entryFeeCents, viewerIdentity.eligibility);
+  const profileEligibilityHref = buildProfileHref(next);
 
   const upcomingSteps = flowSteps.filter((step) => step.status === 'upcoming');
 
@@ -138,6 +146,17 @@ export default async function PaymentReviewPage({
             description="Site Credit is applied first, then Cash Balance, then any external amount due."
           />
           <Notice
+            variant={viewerIdentity.eligibility.isEligibleForPaidEntry ? 'success' : 'warning'}
+            icon={ShieldCheck}
+            title="Eligibility check"
+            description={
+              viewerIdentity.eligibility.isEligibleForPaidEntry
+                ? 'This account is marked eligible for paid entry.'
+                : 'Paid contests require age confirmation, state capture, Terms acceptance, Privacy acceptance, and an eligible account status.'
+            }
+            badge={viewerIdentity.eligibility.isEligibleForPaidEntry ? 'Eligible' : 'Required'}
+          />
+          <Notice
             variant="warning"
             icon={CreditCard}
             title="Amount Due Today"
@@ -170,6 +189,14 @@ export default async function PaymentReviewPage({
       </Card>
 
       <div className="action-panel">
+        {resolvedSearchParams.status === 'error' && resolvedSearchParams.message ? (
+          <Notice
+            variant="warning"
+            icon={AlertTriangle}
+            title="Entry confirmation needs attention"
+            description={resolvedSearchParams.message}
+          />
+        ) : null}
         {confirmationError ? (
           <div className="space-y-3">
             <Notice
@@ -181,6 +208,11 @@ export default async function PaymentReviewPage({
             <Button className="w-full" disabled>
               Confirm Entry
             </Button>
+            {!viewerIdentity.eligibility.isEligibilityComplete ? (
+              <Button asChild className="w-full" variant="secondary">
+                <Link href={profileEligibilityHref}>Complete Eligibility Details</Link>
+              </Button>
+            ) : null}
           </div>
         ) : (
           <form action={confirmContestEntryAction}>

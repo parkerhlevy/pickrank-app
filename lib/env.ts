@@ -48,7 +48,27 @@ export function hasBrowserSupabaseConfig() {
 }
 
 export function getAppUrl() {
-  return process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const vercelDeploymentUrl = getVercelDeploymentUrl();
+
+  if (process.env.VERCEL_ENV && process.env.VERCEL_ENV !== 'production' && vercelDeploymentUrl) {
+    return vercelDeploymentUrl;
+  }
+
+  return process.env.NEXT_PUBLIC_APP_URL || vercelDeploymentUrl || 'http://localhost:3000';
+}
+
+function getVercelDeploymentUrl() {
+  const vercelUrl = process.env.VERCEL_URL;
+
+  if (!vercelUrl) {
+    return '';
+  }
+
+  try {
+    return new URL(vercelUrl.startsWith('http') ? vercelUrl : `https://${vercelUrl}`).origin;
+  } catch {
+    return '';
+  }
 }
 
 export function getStatsProviderMode(): 'disabled' | 'file' | 'persisted_snapshot' {
@@ -109,6 +129,32 @@ export function getSportsDataIoLiveAuthMode(): SportsDataIoAuthMode {
   return process.env.PICKRANK_SPORTSDATAIO_LIVE_AUTH_MODE === 'query' ? 'query' : 'header';
 }
 
-export function getRequestOrigin(_headers: HeaderSource, fallbackOrigin = getAppUrl()) {
+export function getRequestOrigin(headers: HeaderSource, fallbackOrigin = getAppUrl()) {
+  const previewOrigin = getTrustedPreviewRequestOrigin(headers);
+
+  if (previewOrigin) {
+    return previewOrigin;
+  }
+
   return new URL(fallbackOrigin).origin;
+}
+
+function getTrustedPreviewRequestOrigin(headers: HeaderSource) {
+  if (process.env.VERCEL_ENV !== 'preview') {
+    return '';
+  }
+
+  const forwardedHost = headers.get('x-forwarded-host') || headers.get('host') || '';
+  const forwardedProto = headers.get('x-forwarded-proto') || 'https';
+  const host = forwardedHost.split(',')[0]?.trim().toLowerCase();
+
+  if (!host || !host.endsWith('.vercel.app')) {
+    return '';
+  }
+
+  if (forwardedProto !== 'https') {
+    return '';
+  }
+
+  return `https://${host}`;
 }
