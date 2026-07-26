@@ -43,6 +43,7 @@ describe('contest entry flow state', () => {
       label: 'Edit Lineup',
       href: '/contests/week-1-qb-passing-yards/progress?stage=lineup',
       disabled: false,
+      tone: 'default',
     });
   });
 
@@ -61,6 +62,7 @@ describe('contest entry flow state', () => {
       label: 'View Lineup',
       href: '/contests/week-1-qb-passing-yards/progress?stage=lineup',
       disabled: false,
+      tone: 'default',
     });
   });
 
@@ -156,6 +158,7 @@ describe('contest entry flow state', () => {
       label: 'Sign Up / Log In to Enter',
       href: '/auth?next=%2Fcontests%2Fweek-1-qb-passing-yards%2Fprogress%3Fstage%3Dpayment-review',
       disabled: false,
+      tone: 'default',
     });
   });
 
@@ -174,6 +177,7 @@ describe('contest entry flow state', () => {
       label: 'Complete Profile to Enter',
       href: '/profile?next=%2Fcontests%2Fweek-1-qb-passing-yards%2Fprogress%3Fstage%3Dpayment-review',
       disabled: false,
+      tone: 'default',
     });
   });
 
@@ -192,6 +196,7 @@ describe('contest entry flow state', () => {
       label: 'Verify Email to Enter',
       href: `/profile?${verificationGateHref}`,
       disabled: false,
+      tone: 'default',
     });
   });
 
@@ -211,6 +216,7 @@ describe('contest entry flow state', () => {
       label: 'Complete Eligibility to Enter',
       href: `/profile?${eligibilityGateHref}`,
       disabled: false,
+      tone: 'default',
     });
   });
 
@@ -230,8 +236,9 @@ describe('contest entry flow state', () => {
       }),
     ).toEqual({
       label: 'Eligibility Pending Review',
-      href: '/contests/week-1-qb-passing-yards/progress?stage=payment-review',
-      disabled: false,
+      href: null,
+      disabled: true,
+      tone: 'warning',
     });
   });
 
@@ -251,8 +258,9 @@ describe('contest entry flow state', () => {
       }),
     ).toEqual({
       label: 'Paid Entry Unavailable',
-      href: '/contests/week-1-qb-passing-yards/progress?stage=payment-review',
-      disabled: false,
+      href: null,
+      disabled: true,
+      tone: 'error',
     });
   });
 
@@ -271,6 +279,7 @@ describe('contest entry flow state', () => {
       label: 'Enter Contest - $5',
       href: '/contests/week-1-qb-passing-yards/progress?stage=payment-review',
       disabled: false,
+      tone: 'default',
     });
   });
 

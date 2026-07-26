@@ -46,6 +46,12 @@ export default async function ContestDetailPage({
     eligibilityStatus: viewerIdentity.eligibility.eligibilityStatus,
     contestStatus: contest.contestStatus,
   });
+  const disabledActionClassName =
+    primaryAction.tone === 'warning'
+      ? 'border border-amber-300 bg-amber-100 text-amber-900 shadow-none disabled:opacity-100'
+      : primaryAction.tone === 'error'
+        ? 'border border-red-300 bg-red-100 text-red-900 shadow-none disabled:opacity-100'
+        : '';
 
   return (
     <div className="space-y-5 pb-28">
@@ -176,7 +182,7 @@ export default async function ContestDetailPage({
             <Link href={primaryAction.href}>{primaryAction.label}</Link>
           </Button>
         ) : (
-          <Button className="w-full" disabled>
+          <Button className={`w-full ${disabledActionClassName}`} disabled>
             {primaryAction.label}
           </Button>
         )}

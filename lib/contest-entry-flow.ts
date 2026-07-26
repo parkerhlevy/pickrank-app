@@ -193,6 +193,7 @@ export function getContestDetailPrimaryAction({
       label: hasEntry ? 'View Results' : 'View Leaderboard',
       href: hasEntry ? `/contests/${contestId}/results` : `/leaderboard?contest=${contestId}`,
       disabled: false,
+      tone: 'default' as const,
     };
   }
 
@@ -201,6 +202,7 @@ export function getContestDetailPrimaryAction({
       label: isContestOpen ? 'Edit Lineup' : 'View Lineup',
       href: getContestEntryProgressHref(contestId, 'lineup'),
       disabled: false,
+      tone: 'default' as const,
     };
   }
 
@@ -209,6 +211,7 @@ export function getContestDetailPrimaryAction({
       label: 'Contest Locked',
       href: null,
       disabled: true,
+      tone: 'default' as const,
     };
   }
 
@@ -219,6 +222,7 @@ export function getContestDetailPrimaryAction({
       label: 'Sign Up / Log In to Enter',
       href: buildAuthHref(next),
       disabled: false,
+      tone: 'default' as const,
     };
   }
 
@@ -227,6 +231,7 @@ export function getContestDetailPrimaryAction({
       label: 'Complete Profile to Enter',
       href: buildProfileHref(next),
       disabled: false,
+      tone: 'default' as const,
     };
   }
 
@@ -238,6 +243,7 @@ export function getContestDetailPrimaryAction({
         message: verifyEmailToEnterContestsMessage,
       }),
       disabled: false,
+      tone: 'default' as const,
     };
   }
 
@@ -249,14 +255,18 @@ export function getContestDetailPrimaryAction({
         message: eligibilityToEnterContestsMessage,
       }),
       disabled: false,
+      tone: 'default' as const,
     };
   }
 
   if (!isEligibleForPaidEntry) {
+    const isBlocked = eligibilityStatus === 'blocked';
+
     return {
-      label: eligibilityStatus === 'blocked' ? 'Paid Entry Unavailable' : 'Eligibility Pending Review',
-      href: next,
-      disabled: false,
+      label: isBlocked ? 'Paid Entry Unavailable' : 'Eligibility Pending Review',
+      href: null,
+      disabled: true,
+      tone: isBlocked ? 'error' as const : 'warning' as const,
     };
   }
 
@@ -265,6 +275,7 @@ export function getContestDetailPrimaryAction({
       label: `Enter Contest - ${entryFee}`,
       href: next,
       disabled: false,
+      tone: 'default' as const,
     };
   }
 
@@ -272,6 +283,7 @@ export function getContestDetailPrimaryAction({
     label: 'Contest Locked',
     href: null,
     disabled: true,
+    tone: 'default' as const,
   };
 }
 
