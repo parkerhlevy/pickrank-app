@@ -48,7 +48,27 @@ export function hasBrowserSupabaseConfig() {
 }
 
 export function getAppUrl() {
-  return process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const vercelDeploymentUrl = getVercelDeploymentUrl();
+
+  if (process.env.VERCEL_ENV && process.env.VERCEL_ENV !== 'production' && vercelDeploymentUrl) {
+    return vercelDeploymentUrl;
+  }
+
+  return process.env.NEXT_PUBLIC_APP_URL || vercelDeploymentUrl || 'http://localhost:3000';
+}
+
+function getVercelDeploymentUrl() {
+  const vercelUrl = process.env.VERCEL_URL;
+
+  if (!vercelUrl) {
+    return '';
+  }
+
+  try {
+    return new URL(vercelUrl.startsWith('http') ? vercelUrl : `https://${vercelUrl}`).origin;
+  } catch {
+    return '';
+  }
 }
 
 export function getStatsProviderMode(): 'disabled' | 'file' | 'persisted_snapshot' {

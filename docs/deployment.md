@@ -73,6 +73,14 @@ Configure this in Supabase:
 5. In Google Cloud, add the Supabase Google callback URL shown on the provider page.
 6. Paste the Google Client ID and Client Secret into Supabase and save.
 
+For Vercel preview testing, PickRank uses Vercel's trusted `VERCEL_URL` as the OAuth callback origin. Supabase must allow the preview callback URL, for example:
+
+```text
+https://pickrank-app-git-*-parker-levys-projects.vercel.app/auth/callback
+```
+
+Production should stay pinned to `NEXT_PUBLIC_APP_URL`.
+
 ### Email Fallback With Custom SMTP
 
 PickRank keeps email magic link as a fallback, but Supabase's built-in sender is not production-safe.

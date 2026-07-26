@@ -42,6 +42,28 @@ describe('env helpers', () => {
     });
   });
 
+  it('uses the trusted Vercel deployment URL for preview auth callbacks', async () => {
+    vi.resetModules();
+    vi.stubEnv('NEXT_PUBLIC_APP_URL', 'https://pickrankgames.com');
+    vi.stubEnv('VERCEL_ENV', 'preview');
+    vi.stubEnv('VERCEL_URL', 'pickrank-app-git-codex-eligibility-example.vercel.app');
+
+    const { getAppUrl } = await import('../../lib/env');
+
+    expect(getAppUrl()).toBe('https://pickrank-app-git-codex-eligibility-example.vercel.app');
+  });
+
+  it('keeps production auth callbacks pinned to the configured app URL', async () => {
+    vi.resetModules();
+    vi.stubEnv('NEXT_PUBLIC_APP_URL', 'https://pickrankgames.com');
+    vi.stubEnv('VERCEL_ENV', 'production');
+    vi.stubEnv('VERCEL_URL', 'pickrank-app-production.vercel.app');
+
+    const { getAppUrl } = await import('../../lib/env');
+
+    expect(getAppUrl()).toBe('https://pickrankgames.com');
+  });
+
   it('ignores forwarded host headers when building the request origin', async () => {
     vi.resetModules();
     vi.stubEnv('NEXT_PUBLIC_APP_URL', 'https://pickrank-app.vercel.app');
