@@ -42,6 +42,8 @@ export default async function ContestDetailPage({
     isProfileComplete: viewerIdentity.isProfileComplete,
     isEmailVerified: viewerIdentity.isEmailVerified,
     isEligibilityComplete: viewerIdentity.eligibility.isEligibilityComplete,
+    isEligibleForPaidEntry: viewerIdentity.eligibility.isEligibleForPaidEntry,
+    eligibilityStatus: viewerIdentity.eligibility.eligibilityStatus,
     contestStatus: contest.contestStatus,
   });
 

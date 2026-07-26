@@ -2,6 +2,7 @@ import {
   buildAuthHref,
   buildProfileHref,
   eligibilityToEnterContestsMessage,
+  type EligibilityStatus,
   verifyEmailToEnterContestsMessage,
 } from '@/lib/auth-profile';
 
@@ -171,6 +172,8 @@ export function getContestDetailPrimaryAction({
   isProfileComplete,
   isEmailVerified,
   isEligibilityComplete = true,
+  isEligibleForPaidEntry = true,
+  eligibilityStatus = 'eligible',
   contestStatus = 'open',
 }: {
   contestId: string;
@@ -181,6 +184,8 @@ export function getContestDetailPrimaryAction({
   isProfileComplete: boolean;
   isEmailVerified: boolean;
   isEligibilityComplete?: boolean;
+  isEligibleForPaidEntry?: boolean;
+  eligibilityStatus?: EligibilityStatus;
   contestStatus?: 'draft' | 'scheduled' | 'open' | 'locked' | 'canceled' | 'live' | 'finalizing' | 'final' | 'paid_out' | 'error_review';
 }) {
   if (contestStatus === 'final' || contestStatus === 'paid_out') {
@@ -243,6 +248,14 @@ export function getContestDetailPrimaryAction({
         status: 'error',
         message: eligibilityToEnterContestsMessage,
       }),
+      disabled: false,
+    };
+  }
+
+  if (!isEligibleForPaidEntry) {
+    return {
+      label: eligibilityStatus === 'blocked' ? 'Paid Entry Unavailable' : 'Eligibility Pending Review',
+      href: next,
       disabled: false,
     };
   }

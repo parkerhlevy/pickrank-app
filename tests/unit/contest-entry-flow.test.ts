@@ -214,6 +214,48 @@ describe('contest entry flow state', () => {
     });
   });
 
+  it('routes captured but pending eligibility users to a review-safe payment explanation', () => {
+    expect(
+      getContestDetailPrimaryAction({
+        contestId: 'week-1-qb-passing-yards',
+        entryFee: '$5',
+        hasEntry: false,
+        isAuthenticated: true,
+        isContestOpen: true,
+        isProfileComplete: true,
+        isEmailVerified: true,
+        isEligibilityComplete: true,
+        isEligibleForPaidEntry: false,
+        eligibilityStatus: 'pending_review',
+      }),
+    ).toEqual({
+      label: 'Eligibility Pending Review',
+      href: '/contests/week-1-qb-passing-yards/progress?stage=payment-review',
+      disabled: false,
+    });
+  });
+
+  it('does not imply paid entry is possible for blocked eligibility status', () => {
+    expect(
+      getContestDetailPrimaryAction({
+        contestId: 'week-1-qb-passing-yards',
+        entryFee: '$5',
+        hasEntry: false,
+        isAuthenticated: true,
+        isContestOpen: true,
+        isProfileComplete: true,
+        isEmailVerified: true,
+        isEligibilityComplete: true,
+        isEligibleForPaidEntry: false,
+        eligibilityStatus: 'blocked',
+      }),
+    ).toEqual({
+      label: 'Paid Entry Unavailable',
+      href: '/contests/week-1-qb-passing-yards/progress?stage=payment-review',
+      disabled: false,
+    });
+  });
+
   it('uses the pay-and-enter CTA for ready signed-in users who have not entered yet', () => {
     expect(
       getContestDetailPrimaryAction({

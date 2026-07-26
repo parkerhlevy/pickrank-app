@@ -98,6 +98,10 @@ test('signed-in users with pending eligibility cannot confirm paid contest entry
     },
   ]);
 
+  await page.goto('/contests/week-1-qb-passing-yards');
+  await expect(page.getByRole('link', { name: 'Eligibility Pending Review' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Enter Contest - $5' })).toHaveCount(0);
+
   await page.goto('/contests/week-1-qb-passing-yards/payment');
 
   await expect(page.getByText('Eligibility check')).toBeVisible();
