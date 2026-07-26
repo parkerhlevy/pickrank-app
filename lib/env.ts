@@ -129,6 +129,32 @@ export function getSportsDataIoLiveAuthMode(): SportsDataIoAuthMode {
   return process.env.PICKRANK_SPORTSDATAIO_LIVE_AUTH_MODE === 'query' ? 'query' : 'header';
 }
 
-export function getRequestOrigin(_headers: HeaderSource, fallbackOrigin = getAppUrl()) {
+export function getRequestOrigin(headers: HeaderSource, fallbackOrigin = getAppUrl()) {
+  const previewOrigin = getTrustedPreviewRequestOrigin(headers);
+
+  if (previewOrigin) {
+    return previewOrigin;
+  }
+
   return new URL(fallbackOrigin).origin;
+}
+
+function getTrustedPreviewRequestOrigin(headers: HeaderSource) {
+  if (process.env.VERCEL_ENV !== 'preview') {
+    return '';
+  }
+
+  const forwardedHost = headers.get('x-forwarded-host') || headers.get('host') || '';
+  const forwardedProto = headers.get('x-forwarded-proto') || 'https';
+  const host = forwardedHost.split(',')[0]?.trim().toLowerCase();
+
+  if (!host || !host.endsWith('.vercel.app')) {
+    return '';
+  }
+
+  if (forwardedProto !== 'https') {
+    return '';
+  }
+
+  return `https://${host}`;
 }
