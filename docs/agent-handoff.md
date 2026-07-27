@@ -61,9 +61,9 @@ The repo is past bare Phase 0 and currently includes:
 - Vitest wired
 - Basic route smoke tests
 
-Current branch reality on `main` as of 2026-07-26:
+Current branch reality on `main` as of 2026-07-27:
 
-- this machine is currently on `main`; the latest pushed baseline before the non-clickable pending-eligibility CTA refinement is `25e8da7 Clarify pending eligibility contest entry CTA`, and generated `next-env.d.ts` typed-route churn remains unstaged noise
+- this machine is currently on `main`; the latest product-bearing commit is `7caf0b9 Gate controlled test entries`, pushed to `origin/main` after repo-steward closeout; the preceding eligibility-reviewer/admin-shell foundation remains separate at `0cdf726 Add desktop admin workspace`, and generated `next-env.d.ts` typed-route churn remains unstaged noise
 - the latest pushed repo baseline includes the 2026-07-07 leaderboard hardening plus Supabase access tightening that keeps `/leaderboard?contest=...` in explicit placeholder states for non-final contests and moves the hidden replay/live validation scripts onto `SUPABASE_SERVICE_ROLE_KEY`
 - the homepage integration keeps the live landing page pointed at `public/marketing/pickrank-landing-video-locked-in-final.mp4` with `public/marketing/pickrank-landing-thumb.png` as the poster, adds the Remotion repo-hygiene helper notes and script, and updates homepage coverage in `tests/e2e/homepage.spec.ts`
 - the 2026-07-08 homepage landing-page polish pass keeps that same video baseline, keeps the tighter video-line headline `15 players. Pick 10. Rank them.`, shortens the hero copy, collapses the above-the-fold CTA to a single waitlist-focused action, and trims the extra helper copy in the hero and video card without changing product behavior
@@ -328,20 +328,17 @@ Use that runbook as the game-mechanics checklist before official preseason testi
 Next recommended slice:
 
 ```text
-Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Focus only on the controlled free/test-entry lane currently in the worktree. Review the payment confirmation action/page, `lib/contest-entry-confirmation.ts`, its focused unit and lineup-builder E2E coverage, and the preseason testing runbook updates. Keep the committed eligibility-reviewer and admin-shell foundations separate. Controlled test entry must remain non-production, fixture-scoped, and no-money; `eligible_for_internal_testing` may be recognized only inside the explicit non-production E2E fixture/file-store harness and must never satisfy ordinary public paid-entry eligibility. Confirm zero-fee behavior, fail-closed ordinary and production behavior, duplicate-entry protection, default-lineup routing, total-versus-paid entry counts, and the canonical runbook boundary. Do not add payment providers, withdrawals, payouts, cash-balance or wallet-ledger movement, KYC vendor integration, geolocation enforcement, public-user verification, or public paid-entry enablement.
+Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Do not start new feature work. Use `docs/preseason-free-test-contest-runbook.md` as the operator checklist for the next controlled preseason proof pass: live site navigation, admin contest setup, controlled free/test entry, lineup save, contest lock, provider validation, finalization, leaderboard/results, and manual QA signoff. Preserve the eligibility-reviewer/admin-shell foundation and the controlled test-entry boundary exactly as shipped. Controlled test entry must remain non-production, fixture-scoped, and no-money; `eligible_for_internal_testing` may be recognized only inside the explicit non-production E2E fixture/file-store harness and must never satisfy ordinary public paid-entry eligibility. Do not add payment providers, withdrawals, payouts, cash-balance or wallet-ledger movement, KYC vendor integration, geolocation enforcement, public-user verification, or public paid-entry enablement.
 ```
 
 Definition of done:
 
 - Start from `docs/agent-handoff.md`, `spec/product_spec.md`, and the relevant `spec/features/` files
-- Preserve the verified production eligibility foundation and paid-entry block
-- Keep reviewer and admin-shell files out of the controlled-entry commit
+- Preserve the verified production eligibility foundation, paid-entry block, and shipped controlled test-entry boundary
+- Keep reviewer/admin-shell work and controlled test-entry work separate unless a future user-approved slice explicitly reopens both
 - Keep `next-env.d.ts` out
-- Confirm zero-fee entry remains available without payment infrastructure
-- Confirm nonzero no-payment test entry requires the explicit non-production E2E fixture and file-store harness
-- Confirm ordinary Supabase users and production cannot activate the bypass
-- Confirm `eligible_for_internal_testing` never becomes or satisfies public `eligible`
-- Confirm test entries increment total entries but not paid entries, duplicate entry stays blocked, and default-lineup routing remains correct
+- Execute or rehearse the runbook with explicit pass/fail notes for each operator step
+- Confirm any issue found is logged as a separate narrow follow-up before code changes begin
 - Confirm payment providers, withdrawals, payouts, cash-balance and wallet-ledger movement, KYC vendor integration, geolocation, and public paid entry remain out of scope
 - Update this handoff note again if repo reality or the next recommended move changes
 
