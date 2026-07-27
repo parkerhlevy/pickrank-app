@@ -5,7 +5,12 @@ export const verifyEmailToEnterContestsMessage = 'Verify your email to enter con
 export const eligibilityToEnterContestsMessage =
   'Complete age, location, Terms, and Privacy acknowledgements before paid entry.';
 
-export type EligibilityStatus = 'unknown' | 'pending_review' | 'eligible' | 'blocked';
+export type EligibilityStatus =
+  | 'unknown'
+  | 'pending_review'
+  | 'eligible_for_internal_testing'
+  | 'eligible'
+  | 'blocked';
 export type AgeGateStatus = 'unknown' | 'confirmed' | 'blocked';
 export type KycStatus = 'not_required' | 'required' | 'pending' | 'verified' | 'failed' | 'expired';
 export type AccountStatus = 'active' | 'restricted' | 'suspended' | 'closed';
@@ -287,7 +292,7 @@ export function getProfileIdentity(user: User | null): ProfileIdentity {
   const accountStatus = readMetadataStatus(metadata.account_status, ['active', 'restricted', 'suspended', 'closed'], 'active');
   const eligibilityStatus = readMetadataStatus(
     metadata.eligibility_status,
-    ['unknown', 'pending_review', 'eligible', 'blocked'],
+    ['unknown', 'pending_review', 'eligible_for_internal_testing', 'eligible', 'blocked'],
     'unknown',
   );
   const ageGateStatus = readMetadataStatus(metadata.age_gate_status, ['unknown', 'confirmed', 'blocked'], 'unknown');

@@ -386,6 +386,13 @@ export default async function AdminContestsPage({
             <CardContent className="space-y-2 text-sm text-muted-foreground">
               <p>The contest operator role is the only enforced internal permission in MVP.</p>
               <p>Agent help can prepare and validate drafts, but publish still requires a human operator action.</p>
+              <p>
+                Eligibility review for known test accounts lives at{' '}
+                <Link href="/admin/eligibility" className="font-semibold text-primary">
+                  Internal Eligibility Review
+                </Link>
+                .
+              </p>
               <p>Public entry and lineup flows now use server-backed entry records while the payment step stays a non-provider placeholder.</p>
               <p>The lineup builder now shows the full 15-player slate and saves one ranked 10-player lineup for each entry.</p>
             </CardContent>
