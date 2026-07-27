@@ -141,7 +141,7 @@ Checklist:
 - Confirm zero-fee entries can be created without payment infrastructure.
 - Confirm paid entries fail closed by default.
 - Confirm `pending_review` eligibility blocks paid entry.
-- Confirm the explicit file-backed E2E path works only outside production.
+- Confirm the explicit file-backed E2E path works only outside production, only for the E2E fixture identity, and only when the fixture eligibility status is `eligible_for_internal_testing`.
 - Confirm file-backed test entries increment total entry count but do not increment paid entry count.
 
 Executable proof:
@@ -156,7 +156,7 @@ Pass criteria:
 - entry is created exactly once
 - duplicate/reused entry does not double-count
 - default lineup is assigned
-- paid entry remains blocked outside the explicit non-production E2E path
+- paid entry remains blocked outside the explicit controlled E2E fixture path, and public `eligible` status alone is not enough for no-payment test entry
 - production cannot activate the E2E bypass
 
 ### 4. Lineup Save

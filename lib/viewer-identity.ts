@@ -78,7 +78,10 @@ export function getE2eAuthFixture(cookieValue: string | undefined): E2eAuthFixtu
       privacyPolicyAcceptedAt:
         typeof parsed.privacyPolicyAcceptedAt === 'string' ? parsed.privacyPolicyAcceptedAt : '',
       eligibilityStatus:
-        parsed.eligibilityStatus === 'eligible' || parsed.eligibilityStatus === 'blocked' || parsed.eligibilityStatus === 'pending_review'
+        parsed.eligibilityStatus === 'eligible' ||
+        parsed.eligibilityStatus === 'eligible_for_internal_testing' ||
+        parsed.eligibilityStatus === 'blocked' ||
+        parsed.eligibilityStatus === 'pending_review'
           ? parsed.eligibilityStatus
           : 'unknown',
     };

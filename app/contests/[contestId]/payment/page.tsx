@@ -75,7 +75,10 @@ export default async function PaymentReviewPage({
   const stateCopy = getContestEntryStateCopy(routeState.stage);
   const flowSteps = getContestEntrySteps(routeState.stage);
   const breakdown = getPaymentReviewBreakdown(contest.entryFeeCents);
-  const confirmationError = getContestEntryConfirmationError(contest.entryFeeCents, viewerIdentity.eligibility);
+  const confirmationError = getContestEntryConfirmationError(contest.entryFeeCents, {
+    eligibility: viewerIdentity.eligibility,
+    viewerSource: viewerIdentity.source,
+  });
   const profileEligibilityHref = buildProfileHref(next);
 
   const upcomingSteps = flowSteps.filter((step) => step.status === 'upcoming');

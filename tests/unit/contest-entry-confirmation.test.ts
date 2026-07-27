@@ -3,9 +3,10 @@ import path from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   canConfirmContestEntry,
+  getControlledTestEntryEligibilityError,
   getContestEntryConfirmationError,
   getPaidContestEligibilityError,
-  isNonProductionE2eEntryMode,
+  isControlledTestEntryMode,
 } from '../../lib/contest-entry-confirmation';
 import type { ProfileEligibility } from '../../lib/auth-profile';
 
@@ -23,6 +24,12 @@ const eligibleProfile: ProfileEligibility = {
   restrictionReason: null,
   isEligibilityComplete: true,
   isEligibleForPaidEntry: true,
+};
+
+const internallyEligibleProfile: ProfileEligibility = {
+  ...eligibleProfile,
+  eligibilityStatus: 'eligible_for_internal_testing',
+  isEligibleForPaidEntry: false,
 };
 
 describe('contest entry confirmation policy', () => {
@@ -51,17 +58,60 @@ describe('contest entry confirmation policy', () => {
   });
 
   it('still fails closed on payment infrastructure after eligibility passes', () => {
-    expect(canConfirmContestEntry(500, eligibleProfile)).toBe(false);
-    expect(getContestEntryConfirmationError(500, eligibleProfile)).toContain('verified payment infrastructure');
+    expect(canConfirmContestEntry(500, { eligibility: eligibleProfile })).toBe(false);
+    expect(getContestEntryConfirmationError(500, { eligibility: eligibleProfile })).toContain(
+      'verified payment infrastructure',
+    );
   });
 
-  it('allows the explicit file-backed E2E entry path outside production', () => {
+  it('allows only internally approved accounts through the explicit file-backed E2E entry path', () => {
     vi.stubEnv('NODE_ENV', 'development');
     vi.stubEnv('PICKRANK_E2E_AUTH', '1');
     vi.stubEnv('PICKRANK_E2E_USE_FILE_STORE', '1');
 
-    expect(isNonProductionE2eEntryMode()).toBe(true);
-    expect(canConfirmContestEntry(500, eligibleProfile)).toBe(true);
+    expect(isControlledTestEntryMode({ viewerSource: 'e2e-fixture' })).toBe(true);
+    expect(getControlledTestEntryEligibilityError(internallyEligibleProfile)).toBeNull();
+    expect(
+      canConfirmContestEntry(500, {
+        eligibility: internallyEligibleProfile,
+        viewerSource: 'e2e-fixture',
+      }),
+    ).toBe(true);
+  });
+
+  it('does not treat public paid-entry eligibility as internal test approval', () => {
+    vi.stubEnv('NODE_ENV', 'development');
+    vi.stubEnv('PICKRANK_E2E_AUTH', '1');
+    vi.stubEnv('PICKRANK_E2E_USE_FILE_STORE', '1');
+
+    expect(
+      getContestEntryConfirmationError(500, {
+        eligibility: eligibleProfile,
+        viewerSource: 'e2e-fixture',
+      }),
+    ).toContain('internal test approval');
+    expect(
+      canConfirmContestEntry(500, {
+        eligibility: eligibleProfile,
+        viewerSource: 'e2e-fixture',
+      }),
+    ).toBe(false);
+  });
+
+  it('does not let ordinary non-production users bypass payment infrastructure', () => {
+    vi.stubEnv('NODE_ENV', 'development');
+    vi.stubEnv('PICKRANK_E2E_AUTH', '1');
+    vi.stubEnv('PICKRANK_E2E_USE_FILE_STORE', '1');
+
+    expect(isControlledTestEntryMode({ viewerSource: 'supabase' })).toBe(false);
+    expect(canConfirmContestEntry(500, {
+      eligibility: eligibleProfile,
+      viewerSource: 'supabase',
+    })).toBe(false);
+    expect(getContestEntryConfirmationError(500, {
+      eligibility: eligibleProfile,
+      viewerSource: 'supabase',
+    })).toContain('verified payment infrastructure');
   });
 
   it('never enables the E2E entry path in production', () => {
@@ -69,8 +119,15 @@ describe('contest entry confirmation policy', () => {
     vi.stubEnv('PICKRANK_E2E_AUTH', '1');
     vi.stubEnv('PICKRANK_E2E_USE_FILE_STORE', '1');
 
-    expect(isNonProductionE2eEntryMode()).toBe(false);
-    expect(canConfirmContestEntry(500, eligibleProfile)).toBe(false);
+    expect(isControlledTestEntryMode({ viewerSource: 'e2e-fixture' })).toBe(false);
+    expect(canConfirmContestEntry(500, {
+      eligibility: internallyEligibleProfile,
+      viewerSource: 'e2e-fixture',
+    })).toBe(false);
+    expect(getContestEntryConfirmationError(500, {
+      eligibility: internallyEligibleProfile,
+      viewerSource: 'e2e-fixture',
+    })).toContain('pending legal and provider review');
   });
 
   it('keeps entry creation out of the GET progress route', async () => {

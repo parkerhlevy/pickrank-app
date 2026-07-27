@@ -40,7 +40,10 @@ export async function confirmContestEntryAction(formData: FormData) {
   }
 
   const viewerIdentity = await getViewerIdentity();
-  const confirmationError = getContestEntryConfirmationError(contest.entryFeeCents, viewerIdentity.eligibility);
+  const confirmationError = getContestEntryConfirmationError(contest.entryFeeCents, {
+    eligibility: viewerIdentity.eligibility,
+    viewerSource: viewerIdentity.source,
+  });
 
   if (confirmationError) {
     redirect(`/contests/${contest.id}/payment?status=error&message=${encodeURIComponent(confirmationError)}`);
