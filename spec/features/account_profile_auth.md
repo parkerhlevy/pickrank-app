@@ -200,6 +200,44 @@ Backend ledger remains required.
 
 Because PickRank involves paid skill-based contests, MVP must include eligibility hooks before public real-money launch.
 
+The current account foundation captures eligibility inputs; it does not independently verify public real-money eligibility.
+
+Treat these as self-attested or account-captured fields until legal/provider systems are connected:
+
+- age confirmation
+- state/jurisdiction
+- Terms acceptance
+- Privacy acceptance
+
+Treat these as real verification only after an approved internal or provider-backed review has checked the account against the relevant source of truth:
+
+- supported jurisdiction approval
+- legal age or date-of-birth verification
+- identity/KYC status
+- payment-provider eligibility
+- withdrawal-provider eligibility
+- responsible-play or self-exclusion restrictions
+
+### Internal testing status
+
+Internal testing eligibility is a separate account decision from public paid-entry eligibility.
+
+An account may be marked eligible for controlled internal testing when:
+
+- the account belongs to a known founder, operator, QA user, or test identity
+- the email/auth identity is recognized by the internal team
+- age confirmation, jurisdiction, Terms, and Privacy are captured
+- the account has no known restriction, suspension, self-exclusion, or compliance hold
+- the enabled flow is free/test entry only and does not move real money
+
+Internal testing eligibility must not unlock production payment capture, withdrawals, public paid contest entry, or cash-balance movement.
+
+### Public paid-entry eligibility
+
+Public paid-entry eligibility requires more than completed profile fields.
+
+Do not mark a public account eligible for real-money paid entry until legal/provider review has defined supported jurisdictions, age thresholds, identity/KYC requirements, payment eligibility, withdrawal requirements, responsible-play requirements, and the server-side checks that enforce them.
+
 ### Age gate
 User must confirm they meet the required minimum age.
 

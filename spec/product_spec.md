@@ -124,6 +124,7 @@ See /spec/features/account_profile_auth.md
 7. Compliance + Eligibility
 Paid contest entry must be blocked unless the user is eligible by account status, age, jurisdiction, verification status, and responsible play restrictions.
 MVP supports configurable jurisdiction rules, age gates, KYC placeholders, self-exclusion placeholders, eligibility event logging, and legal/provider review gates.
+Current eligibility capture is not the same as verified public real-money eligibility. Age confirmation, jurisdiction, Terms acceptance, and Privacy acceptance are self-attested or captured account fields until legal/provider review, KYC/identity requirements, jurisdiction rules, payment/withdrawal approval, responsible-play requirements, and auditable reviewer controls are complete. Internal testing eligibility may be used only for known founder/operator/QA/test accounts in controlled no-money flows.
 Detailed design:
 See /spec/features/compliance_eligibility_responsible_play.md
 ---

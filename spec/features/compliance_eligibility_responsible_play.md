@@ -18,6 +18,77 @@ However, paid sports-related contests are regulated differently across U.S. stat
 
 Do not assume nationwide paid contest availability.
 
+## Current Verification Boundary
+
+The current product foundation can collect and display account-level eligibility inputs, but it cannot independently verify legal eligibility for public real-money paid contests.
+
+### PickRank can verify today
+
+PickRank can currently verify only product-controlled facts and stored account state:
+
+- the user is authenticated through the configured auth provider
+- the user has a saved profile record or auth metadata for the current foundation fields
+- the user has supplied a state/jurisdiction value
+- the user has checked the age-confirmation box
+- the user has accepted Terms and Privacy Policy placeholders
+- the account has a stored eligibility status such as `pending_review`, `eligible`, or `blocked`
+- the server-side paid-entry flow blocks users whose stored eligibility status is not `eligible`
+
+### PickRank cannot verify today
+
+PickRank cannot currently prove:
+
+- the user's legal identity
+- the user's date of birth
+- that the age confirmation is truthful
+- that the user is physically located in the supplied jurisdiction
+- that the supplied jurisdiction is legally approved for public paid contests
+- that the user has passed KYC, sanctions, fraud, or payment-provider review
+- that the user is clear of external responsible-play, self-exclusion, or prohibited-person lists
+- that public real-money paid entry or withdrawals are provider-approved
+
+### Self-attestation versus verification
+
+Self-attestation means the user supplies or confirms a value without independent proof. The current age confirmation, state/jurisdiction selection, Terms acceptance, and Privacy acceptance are self-attestations or captured acknowledgements.
+
+Verification means PickRank or an approved provider has independently checked the relevant fact against a trusted source, such as legal review, payment-provider review, identity/KYC provider data, billing or payout provider records, geolocation provider evidence, or another approved compliance source.
+
+Do not describe a self-attested account as legally verified. User-facing and admin-facing copy should distinguish:
+
+- `captured`: the user supplied the required field or acknowledgement
+- `pending_review`: the account has enough captured data for internal review but is not approved
+- `eligible_for_internal_testing`: the account may be allowed into controlled test/free-entry flows
+- `eligible`: the account may enter paid contests only after the public real-money launch gates are satisfied
+- `blocked`: the account may not enter paid contests
+
+### Internal testing eligibility
+
+An account may be marked eligible for internal testing only when all of the following are true:
+
+- the account is a known test, founder, operator, or approved QA account
+- the auth identity and email address are recognized by the internal team
+- age confirmation, jurisdiction, Terms acceptance, and Privacy acceptance are captured
+- the account is not restricted, suspended, self-excluded, or on a known compliance hold
+- the test flow does not use public real-money payment, withdrawal, payout, or cash-balance movement
+- the reviewer records that the approval is for controlled internal testing, not public real-money eligibility
+
+Internal testing eligibility may allow controlled free/test-entry flows where enabled by the environment. It must not be treated as permission to enable public paid entry, real-money payment capture, withdrawals, or public launch.
+
+### Public real-money eligibility approval
+
+Before any account can be approved for public real-money paid entry, PickRank still needs:
+
+- legal review of supported jurisdictions and required age thresholds
+- configured jurisdiction rules based on that review
+- payment-provider approval for the business model and entry-payment flow
+- a withdrawal provider or approved withdrawal path
+- KYC, identity, sanctions, fraud, and responsible-play requirements defined by legal/provider review
+- Terms, Privacy Policy, contest rules, and responsible-play copy reviewed
+- server-side eligibility, payment, withdrawal, refund, payout, and wallet-ledger checks verified in test/sandbox mode
+- reviewer/admin tooling with auditable decision records and rollback/restriction handling
+
+Until those gates are complete, production accounts should remain `pending_review` or `blocked` for paid entry even if their self-attestation fields are complete.
+
 ---
 
 ## Legal Review Requirement

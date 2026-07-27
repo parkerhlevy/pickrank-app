@@ -445,6 +445,16 @@ Add server-side product gates before real-money testing.
 - eligibility decisions are logged
 - frontend shows correct eligibility gate copy
 
+## Current policy boundary
+
+The current foundation may collect self-attested age confirmation, state/jurisdiction, Terms acceptance, and Privacy acceptance, and may keep paid entry blocked while an account is `pending_review`.
+
+Do not treat captured fields as verified legal eligibility. Reviewer tooling must preserve a separate internal-testing decision from public real-money paid-entry approval.
+
+Internal testing eligibility may be used only for known founder/operator/QA/test accounts in controlled free/test-entry flows with no real payment, withdrawal, payout, or cash-balance movement.
+
+Public real-money eligibility remains blocked until legal review, payment-provider approval, withdrawal path, KYC/identity requirements, jurisdiction rules, responsible-play requirements, Terms/Privacy/rules review, and auditable reviewer/admin controls are complete.
+
 ---
 
 ## Phase 11: External Sports Data Provider Integration

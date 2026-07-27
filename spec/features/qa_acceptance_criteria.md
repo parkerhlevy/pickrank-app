@@ -28,6 +28,14 @@ The highest-risk areas are:
 - ineligible users entering paid contests
 - wrong contest lifecycle state
 
+For the preseason free/test contest proof loop, use the repo runbook:
+
+```text
+docs/preseason-free-test-contest-runbook.md
+```
+
+That runbook is the operator checklist for proving site navigation, admin contest setup, free/test entry, lineup save, lock behavior, provider validation, finalization, leaderboard/results, and manual QA signoff without enabling paid entry.
+
 ---
 
 ## QA Levels
@@ -942,6 +950,79 @@ Run before every beta release:
 
 ---
 
+## 14. Eligibility Review Policy Tests
+
+## Test: Captured fields do not equal verified eligibility
+
+### Steps
+1. Create or use a signed-in account.
+2. Save age confirmation, jurisdiction, Terms acceptance, and Privacy acceptance.
+3. Leave eligibility status as `pending_review`.
+4. Attempt paid contest entry.
+
+### Expected result
+
+- profile shows the captured fields
+- eligibility remains pending review
+- paid entry is blocked server-side
+- UI does not describe the account as legally verified
+
+### Acceptance criteria
+
+```text
+PASS if captured profile fields are shown but paid entry remains blocked.
+FAIL if self-attestation alone unlocks paid contest entry.
+```
+
+---
+
+## Test: Internal testing eligibility is separate from public paid-entry approval
+
+### Steps
+1. Mark a known founder/operator/QA/test account eligible for controlled internal testing.
+2. Confirm age, jurisdiction, Terms, and Privacy are captured.
+3. Use only a free/test-entry path in an approved test environment.
+4. Attempt or inspect production real-money paid-entry behavior.
+
+### Expected result
+
+- controlled free/test-entry behavior is available only where intentionally enabled
+- production payment capture remains unavailable
+- withdrawals remain unavailable
+- cash-balance movement does not occur
+- audit/admin notes make clear the decision is for internal testing only
+
+### Acceptance criteria
+
+```text
+PASS if internal testing eligibility supports only controlled no-money test flows.
+FAIL if internal testing eligibility unlocks public paid entry, withdrawals, or real-money movement.
+```
+
+---
+
+## Test: Public real-money eligibility approval remains launch-gated
+
+### Steps
+1. Review the public real-money launch checklist.
+2. Confirm whether legal jurisdiction rules, age thresholds, payment-provider approval, withdrawal path, KYC/identity requirements, responsible-play requirements, reviewed Terms/Privacy/rules, and auditable reviewer tooling are complete.
+3. Attempt to mark an ordinary production account eligible for public real-money paid entry before those gates are complete.
+
+### Expected result
+
+- public real-money approval is blocked until every launch gate is complete
+- account remains `pending_review` or `blocked`
+- paid entry remains blocked server-side
+
+### Acceptance criteria
+
+```text
+PASS if public real-money eligibility cannot be approved before launch gates are complete.
+FAIL if a reviewer or script can approve public paid entry without those gates.
+```
+
+---
+
 ## Real-Money Launch Acceptance Criteria
 
 Before public real-money launch:
@@ -952,9 +1033,12 @@ Before public real-money launch:
 - provider stat ingestion passes
 - state-by-state legal/payment review complete
 - eligible jurisdictions configured
+- age thresholds configured from legal/provider review
+- self-attested fields are separated from verified eligibility decisions
 - Terms/Privacy reviewed
 - responsible play copy live
 - KYC/withdrawal rules configured
+- reviewer/admin eligibility tooling records who approved, what scope was approved, the evidence source, and when the decision expires or should be reviewed
 - eligibility checks server-side
 - payment capture idempotent
 - refund idempotent

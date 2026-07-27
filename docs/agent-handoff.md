@@ -96,7 +96,10 @@ Current branch reality on `main` as of 2026-07-26:
 - Parker's 2026-07-25 preview SSO test returned to the preview homepage after Google sign-in because preview auth callbacks were still pinned to `NEXT_PUBLIC_APP_URL`; the branch now uses trusted Vercel `VERCEL_URL` for non-production Vercel preview auth callbacks while keeping production pinned to `NEXT_PUBLIC_APP_URL`
 - Supabase OAuth redirect configuration may still need the latest preview callback allowed, for example `https://pickrank-app-git-codex-eligibility-95f79a-parker-levys-projects.vercel.app/auth/callback` or the equivalent project preview wildcard; if Google SSO still returns home or errors after the new preview deploy, check Supabase `Authentication -> URL Configuration -> Redirect URLs`
 - the follow-up preview OAuth fix now sends Supabase to a clean `/auth/callback` URL and stores the intended return path in a short-lived `pickrank_auth_next` cookie, avoiding Supabase redirect allowlist mismatches caused by callback query parameters such as `?next=/profile`
-- production signed-in `/profile` should now be verified with Parker's real account after the merge; the expected post-capture state is age/location captured, Terms and Privacy captured, eligibility `pending_review`, and paid entry still blocked until legal/provider/payment infrastructure work is explicitly approved
+- production signed-in eligibility verification passed on 2026-07-27 with Parker's real Google account: Google SSO from `/auth?next=/profile` returned to `https://www.pickrankgames.com/profile`, `/profile` showed `thelevys20@gmail.com`, username `thelevystesting`, state `MA`, age confirmed, Terms captured, Privacy captured, eligibility `Pending Review`, KYC `Not Required`, responsible play `None`, and the Entry Readiness card kept eligibility in `Pending Review`; production `/contests/week-1-qb-passing-yards` showed a disabled `Eligibility Pending Review` CTA with no `Enter Contest - $5` link, and direct `/contests/week-1-qb-passing-yards/payment` showed `Eligibility check`, disabled `Confirm Entry`, and the pending legal/provider review block; the repo server action still fails paid entries closed until verified payment infrastructure is connected, so do not enable paid entry without explicit legal/provider/payment approval
+- the 2026-07-27 eligibility-review policy slice is docs-only and defines the review boundary before tooling: PickRank can currently verify auth/session, saved profile fields, captured age/state/Terms/Privacy acknowledgements, stored eligibility status, and server-side blocking for non-eligible accounts; PickRank cannot yet verify legal identity, date of birth, physical location, supported public paid-contest jurisdiction, KYC/sanctions/fraud/payment-provider status, external responsible-play lists, payment approval, or withdrawal approval; self-attestation must remain distinct from real verification, internal-testing eligibility may apply only to known founder/operator/QA/test accounts in controlled no-money flows, and public real-money eligibility remains blocked until legal, payment, withdrawal, KYC, jurisdiction, responsible-play, reviewed Terms/Privacy/rules, and auditable reviewer controls are complete
+- `docs/preseason-free-test-contest-runbook.md` now documents the preseason free/test contest proof loop without enabling paid entry: live site navigation, admin contest setup, free/test entry, lineup save, lock behavior, provider validation, finalization, leaderboard/results, and manual QA signoff; `spec/features/qa_acceptance_criteria.md` points to this runbook as the operator checklist for the preseason proof pass
+- live public route checks on 2026-07-27 returned `200` for `https://www.pickrankgames.com/`, `/contests`, `/contests/week-1-qb-passing-yards`, `/leaderboard`, `/how-it-works`, and `/auth`; downloaded live HTML confirmed Contests and Contest Detail show the `Week 1 QB Passing Yards` contest board, 15-QB slate, ranked-10/lower-score-wins mechanics, signed-out auth handoff, and final-only leaderboard placeholder
 - the 2026-07-19 cross-route stage/scroll progression pass adds one reusable non-interactive contest progression rail across Contest Detail, Payment Review, Entry Success, Build Your Lineup, saved-final Leaderboard, and entrant Results so the journey reads as slate review -> entry review -> confirmed board -> build -> lock -> saved final results without changing routes, auth gates, payment, wallet, entry creation, lineup persistence, scoring, result availability, leaderboard behavior, or fixture data
 - repo verification for the cross-route stage/scroll progression pass passes `npm run typecheck`, focused `npx eslint 'app/contests/[contestId]/page.tsx' 'app/contests/[contestId]/payment/page.tsx' 'app/contests/[contestId]/success/page.tsx' 'app/contests/[contestId]/lineup/page.tsx' 'app/contests/[contestId]/results/page.tsx' app/leaderboard/page.tsx components/contests/contest-board-preview.tsx components/contests/lineup-builder-client.tsx`, `npm run test` (`27` files, `126` tests passed), isolated `npx playwright test tests/e2e/lineup-builder.spec.ts` (`5` passed), isolated `npx playwright test tests/e2e/final-results.spec.ts` (`3` passed), `git diff --check`, and a temporary restored screenshot pass covering the six touched screens under `/Users/parkerlevy/.codex/visualizations/2026/07/19/019f7939-0ecd-7bc1-9424-99c2e7122393/pickrank-stage-progression/`
 - the 2026-07-08 brand follow-up now approves `public/brand/pickrank-wordmark-football-transparent-light.png` as a secondary dark-surface homepage and marketing variant, keeps `public/brand/source/pickrank-wordmark-football-transparent-light-preview-dark.png` as a reference preview only, and points the homepage hero at the transparent asset instead of the earlier white-`Pick` fallback
@@ -307,19 +310,28 @@ The MVP includes:
 
 ## Suggested Next Slice
 
+Current preseason testing checklist for the later free/test contest proof pass:
+
+```text
+docs/preseason-free-test-contest-runbook.md
+```
+
+Keep that runbook separate from the eligibility reviewer tooling lane. It tracks the site and game-mechanics proof needed before official preseason testing: live site navigation, admin setup, free/test entry, lineup save, contest lock, provider validation, finalization, leaderboard/results, and manual QA signoff.
+
 Next recommended slice:
 
 ```text
-Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Do a narrow production eligibility verification pass on `pickrankgames.com`: with a real signed-in account, verify Google SSO reaches `/profile`, the saved eligibility foundation fields display correctly, and paid contest entry remains blocked while eligibility is `pending_review` or payment infrastructure is absent. Do not add a payment provider, withdrawals, KYC vendor integration, geolocation enforcement, or a full state-by-state rules engine.
+Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Build the narrow eligibility reviewer tooling slice from the policy boundary documented in `spec/features/compliance_eligibility_responsible_play.md`, `spec/features/account_profile_auth.md`, `spec/features/implementation_roadmap.md`, and `spec/features/qa_acceptance_criteria.md`. The tool may let an internal reviewer view captured self-attestation fields and mark known founder/operator/QA/test accounts eligible for controlled internal testing only. Do not allow reviewer tooling to approve public real-money eligibility, enable paid entry, add payments, withdrawals, KYC vendor integration, geolocation enforcement, or a full state-by-state rules engine.
 ```
 
 Definition of done:
 
-- A real signed-in account that uses Google SSO lands on production `/profile`
-- Production `/profile` displays the saved eligibility foundation fields correctly
-- Paid contest entry is confirmed blocked server-side when eligibility is pending review on production
-- Paid contest entry is confirmed blocked server-side when payment infrastructure is absent even if a test account is manually marked eligible
-- No payment provider, withdrawal, KYC vendor, geolocation, full jurisdiction rules engine, wallet-ledger, scoring, or final-results work is mixed into the deployment-readiness pass
+- Start from `docs/agent-handoff.md`, `spec/product_spec.md`, and the relevant `spec/features/` files
+- Preserve the verified production eligibility foundation and paid-entry block
+- Keep reviewer tooling limited to internal visibility, decision notes, and controlled internal-testing status if implemented
+- Keep self-attestation visibly separate from real legal/provider verification
+- Public real-money eligibility remains unavailable until legal, payment, withdrawal, KYC, jurisdiction, responsible-play, reviewed Terms/Privacy/rules, and auditable admin controls are complete
+- No payment provider, withdrawal, KYC vendor, geolocation, full jurisdiction rules engine, wallet-ledger, or public paid-entry work is mixed into the reviewer-tooling pass
 - Update this handoff note again if repo reality or the next recommended move changes
 
 ## Starter Prompt For Future Chats
