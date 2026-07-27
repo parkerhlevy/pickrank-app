@@ -42,6 +42,24 @@ body {
   box-shadow: 0 1px 2px hsl(222 47% 11% / 0.06);
 }
 
+.admin-content,
+.admin-content > *,
+.admin-content .grid,
+.admin-content .grid > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.admin-content,
+.admin-content .grid,
+.admin-content .grid > * {
+  width: 100%;
+}
+
+.admin-content {
+  overflow-x: hidden;
+}
+
 .brand-panel {
   overflow: hidden;
   border: 1px solid hsl(215 28% 17%);

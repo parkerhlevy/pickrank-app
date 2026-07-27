@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, ListOrdered, Trophy, UserCircle } from 'lucide-react';
+import { isAdminRoute } from '@/lib/app-route-scope';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -15,7 +16,7 @@ const navItems = [
 export function BottomNav() {
   const pathname = usePathname();
 
-  if (pathname === '/') {
+  if (pathname === '/' || isAdminRoute(pathname)) {
     return null;
   }
 

@@ -98,6 +98,10 @@ Current branch reality on `main` as of 2026-07-26:
 - the follow-up preview OAuth fix now sends Supabase to a clean `/auth/callback` URL and stores the intended return path in a short-lived `pickrank_auth_next` cookie, avoiding Supabase redirect allowlist mismatches caused by callback query parameters such as `?next=/profile`
 - production signed-in eligibility verification passed on 2026-07-27 with Parker's real Google account: Google SSO from `/auth?next=/profile` returned to `https://www.pickrankgames.com/profile`, `/profile` showed `thelevys20@gmail.com`, username `thelevystesting`, state `MA`, age confirmed, Terms captured, Privacy captured, eligibility `Pending Review`, KYC `Not Required`, responsible play `None`, and the Entry Readiness card kept eligibility in `Pending Review`; production `/contests/week-1-qb-passing-yards` showed a disabled `Eligibility Pending Review` CTA with no `Enter Contest - $5` link, and direct `/contests/week-1-qb-passing-yards/payment` showed `Eligibility check`, disabled `Confirm Entry`, and the pending legal/provider review block; the repo server action still fails paid entries closed until verified payment infrastructure is connected, so do not enable paid entry without explicit legal/provider/payment approval
 - the 2026-07-27 eligibility-review policy slice is docs-only and defines the review boundary before tooling: PickRank can currently verify auth/session, saved profile fields, captured age/state/Terms/Privacy acknowledgements, stored eligibility status, and server-side blocking for non-eligible accounts; PickRank cannot yet verify legal identity, date of birth, physical location, supported public paid-contest jurisdiction, KYC/sanctions/fraud/payment-provider status, external responsible-play lists, payment approval, or withdrawal approval; self-attestation must remain distinct from real verification, internal-testing eligibility may apply only to known founder/operator/QA/test accounts in controlled no-money flows, and public real-money eligibility remains blocked until legal, payment, withdrawal, KYC, jurisdiction, responsible-play, reviewed Terms/Privacy/rules, and auditable reviewer controls are complete
+- the 2026-07-27 internal eligibility-review foundation adds an operator-only `/admin/eligibility` surface plus `lib/eligibility-review.ts` and focused unit coverage; the route lists only known test accounts from `.test` fixture emails or the server-only `PICKRANK_INTERNAL_TEST_ACCOUNT_EMAILS` allowlist, requires a 12+ character reason and an authenticated operator identity for every action, stores internal approval as the distinct `eligible_for_internal_testing` status under `controlled_internal_testing_only` metadata, rejects internal approval for restricted, self-excluded, responsible-play-restricted, or already-blocked accounts, allows blocking with a required reason, updates auth metadata plus profile eligibility fields, and writes a `compliance_eligibility_events` audit row with `public_real_money_approval: false`; the internal-testing status does not satisfy the shared public paid-entry eligibility check, which still requires the separate `eligibility_status = eligible` status and still fails closed until verified payment infrastructure is connected
+- repo verification for the internal eligibility-review foundation passes `npm run typecheck`, focused `npx eslint app/admin/contests/page.tsx app/admin/eligibility/actions.ts app/admin/eligibility/page.tsx lib/auth-profile.ts lib/eligibility-review.ts tests/unit/eligibility-review.test.ts tests/unit/routes.test.ts`, focused `npx vitest run tests/unit/eligibility-review.test.ts tests/unit/routes.test.ts tests/unit/auth-profile.test.ts tests/unit/contest-entry-confirmation.test.ts` (`4` files, `42` tests passed), full `npm run test` (`30` files, `167` tests passed), and `git diff --check`
+- the desktop-first admin shell now gives `/admin/contests` and `/admin/eligibility` a wide protected workspace with persistent contest and internal-eligibility navigation, a compact horizontal fallback on narrow screens, and an explicit internal-only boundary; `/admin` routes to the current contest workspace, while the public bottom navigation is suppressed throughout `/admin` without changing admin actions, role gating, eligibility decisions, provider refreshes, or the typed `FINAL` results path
+- repo verification for the desktop-first admin shell passes `npm run typecheck`, focused ESLint on the touched TS/TSX files, full `npm run test` (`31` files, `169` tests passed), `git diff --check`, and focused `npx playwright test tests/e2e/admin-shell.spec.ts tests/e2e/homepage.spec.ts` (`6` passed) after the expected sandbox `listen EPERM` failure and rerun outside the sandbox; browser coverage confirms the operator-only redirect, a desktop workspace wider than `900px`, a `390px` overflow-free compact fallback, no public bottom navigation under `/admin`, and unchanged public homepage/core-route navigation behavior
 - `docs/preseason-free-test-contest-runbook.md` now documents the preseason free/test contest proof loop without enabling paid entry: live site navigation, admin contest setup, free/test entry, lineup save, lock behavior, provider validation, finalization, leaderboard/results, and manual QA signoff; `spec/features/qa_acceptance_criteria.md` points to this runbook as the operator checklist for the preseason proof pass
 - live public route checks on 2026-07-27 returned `200` for `https://www.pickrankgames.com/`, `/contests`, `/contests/week-1-qb-passing-yards`, `/leaderboard`, `/how-it-works`, and `/auth`; downloaded live HTML confirmed Contests and Contest Detail show the `Week 1 QB Passing Yards` contest board, 15-QB slate, ranked-10/lower-score-wins mechanics, signed-out auth handoff, and final-only leaderboard placeholder
 - the 2026-07-19 cross-route stage/scroll progression pass adds one reusable non-interactive contest progression rail across Contest Detail, Payment Review, Entry Success, Build Your Lineup, saved-final Leaderboard, and entrant Results so the journey reads as slate review -> entry review -> confirmed board -> build -> lock -> saved final results without changing routes, auth gates, payment, wallet, entry creation, lineup persistence, scoring, result availability, leaderboard behavior, or fixture data
@@ -238,13 +242,15 @@ Core app routes:
 /auth
 ```
 
-Admin work may exist later under:
+Internal admin routes:
 
 ```text
 /admin
+/admin/contests
+/admin/eligibility
 ```
 
-Do not expose admin routes in the bottom navigation unless the product spec explicitly calls for it.
+Admin routes use a separate desktop-first workspace and are not exposed in the public bottom navigation.
 
 ## Current Navigation
 
@@ -321,17 +327,21 @@ Keep that runbook separate from the eligibility reviewer tooling lane. It tracks
 Next recommended slice:
 
 ```text
-Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Build the narrow eligibility reviewer tooling slice from the policy boundary documented in `spec/features/compliance_eligibility_responsible_play.md`, `spec/features/account_profile_auth.md`, `spec/features/implementation_roadmap.md`, and `spec/features/qa_acceptance_criteria.md`. The tool may let an internal reviewer view captured self-attestation fields and mark known founder/operator/QA/test accounts eligible for controlled internal testing only. Do not allow reviewer tooling to approve public real-money eligibility, enable paid entry, add payments, withdrawals, KYC vendor integration, geolocation enforcement, or a full state-by-state rules engine.
+Continue PickRank using the repo as source of truth. Keep explanations business-friendly. Focus only on the controlled free/test-entry lane currently in the worktree. Review the payment confirmation action/page, `lib/contest-entry-confirmation.ts`, its focused unit and lineup-builder E2E coverage, and the preseason testing runbook updates. Keep the committed eligibility-reviewer and admin-shell foundations separate. Controlled test entry must remain non-production, fixture-scoped, and no-money; `eligible_for_internal_testing` may be recognized only inside the explicit non-production E2E fixture/file-store harness and must never satisfy ordinary public paid-entry eligibility. Confirm zero-fee behavior, fail-closed ordinary and production behavior, duplicate-entry protection, default-lineup routing, total-versus-paid entry counts, and the canonical runbook boundary. Do not add payment providers, withdrawals, payouts, cash-balance or wallet-ledger movement, KYC vendor integration, geolocation enforcement, public-user verification, or public paid-entry enablement.
 ```
 
 Definition of done:
 
 - Start from `docs/agent-handoff.md`, `spec/product_spec.md`, and the relevant `spec/features/` files
 - Preserve the verified production eligibility foundation and paid-entry block
-- Keep reviewer tooling limited to internal visibility, decision notes, and controlled internal-testing status if implemented
-- Keep self-attestation visibly separate from real legal/provider verification
-- Public real-money eligibility remains unavailable until legal, payment, withdrawal, KYC, jurisdiction, responsible-play, reviewed Terms/Privacy/rules, and auditable admin controls are complete
-- No payment provider, withdrawal, KYC vendor, geolocation, full jurisdiction rules engine, wallet-ledger, or public paid-entry work is mixed into the reviewer-tooling pass
+- Keep reviewer and admin-shell files out of the controlled-entry commit
+- Keep `next-env.d.ts` out
+- Confirm zero-fee entry remains available without payment infrastructure
+- Confirm nonzero no-payment test entry requires the explicit non-production E2E fixture and file-store harness
+- Confirm ordinary Supabase users and production cannot activate the bypass
+- Confirm `eligible_for_internal_testing` never becomes or satisfies public `eligible`
+- Confirm test entries increment total entries but not paid entries, duplicate entry stays blocked, and default-lineup routing remains correct
+- Confirm payment providers, withdrawals, payouts, cash-balance and wallet-ledger movement, KYC vendor integration, geolocation, and public paid entry remain out of scope
 - Update this handoff note again if repo reality or the next recommended move changes
 
 ## Starter Prompt For Future Chats
