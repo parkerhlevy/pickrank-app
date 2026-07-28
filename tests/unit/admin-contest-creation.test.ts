@@ -151,6 +151,48 @@ describe('admin contest draft creation', () => {
     expect(publishResult.contest.publishedAt).toBe('2026-09-10T00:00:00.000Z');
   });
 
+  it('validates and publishes a zero-fee contest for controlled free testing', async () => {
+    const tempDirectory = await mkdtemp(path.join(os.tmpdir(), 'pickrank-contests-'));
+    const dataFilePath = path.join(tempDirectory, 'contests.json');
+
+    await writeFile(dataFilePath, JSON.stringify({ version: 1, contests: [], contestStateEvents: [] }, null, 2));
+
+    const createdContest = await createDraftContest(
+      {
+        title: 'Week 4 QB Passing Yards Free Test',
+        description: 'Pick and rank your top 10 quarterbacks by passing yards.',
+        season: 2026,
+        week: 4,
+        entryFeeCents: 0,
+        entryOpenTimeIso: '2026-09-24T12:00:00.000Z',
+        lockTimeIso: '2026-09-25T00:15:00.000Z',
+        createdByAdminId: 'operator-1',
+      },
+      { dataFilePath },
+    );
+
+    await saveContestSlate(createdContest.id, buildValidSlatePlayers('2026-09-25T00:20:00.000Z'), {
+      dataFilePath,
+    });
+
+    const validationResult = await validateDraftContest(createdContest.id, 'operator-2', {
+      dataFilePath,
+      now: '2026-09-20T00:00:00.000Z',
+    });
+
+    expect(validationResult.validation.status).toBe('passed');
+    expect(validationResult.contest.entryFee).toBe('$0.00');
+
+    const publishResult = await publishContest(createdContest.id, 'operator-3', {
+      dataFilePath,
+      now: '2026-09-20T00:00:00.000Z',
+    });
+
+    expect(publishResult.contest.entryFeeCents).toBe(0);
+    expect(publishResult.contest.visibilityStatus).toBe('visible');
+    expect(publishResult.contest.publishedByAdminId).toBe('operator-3');
+  });
+
   it('moves contests through scheduled to open and open to locked without double transitions', async () => {
     const tempDirectory = await mkdtemp(path.join(os.tmpdir(), 'pickrank-contests-'));
     const dataFilePath = path.join(tempDirectory, 'contests.json');

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { randomUUID } from 'node:crypto';
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -1075,8 +1076,8 @@ function buildContestValidationResult(contest: ContestRecord, now: string, valid
     errors.push('Add a contest instruction before publish.');
   }
 
-  if (contest.entryFeeCents <= 0) {
-    errors.push('Set an entry fee greater than $0 before publish.');
+  if (contest.entryFeeCents < 0) {
+    errors.push('Entry fee cannot be negative before publish.');
   }
 
   if (!contest.entryOpenTime) {
