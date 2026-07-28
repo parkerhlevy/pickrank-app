@@ -36,6 +36,7 @@ export default async function ContestDetailPage({
   const primaryAction = getContestDetailPrimaryAction({
     contestId: contest.id,
     entryFee: contest.entryFee,
+    entryFeeCents: contest.entryFeeCents,
     hasEntry,
     isAuthenticated: viewerIdentity.isAuthenticated,
     isContestOpen: isContestOpenForEntry(contest),

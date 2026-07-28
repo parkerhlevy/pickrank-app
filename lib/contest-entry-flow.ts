@@ -166,6 +166,7 @@ export function getUpdatedContestEntryCookieValue({
 export function getContestDetailPrimaryAction({
   contestId,
   entryFee,
+  entryFeeCents,
   hasEntry,
   isAuthenticated,
   isContestOpen,
@@ -178,6 +179,7 @@ export function getContestDetailPrimaryAction({
 }: {
   contestId: string;
   entryFee: string;
+  entryFeeCents?: number;
   hasEntry: boolean;
   isAuthenticated: boolean;
   isContestOpen: boolean;
@@ -188,6 +190,8 @@ export function getContestDetailPrimaryAction({
   eligibilityStatus?: EligibilityStatus;
   contestStatus?: 'draft' | 'scheduled' | 'open' | 'locked' | 'canceled' | 'live' | 'finalizing' | 'final' | 'paid_out' | 'error_review';
 }) {
+  const isFreeEntryContest = entryFeeCents === 0;
+
   if (contestStatus === 'final' || contestStatus === 'paid_out') {
     return {
       label: hasEntry ? 'View Results' : 'View Leaderboard',
@@ -259,7 +263,7 @@ export function getContestDetailPrimaryAction({
     };
   }
 
-  if (!isEligibleForPaidEntry) {
+  if (!isFreeEntryContest && !isEligibleForPaidEntry) {
     const isBlocked = eligibilityStatus === 'blocked';
 
     return {
@@ -272,7 +276,7 @@ export function getContestDetailPrimaryAction({
 
   if (isContestOpen) {
     return {
-      label: `Enter Contest - ${entryFee}`,
+      label: isFreeEntryContest ? 'Enter Free Test Contest' : `Enter Contest - ${entryFee}`,
       href: next,
       disabled: false,
       tone: 'default' as const,

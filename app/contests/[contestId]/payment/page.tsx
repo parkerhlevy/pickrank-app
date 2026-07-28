@@ -75,6 +75,7 @@ export default async function PaymentReviewPage({
   const stateCopy = getContestEntryStateCopy(routeState.stage);
   const flowSteps = getContestEntrySteps(routeState.stage);
   const breakdown = getPaymentReviewBreakdown(contest.entryFeeCents);
+  const isFreeEntryContest = contest.entryFeeCents === 0;
   const confirmationError = getContestEntryConfirmationError(contest.entryFeeCents, {
     eligibility: viewerIdentity.eligibility,
     viewerSource: viewerIdentity.source,
@@ -149,22 +150,28 @@ export default async function PaymentReviewPage({
             description="Site Credit is applied first, then Cash Balance, then any external amount due."
           />
           <Notice
-            variant={viewerIdentity.eligibility.isEligibleForPaidEntry ? 'success' : 'warning'}
+            variant={isFreeEntryContest || viewerIdentity.eligibility.isEligibleForPaidEntry ? 'success' : 'warning'}
             icon={ShieldCheck}
-            title="Eligibility check"
+            title={isFreeEntryContest ? 'No-money test entry' : 'Eligibility check'}
             description={
-              viewerIdentity.eligibility.isEligibleForPaidEntry
+              isFreeEntryContest
+                ? 'This contest has a $0 entry fee, so it can be confirmed for testing without paid-entry eligibility approval.'
+                : viewerIdentity.eligibility.isEligibleForPaidEntry
                 ? 'This account is marked eligible for paid entry.'
                 : 'Paid contests require age confirmation, state capture, Terms acceptance, Privacy acceptance, and an eligible account status.'
             }
-            badge={viewerIdentity.eligibility.isEligibleForPaidEntry ? 'Eligible' : 'Required'}
+            badge={isFreeEntryContest ? 'Free Test' : viewerIdentity.eligibility.isEligibleForPaidEntry ? 'Eligible' : 'Required'}
           />
           <Notice
-            variant="warning"
+            variant={isFreeEntryContest ? 'success' : 'warning'}
             icon={CreditCard}
             title="Amount Due Today"
-            description="If your balances do not fully cover the fee, the remaining amount stays under Amount Due Today until provider-backed payment is added."
-            badge="Placeholder-safe"
+            description={
+              isFreeEntryContest
+                ? 'No payment, wallet balance, payout, or cash movement is used for this entry.'
+                : 'If your balances do not fully cover the fee, the remaining amount stays under Amount Due Today until provider-backed payment is added.'
+            }
+            badge={isFreeEntryContest ? '$0.00' : 'Placeholder-safe'}
           />
           <Notice
             variant="success"

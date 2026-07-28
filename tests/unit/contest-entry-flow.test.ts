@@ -242,6 +242,29 @@ describe('contest entry flow state', () => {
     });
   });
 
+  it('allows zero-fee contests to enter the no-money test flow while eligibility is pending review', () => {
+    expect(
+      getContestDetailPrimaryAction({
+        contestId: 'test-week-1-no-money-entry',
+        entryFee: '$0.00',
+        entryFeeCents: 0,
+        hasEntry: false,
+        isAuthenticated: true,
+        isContestOpen: true,
+        isProfileComplete: true,
+        isEmailVerified: true,
+        isEligibilityComplete: true,
+        isEligibleForPaidEntry: false,
+        eligibilityStatus: 'pending_review',
+      }),
+    ).toEqual({
+      label: 'Enter Free Test Contest',
+      href: '/contests/test-week-1-no-money-entry/progress?stage=payment-review',
+      disabled: false,
+      tone: 'default',
+    });
+  });
+
   it('does not imply paid entry is possible for blocked eligibility status', () => {
     expect(
       getContestDetailPrimaryAction({
