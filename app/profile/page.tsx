@@ -196,7 +196,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
               </div>
               <form action={signOut}>
                 <Button className="w-full" type="submit" variant="secondary">
-                  Manage Auth Session
+                  Sign Out
                 </Button>
               </form>
             </div>
