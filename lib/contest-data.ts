@@ -163,6 +163,7 @@ export type ContestSummary = {
   prizePoolCents: number;
   entries: string;
   entryCount: number;
+  paidEntryCount: number;
   minimum: string;
   slate: string;
   slateSize: number;
@@ -1001,6 +1002,7 @@ function toContestSummary(contest: ContestRecord): ContestSummary {
     prizePoolCents,
     entries: `${contest.entryCount} entries`,
     entryCount: contest.entryCount,
+    paidEntryCount: contest.paidEntryCount,
     minimum: `This contest needs at least ${contest.minEntriesToRun} total entries to run`,
     slate: `${contest.slateSize}-QB slate`,
     slateSize: contest.slateSize,

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from 'react';
-import { AlertCircle, CheckCircle2, EyeOff, FileText, ShieldCheck } from 'lucide-react';
+import { AlertCircle, CheckCircle2, EyeOff, FileText, ListChecks, ShieldCheck } from 'lucide-react';
 import {
   createDraftContestAction,
   fetchContestStatSnapshotAction,
@@ -15,6 +15,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { canFinalizeContestStatus } from '@/lib/contest-finalization';
 import { listAdminContests, type ContestSummary } from '@/lib/contest-data';
 import { requireContestOperator } from '@/lib/contest-operator-access';
+import {
+  listAdminTestEntryReadiness,
+  type AdminTestEntryContestReadiness,
+} from '@/lib/admin-test-entry-readiness';
 import { buildProvisionalStatsPreview } from '@/lib/provisional-stats-preview';
 import { replayValidationContestId } from '@/lib/replay-provisional-validation';
 import { buildContestStatIngestionPreview } from '@/lib/contest-stat-ingestion';
@@ -36,6 +40,7 @@ export default async function AdminContestsPage({
         contest.id === replayValidationContestId ? await buildProvisionalStatsPreview(contest.id) : null,
     })),
   );
+  const testEntryReadiness = await listAdminTestEntryReadiness({ contests });
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const status = resolvedSearchParams?.status;
   const message = resolvedSearchParams?.message;
@@ -381,6 +386,8 @@ export default async function AdminContestsPage({
             </CardContent>
           </Card>
 
+          <TestEntryReadinessCard readiness={testEntryReadiness} />
+
           <Card>
             <CardHeader>
               <div className="flex items-center gap-2">
@@ -406,6 +413,161 @@ export default async function AdminContestsPage({
       </div>
     </div>
   );
+}
+
+function TestEntryReadinessCard({ readiness }: { readiness: AdminTestEntryContestReadiness[] }) {
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <ListChecks className="h-5 w-5 text-primary" aria-hidden="true" />
+              <CardTitle>Test Entry Readiness</CardTitle>
+            </div>
+            <CardDescription>
+              Read-only operator visibility for free/test entries, saved lineups, and obvious runbook blockers.
+            </CardDescription>
+          </div>
+          <span className="status-pill shrink-0">Read Only</span>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {readiness.length === 0 ? (
+          <div className="empty-state-card text-sm text-muted-foreground">
+            No scheduled, open, locked, live, finalizing, or entry-backed contests need test-entry visibility right now.
+          </div>
+        ) : null}
+
+        {readiness.map((contest) => (
+          <div key={contest.contestId} className="rounded-lg border bg-white p-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="font-semibold text-foreground">{contest.title}</p>
+                <p className="numeric mt-1 text-xs text-muted-foreground">
+                  {contest.contestId} • {contest.lifecycleStatus} • {contest.visibilityStatus} • {contest.entryFee}{' '}
+                  entry • {contest.lockTime}
+                </p>
+              </div>
+              <span className={contest.status === 'ready' ? 'status-pill bg-emerald-50 text-emerald-900' : 'status-pill'}>
+                {contest.status === 'ready' ? 'Ready' : 'Needs Review'}
+              </span>
+            </div>
+
+            <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-4">
+              <ReadinessMetric label="Total entries" value={contest.totalEntries} />
+              <ReadinessMetric label="Paid entries" value={contest.paidEntries} />
+              <ReadinessMetric label="Free/test entries" value={contest.freeTestEntries} />
+              <ReadinessMetric label="Saved records" value={contest.savedEntryRecords} />
+            </div>
+
+            <IssueList issues={contest.issues} emptyLabel="Contest counts look consistent." />
+
+            <div className="mt-3 rounded-md border bg-slate-50">
+              <div className="border-b px-3 py-2 text-xs font-semibold text-foreground">Entrants</div>
+              {contest.entrants.length === 0 ? (
+                <div className="px-3 py-3 text-xs text-muted-foreground">No saved entrants found for this contest.</div>
+              ) : (
+                <div className="divide-y">
+                  {contest.entrants.map((entrant) => (
+                    <div key={entrant.entryId} className="px-3 py-3 text-xs">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                          <p className="font-semibold text-foreground">{entrant.userLabel}</p>
+                          <p className="mt-1 text-muted-foreground">
+                            {entrant.email} • {entrant.displayName} • {entrant.username}
+                          </p>
+                          <p className="numeric mt-1 text-muted-foreground">
+                            Entry {entrant.entryStatus} • Created {formatAdminTimestamp(entrant.createdAt)} • Updated{' '}
+                            {formatAdminTimestamp(entrant.updatedAt)}
+                          </p>
+                        </div>
+                        <span className={getLineupStatusClassName(entrant.lineupStatus)}>
+                          {entrant.lineupStatusLabel}
+                        </span>
+                      </div>
+                      <div className="mt-2 grid gap-2 text-muted-foreground sm:grid-cols-3">
+                        <ReadinessFact label="Lineup source" value={entrant.lineupSourceLabel} />
+                        <ReadinessFact label="Saved players" value={`${entrant.savedPlayerCount}/10`} />
+                        <ReadinessFact
+                          label="Last saved"
+                          value={entrant.lastSavedAt ? formatAdminTimestamp(entrant.lastSavedAt) : 'Not saved yet'}
+                        />
+                      </div>
+                      <IssueList issues={entrant.issues} emptyLabel="Entrant is test-ready." />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
+
+function ReadinessMetric({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-md border bg-slate-50 px-3 py-2">
+      <p className="font-semibold text-foreground">{label}</p>
+      <p className="numeric">{value}</p>
+    </div>
+  );
+}
+
+function ReadinessFact({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-md border bg-white px-3 py-2">
+      <p className="font-semibold text-foreground">{label}</p>
+      <p>{value}</p>
+    </div>
+  );
+}
+
+function IssueList({ issues, emptyLabel }: { issues: string[]; emptyLabel: string }) {
+  return (
+    <div className="mt-3 flex flex-wrap gap-2 text-xs">
+      {issues.length === 0 ? (
+        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 font-semibold text-emerald-900">
+          {emptyLabel}
+        </span>
+      ) : (
+        issues.map((issue) => (
+          <span key={issue} className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 font-semibold text-amber-950">
+            {issue}
+          </span>
+        ))
+      )}
+    </div>
+  );
+}
+
+function getLineupStatusClassName(status: AdminTestEntryContestReadiness['entrants'][number]['lineupStatus']) {
+  if (status === 'saved') {
+    return 'status-pill bg-emerald-50 text-emerald-900';
+  }
+
+  if (status === 'missing_incomplete') {
+    return 'status-pill bg-amber-50 text-amber-950';
+  }
+
+  return 'status-pill status-pill-muted';
+}
+
+function formatAdminTimestamp(value: string) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return date.toLocaleString([], {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
 }
 
 function Field({ children }: { children: ReactNode }) {

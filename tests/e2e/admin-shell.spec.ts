@@ -41,6 +41,9 @@ test('contest operators get a wide admin-only workspace with actionable navigati
     'href',
     '/admin/eligibility',
   );
+  await expect(page.getByRole('heading', { name: 'Test Entry Readiness' })).toBeVisible();
+  await expect(page.getByText('Read-only operator visibility for free/test entries')).toBeVisible();
+  await expect(page.getByText('Saved records').first()).toBeVisible();
   await expect(page.getByRole('navigation').filter({ has: page.getByRole('link', { name: 'Home' }) })).toHaveCount(0);
 
   const desktopBox = await adminShell.boundingBox();
