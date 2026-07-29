@@ -64,6 +64,7 @@ Use design docs here to guide:
 - placeholder framing
 - empty states
 - results and leaderboard presentation
+- focus, reduced-motion, and interaction polish for existing UI behavior
 
 Use `/spec` and `docs/agent-handoff.md` to decide:
 
@@ -73,3 +74,15 @@ Use `/spec` and `docs/agent-handoff.md` to decide:
 - scoring and tie handling
 - contest lifecycle and results availability
 - admin or provider boundaries
+
+## External Design Skills Usage
+
+External design-engineering skills may be used as review inputs, but they do not override PickRank specs or product behavior.
+
+Current stable defaults:
+
+- Prefer native HTML controls and visible `focus-visible` treatment before adding ARIA or custom widgets.
+- Keep motion restrained, purposeful, interruptible, and reduced-motion aware.
+- Use CSS transitions and existing Tailwind/CSS utilities before adding a motion library.
+- Treat keyboard support as part of the game experience, especially on Build Your Lineup.
+- Keep color-system changes scoped. Do not migrate from the current HSL token system to OKLCH without a separate design-system migration.

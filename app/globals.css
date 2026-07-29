@@ -15,6 +15,10 @@
   --muted-foreground: 216 14% 43%;
   --border: 214 27% 88%;
   --radius: 0.5rem;
+  --focus-ring: 220 88% 53%;
+  --ease-out-ui: cubic-bezier(0.23, 1, 0.32, 1);
+  --duration-press: 140ms;
+  --duration-state: 180ms;
   font-synthesis: none;
 }
 
@@ -28,6 +32,22 @@ body {
     linear-gradient(180deg, hsl(218 47% 12%) 0, hsl(218 34% 17%) 132px, hsl(var(--background)) 132px),
     hsl(var(--background));
   color: hsl(var(--foreground));
+}
+
+:is(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid hsl(var(--focus-ring));
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+  }
 }
 
 .numeric {

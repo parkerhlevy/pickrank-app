@@ -320,6 +320,42 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
     await expect(page.getByText('C.J. Stroud')).toBeVisible();
   });
 
+  signedInTest('ready signed-in users can reorder the ranked lineup with keyboard-accessible controls', async ({ page }) => {
+    await seedEntryStore([
+      {
+        entryId: 'demo-entry-keyboard-rank',
+        contestId: 'week-1-qb-passing-yards',
+        lineupOrder: demoSavedLineup,
+        lastSavedAt: null,
+        source: 'default_assigned',
+        createdAt: '2026-06-22T00:00:00.000Z',
+        updatedAt: '2026-06-22T00:00:00.000Z',
+      },
+    ]);
+    await page.context().addCookies([
+      {
+        name: 'pickrank_demo_entry_state',
+        value: JSON.stringify({ 'week-1-qb-passing-yards': 'lineup' }),
+        url: appUrl,
+      },
+    ]);
+
+    await page.goto('/contests/week-1-qb-passing-yards/lineup');
+    await expect(page.locator('[data-lineup-client-ready="true"]')).toBeVisible();
+    await page.getByRole('button', { name: 'Move Josh Allen down one rank' }).focus();
+    await page.keyboard.press('Enter');
+
+    await expect(page.locator('[data-lineup-player]').first()).toContainText('Joe Burrow');
+    await expect(page.locator('[data-lineup-player]').nth(1)).toContainText('Josh Allen');
+    await expect(page.getByRole('button', { name: 'Save Lineup' })).toBeEnabled();
+
+    await page.getByRole('button', { name: 'Move Josh Allen up one rank' }).focus();
+    await page.keyboard.press('Enter');
+
+    await expect(page.locator('[data-lineup-player]').first()).toContainText('Josh Allen');
+    await expect(page.locator('[data-lineup-player]').nth(1)).toContainText('Joe Burrow');
+  });
+
   signedInTest('locked zero-fee contests block new entries and lineup mutation while preserving the saved lineup', async ({ page }) => {
     await updateContestFixture('week-1-qb-passing-yards', {
       entryFeeCents: 0,

@@ -49,7 +49,7 @@ export function WaitlistForm({ sourcePath = '/', utm = {}, variant = 'section' }
   }
 
   return (
-    <form action={formAction} className="space-y-3" aria-describedby={statusId}>
+    <form action={formAction} className="space-y-3" aria-describedby={statusId} aria-busy={pending ? 'true' : 'false'}>
       <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
         <label className="sr-only" htmlFor={inputId}>
           Email address
@@ -64,7 +64,7 @@ export function WaitlistForm({ sourcePath = '/', utm = {}, variant = 'section' }
           placeholder="you@example.com"
           aria-invalid={state.fieldErrors?.email ? 'true' : 'false'}
           aria-describedby={state.fieldErrors?.email ? `${statusId} ${errorId}` : statusId}
-          className="min-h-11 w-full rounded-lg border border-slate-200 bg-white px-3 py-3 text-sm text-foreground outline-none transition focus:border-blue-500"
+          className="min-h-11 w-full rounded-lg border border-slate-200 bg-white px-3 py-3 text-base text-foreground outline-none transition-[border-color,box-shadow] focus:border-blue-500 focus-visible:ring-2 focus-visible:ring-blue-500/20 sm:text-sm"
         />
         <Button type="submit" size="lg" className="text-sm font-bold" disabled={pending}>
           {pending ? 'Joining...' : 'Join the waitlist'}
@@ -99,7 +99,7 @@ export function WaitlistForm({ sourcePath = '/', utm = {}, variant = 'section' }
           name="consent"
           aria-invalid={state.fieldErrors?.consent ? 'true' : 'false'}
           aria-describedby={state.fieldErrors?.consent ? consentErrorId : undefined}
-          className="mt-1 h-4 w-4 shrink-0 rounded border-slate-300 text-blue-600"
+          className="mt-1 h-4 w-4 shrink-0 rounded border-slate-300 text-blue-600 focus-visible:ring-2 focus-visible:ring-blue-500/20"
         />
         <span>I agree to receive PickRank launch and product update emails. I can unsubscribe anytime.</span>
       </label>

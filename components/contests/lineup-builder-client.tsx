@@ -5,7 +5,9 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   AlertTriangle,
+  ArrowDown,
   ArrowLeft,
+  ArrowUp,
   CheckCircle2,
   Clock,
   GripVertical,
@@ -65,7 +67,6 @@ export function LineupBuilderClient({
 }: LineupBuilderClientProps) {
   const router = useRouter();
   const [lineupState, setLineupState] = useState<LineupState>(initialLineupState);
-  const [previousInitialLineupState, setPreviousInitialLineupState] = useState<LineupState>(initialLineupState);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [showSavedBanner, setShowSavedBanner] = useState(false);
@@ -74,6 +75,10 @@ export function LineupBuilderClient({
   const [draggingPlayer, setDraggingPlayer] = useState<string | null>(null);
   const pendingSaveAndLeaveHref = useRef<string | null>(null);
   const dragSessionRef = useRef<DragSession | null>(null);
+  const cancelLeaveButtonRef = useRef<HTMLButtonElement | null>(null);
+  const pageRootRef = useRef<HTMLDivElement | null>(null);
+  const initialLineupStateKey = JSON.stringify(initialLineupState);
+  const previousInitialLineupStateKey = useRef(initialLineupStateKey);
 
   const hasUnsavedChanges = hasUnsavedLineupChanges(lineupState.selectedOrder, lineupState.savedSelectedOrder);
   const needsMoreSelections = lineupState.selectedOrder.length < 10;
@@ -92,10 +97,18 @@ export function LineupBuilderClient({
         ? 'Your saved lineup is current.'
         : 'This assigned lineup is current until you make a change.';
 
-  if (previousInitialLineupState !== initialLineupState) {
-    setPreviousInitialLineupState(initialLineupState);
+  useEffect(() => {
+    if (previousInitialLineupStateKey.current === initialLineupStateKey) {
+      return;
+    }
+
+    previousInitialLineupStateKey.current = initialLineupStateKey;
     setLineupState(initialLineupState);
-  }
+  }, [initialLineupState, initialLineupStateKey]);
+
+  useEffect(() => {
+    pageRootRef.current?.setAttribute('data-lineup-client-ready', 'true');
+  }, []);
 
   useEffect(() => {
     if (!showSavedBanner) {
@@ -158,6 +171,27 @@ export function LineupBuilderClient({
   }, [hasUnsavedChanges, isEditable]);
 
   useEffect(() => () => clearDragSession(), []);
+
+  useEffect(() => {
+    if (!showLeaveModal) {
+      return;
+    }
+
+    cancelLeaveButtonRef.current?.focus();
+
+    const keydownHandler = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') {
+        return;
+      }
+
+      setPendingHref(null);
+      setShowLeaveModal(false);
+    };
+
+    document.addEventListener('keydown', keydownHandler);
+
+    return () => document.removeEventListener('keydown', keydownHandler);
+  }, [showLeaveModal]);
 
   function clearDragSession() {
     const session = dragSessionRef.current;
@@ -371,9 +405,30 @@ export function LineupBuilderClient({
     });
   }
 
+  function handleMovePlayer(player: string, direction: -1 | 1) {
+    if (!isEditable) {
+      return;
+    }
+
+    setSaveError(null);
+    setLineupState((currentState) => {
+      const fromIndex = currentState.selectedOrder.indexOf(player);
+      const toIndex = fromIndex + direction;
+
+      if (fromIndex === -1 || toIndex < 0 || toIndex >= currentState.selectedOrder.length) {
+        return currentState;
+      }
+
+      return {
+        ...currentState,
+        selectedOrder: moveLineupPlayer(currentState.selectedOrder, fromIndex, toIndex),
+      };
+    });
+  }
+
   return (
     <>
-      <div className="space-y-6 pb-28">
+      <div ref={pageRootRef} className="space-y-6 pb-28" data-lineup-client-ready="false">
         <Button asChild variant="ghost" size="sm" className="-ml-3 justify-start">
           <Link href={`/contests/${contest.id}`}>
             <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
@@ -612,7 +667,7 @@ export function LineupBuilderClient({
                             : 'Saved rank is locked for this contest.'}
                       </p>
                     </div>
-                    <div className="ml-auto flex shrink-0 items-center gap-2">
+                    <div className="ml-auto grid shrink-0 grid-cols-2 gap-1">
                       {isEditable ? (
                         <Button
                           type="button"
@@ -624,6 +679,32 @@ export function LineupBuilderClient({
                         >
                           <X className="h-4 w-4" aria-hidden="true" />
                         </Button>
+                      ) : null}
+                      {isEditable ? (
+                        <>
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            className="h-11 w-11 min-h-11 min-w-11 rounded-full px-0"
+                            onClick={() => handleMovePlayer(name, -1)}
+                            disabled={index === 0}
+                            aria-label={`Move ${name} up one rank`}
+                          >
+                            <ArrowUp className="h-4 w-4" aria-hidden="true" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            className="h-11 w-11 min-h-11 min-w-11 rounded-full px-0"
+                            onClick={() => handleMovePlayer(name, 1)}
+                            disabled={index === lineupState.selectedOrder.length - 1}
+                            aria-label={`Move ${name} down one rank`}
+                          >
+                            <ArrowDown className="h-4 w-4" aria-hidden="true" />
+                          </Button>
+                        </>
                       ) : null}
                       <Button
                         type="button"
@@ -764,9 +845,19 @@ export function LineupBuilderClient({
 
       {showLeaveModal ? (
         <div className="fixed inset-0 z-50 flex items-end bg-slate-950/50 p-4 sm:items-center sm:justify-center">
-          <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-2xl">
-            <h2 className="text-lg font-black">Unsaved lineup changes</h2>
-            <p className="mt-2 text-sm text-muted-foreground">Save before leaving?</p>
+          <div
+            className="w-full max-w-sm rounded-lg bg-white p-5 shadow-2xl"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="unsaved-lineup-dialog-title"
+            aria-describedby="unsaved-lineup-dialog-description"
+          >
+            <h2 id="unsaved-lineup-dialog-title" className="text-lg font-black">
+              Unsaved lineup changes
+            </h2>
+            <p id="unsaved-lineup-dialog-description" className="mt-2 text-sm text-muted-foreground">
+              Save before leaving?
+            </p>
             <div className="mt-4 space-y-2">
               <Button className="w-full" onClick={handleSaveAndLeave}>
                 Save Lineup
@@ -775,6 +866,7 @@ export function LineupBuilderClient({
                 Discard Changes
               </Button>
               <Button
+                ref={cancelLeaveButtonRef}
                 className="w-full"
                 variant="ghost"
                 onClick={() => {
