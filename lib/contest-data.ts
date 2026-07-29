@@ -210,6 +210,10 @@ type ContestEntryCountUpdateOptions = ContestDataOptions & {
   now?: string;
 };
 
+type FreeTestContestLockOptions = TimestampOptions & {
+  lockedByAdminId?: string | null;
+};
+
 export async function listPublicContests(options?: ContestDataOptions) {
   const store = await readContestStore(options);
 
@@ -634,6 +638,112 @@ export async function updateContestStatus(
   }
 
   await updateContestLifecycleStatus(contestId, status, now);
+}
+
+export async function lockFreeTestContestForProof(
+  contestId: string,
+  {
+    now = new Date().toISOString(),
+    lockedByAdminId = null,
+    ...options
+  }: FreeTestContestLockOptions = {},
+) {
+  if (shouldUseFileStore(options)) {
+    const store = await readContestStoreFromFile(options.dataFilePath);
+    const contestIndex = store.contests.findIndex((contest) => contest.id === contestId);
+
+    if (contestIndex === -1) {
+      throw new Error('Contest not found.');
+    }
+
+    const currentContest = store.contests[contestIndex];
+    assertCanLockFreeTestContest(currentContest);
+
+    const nextContest = contestRecordSchema.parse({
+      ...currentContest,
+      status: 'locked',
+      updatedAt: now,
+    });
+    const event = createContestStateEvent({
+      contestId,
+      createdAt: now,
+      fromStatus: currentContest.status,
+      toStatus: 'locked',
+      trigger: 'admin',
+      metadata: {
+        proof_type: 'free_test_lock',
+        no_money: 'true',
+        paid_entries_at_lock: String(currentContest.paidEntryCount),
+        total_entries_at_lock: String(currentContest.entryCount),
+        locked_by_admin_id: lockedByAdminId ?? '',
+      },
+    });
+
+    await writeContestStoreToFile(
+      {
+        ...store,
+        contests: replaceContest(store.contests, contestIndex, nextContest),
+        contestStateEvents: [...store.contestStateEvents, event],
+      },
+      options.dataFilePath,
+    );
+
+    return {
+      contest: toContestSummary(nextContest),
+      event,
+    };
+  }
+
+  const supabase: any = await createSupabaseClient();
+  const currentContest = await getDatabaseContestBySlug(contestId);
+  assertCanLockFreeTestContest(currentContest.record);
+
+  const { error: updateContestError } = await supabase
+    .from('contests')
+    .update({
+      status: 'locked',
+      updated_at: now,
+    } satisfies ContestDbUpdate)
+    .eq('id', currentContest.row.id);
+
+  if (updateContestError) {
+    throw new Error(`Unable to lock free/test contest: ${updateContestError.message}`);
+  }
+
+  const event = createContestStateEvent({
+    contestId,
+    createdAt: now,
+    fromStatus: currentContest.record.status,
+    toStatus: 'locked',
+    trigger: 'admin',
+    metadata: {
+      proof_type: 'free_test_lock',
+      no_money: 'true',
+      paid_entries_at_lock: String(currentContest.record.paidEntryCount),
+      total_entries_at_lock: String(currentContest.record.entryCount),
+      locked_by_admin_id: lockedByAdminId ?? '',
+    },
+  });
+
+  await insertContestStateEventRow(
+    toContestStateEventDbInsert({
+      contestId: currentContest.row.id,
+      createdAt: event.createdAt,
+      fromStatus: event.fromStatus,
+      toStatus: event.toStatus,
+      trigger: event.trigger,
+      metadata: event.metadata,
+    }),
+  );
+
+  return {
+    contest: toContestSummary({
+      ...currentContest.record,
+      status: 'locked',
+      updatedAt: now,
+    }),
+    event,
+  };
 }
 
 export async function runContestLifecycleTransitions(options?: TimestampOptions) {
@@ -1166,6 +1276,28 @@ function buildContestValidationResult(contest: ContestRecord, now: string, valid
 
 function replaceContest(contests: ContestRecord[], contestIndex: number, nextContest: ContestRecord) {
   return contests.map((contest, index) => (index === contestIndex ? nextContest : contest));
+}
+
+function assertCanLockFreeTestContest(contest: ContestRecord) {
+  if (contest.status !== 'open') {
+    throw new Error('Only open contests can be locked through the free/test proof control.');
+  }
+
+  if (contest.visibilityStatus !== 'visible') {
+    throw new Error('Only visible contests can be locked through the free/test proof control.');
+  }
+
+  if (contest.entryFeeCents !== 0) {
+    throw new Error('Only $0 free/test contests can use the free/test proof lock.');
+  }
+
+  if (contest.paidEntryCount > 0) {
+    throw new Error('$0 free/test proof contests must not have paid entries counted.');
+  }
+
+  if (contest.entryCount < 1) {
+    throw new Error('Add at least one free/test entry before locking this proof contest.');
+  }
 }
 
 function resolvePublishedContestStatus(contest: ContestRecord, now: string) {

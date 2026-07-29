@@ -7,6 +7,7 @@ import { z } from 'zod';
 import {
   createDraftContest,
   getContestById,
+  lockFreeTestContestForProof,
   publishContest,
   saveContestSlate,
   validateDraftContest,
@@ -47,8 +48,13 @@ const finalizeContestSchema = z.object({
   confirmationText: z.string().trim().min(1, 'Type FINAL to confirm the scoring publish step.'),
 });
 
+const lockFreeTestContestSchema = z.object({
+  contestId: z.string().trim().min(1, 'Contest not found.'),
+  confirmationText: z.string().trim().min(1, 'Type LOCK TEST to confirm this proof lock.'),
+});
+
 function buildAdminContestsRedirect(
-  status: 'created' | 'saved' | 'validated' | 'published' | 'fetched' | 'finalized' | 'error',
+  status: 'created' | 'saved' | 'validated' | 'published' | 'locked' | 'fetched' | 'finalized' | 'error',
   message?: string,
 ) {
   const params = new URLSearchParams({ status });
@@ -186,6 +192,45 @@ export async function publishContestAction(formData: FormData) {
     }
 
     const message = error instanceof Error ? error.message : 'Unable to publish this contest right now.';
+
+    redirect(buildAdminContestsRedirect('error', message));
+  }
+}
+
+export async function lockFreeTestContestAction(formData: FormData) {
+  const access = await requireContestOperator('/admin/contests');
+  const parsed = lockFreeTestContestSchema.safeParse({
+    contestId: String(formData.get('contestId') || ''),
+    confirmationText: String(formData.get('confirmationText') || ''),
+  });
+
+  if (!parsed.success) {
+    redirect(buildAdminContestsRedirect('error', parsed.error.issues[0]?.message || 'Unable to lock this proof contest.'));
+  }
+
+  if (parsed.data.confirmationText !== 'LOCK TEST') {
+    redirect(buildAdminContestsRedirect('error', 'Type LOCK TEST to confirm this free/test proof lock.'));
+  }
+
+  try {
+    const result = await lockFreeTestContestForProof(parsed.data.contestId, {
+      lockedByAdminId: access.user?.id ?? null,
+    });
+
+    revalidateAdminContestPaths(result.contest.id);
+
+    redirect(
+      buildAdminContestsRedirect(
+        'locked',
+        `${result.contest.title} is locked for the no-money free/test proof. New entries and lineup edits are now blocked.`,
+      ),
+    );
+  } catch (error) {
+    if (isRedirectError(error)) {
+      throw error;
+    }
+
+    const message = error instanceof Error ? error.message : 'Unable to lock this proof contest right now.';
 
     redirect(buildAdminContestsRedirect('error', message));
   }

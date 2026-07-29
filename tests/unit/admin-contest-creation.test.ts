@@ -4,6 +4,7 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   createDraftContest,
+  lockFreeTestContestForProof,
   publishContest,
   runContestLifecycleTransitions,
   saveContestSlate,
@@ -193,6 +194,118 @@ describe('admin contest draft creation', () => {
     expect(publishResult.contest.publishedByAdminId).toBe('operator-3');
   });
 
+  it('locks an open visible zero-fee proof contest and records no-money event metadata', async () => {
+    const tempDirectory = await mkdtemp(path.join(os.tmpdir(), 'pickrank-contests-'));
+    const dataFilePath = path.join(tempDirectory, 'contests.json');
+
+    await writeFile(dataFilePath, JSON.stringify({ version: 1, contests: [], contestStateEvents: [] }, null, 2));
+
+    const createdContest = await createDraftContest(
+      {
+        title: 'Week 4 QB Passing Yards Free Test',
+        description: 'Pick and rank your top 10 quarterbacks by passing yards.',
+        season: 2026,
+        week: 4,
+        entryFeeCents: 0,
+        entryOpenTimeIso: '2026-09-24T12:00:00.000Z',
+        lockTimeIso: '2026-09-25T00:15:00.000Z',
+        createdByAdminId: 'operator-1',
+      },
+      { dataFilePath },
+    );
+
+    await saveContestSlate(createdContest.id, buildValidSlatePlayers('2026-09-25T00:20:00.000Z'), {
+      dataFilePath,
+    });
+    await publishContest(createdContest.id, 'operator-3', {
+      dataFilePath,
+      now: '2026-09-24T13:00:00.000Z',
+    });
+
+    await updateStoredContest(dataFilePath, createdContest.id, {
+      entryCount: 1,
+      paidEntryCount: 0,
+    });
+
+    const lockedResult = await lockFreeTestContestForProof(createdContest.id, {
+      dataFilePath,
+      lockedByAdminId: 'operator-4',
+      now: '2026-09-24T14:00:00.000Z',
+    });
+
+    expect(lockedResult.contest.contestStatus).toBe('locked');
+    expect(lockedResult.contest.entryFeeCents).toBe(0);
+    expect(lockedResult.contest.paidEntryCount).toBe(0);
+    expect(lockedResult.event).toEqual(
+      expect.objectContaining({
+        contestId: createdContest.id,
+        fromStatus: 'open',
+        toStatus: 'locked',
+        trigger: 'admin',
+        metadata: expect.objectContaining({
+          proof_type: 'free_test_lock',
+          no_money: 'true',
+          paid_entries_at_lock: '0',
+          total_entries_at_lock: '1',
+          locked_by_admin_id: 'operator-4',
+        }),
+      }),
+    );
+
+    const savedStore = JSON.parse(await readFile(dataFilePath, 'utf8')) as {
+      contests: Array<{ id: string; status: string; paidEntryCount: number }>;
+      contestStateEvents: Array<{ toStatus: string; metadata: Record<string, string> }>;
+    };
+
+    expect(savedStore.contests.find((contest) => contest.id === createdContest.id)).toMatchObject({
+      status: 'locked',
+      paidEntryCount: 0,
+    });
+    expect(savedStore.contestStateEvents.at(-1)).toMatchObject({
+      toStatus: 'locked',
+      metadata: expect.objectContaining({ proof_type: 'free_test_lock' }),
+    });
+  });
+
+  it('rejects free/test proof lock for paid, non-open, or no-entry contests', async () => {
+    const tempDirectory = await mkdtemp(path.join(os.tmpdir(), 'pickrank-contests-'));
+    const dataFilePath = path.join(tempDirectory, 'contests.json');
+
+    await writeFile(dataFilePath, JSON.stringify({ version: 1, contests: [], contestStateEvents: [] }, null, 2));
+
+    const paidContest = await createAndPublishContest({
+      dataFilePath,
+      title: 'Week 5 QB Passing Yards Paid',
+      entryFeeCents: 500,
+      entryCount: 1,
+      now: '2026-10-01T13:00:00.000Z',
+    });
+    const scheduledContest = await createAndPublishContest({
+      dataFilePath,
+      title: 'Week 6 QB Passing Yards Free Test',
+      entryFeeCents: 0,
+      entryCount: 1,
+      now: '2026-10-01T00:00:00.000Z',
+    });
+    const noEntryContest = await createAndPublishContest({
+      dataFilePath,
+      title: 'Week 7 QB Passing Yards Free Test',
+      entryFeeCents: 0,
+      entryCount: 0,
+      now: '2026-10-15T13:00:00.000Z',
+    });
+
+    await expect(lockFreeTestContestForProof(paidContest.id, { dataFilePath })).rejects.toThrow(
+      'Only $0 free/test contests can use the free/test proof lock.',
+    );
+    await expect(lockFreeTestContestForProof(scheduledContest.id, { dataFilePath })).rejects.toThrow(
+      'Only open contests can be locked through the free/test proof control.',
+    );
+    await expect(lockFreeTestContestForProof(noEntryContest.id, { dataFilePath })).rejects.toThrow(
+      'Add at least one free/test entry before locking this proof contest.',
+    );
+  });
+
   it('moves contests through scheduled to open and open to locked without double transitions', async () => {
     const tempDirectory = await mkdtemp(path.join(os.tmpdir(), 'pickrank-contests-'));
     const dataFilePath = path.join(tempDirectory, 'contests.json');
@@ -269,6 +382,66 @@ describe('admin contest draft creation', () => {
     expect(repeatedResult.events).toHaveLength(2);
   });
 });
+
+async function createAndPublishContest({
+  dataFilePath,
+  title,
+  entryFeeCents,
+  entryCount,
+  now,
+}: {
+  dataFilePath: string;
+  title: string;
+  entryFeeCents: number;
+  entryCount: number;
+  now: string;
+}) {
+  const createdContest = await createDraftContest(
+    {
+      title,
+      description: 'Pick and rank your top 10 quarterbacks by passing yards.',
+      season: 2026,
+      week: 5,
+      entryFeeCents,
+      entryOpenTimeIso: '2026-10-01T12:00:00.000Z',
+      lockTimeIso: '2026-10-02T00:15:00.000Z',
+      createdByAdminId: 'operator-1',
+    },
+    { dataFilePath },
+  );
+
+  await saveContestSlate(createdContest.id, buildValidSlatePlayers('2026-10-02T00:20:00.000Z'), {
+    dataFilePath,
+  });
+  const publishResult = await publishContest(createdContest.id, 'operator-2', {
+    dataFilePath,
+    now,
+  });
+
+  await updateStoredContest(dataFilePath, createdContest.id, {
+    entryCount,
+    paidEntryCount: entryFeeCents > 0 ? entryCount : 0,
+  });
+
+  return publishResult.contest;
+}
+
+async function updateStoredContest(dataFilePath: string, contestId: string, updates: Record<string, unknown>) {
+  const store = JSON.parse(await readFile(dataFilePath, 'utf8')) as {
+    contests: Array<Record<string, unknown>>;
+  };
+
+  store.contests = store.contests.map((contest) =>
+    contest.id === contestId
+      ? {
+          ...contest,
+          ...updates,
+        }
+      : contest,
+  );
+
+  await writeFile(dataFilePath, JSON.stringify(store, null, 2), 'utf8');
+}
 
 function buildValidSlatePlayers(gameStartTime: string): ContestSlatePlayer[] {
   const rows = [

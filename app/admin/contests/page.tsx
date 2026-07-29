@@ -5,6 +5,7 @@ import {
   createDraftContestAction,
   fetchContestStatSnapshotAction,
   finalizeContestAction,
+  lockFreeTestContestAction,
   publishContestAction,
   refreshReplayValidationContestSnapshotAction,
   saveContestSlateAction,
@@ -68,20 +69,20 @@ export default async function AdminContestsPage({
       {message ? (
         <Card
           className={
-            status === 'created' || status === 'saved' || status === 'validated' || status === 'published' || status === 'fetched' || status === 'finalized'
+            status === 'created' || status === 'saved' || status === 'validated' || status === 'published' || status === 'locked' || status === 'fetched' || status === 'finalized'
               ? 'border-emerald-200 bg-emerald-50'
               : 'border-amber-200 bg-amber-50'
           }
         >
           <CardContent className="flex items-start gap-3 pt-6 text-sm">
-            {status === 'created' || status === 'saved' || status === 'validated' || status === 'published' || status === 'fetched' || status === 'finalized' ? (
+            {status === 'created' || status === 'saved' || status === 'validated' || status === 'published' || status === 'locked' || status === 'fetched' || status === 'finalized' ? (
               <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-700" aria-hidden="true" />
             ) : (
               <AlertCircle className="mt-0.5 h-4 w-4 text-amber-700" aria-hidden="true" />
             )}
             <p
               className={
-                status === 'created' || status === 'saved' || status === 'validated' || status === 'published' || status === 'fetched' || status === 'finalized'
+                status === 'created' || status === 'saved' || status === 'validated' || status === 'published' || status === 'locked' || status === 'fetched' || status === 'finalized'
                   ? 'text-emerald-900'
                   : 'text-amber-900'
               }
@@ -342,6 +343,31 @@ export default async function AdminContestsPage({
                       </Button>
                     </form>
                   </div>
+                  {canShowFreeTestLockControl(contest) ? (
+                    <form action={lockFreeTestContestAction} className="mt-3 space-y-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
+                      <input type="hidden" name="contestId" value={contest.id} />
+                      <div>
+                        <p className="text-sm font-semibold text-amber-950">Free/Test Proof Lock</p>
+                        <p className="mt-1 text-xs leading-5 text-amber-900">
+                          Operator-only control for the no-money proof loop. This locks the $0 contest, blocks new
+                          entries, and makes saved lineups read-only without running payment, payout, wallet, KYC, or
+                          provider automation.
+                        </p>
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor={`lockConfirmationText-${contest.id}`}>Type LOCK TEST to confirm</Label>
+                        <TextInput
+                          id={`lockConfirmationText-${contest.id}`}
+                          name="confirmationText"
+                          placeholder="LOCK TEST"
+                          required
+                        />
+                      </div>
+                      <Button type="submit" variant="secondary" className="w-full">
+                        Lock Free/Test Contest
+                      </Button>
+                    </form>
+                  ) : null}
                   {canFinalizeContestStatus(contest.contestStatus) ? (
                     <form action={finalizeContestAction} className="mt-3 space-y-3 rounded-lg border bg-slate-50 p-3">
                       <input type="hidden" name="contestId" value={contest.id} />
@@ -413,6 +439,10 @@ export default async function AdminContestsPage({
       </div>
     </div>
   );
+}
+
+function canShowFreeTestLockControl(contest: ContestSummary) {
+  return contest.visibilityStatus === 'visible' && contest.contestStatus === 'open' && contest.entryFeeCents === 0;
 }
 
 function TestEntryReadinessCard({ readiness }: { readiness: AdminTestEntryContestReadiness[] }) {

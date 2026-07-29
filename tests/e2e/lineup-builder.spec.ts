@@ -20,12 +20,27 @@ const demoSavedLineup = [
   'Brock Purdy',
 ];
 
+test.describe.configure({ mode: 'serial' });
+
 const internalTestEligibilityCookie = JSON.stringify({
   email: 'playwright@pickrank.test',
   username: 'playwright_user',
   displayName: 'playwright_user',
   emailConfirmedAt: '2026-06-29T00:00:00.000Z',
   userId: defaultE2eViewerUserId,
+  ageConfirmed: true,
+  jurisdiction: 'CA',
+  termsAcceptedAt: '2026-06-29T00:00:00.000Z',
+  privacyPolicyAcceptedAt: '2026-06-29T00:00:00.000Z',
+  eligibilityStatus: 'eligible_for_internal_testing',
+});
+
+const secondInternalTestEligibilityCookie = JSON.stringify({
+  email: 'second-playwright@pickrank.test',
+  username: 'second_playwright_user',
+  displayName: 'second_playwright_user',
+  emailConfirmedAt: '2026-06-29T00:00:00.000Z',
+  userId: '00000000-0000-4000-8000-000000000222',
   ageConfirmed: true,
   jurisdiction: 'CA',
   termsAcceptedAt: '2026-06-29T00:00:00.000Z',
@@ -41,6 +56,23 @@ async function allowControlledTestEntry(page: Page) {
       url: appUrl,
     },
   ]);
+}
+
+async function updateContestFixture(contestId: string, updates: Record<string, unknown>) {
+  const contestStore = JSON.parse(await readFile(contestStorePath, 'utf8')) as {
+    contests: Array<Record<string, unknown>>;
+  };
+
+  contestStore.contests = contestStore.contests.map((contest) =>
+    contest.id === contestId
+      ? {
+          ...contest,
+          ...updates,
+        }
+      : contest,
+  );
+
+  await writeFile(contestStorePath, `${JSON.stringify(contestStore, null, 2)}\n`, 'utf8');
 }
 
 async function readContestCounts(contestId: string) {
@@ -182,7 +214,7 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
     const confirmEntryButton = page.getByRole('button', { name: 'Confirm Entry' });
     await expect(confirmEntryButton).toBeVisible();
     await confirmEntryButton.click();
-    await expect(page).toHaveURL(/\/contests\/week-1-qb-passing-yards\/success$/);
+    await expect(page).toHaveURL(/\/contests\/week-1-qb-passing-yards\/progress\?stage=entered$/);
     await expect(page.getByText('Step 3 of 4')).toBeVisible();
     await expect(page.getByRole('link', { name: 'Continue to Build Your Lineup' })).toBeVisible();
 
@@ -201,6 +233,13 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
 
   signedInTest('controlled test entry creates one default lineup and routes to Build Your Lineup without paid count movement', async ({ page }) => {
     await allowControlledTestEntry(page);
+    await updateContestFixture('week-1-qb-passing-yards', {
+      entryFeeCents: 0,
+      entryCount: 0,
+      paidEntryCount: 0,
+      status: 'open',
+      visibilityStatus: 'visible',
+    });
     const beforeCounts = await readContestCounts('week-1-qb-passing-yards');
 
     await page.context().addCookies([
@@ -214,7 +253,7 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
     await page.goto('/contests/week-1-qb-passing-yards/payment');
     await page.getByRole('button', { name: 'Confirm Entry' }).click();
 
-    await expect(page).toHaveURL(/\/contests\/week-1-qb-passing-yards\/success$/);
+    await expect(page).toHaveURL(/\/contests\/week-1-qb-passing-yards\/progress\?stage=entered$/);
     await page.getByRole('link', { name: 'Continue to Build Your Lineup' }).click();
     await expect(page).toHaveURL(/\/contests\/week-1-qb-passing-yards\/lineup$/);
     await expect(page.locator('h1').filter({ hasText: 'Build Your Lineup' })).toBeVisible();
@@ -237,14 +276,14 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
     expect(savedEntries[0]?.lineupOrder).toEqual(demoSavedLineup);
     expect(savedEntries[0]?.source).toBe('default_assigned');
     expect(afterCounts.entryCount).toBe(beforeCounts.entryCount + 1);
-    expect(afterCounts.paidEntryCount).toBe(beforeCounts.paidEntryCount);
+    expect(afterCounts.paidEntryCount).toBe(0);
 
     await page.goto('/contests/week-1-qb-passing-yards/payment');
-    await expect(page).toHaveURL(/\/contests\/week-1-qb-passing-yards\/success$/);
+    await expect(page).toHaveURL(/\/contests\/week-1-qb-passing-yards\/lineup$/);
     const reusedCounts = await readContestCounts('week-1-qb-passing-yards');
 
     expect(reusedCounts.entryCount).toBe(afterCounts.entryCount);
-    expect(reusedCounts.paidEntryCount).toBe(beforeCounts.paidEntryCount);
+    expect(reusedCounts.paidEntryCount).toBe(0);
   });
 
   signedInTest('ready signed-in users can open the lineup builder from the protected route', async ({ page }) => {
@@ -281,11 +320,18 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
     await expect(page.getByText('C.J. Stroud')).toBeVisible();
   });
 
-  signedInTest('locked contests show the saved lineup in read-only mode', async ({ page }) => {
+  signedInTest('locked zero-fee contests block new entries and lineup mutation while preserving the saved lineup', async ({ page }) => {
+    await updateContestFixture('week-1-qb-passing-yards', {
+      entryFeeCents: 0,
+      entryCount: 1,
+      paidEntryCount: 0,
+      status: 'locked',
+      visibilityStatus: 'visible',
+    });
     await seedEntryStore([
       {
-        entryId: 'demo-entry-locked',
-        contestId: 'week-1-sunday-qb-passing-yards',
+        entryId: 'demo-entry-free-test-locked',
+        contestId: 'week-1-qb-passing-yards',
         lineupOrder: ['Joe Burrow', 'Josh Allen', 'Derek Carr', 'Kirk Cousins', 'Justin Herbert', 'Jalen Hurts', 'Lamar Jackson', 'Jordan Love', 'Dak Prescott', 'Brock Purdy'],
         lastSavedAt: '2026-06-19T10:05:00.000Z',
         source: 'user_saved',
@@ -296,16 +342,55 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
     await page.context().addCookies([
       {
         name: 'pickrank_demo_entry_state',
-        value: JSON.stringify({ 'week-1-sunday-qb-passing-yards': 'lineup' }),
+        value: JSON.stringify({ 'week-1-qb-passing-yards': 'lineup' }),
         url: appUrl,
       },
     ]);
 
-    await page.goto('/contests/week-1-sunday-qb-passing-yards/lineup');
+    await page.goto('/contests/week-1-qb-passing-yards/lineup');
 
     await expect(page.getByText('Lineup Locked')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Locked - Read Only' })).toBeDisabled();
     await expect(page.getByRole('button', { name: 'Joe Burrow lineup position is locked' })).toBeDisabled();
+
+    const saveAttempt = await page.evaluate(async (order) => {
+      const response = await fetch('/api/contests/week-1-qb-passing-yards/lineup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ order }),
+      });
+      const payload = await response.json();
+
+      return {
+        status: response.status,
+        message: payload.message,
+      };
+    }, demoSavedLineup);
+
+    expect(saveAttempt).toEqual({
+      status: 409,
+      message: 'This contest is locked, so the lineup is now read-only.',
+    });
+
+    await page.context().addCookies([
+      {
+        name: e2eAuthCookieName,
+        value: secondInternalTestEligibilityCookie,
+        url: appUrl,
+      },
+      {
+        name: 'pickrank_demo_entry_state',
+        value: JSON.stringify({ 'week-1-qb-passing-yards': 'payment-review' }),
+        url: appUrl,
+      },
+    ]);
+
+    await page.goto('/contests/week-1-qb-passing-yards/payment');
+    await page.getByRole('button', { name: 'Confirm Entry' }).click();
+    await expect(page).toHaveURL(/\/contests\/week-1-qb-passing-yards\?status=error/);
+    await expect(page).toHaveURL(/message=This(%20|\+)contest(%20|\+)is(%20|\+)no(%20|\+)longer(%20|\+)accepting(%20|\+)entries/);
   });
 
   signedInTest('ready signed-in users see the full 15-player lineup pool on the builder screen', async ({ page }) => {

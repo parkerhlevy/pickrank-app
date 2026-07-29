@@ -9,6 +9,7 @@ const entryStorePath = path.join(process.cwd(), 'data', 'contest-entries.json');
 const resultsStorePath = path.join(process.cwd(), 'data', 'contest-results.json');
 const providerStorePath = path.join(process.cwd(), 'data', 'provider-stats.json');
 const targetContestId = 'week-1-sunday-qb-passing-yards';
+const freeProofContestId = 'week-1-qb-passing-yards';
 type SeedEntry = {
   entryId: string;
   contestId: string;
@@ -221,6 +222,13 @@ const sharedTieEntries = withSavedEntryMetadata([
     ],
   },
 ]);
+
+const freeProofEntries = withSavedEntryMetadata(
+  seededEntries.map((entry) => ({
+    ...entry,
+    contestId: freeProofContestId,
+  })),
+);
 
 let originalContestStore = '';
 let originalEntryStore = '';
@@ -449,6 +457,127 @@ test('finalizes the locked contest from admin and keeps leaderboard/results surf
   await operatorContext.close();
   await entrantContext.close();
   await nonEntrantContext.close();
+});
+
+test('locks and finalizes the same zero-fee proof contest without paid count or payout movement', async ({
+  browser,
+}) => {
+  await updateContestFixture(freeProofContestId, {
+    entryFeeCents: 0,
+    entryCount: freeProofEntries.length,
+    paidEntryCount: 0,
+    status: 'open',
+    visibilityStatus: 'visible',
+  });
+  await writeSeededEntries(freeProofEntries);
+
+  const operatorContext = await createSignedInContext(browser, operatorCookieValue);
+  const operatorPage = await operatorContext.newPage();
+
+  await operatorPage.goto('/admin/contests');
+  await expect(operatorPage.getByRole('heading', { name: 'Contest Setup' })).toBeVisible();
+  await expect(operatorPage.locator(`#lockConfirmationText-${freeProofContestId}`)).toBeVisible();
+  await operatorPage.locator(`#lockConfirmationText-${freeProofContestId}`).fill('LOCK TEST');
+  await operatorPage.getByRole('button', { name: 'Lock Free/Test Contest' }).click();
+
+  await expect(operatorPage).toHaveURL(/status=locked/);
+  await expect(
+    operatorPage.getByText('Week 1 QB Passing Yards is locked for the no-money free/test proof.'),
+  ).toBeVisible();
+
+  let contestStore = JSON.parse(await readFile(contestStorePath, 'utf8')) as {
+    contests: Array<{ id: string; status: string; entryFeeCents: number; entryCount: number; paidEntryCount: number }>;
+    contestStateEvents: Array<{ contestId: string; toStatus: string; metadata: Record<string, string> }>;
+  };
+  const lockedContest = contestStore.contests.find((contest) => contest.id === freeProofContestId);
+
+  expect(lockedContest).toMatchObject({
+    status: 'locked',
+    entryFeeCents: 0,
+    entryCount: freeProofEntries.length,
+    paidEntryCount: 0,
+  });
+  expect(contestStore.contestStateEvents.at(-1)).toMatchObject({
+    contestId: freeProofContestId,
+    toStatus: 'locked',
+    metadata: expect.objectContaining({
+      proof_type: 'free_test_lock',
+      no_money: 'true',
+      paid_entries_at_lock: '0',
+    }),
+  });
+
+  const freeProofFinalizationForm = operatorPage.locator('form').filter({
+    has: operatorPage.locator(`#finalStatRows-${freeProofContestId}`),
+  });
+
+  await freeProofFinalizationForm.locator(`#finalStatRows-${freeProofContestId}`).fill(finalStatRows);
+  await freeProofFinalizationForm.locator(`#confirmationText-${freeProofContestId}`).fill('FINAL');
+  await freeProofFinalizationForm.getByRole('button', { name: 'Run Final Scoring' }).click();
+
+  await expect(operatorPage).toHaveURL(/status=finalized/);
+  await expect(
+    operatorPage.getByText('Week 1 QB Passing Yards final results are now published from the confirmed QB stats.'),
+  ).toBeVisible();
+
+  contestStore = JSON.parse(await readFile(contestStorePath, 'utf8')) as {
+    contests: Array<{ id: string; status: string; entryFeeCents: number; entryCount: number; paidEntryCount: number }>;
+    contestStateEvents: Array<{ contestId: string; toStatus: string; metadata: Record<string, string> }>;
+  };
+  expect(contestStore.contests.find((contest) => contest.id === freeProofContestId)).toMatchObject({
+    status: 'final',
+    entryFeeCents: 0,
+    entryCount: freeProofEntries.length,
+    paidEntryCount: 0,
+  });
+
+  const persistedResultsStore = JSON.parse(await readFile(resultsStorePath, 'utf8')) as {
+    contests: Array<{
+      contestId: string;
+      prizePoolCents: number;
+      payoutSlots: Array<{ amountCents: number }>;
+      entryResults: Array<{
+        userId: string;
+        finalRankDisplay: string;
+        totalScore: number;
+        payoutAmountCents: number;
+      }>;
+      entryPlayerScores: Array<{
+        entryId: string;
+        playerId: string;
+      }>;
+    }>;
+  };
+  const persistedFreeResults = persistedResultsStore.contests.find((contest) => contest.contestId === freeProofContestId);
+
+  expect(persistedFreeResults).toBeTruthy();
+  expect(persistedFreeResults?.prizePoolCents).toBe(0);
+  expect(persistedFreeResults?.payoutSlots.every((slot) => slot.amountCents === 0)).toBe(true);
+  expect(persistedFreeResults?.entryResults).toHaveLength(freeProofEntries.length);
+  expect(persistedFreeResults?.entryResults.every((entry) => entry.payoutAmountCents === 0)).toBe(true);
+  expect(persistedFreeResults?.entryPlayerScores).toHaveLength(freeProofEntries.length * 10);
+  const entrantFinalResult = persistedFreeResults!.entryResults.find((entry) => entry.userId === defaultE2eViewerUserId);
+
+  expect(entrantFinalResult).toBeTruthy();
+
+  const entrantContext = await createSignedInContext(browser, entrantCookieValue);
+  const entrantPage = await entrantContext.newPage();
+
+  await entrantPage.goto(`/contests/${freeProofContestId}`);
+  await expect(entrantPage.getByRole('link', { name: 'View Results' })).toBeVisible();
+
+  await entrantPage.goto(`/leaderboard?contest=${freeProofContestId}`);
+  await expect(entrantPage.getByRole('heading', { name: 'Final Leaderboard' })).toBeVisible();
+  await expect(entrantPage.getByText('No payout').first()).toBeVisible();
+
+  await entrantPage.goto(`/contests/${freeProofContestId}/results`);
+  await expect(entrantPage.getByText(`You finished ${entrantFinalResult!.finalRankDisplay}`)).toBeVisible();
+  await expect(entrantPage.getByText(`${entrantFinalResult!.totalScore} pts`)).toBeVisible();
+  await expect(entrantPage.getByText('$0.00').first()).toBeVisible();
+  await expect(entrantPage.getByText('No payout').first()).toBeVisible();
+
+  await operatorContext.close();
+  await entrantContext.close();
 });
 
 test('reruns finalization after a stat correction and replaces saved rows without duplicate results drift', async ({
@@ -765,4 +894,21 @@ function withSavedEntryMetadata(entries: SeedEntry[]) {
 
 async function writeSeededEntries(entries: typeof seededEntries) {
   await writeFile(entryStorePath, `${JSON.stringify({ version: 1, entries }, null, 2)}\n`, 'utf8');
+}
+
+async function updateContestFixture(contestId: string, updates: Record<string, unknown>) {
+  const contestStore = JSON.parse(await readFile(contestStorePath, 'utf8')) as {
+    contests: Array<Record<string, unknown>>;
+  };
+
+  contestStore.contests = contestStore.contests.map((contest) =>
+    contest.id === contestId
+      ? {
+          ...contest,
+          ...updates,
+        }
+      : contest,
+  );
+
+  await writeFile(contestStorePath, `${JSON.stringify(contestStore, null, 2)}\n`, 'utf8');
 }
