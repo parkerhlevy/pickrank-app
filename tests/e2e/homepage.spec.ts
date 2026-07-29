@@ -59,3 +59,16 @@ test('auth remains available as a separate protected-flow route', async ({ page 
 
   await expect(page.getByRole('heading', { name: 'Account Access' })).toBeVisible();
 });
+
+test('logged-out leaderboard contest route stays public and final-only', async ({ page }) => {
+  await page.goto('/leaderboard?contest=week-1-qb-passing-yards');
+
+  await expect(page.getByRole('heading', { name: 'Leaderboard Opens After Final Scoring' })).toBeVisible();
+  await expect(
+    page.getByText('This contest is not final yet. Final standings appear only after all games are complete').first(),
+  ).toBeVisible();
+  await expect(page.getByRole('link', { name: 'View Contest Details' })).toHaveAttribute(
+    'href',
+    '/contests/week-1-qb-passing-yards',
+  );
+});

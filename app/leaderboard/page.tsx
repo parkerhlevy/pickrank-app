@@ -1,11 +1,16 @@
 import Link from 'next/link';
 import { Medal, Trophy } from 'lucide-react';
+import { redirect } from 'next/navigation';
 import { ContestBoardStagePanel, ContestJourneyRail } from '@/components/contests/contest-board-preview';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { getContestById, listPublicFinalContests } from '@/lib/contest-data';
 import { getContestLeaderboard } from '@/lib/contest-results';
 import { getLeaderboardPlaceholderState, hasPublishedContestResults } from '@/lib/leaderboard-state';
+import {
+  buildSessionExpiredHref,
+  isInvalidSupabaseRefreshTokenError,
+} from '@/lib/supabase/session-recovery';
 
 export default async function LeaderboardPage({
   searchParams,
@@ -14,6 +19,19 @@ export default async function LeaderboardPage({
 }) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const requestedContestId = resolvedSearchParams?.contest;
+
+  try {
+    return await renderLeaderboardPage(requestedContestId);
+  } catch (error) {
+    if (isInvalidSupabaseRefreshTokenError(error)) {
+      redirect(buildSessionExpiredHref(buildLeaderboardReturnPath(requestedContestId)));
+    }
+
+    throw error;
+  }
+}
+
+async function renderLeaderboardPage(requestedContestId?: string) {
   const finalContests = await listPublicFinalContests();
   const fallbackContest = finalContests[0] ?? null;
   const contestId = requestedContestId || fallbackContest?.id;
@@ -46,7 +64,6 @@ export default async function LeaderboardPage({
       </div>
     );
   }
-
   const contest = await getContestById(contestId);
   const hasPublishedResults = hasPublishedContestResults(contest.contestStatus);
   const leaderboard = hasPublishedResults ? await getContestLeaderboard(contestId) : null;
@@ -249,4 +266,8 @@ export default async function LeaderboardPage({
       )}
     </div>
   );
+}
+
+function buildLeaderboardReturnPath(contestId?: string) {
+  return contestId ? `/leaderboard?${new URLSearchParams({ contest: contestId }).toString()}` : '/leaderboard';
 }

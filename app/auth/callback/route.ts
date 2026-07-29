@@ -3,6 +3,11 @@ import { authReturnCookieName } from '@/lib/auth-return';
 import { defaultReturnPath, normalizeReturnPath } from '@/lib/auth-profile';
 import { getAppUrl, getRequestOrigin, hasBrowserSupabaseConfig } from '@/lib/env';
 import { createClient } from '@/lib/supabase/server';
+import {
+  buildExpiredSessionRedirectPath,
+  clearSupabaseSessionCookies,
+  isInvalidSupabaseRefreshTokenError,
+} from '@/lib/supabase/session-recovery';
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
@@ -18,9 +23,30 @@ export async function GET(request: NextRequest) {
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.exchangeCodeForSession(authCode);
+  let error: { message: string } | null = null;
+
+  try {
+    const result = await supabase.auth.exchangeCodeForSession(authCode);
+    error = result.error;
+  } catch (caughtError) {
+    if (isInvalidSupabaseRefreshTokenError(caughtError)) {
+      const response = NextResponse.redirect(new URL(buildExpiredSessionRedirectPath(next, 'auth'), requestOrigin));
+      clearSupabaseSessionCookies(response, request.cookies);
+
+      return response;
+    }
+
+    throw caughtError;
+  }
 
   if (error) {
+    if (isInvalidSupabaseRefreshTokenError(error)) {
+      const response = NextResponse.redirect(new URL(buildExpiredSessionRedirectPath(next, 'auth'), requestOrigin));
+      clearSupabaseSessionCookies(response, request.cookies);
+
+      return response;
+    }
+
     const redirectUrl = new URL('/auth', requestOrigin);
     redirectUrl.searchParams.set('status', 'error');
     redirectUrl.searchParams.set('next', next);

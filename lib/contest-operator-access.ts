@@ -4,6 +4,10 @@ import { redirect } from 'next/navigation';
 import { buildAuthHref, buildProfileHref, getProfileIdentity } from '@/lib/auth-profile';
 import { hasBrowserSupabaseConfig } from '@/lib/env';
 import { createClient } from '@/lib/supabase/server';
+import {
+  buildSessionExpiredHref,
+  isInvalidSupabaseRefreshTokenError,
+} from '@/lib/supabase/session-recovery';
 import { e2eAuthCookieName, getE2eAuthFixture } from '@/lib/viewer-identity';
 
 export const contestOperatorRoleSlug = 'contest_operator';
@@ -13,6 +17,13 @@ type ContestOperatorAccessState = {
   hasSupabaseConfig: boolean;
   roleSlugs: string[];
   user: User | null;
+};
+
+type CurrentOperatorRoles = {
+  user: User | null;
+  roleSlugs: string[];
+  isContestOperator: boolean;
+  hasInvalidSession: boolean;
 };
 
 type ContestOperatorAccessDecision =
@@ -65,7 +76,7 @@ export function getContestOperatorAccessDecision({
   };
 }
 
-export async function getCurrentOperatorRoles() {
+export async function getCurrentOperatorRoles(): Promise<CurrentOperatorRoles> {
   const cookieStore = await cookies();
   const e2eFixture = getE2eAuthFixture(cookieStore.get(e2eAuthCookieName)?.value);
 
@@ -82,6 +93,7 @@ export async function getCurrentOperatorRoles() {
       } as unknown as User,
       roleSlugs: e2eFixture.roleSlugs,
       isContestOperator: e2eFixture.roleSlugs.includes(contestOperatorRoleSlug),
+      hasInvalidSession: false,
     };
   }
 
@@ -90,6 +102,7 @@ export async function getCurrentOperatorRoles() {
       user: null,
       roleSlugs: [] as string[],
       isContestOperator: false,
+      hasInvalidSession: false,
     };
   }
 
@@ -104,6 +117,7 @@ export async function getCurrentOperatorRoles() {
         user: null,
         roleSlugs: [] as string[],
         isContestOperator: false,
+        hasInvalidSession: false,
       };
     }
 
@@ -124,18 +138,34 @@ export async function getCurrentOperatorRoles() {
       user,
       roleSlugs,
       isContestOperator: roleSlugs.includes(contestOperatorRoleSlug),
+      hasInvalidSession: false,
     };
-  } catch {
+  } catch (error) {
+    if (isInvalidSupabaseRefreshTokenError(error)) {
+      return {
+        user: null,
+        roleSlugs: [] as string[],
+        isContestOperator: false,
+        hasInvalidSession: true,
+      };
+    }
+
     return {
       user: null,
       roleSlugs: [] as string[],
       isContestOperator: false,
+      hasInvalidSession: false,
     };
   }
 }
 
 export async function requireContestOperator(next = '/admin/contests') {
   const authState = await getCurrentOperatorRoles();
+
+  if (authState.hasInvalidSession) {
+    redirect(buildSessionExpiredHref(next));
+  }
+
   const decision = getContestOperatorAccessDecision({
     next,
     hasSupabaseConfig: hasBrowserSupabaseConfig(),
