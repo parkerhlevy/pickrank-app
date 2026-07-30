@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, Clock, DollarSign, Users } from 'lucide-react';
+import { ArrowRight, Clock, DollarSign, ListOrdered, ShieldCheck, Target, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { ContestBoardPreview } from '@/components/contests/contest-board-preview';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,10 +24,28 @@ export default async function ContestsPage() {
           </Link>
         </div>
         <p className="text-muted-foreground">
-          Browse the current contest slate now. After you sign in, PickRank preserves your place and sends you into
-          entry, payment review, and lineup setup for the contest you choose.
+          Find a contest, scan the 15-player slate, and decide if you can rank the top 10 more accurately than the field.
+          You can browse first and sign in only when you are ready to enter.
         </p>
       </div>
+
+      <section className="grid gap-3 sm:grid-cols-3" aria-label="How to read PickRank contests">
+        <QuickRead
+          icon={Target}
+          title="One stat"
+          description="Each contest tracks one NFL stat category, such as QB passing yards."
+        />
+        <QuickRead
+          icon={ListOrdered}
+          title="Pick 10"
+          description="Review the full slate, pick 10 players, and put them in order before lock."
+        />
+        <QuickRead
+          icon={ShieldCheck}
+          title="Accuracy wins"
+          description="Final scoring compares your saved ranks to the official final order."
+        />
+      </section>
 
       {featuredContest ? (
         <Card className="section-card overflow-hidden">
@@ -73,10 +91,9 @@ export default async function ContestsPage() {
       <section className="space-y-3">
         <div className="screen-header space-y-1">
           <p className="eyebrow">More to Browse</p>
-          <h2 className="text-xl font-bold">More Open Contests</h2>
+          <h2 className="text-xl font-bold">Other Contests</h2>
           <p className="text-sm text-muted-foreground">
-            Keep browsing public contest details now. Sign in only when you are ready to continue into payment review
-            and Build Your Lineup.
+            Additional public contests will appear here as they are published.
           </p>
         </div>
         {supportingContests.length > 0 ? (
@@ -114,12 +131,32 @@ export default async function ContestsPage() {
           <Card className="section-card">
             <CardContent className="pt-6">
               <div className="empty-state-card text-sm text-muted-foreground">
-                Featured contest details are live now. Additional Open Contests have not been published yet.
+                The featured contest is ready to review. More public contests will appear here when they are published.
               </div>
             </CardContent>
           </Card>
         )}
       </section>
+    </div>
+  );
+}
+
+function QuickRead({
+  icon: Icon,
+  title,
+  description,
+}: {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="section-card flex flex-row items-start gap-3 p-3 sm:min-h-[8.25rem] sm:flex-col sm:gap-2 sm:p-4">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+        <Icon className="h-4 w-4" aria-hidden="true" />
+      </div>
+      <p className="font-black leading-tight">{title}</p>
+      <p className="text-sm leading-6 text-muted-foreground">{description}</p>
     </div>
   );
 }
@@ -133,7 +170,7 @@ function ContestStats({
 }) {
   return (
     <div className={compact ? 'grid grid-cols-2 gap-3 text-sm' : 'grid grid-cols-2 gap-3 text-sm'}>
-      <Stat icon={Clock} label="Slate" value={contest.slate} />
+      <Stat icon={ListOrdered} label="Slate" value={contest.slate} />
       <Stat icon={DollarSign} label="Prize Pool" value={contest.prizePool} />
       <Stat icon={Users} label="Entries" value={contest.entries} />
       <Stat icon={Clock} label="Lock Time" value={formatLockTime(contest.lockTime)} />

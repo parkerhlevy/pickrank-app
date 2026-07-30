@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, BarChart3, CheckCircle2, ListOrdered, Trophy } from 'lucide-react';
+import { ArrowRight, BarChart3, CheckCircle2, ListOrdered, ShieldCheck, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -19,7 +19,7 @@ export default function HowItWorksPage() {
       icon: BarChart3,
       title: 'Compare final stats',
       description:
-        'After final stats are reviewed, each saved rank is compared with the official final rank. Add those differences across your lineup. Lower total differential wins.',
+        'After final stats are reviewed, each saved rank is compared with the official final rank. Add those differences across your lineup. Lower total wins.',
       href: '#rank-differential-example',
     },
     {
@@ -37,20 +37,36 @@ export default function HowItWorksPage() {
             <p className="eyebrow">How It Works</p>
             <h1 className="text-3xl font-black leading-tight">Skill-based ranking contests</h1>
             <p className="text-muted-foreground">
-              PickRank is a contest app where players rank a slate by a specific stat category and compete for the
-              prize pool.
+              PickRank asks one question: can you rank a player slate closer to the final stat order than everyone else?
             </p>
           </div>
           <span className="status-pill shrink-0">Public Guide</span>
         </div>
       </section>
 
+      <section className="grid gap-3 sm:grid-cols-3" aria-label="PickRank basics">
+        <GuideTile
+          icon={ListOrdered}
+          title="Pick 10 from 15"
+          description="Start with the full slate. Save your ranked 10 before the contest locks."
+        />
+        <GuideTile
+          icon={BarChart3}
+          title="Lower score wins"
+          description="Each miss distance adds points. Exact ranks add zero."
+        />
+        <GuideTile
+          icon={ShieldCheck}
+          title="Final stats only"
+          description="Results appear after final stats are reviewed and saved."
+        />
+      </section>
+
       <Card className="section-card">
         <CardHeader>
           <CardTitle>Contest Flow Overview</CardTitle>
           <CardDescription>
-            Follow the same shell path used across Open Contests, contest details, payment review, Build Your Lineup,
-            and final results.
+            Follow the same path from contest browsing to saved final results.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -108,22 +124,36 @@ export default function HowItWorksPage() {
           <CardDescription>Each lineup spot is compared to the official final rank for that stat.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
-          <div className="grid grid-cols-3 gap-2 rounded-lg border bg-slate-50 px-3 py-2 font-semibold">
-            <span>Your Rank</span>
-            <span>Final Rank</span>
-            <span>Difference</span>
+          <div className="overflow-hidden rounded-lg border">
+            <table className="w-full text-left">
+              <thead className="bg-slate-50 text-xs font-bold uppercase text-muted-foreground">
+                <tr>
+                  <th scope="col" className="px-3 py-2">
+                    Your Rank
+                  </th>
+                  <th scope="col" className="px-3 py-2">
+                    Final Rank
+                  </th>
+                  <th scope="col" className="px-3 py-2">
+                    Difference
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {[
+                  ['1st', '2nd', '1'],
+                  ['2nd', '2nd', '0'],
+                  ['3rd', '6th', '3'],
+                ].map(([yourRank, finalRank, difference]) => (
+                  <tr key={`${yourRank}-${finalRank}`}>
+                    <td className="numeric px-3 py-2 font-medium">{yourRank}</td>
+                    <td className="numeric px-3 py-2">{finalRank}</td>
+                    <td className="numeric px-3 py-2 font-black">{difference}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          {[
-            ['1st', '2nd', '1'],
-            ['2nd', '2nd', '0'],
-            ['3rd', '6th', '3'],
-          ].map(([yourRank, finalRank, difference]) => (
-            <div key={`${yourRank}-${finalRank}`} className="grid grid-cols-3 gap-2 rounded-lg border px-3 py-2">
-              <span>{yourRank}</span>
-              <span>{finalRank}</span>
-              <span>{difference}</span>
-            </div>
-          ))}
           <p className="section-card-muted p-3 text-muted-foreground">
             Add the differences across all 10 ranked picks. Lower total differential wins, with tiebreakers applied if
             needed.
@@ -150,6 +180,26 @@ export default function HowItWorksPage() {
           </Button>
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function GuideTile({
+  icon: Icon,
+  title,
+  description,
+}: {
+  icon: typeof ListOrdered;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="section-card flex flex-row items-start gap-3 p-3 sm:min-h-[8rem] sm:flex-col sm:gap-2 sm:p-4">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+        <Icon className="h-4 w-4" aria-hidden="true" />
+      </div>
+      <p className="font-black leading-tight">{title}</p>
+      <p className="text-sm leading-6 text-muted-foreground">{description}</p>
     </div>
   );
 }

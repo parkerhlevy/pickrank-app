@@ -14,6 +14,9 @@ test('homepage loads as a landing page with waitlist forms and no bottom nav', a
   await expect(page.getByLabel('I agree to receive PickRank launch and product update emails. I can unsubscribe anytime.')).toHaveCount(2);
   await expect(page.getByText('By joining, you agree to receive PickRank launch emails. Unsubscribe anytime.')).toHaveCount(0);
   await expect(page.getByText('Contest-as-Board')).toBeVisible();
+  await expect(page.getByText('Skill contest')).toBeVisible();
+  await expect(page.getByText('Final-only scoring')).toBeVisible();
+  await expect(page.getByText('Email-only early access')).toBeVisible();
   await expect(page.getByRole('link', { name: 'Browse Open Contests' })).toHaveCount(0);
   await expect(page.getByText('See PickRank in action')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Learn the game in 34 seconds' })).toBeVisible();
@@ -24,6 +27,30 @@ test('homepage loads as a landing page with waitlist forms and no bottom nav', a
   await expect(page.getByText('Walkthrough video coming soon')).toHaveCount(0);
   await expect(page.getByText('Understand the weekly contest structure before you commit to the flow.')).toHaveCount(0);
   await expect(page.getByRole('navigation')).toHaveCount(0);
+});
+
+test('public conversion routes explain the contest mechanics before entry', async ({ page }) => {
+  await page.goto('/contests');
+
+  await expect(page.getByRole('heading', { name: 'Open Contests' })).toBeVisible();
+  await expect(page.getByText('Find a contest, scan the 15-player slate')).toBeVisible();
+  await expect(page.getByText('Pick 10', { exact: true })).toBeVisible();
+  await expect(page.getByText('Accuracy wins')).toBeVisible();
+
+  await page.goto('/contests/week-1-qb-passing-yards');
+
+  await expect(page.getByRole('heading', { name: 'Quick Read' })).toBeVisible();
+  await expect(page.getByText('What you do')).toBeVisible();
+  await expect(page.getByText('How you score')).toBeVisible();
+  await expect(page.getByText('When results count')).toBeVisible();
+
+  await page.goto('/how-it-works');
+
+  await expect(page.getByRole('heading', { name: 'Skill-based ranking contests' })).toBeVisible();
+  const basics = page.getByLabel('PickRank basics');
+  await expect(basics.getByText('Pick 10 from 15')).toBeVisible();
+  await expect(basics.getByText('Lower score wins')).toBeVisible();
+  await expect(page.getByRole('table')).toBeVisible();
 });
 
 test('bottom nav still renders on core app routes', async ({ page }) => {

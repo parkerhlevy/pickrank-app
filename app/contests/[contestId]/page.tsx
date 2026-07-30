@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowLeft, ChevronRight, Clock, DollarSign, Lock, Users } from 'lucide-react';
+import { ArrowLeft, BarChart3, ChevronRight, Clock, DollarSign, ListOrdered, Lock, ShieldCheck, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { ContestBoardPreview, ContestJourneyRail } from '@/components/contests/contest-board-preview';
 import { Button } from '@/components/ui/button';
@@ -74,6 +74,32 @@ export default async function ContestDetailPage({
           </Link>
         </div>
       </div>
+
+      <Card className="section-card">
+        <CardHeader>
+          <CardTitle>Quick Read</CardTitle>
+          <CardDescription>
+            This contest is one accuracy board. Review the slate, rank your top 10, and save before lock.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-2 sm:grid-cols-3 sm:gap-3">
+          <QuickReadItem
+            icon={ListOrdered}
+            title="What you do"
+            description={`Pick and rank 10 quarterbacks from the ${contest.slateSize}-player slate.`}
+          />
+          <QuickReadItem
+            icon={BarChart3}
+            title="How you score"
+            description={`Each saved rank is compared with the final ${contest.statCategory.toLowerCase()} order. Lower total miss wins.`}
+          />
+          <QuickReadItem
+            icon={ShieldCheck}
+            title="When results count"
+            description="Leaderboards appear only after final stats are reviewed, confirmed, and saved."
+          />
+        </CardContent>
+      </Card>
 
       <Card className="section-card overflow-hidden">
         <CardHeader className="section-card-header py-4">
@@ -208,6 +234,28 @@ function DetailStat({
         {label}
       </div>
       <p className="numeric text-sm font-semibold leading-tight">{value}</p>
+    </div>
+  );
+}
+
+function QuickReadItem({
+  icon: Icon,
+  title,
+  description,
+}: {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="section-card-muted flex flex-row items-start gap-3 p-3 sm:min-h-[8rem] sm:flex-col sm:gap-0">
+      <div className="mb-0 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-blue-600 shadow-sm sm:mb-2">
+        <Icon className="h-4 w-4" aria-hidden="true" />
+      </div>
+      <div>
+        <p className="font-black leading-tight">{title}</p>
+        <p className="mt-1 text-sm leading-6 text-muted-foreground">{description}</p>
+      </div>
     </div>
   );
 }

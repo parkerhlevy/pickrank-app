@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import Image from 'next/image';
-import { Brain, CalendarDays, PlayCircle, Trophy } from 'lucide-react';
+import { Brain, CalendarDays, CheckCircle2, MailCheck, PlayCircle, ShieldCheck, Trophy } from 'lucide-react';
 import { ContestBoardPreview } from '@/components/contests/contest-board-preview';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { WaitlistForm } from '@/components/waitlist/waitlist-form';
@@ -31,7 +31,7 @@ const whyPickRankCards = [
 const steps = [
   {
     title: 'Start with the slate',
-    description: 'Each week, you’ll get 15 players competing in one stat category.',
+    description: 'Each contest starts with 15 players in one stat category.',
   },
   {
     title: 'Rank your top 10',
@@ -39,7 +39,25 @@ const steps = [
   },
   {
     title: 'See how you stack up',
-    description: 'When the games are over, the most accurate rankings rise to the top and win cash prizes.',
+    description: 'After final stats are saved, the most accurate rankings rise to the top.',
+  },
+];
+
+const trustSignals = [
+  {
+    title: 'Skill contest',
+    description: 'No odds, spreads, parlays, or sportsbook mechanics. Your score comes from ranking accuracy.',
+    icon: ShieldCheck,
+  },
+  {
+    title: 'Final-only scoring',
+    description: 'Leaderboards appear after final stats are reviewed and saved.',
+    icon: CheckCircle2,
+  },
+  {
+    title: 'Email-only early access',
+    description: 'Join the waitlist now. Account setup and contest entry stay separate.',
+    icon: MailCheck,
   },
 ];
 
@@ -114,6 +132,17 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             <div className="max-w-xl">
               <WaitlistForm sourcePath="/" utm={utm} variant="hero" />
             </div>
+            <div className="grid gap-2 pt-1 sm:grid-cols-3">
+              {trustSignals.map(({ title, description, icon: Icon }) => (
+                <div key={title} className="rounded-lg border border-white/10 bg-white/8 p-3 text-sm">
+                  <div className="mb-2 flex items-center gap-2 font-bold text-white">
+                    <Icon className="h-4 w-4 text-blue-200" aria-hidden="true" />
+                    {title}
+                  </div>
+                  <p className="text-xs leading-5 text-slate-300">{description}</p>
+                </div>
+              ))}
+            </div>
           </div>
 
           <Card className="border-white/10 bg-slate-950/40 text-white shadow-[0_20px_60px_rgba(15,23,42,0.35)]">
@@ -175,7 +204,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       <section className="space-y-4">
         <div className="space-y-1">
           <h2 className="text-2xl font-black leading-tight">How PickRank works</h2>
-          <p className="text-muted-foreground">Three simple steps. One weekly challenge.</p>
+          <p className="text-muted-foreground">The whole game is one weekly accuracy test.</p>
         </div>
         <div className="grid gap-4 lg:grid-cols-3">
           {steps.map((step, index) => (
