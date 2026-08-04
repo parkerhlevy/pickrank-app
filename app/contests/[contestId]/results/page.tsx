@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getContestById, listPublicContests } from '@/lib/contest-data';
 import { getContestResultForUser } from '@/lib/contest-results';
+import { getNoPayoutLabel } from '@/lib/launch-mode';
 import { getViewerIdentity } from '@/lib/viewer-identity';
 
 export default async function ContestResultsPage({
@@ -76,7 +77,9 @@ export default async function ContestResultsPage({
               </CardDescription>
             </div>
             <span className="status-pill shrink-0 bg-white/10 text-white border-white/15">
-              <span className="numeric">{result.entry.payoutAmountCents > 0 ? result.entry.payoutAmount : 'No payout'}</span>
+              <span className="numeric">
+                {result.entry.payoutAmountCents > 0 ? result.entry.payoutAmount : getNoPayoutLabel(contest.entryFeeCents)}
+              </span>
             </span>
           </div>
         </CardHeader>
@@ -86,7 +89,10 @@ export default async function ContestResultsPage({
             <ResultStat label="Your Score" value={`${result.entry.totalScore} pts`} emphasis />
           </div>
           <div className="grid gap-2 sm:grid-cols-3">
-            <ResultStat label="Winnings" value={result.entry.payoutAmount} />
+            <ResultStat
+              label="Final Result"
+              value={result.entry.payoutAmountCents > 0 ? result.entry.payoutAmount : getNoPayoutLabel(contest.entryFeeCents)}
+            />
             <ResultStat label="Exact Picks" value={String(result.entry.exactPicks)} />
             <ResultStat label="One-Off-Or-Better" value={String(result.entry.oneOffOrBetterPicks)} />
           </div>
@@ -107,7 +113,7 @@ export default async function ContestResultsPage({
                 <Trophy className="h-5 w-5 text-primary" aria-hidden="true" />
                 <CardTitle>Results Snapshot</CardTitle>
               </div>
-              <CardDescription>This screen reflects your saved final finish, score, and payout status.</CardDescription>
+              <CardDescription>This screen reflects your saved final finish, score, and beta result status.</CardDescription>
             </div>
             <span className="status-pill shrink-0 status-pill-muted">Saved rows</span>
           </div>
@@ -118,8 +124,8 @@ export default async function ContestResultsPage({
             <span className="numeric text-muted-foreground">{result.entry.finalRankDisplay}</span>
           </div>
           <div className="detail-row">
-            <span className="font-medium">Payout status</span>
-            <span className="text-muted-foreground">{result.entry.payoutStatus === 'paid' ? 'Paid' : 'Pending'}</span>
+            <span className="font-medium">Beta result status</span>
+            <span className="text-muted-foreground">No payout during beta</span>
           </div>
           <div className="detail-row">
             <span className="font-medium">Leaderboard path</span>

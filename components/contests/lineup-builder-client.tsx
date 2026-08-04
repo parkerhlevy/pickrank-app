@@ -34,6 +34,7 @@ type LineupBuilderClientProps = {
     id: string;
     title: string;
     entryFee: string;
+    entryFeeCents: number;
     lockTime: string;
     slate: string;
     statCategory: string;
@@ -533,7 +534,7 @@ export function LineupBuilderClient({
           </CardHeader>
           <CardContent className="grid grid-cols-2 gap-3 pt-5 text-sm">
             <ContextTile label="Lock Time" value={contest.lockTime.replace('Locks ', '')} />
-            <ContextTile label="Entry Fee" value={contest.entryFee} />
+            <ContextTile label="Beta Entry Cost" value={contest.entryFeeCents === 0 ? '$0.00' : contest.entryFee} />
             <ContextTile label="Lineup State" value={isEditable ? 'Editing open' : 'Locked for review'} />
             <ContextTile label="Saved Entry" value={lineupState.source === 'user_saved' ? 'User saved' : 'Assigned order'} />
           </CardContent>

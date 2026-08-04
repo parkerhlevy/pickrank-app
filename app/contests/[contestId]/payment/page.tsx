@@ -25,6 +25,7 @@ import {
 import { getPersistedContestEntry } from '@/lib/persisted-contest-entry';
 import { getViewerIdentity } from '@/lib/viewer-identity';
 import { getContestEntryConfirmationError } from '@/lib/contest-entry-confirmation';
+import { getEntryReviewLabel, isBetaFreeEntryContest, launchMode } from '@/lib/launch-mode';
 import { confirmContestEntryAction } from './actions';
 
 export default async function PaymentReviewPage({
@@ -75,7 +76,8 @@ export default async function PaymentReviewPage({
   const stateCopy = getContestEntryStateCopy(routeState.stage);
   const flowSteps = getContestEntrySteps(routeState.stage);
   const breakdown = getPaymentReviewBreakdown(contest.entryFeeCents);
-  const isFreeEntryContest = contest.entryFeeCents === 0;
+  const isFreeEntryContest = isBetaFreeEntryContest(contest.entryFeeCents);
+  const entryReviewLabel = getEntryReviewLabel(contest.entryFeeCents);
   const confirmationError = getContestEntryConfirmationError(contest.entryFeeCents, {
     eligibility: viewerIdentity.eligibility,
     viewerSource: viewerIdentity.source,
@@ -94,37 +96,37 @@ export default async function PaymentReviewPage({
       </Button>
 
       <div className="screen-header space-y-2">
-        <p className="eyebrow">Payment Review</p>
+        <p className="eyebrow">{entryReviewLabel}</p>
         <h1 className="text-3xl font-black leading-tight">{contest.title}</h1>
         <p className="text-muted-foreground">
-          Review your entry fee and confirm how this entry is covered before you continue to lineup setup.
+          Review your free beta entry and confirm your Beta Pass before you continue to lineup setup.
         </p>
       </div>
 
       <ContestBoardStagePanel
         title={contest.title}
-        description="This entry belongs to one contest board. Confirm the entry fee first, then Build Your Lineup by ranking your top 10 from the slate."
+        description="This entry belongs to one contest board. Confirm your Beta Pass entry first, then Build Your Lineup by ranking your top 10 from the slate."
         slateLabel={contest.slate}
         statCategory={contest.statCategory}
         lockTimeLabel={contest.lockTime.replace('Locks ', '')}
         rankedCountLabel="Ready after entry"
-        stateLabel="Payment Review"
+        stateLabel={entryReviewLabel}
       />
 
       <ContestJourneyRail currentStage="entry-review" />
 
       <Card className="section-card overflow-hidden">
         <CardHeader className="section-card-header">
-          <CardTitle>Entry Fee Breakdown</CardTitle>
+          <CardTitle>Beta Entry Summary</CardTitle>
           <CardDescription className="text-slate-300">
-            Site Credit is applied first, then Cash Balance, with any remaining amount shown as Amount Due Today.
+            {launchMode.betaNoCashValueCopy}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 pt-5 text-sm">
-          <ReviewRow label="Entry Fee" value={formatCents(breakdown.entryFeeCents)} strong />
+          <ReviewRow label="Entry Cost" value={formatCents(breakdown.entryFeeCents)} strong />
           <div className="border-t border-slate-200 pt-3">
-            <ReviewRow label="Site Credit Applied" value={`-${formatCents(breakdown.siteCreditAppliedCents)}`} />
-            <ReviewRow label="Cash Balance Applied" value={`-${formatCents(breakdown.cashBalanceAppliedCents)}`} />
+            <ReviewRow label={launchMode.betaPassLabel} value="Active" />
+            <ReviewRow label="Cash Value" value="$0.00" />
           </div>
           <div className="section-card-muted p-3">
             <ReviewRow label="Amount Due Today" value={formatCents(breakdown.amountDueTodayCents)} strong />
@@ -146,21 +148,21 @@ export default async function PaymentReviewPage({
           <Notice
             variant="muted"
             icon={ShieldCheck}
-            title="Funding order"
-            description="Site Credit is applied first, then Cash Balance, then any external amount due."
+            title={launchMode.betaPassLabel}
+            description="Your Beta Pass covers free beta entries. It is not money and cannot be withdrawn."
           />
           <Notice
             variant={isFreeEntryContest || viewerIdentity.eligibility.isEligibleForPaidEntry ? 'success' : 'warning'}
             icon={ShieldCheck}
-            title={isFreeEntryContest ? 'No-money test entry' : 'Eligibility check'}
+            title={isFreeEntryContest ? 'Free beta entry' : 'Eligibility check'}
             description={
               isFreeEntryContest
-                ? 'This contest has a $0 entry fee, so it can be confirmed for testing without paid-entry eligibility approval.'
+                ? 'This contest is free to play during Early Access Beta. It does not require paid-entry eligibility approval.'
                 : viewerIdentity.eligibility.isEligibleForPaidEntry
                 ? 'This account is marked eligible for paid entry.'
                 : 'Paid contests require age confirmation, state capture, Terms acceptance, Privacy acceptance, and an eligible account status.'
             }
-            badge={isFreeEntryContest ? 'Free Test' : viewerIdentity.eligibility.isEligibleForPaidEntry ? 'Eligible' : 'Required'}
+            badge={isFreeEntryContest ? 'Beta' : viewerIdentity.eligibility.isEligibleForPaidEntry ? 'Eligible' : 'Required'}
           />
           <Notice
             variant={isFreeEntryContest ? 'success' : 'warning'}
@@ -168,7 +170,7 @@ export default async function PaymentReviewPage({
             title="Amount Due Today"
             description={
               isFreeEntryContest
-                ? 'No payment, wallet balance, payout, or cash movement is used for this entry.'
+                ? 'No payment, wallet balance, payout, or cash movement is used for this beta entry.'
                 : 'If your balances do not fully cover the fee, the remaining amount stays under Amount Due Today until provider-backed payment is added.'
             }
             badge={isFreeEntryContest ? '$0.00' : 'Placeholder-safe'}
@@ -220,7 +222,7 @@ export default async function PaymentReviewPage({
             </Button>
             {!viewerIdentity.eligibility.isEligibilityComplete ? (
               <Button asChild className="w-full" variant="secondary">
-                <Link href={profileEligibilityHref}>Complete Eligibility Details</Link>
+                <Link href={profileEligibilityHref}>Complete Beta Acknowledgements</Link>
               </Button>
             ) : null}
           </div>

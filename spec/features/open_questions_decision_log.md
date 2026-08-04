@@ -108,6 +108,7 @@ Can wait until after MVP.
 
 | Decision | Status | Notes |
 |---|---|---|
+| Early Access Beta launch mode | locked | Free-to-play contests only; Beta Pass has no cash value; no payouts or cash prizes during beta |
 | Platform fee | locked | 30% |
 | Prize pool | locked | 70% of entry fees |
 | Payout structure | locked | Top 3: 50/30/20 |

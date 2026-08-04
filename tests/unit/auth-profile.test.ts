@@ -42,10 +42,10 @@ describe('auth profile helpers', () => {
 
   it('turns protected contest paths into user-facing return copy', () => {
     expect(getReturnStepCopy('/contests/week-1-qb-passing-yards/progress?stage=payment-review')).toEqual({
-      actionLabel: 'Continue to Payment Review',
-      detail: 'Payment Review for Week 1 QB Passing Yards',
+      actionLabel: 'Continue to Entry Review',
+      detail: 'Entry Review for Week 1 QB Passing Yards',
       isContestFlow: true,
-      shortLabel: 'Payment Review',
+      shortLabel: 'Entry Review',
     });
   });
 
@@ -73,7 +73,7 @@ describe('auth profile helpers', () => {
     expect(validateUsername('valid_name')).toBeNull();
   });
 
-  it('validates paid-entry eligibility acknowledgements', () => {
+  it('validates beta-entry acknowledgements', () => {
     expect(validateJurisdiction('CA')).toBeNull();
     expect(validateJurisdiction('not-a-state')).toBe('Choose a supported U.S. state or jurisdiction.');
     expect(
@@ -91,7 +91,7 @@ describe('auth profile helpers', () => {
         privacyPolicyAccepted: true,
         jurisdiction: 'CA',
       }),
-    ).toBe('Confirm you meet the age requirement to enter paid contests.');
+    ).toBe('Confirm you meet the age requirement to enter beta contests.');
   });
 
   it('reads profile identity from Supabase user metadata', () => {

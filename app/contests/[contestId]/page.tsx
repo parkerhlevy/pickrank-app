@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowLeft, BarChart3, ChevronRight, Clock, DollarSign, ListOrdered, Lock, ShieldCheck, Users } from 'lucide-react';
+import { ArrowLeft, BarChart3, ChevronRight, Clock, ListOrdered, Lock, ShieldCheck, Ticket, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { ContestBoardPreview, ContestJourneyRail } from '@/components/contests/contest-board-preview';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ import {
   getContestSelectablePlayers,
   isContestOpenForEntry,
 } from '@/lib/contest-data';
+import { getNoPayoutLabel, isBetaFreeEntryContest, launchMode } from '@/lib/launch-mode';
 import { getPersistedContestEntry } from '@/lib/persisted-contest-entry';
 import { getViewerIdentity } from '@/lib/viewer-identity';
 
@@ -24,6 +25,7 @@ export default async function ContestDetailPage({
   const viewerIdentity = await getViewerIdentity();
   const selectablePlayers = getContestSelectablePlayers(contest);
   const defaultLineupOrder = getContestDefaultLineupOrder(contest);
+  const isBetaContest = isBetaFreeEntryContest(contest.entryFeeCents);
 
   const hasEntry = Boolean(
     await getPersistedContestEntry(
@@ -108,12 +110,12 @@ export default async function ContestDetailPage({
         <CardContent className="grid grid-cols-2 gap-2 pt-4 text-sm">
           <DetailStat icon={Users} label="Slate" value={contest.slate} />
           <DetailStat icon={Clock} label="Stat Category" value={contest.statCategory} />
-          <DetailStat icon={DollarSign} label="Prize Pool" value={contest.prizePool} />
+          <DetailStat icon={Ticket} label="Beta Pass" value={launchMode.betaEntryLabel} />
           <DetailStat icon={Users} label="Entries" value={contest.entries} />
-          <DetailStat icon={DollarSign} label="Entry Fee" value={contest.entryFee} />
+          <DetailStat icon={Ticket} label="Entry Cost" value={isBetaContest ? '$0.00' : contest.entryFee} />
           <DetailStat icon={Clock} label="Lock Time" value={contest.lockTime.replace('Locks ', '')} />
           <p className="col-span-2 border-t border-slate-200 pt-2 text-xs text-muted-foreground">
-            * {contest.minimum}.
+            * {isBetaContest ? 'This beta contest uses total entries for operator proof and has no paid-entry minimum.' : contest.minimum}.
           </p>
         </CardContent>
       </Card>
@@ -136,7 +138,7 @@ export default async function ContestDetailPage({
             <div>
               <CardTitle>Contest Flow</CardTitle>
               <CardDescription>
-                Review the contest, confirm your entry, Build Your Lineup before lock, then return for final results
+                Review the contest, confirm your free beta entry, Build Your Lineup before lock, then return for final results
                 after scoring is saved.
               </CardDescription>
             </div>
@@ -149,7 +151,7 @@ export default async function ContestDetailPage({
         <CardContent className="space-y-4">
           <div className="space-y-2">
             {[
-              'Review your entry fee before you confirm.',
+              'Review your Beta Pass entry before you confirm.',
               `Pick and rank your top 10 quarterbacks from the ${contest.slateSize}-player slate.`,
               `Save your lineup before ${contest.lockTime.replace('Locks ', '')}.`,
             ].map((step) => (
@@ -174,17 +176,17 @@ export default async function ContestDetailPage({
 
       <Card className="section-card">
         <CardHeader>
-          <CardTitle>Projected Payouts</CardTitle>
+          <CardTitle>Beta Results</CardTitle>
           <CardDescription>
-            Current projected top-three payouts based on the prize pool shown today. Final settled results and payout
-            processing appear only after the contest closes and saved scoring is confirmed.
+            Early Access Beta contests show final rank, score, and standings after saved scoring is confirmed. No payouts
+            or cash prizes are available during beta.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
-          {contest.payoutRows.map((row) => (
-            <div key={row.place} className="detail-row bg-white">
-              <span className="font-medium">{row.place}</span>
-              <span className="numeric font-semibold">{row.value}</span>
+          {['1st', '2nd', '3rd'].map((place) => (
+            <div key={place} className="detail-row bg-white">
+              <span className="font-medium">{place}</span>
+              <span className="numeric font-semibold">{getNoPayoutLabel(contest.entryFeeCents)}</span>
             </div>
           ))}
         </CardContent>
@@ -197,8 +199,8 @@ export default async function ContestDetailPage({
             <CardDescription>Browse the contest details now, then sign in when you&apos;re ready to continue.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground">
-            <p>You can review the format, lock time, and projected payouts on this page right now.</p>
-            <p>After you sign in, PickRank will take you into Payment Review and keep your next step pointed at this contest.</p>
+            <p>You can review the format, lock time, and beta results model on this page right now.</p>
+            <p>After you sign in, PickRank will take you into Entry Review and keep your next step pointed at this contest.</p>
           </CardContent>
         </Card>
       ) : null}

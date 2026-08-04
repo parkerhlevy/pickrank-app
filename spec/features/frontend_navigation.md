@@ -21,7 +21,7 @@ Primary user journey:
 ```text
 Lobby
 → Contest Detail
-→ Payment Review
+→ Entry Review
 → Entry Success
 → Lineup Builder
 → Saved Lineup / Locked Lineup
@@ -29,6 +29,8 @@ Lobby
 → Final Leaderboard
 → Profile / Wallet
 ```
+
+Implementation note: the current route remains `/contests/:contest_id/payment` for compatibility, but public Early Access Beta copy labels that step as `Entry Review`.
 
 ---
 
@@ -69,7 +71,7 @@ Available without login:
 ### Auth-required screens
 Require logged-in user:
 
-- Payment Review
+- Entry Review
 - Entry Success
 - Lineup Builder
 - Saved Lineup Confirmation
@@ -252,7 +254,7 @@ Authenticated.
 
 ---
 
-## 5. Payment Review
+## 5. Entry Review
 
 ### Route / UI Pattern
 
@@ -261,6 +263,8 @@ Authenticated.
 ```
 
 or modal/sheet from Contest Detail.
+
+Route name stays `/payment` in the current implementation, but Early Access Beta UI must label this step as `Entry Review`.
 
 ### Purpose
 Show payment breakdown before entry creation.

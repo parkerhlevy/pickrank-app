@@ -10,6 +10,7 @@ import {
   normalizeReturnPath,
 } from '@/lib/auth-profile';
 import { getMissingBrowserSupabaseKeys, hasBrowserSupabaseConfig } from '@/lib/env';
+import { launchMode } from '@/lib/launch-mode';
 import { createClient } from '@/lib/supabase/server';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -63,8 +64,8 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         </div>
         <p className="text-muted-foreground">
           {user
-            ? 'Your profile connects public contest identity, entry readiness, and wallet access in one account surface.'
-            : 'Browse contests without signing in. Create an account to enter contests, save lineups, and keep your place in the flow.'}
+            ? 'Your profile connects public contest identity, beta entry readiness, and wallet access in one account surface.'
+            : 'Browse contests without signing in. Create an account to enter free beta contests, save lineups, and keep your place in the flow.'}
         </p>
       </section>
 
@@ -76,7 +77,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
               <CardTitle>Finish Account Setup</CardTitle>
             </div>
             <CardDescription className="text-slate-300">
-              Google sign-in verifies your email. PickRank still needs your contest identity and paid-entry eligibility details.
+              Google sign-in verifies your email. PickRank still needs your contest identity and beta acknowledgements.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 pt-5 text-sm">
@@ -84,15 +85,15 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
               <SetupRow label="Email verified through sign-in" value={identity.isEmailVerified ? 'Complete' : 'Pending'} />
               <SetupRow label="Public username" value={identity.isProfileComplete ? 'Complete' : 'Required'} />
               <SetupRow
-                label="Age, state, Terms, and Privacy"
+                label="Age, state, Beta Terms, and Privacy"
                 value={identity.eligibility.isEligibilityComplete ? 'Captured' : 'Required'}
               />
             </div>
             <Notice
               variant="warning"
               icon={ShieldCheck}
-              title="Secondary eligibility step required"
-              description="Google does not provide the age confirmation, state eligibility, Terms acceptance, or Privacy acceptance PickRank needs before paid contests."
+              title="Beta acknowledgements required"
+              description="Google does not provide the age confirmation, state, Beta Terms acceptance, or Privacy acceptance PickRank needs before beta contests."
               badge="Action needed"
             />
             {needsUsername ? (
@@ -102,7 +103,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
             ) : null}
             {!needsUsername && needsEligibility ? (
               <Button asChild className="w-full">
-                <a href="#eligibility-details">Complete Eligibility Details</a>
+                <a href="#eligibility-details">Complete Beta Acknowledgements</a>
               </Button>
             ) : null}
           </CardContent>
@@ -127,7 +128,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
               <span className="font-medium text-foreground">{identity.isProfileComplete ? 'Complete' : 'Current'}</span>
             </div>
             <div className="detail-row">
-              <span>Capture paid-entry eligibility</span>
+              <span>Capture beta acknowledgements</span>
               <span>{identity.eligibility.isEligibilityComplete ? 'Complete' : 'Current'}</span>
             </div>
             <div className="detail-row">
@@ -209,7 +210,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           <CardHeader>
             <div className="flex items-center gap-2">
               <MapPin className="h-5 w-5 text-primary" aria-hidden="true" />
-              <CardTitle>Paid-Entry Eligibility</CardTitle>
+              <CardTitle>Beta Entry Readiness</CardTitle>
             </div>
             <CardDescription>
               Complete the secondary PickRank check that Google sign-in does not provide.
@@ -224,7 +225,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                     <p className="font-bold">{identity.eligibility.jurisdiction}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">Eligibility status</p>
+                    <p className="text-muted-foreground">Paid-entry status</p>
                     <p className="font-bold">{formatEligibilityStatus(identity.eligibility.eligibilityStatus)}</p>
                   </div>
                 </div>
@@ -239,8 +240,8 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                   <Notice
                     variant="warning"
                     icon={ShieldCheck}
-                    title="Paid entry still pending review"
-                    description="Your acknowledgements are saved. Paid contests stay blocked until approved jurisdiction and provider rules mark this account eligible."
+                    title="Beta entry ready. Paid entry still pending."
+                    description="Your beta acknowledgements are saved. Paid contests stay blocked until legal, provider, payment, withdrawal, and compliance gates are complete."
                     badge="Pending"
                   />
                 ) : null}
@@ -265,19 +266,31 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                 </label>
                 <label className="flex items-start gap-3 rounded-lg border border-slate-200 bg-white px-3 py-3 text-sm text-foreground">
                   <input className="mt-1 h-4 w-4" type="checkbox" name="ageConfirmed" />
-                  <span>I confirm I meet the age requirement to enter paid contests.</span>
+                  <span>I confirm I meet the age requirement to enter beta contests.</span>
                 </label>
                 <label className="flex items-start gap-3 rounded-lg border border-slate-200 bg-white px-3 py-3 text-sm text-foreground">
                   <input className="mt-1 h-4 w-4" type="checkbox" name="termsAccepted" />
-                  <span>I accept the PickRank Terms before entering paid contests.</span>
+                  <span>
+                    I accept the{' '}
+                    <Link className="inline-link" href="/legal/terms">
+                      PickRank Beta Terms
+                    </Link>{' '}
+                    before entering beta contests.
+                  </span>
                 </label>
                 <label className="flex items-start gap-3 rounded-lg border border-slate-200 bg-white px-3 py-3 text-sm text-foreground">
                   <input className="mt-1 h-4 w-4" type="checkbox" name="privacyPolicyAccepted" />
-                  <span>I accept the PickRank Privacy Policy before entering paid contests.</span>
+                  <span>
+                    I accept the{' '}
+                    <Link className="inline-link" href="/legal/privacy">
+                      PickRank Privacy Policy
+                    </Link>{' '}
+                    before entering beta contests.
+                  </span>
                 </label>
                 <input type="hidden" name="next" value={next} />
                 <Button className="w-full" type="submit">
-                  Save Eligibility Details
+                  Save Beta Acknowledgements
                 </Button>
               </form>
             )}
@@ -316,7 +329,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
               ) : null}
               {identity.isEmailVerified && next !== defaultReturnPath && !identity.eligibility.isEligibilityComplete ? (
                 <Button asChild className="w-full">
-                  <a href="#eligibility-details">Complete Eligibility Details</a>
+                  <a href="#eligibility-details">Complete Beta Acknowledgements</a>
                 </Button>
               ) : null}
             </CardContent>
@@ -366,20 +379,20 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
             <CardTitle>Account Wallet</CardTitle>
           </div>
           <CardDescription>
-            Profile keeps the wallet one tap away while Cash Balance and Site Credit stay separated.
+            Profile keeps the wallet one tap away while {launchMode.betaPassLabel} and future paid balances stay separated.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="metric-tile">
-              <p className="text-sm text-muted-foreground">Cash Balance</p>
-              <p className="numeric text-xl font-bold">$0.00</p>
-              <p className="mt-1 text-xs text-muted-foreground">Withdrawable winnings after provider and compliance review.</p>
+              <p className="text-sm text-muted-foreground">{launchMode.betaPassLabel}</p>
+              <p className="numeric text-xl font-bold">Active</p>
+              <p className="mt-1 text-xs text-muted-foreground">Free beta entries. No cash value.</p>
             </div>
             <div className="metric-tile">
-              <p className="text-sm text-muted-foreground">Site Credit</p>
+              <p className="text-sm text-muted-foreground">Future Paid Balances</p>
               <p className="numeric text-xl font-bold">$0.00</p>
-              <p className="mt-1 text-xs text-muted-foreground">Non-withdrawable refunds or promotional credit for PickRank contests.</p>
+              <p className="mt-1 text-xs text-muted-foreground">Not live during beta.</p>
             </div>
           </div>
           <div className="detail-row">
@@ -402,7 +415,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
             <CardTitle>Entry Readiness</CardTitle>
           </div>
           <CardDescription>
-            These placeholder-safe checks show what PickRank needs before paid entry and future wallet actions.
+            These checks show what PickRank needs before beta entry and future paid wallet actions.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
@@ -412,7 +425,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           </div>
           <ReadinessRow
             label="Age and location capture"
-            value={identity.eligibility.isEligibilityComplete ? 'Captured' : 'Needed before paid entry'}
+            value={identity.eligibility.isEligibilityComplete ? 'Captured' : 'Needed before beta entry'}
           />
           <ReadinessRow
             label="Eligibility status"

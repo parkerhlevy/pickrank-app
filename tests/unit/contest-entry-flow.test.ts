@@ -258,7 +258,7 @@ describe('contest entry flow state', () => {
         eligibilityStatus: 'pending_review',
       }),
     ).toEqual({
-      label: 'Enter Free Test Contest',
+      label: 'Enter Free Beta Contest',
       href: '/contests/test-week-1-no-money-entry/progress?stage=payment-review',
       disabled: false,
       tone: 'default',
@@ -287,7 +287,7 @@ describe('contest entry flow state', () => {
     });
   });
 
-  it('uses the pay-and-enter CTA for ready signed-in users who have not entered yet', () => {
+  it('keeps paid entry disabled during Early Access Beta for ready signed-in users', () => {
     expect(
       getContestDetailPrimaryAction({
         contestId: 'week-1-qb-passing-yards',
@@ -299,10 +299,10 @@ describe('contest entry flow state', () => {
         isEmailVerified: true,
       }),
     ).toEqual({
-      label: 'Enter Contest - $5',
-      href: '/contests/week-1-qb-passing-yards/progress?stage=payment-review',
-      disabled: false,
-      tone: 'default',
+      label: 'Paid Entry Coming Later',
+      href: null,
+      disabled: true,
+      tone: 'warning',
     });
   });
 
@@ -320,14 +320,14 @@ describe('contest entry flow state', () => {
       {
         key: 'not-entered',
         label: 'Contest Detail',
-        summary: 'Check the contest details, lock time, and payout overview before you enter.',
+        summary: 'Check the contest details, lock time, and beta results overview before you enter.',
         stepNumber: 1,
         status: 'complete',
       },
       {
         key: 'payment-review',
-        label: 'Payment Review',
-        summary: 'Review your entry fee, applied balances, and amount due today.',
+        label: 'Entry Review',
+        summary: 'Review your free beta entry and Beta Pass status.',
         stepNumber: 2,
         status: 'current',
       },

@@ -2,13 +2,14 @@ import Link from 'next/link';
 import { ArrowRight, BarChart3, CheckCircle2, ListOrdered, ShieldCheck, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { launchMode } from '@/lib/launch-mode';
 
 export default function HowItWorksPage() {
   const steps = [
     {
       icon: ListOrdered,
       title: 'Choose a contest',
-      description: 'Open Contests show the stat category, lock time, entry fee, prize pool, and current entry count.',
+      description: 'Open Contests show the stat category, lock time, Beta Pass entry cost, and current entry count.',
     },
     {
       icon: CheckCircle2,
@@ -57,8 +58,8 @@ export default function HowItWorksPage() {
         />
         <GuideTile
           icon={ShieldCheck}
-          title="Final stats only"
-          description="Results appear after final stats are reviewed and saved."
+          title={launchMode.displayName}
+          description="Free beta contests have no payouts or cash prizes."
         />
       </section>
 

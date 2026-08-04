@@ -15,6 +15,11 @@ Compliance Direction
 PickRank is framed as a paid skill-based contest, not sports betting. Public real-money launch requires legal/payment-provider review, supported jurisdiction definition, age/eligibility controls, and responsible play requirements.
 Detailed design:
 See /spec/features/compliance_eligibility_responsible_play.md
+
+Early Access Beta Launch Mode
+PickRank launches first as Early Access Beta with free-to-play contests only.
+Beta contests use a Beta Pass model. The Beta Pass grants free beta entry access, has no cash value, cannot be withdrawn, and does not create payouts or cash prizes.
+Paid contests remain the future product direction, but public paid entry, deposits, withdrawals, payouts, cash-balance movement, KYC vendor integration, geolocation enforcement, and state-by-state paid eligibility remain blocked until legal, provider, payment, withdrawal, and compliance review is complete.
 ---
 2. Core Game Loop
 Lobby → Contest Entry → Lineup Builder → Contest Lock → Live Leaderboard
@@ -118,6 +123,7 @@ See /spec/features/frontend_navigation.md
 6. Account + Authentication
 Users must have a verified account before entering paid contests.
 MVP uses Supabase-backed authentication with currently supported Google and magic-link email sign-in, unique username/display name, basic Profile screen, account status, wallet access, and eligibility hooks for age, jurisdiction, and KYC/provider verification.
+During Early Access Beta, users must sign in, choose a public username, confirm age, supply state/jurisdiction, accept Beta Terms, and accept the Privacy Policy before free beta entry. These beta acknowledgements are not public real-money eligibility approval.
 Detailed design:
 See /spec/features/account_profile_auth.md
 ---
@@ -125,6 +131,7 @@ See /spec/features/account_profile_auth.md
 Paid contest entry must be blocked unless the user is eligible by account status, age, jurisdiction, verification status, and responsible play restrictions.
 MVP supports configurable jurisdiction rules, age gates, KYC placeholders, self-exclusion placeholders, eligibility event logging, and legal/provider review gates.
 Current eligibility capture is not the same as verified public real-money eligibility. Age confirmation, jurisdiction, Terms acceptance, and Privacy acceptance are self-attested or captured account fields until legal/provider review, KYC/identity requirements, jurisdiction rules, payment/withdrawal approval, responsible-play requirements, and auditable reviewer controls are complete. Internal testing eligibility may be used only for known founder/operator/QA/test accounts in controlled no-money flows.
+Early Access Beta free entry may use completed beta acknowledgements without marking an account eligible for public paid entry. Paid entry remains fail-closed.
 Detailed design:
 See /spec/features/compliance_eligibility_responsible_play.md
 ---

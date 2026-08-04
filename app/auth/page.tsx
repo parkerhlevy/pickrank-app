@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { defaultReturnPath, getReturnStepCopy, normalizeReturnPath } from '@/lib/auth-profile';
 import { getMissingBrowserSupabaseKeys, hasBrowserSupabaseConfig } from '@/lib/env';
+import { launchMode } from '@/lib/launch-mode';
 import { requestGoogleSignIn, requestMagicLink } from './actions';
 
 type AuthPageProps = {
@@ -37,8 +38,8 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
         </div>
         <p className="text-muted-foreground">
           {returnStep.isContestFlow
-            ? `You need to be signed in to enter any contest. Sign in now, then finish username and paid-entry eligibility details before ${returnStep.shortLabel.toLowerCase()}.`
-            : 'Create your account, choose a public username, and keep eligibility and profile steps in one place.'}
+            ? `You need to be signed in to enter beta contests. Sign in now, then finish username and beta acknowledgements before ${returnStep.shortLabel.toLowerCase()}.`
+            : 'Create your account, choose a public username, and keep beta acknowledgements and profile steps in one place.'}
         </p>
       </section>
 
@@ -50,7 +51,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
             Google or email sign-in confirms account access. PickRank still captures public username, age confirmation,
-            state, Terms acceptance, and Privacy acceptance before paid entry.
+            state, Beta Terms acceptance, and Privacy acceptance before beta entry.
           </CardContent>
         </Card>
       ) : null}
@@ -160,17 +161,17 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-primary" aria-hidden="true" />
-            <CardTitle>Before Paid Entry</CardTitle>
+            <CardTitle>Before Beta Entry</CardTitle>
           </div>
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
           <p>
-            PickRank uses account sign-in, username setup, eligibility capture, and entry review so each contest step
+            PickRank uses account sign-in, username setup, beta acknowledgements, and entry review so each contest step
             feels clear and tied to one account.
           </p>
           <div className="soft-panel text-foreground">
-            Google sign-in does not provide age, state eligibility, Terms acceptance, or Privacy acceptance. PickRank
-            captures those in Profile before paid contest entry.
+            Google sign-in does not provide age, state, Beta Terms acceptance, or Privacy acceptance. PickRank captures
+            those in Profile before beta contest entry. {launchMode.betaNoCashValueCopy}
           </div>
           {next !== defaultReturnPath ? (
             <div className="detail-row bg-white text-foreground">

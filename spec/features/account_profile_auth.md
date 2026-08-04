@@ -14,6 +14,8 @@ MVP account/auth requires a verified user account before paid contest entry, use
 ## Summary
 PickRank users need an account before entering paid contests.
 
+During Early Access Beta, PickRank users need an account before entering free beta contests. They must choose a public username, confirm age, supply state/jurisdiction, accept Beta Terms, and accept the Privacy Policy before beta entry. This does not approve public real-money paid entry.
+
 The account system supports:
 
 - sign up

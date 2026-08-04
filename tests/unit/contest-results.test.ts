@@ -48,8 +48,22 @@ async function createTempFilePath(fileName: string) {
 async function createContestStorePath() {
   const contestDataFilePath = await createTempFilePath('contests.json');
   const baselineContestStore = await readFile(path.join(process.cwd(), 'data', 'contests.json'), 'utf8');
+  const contestStore = JSON.parse(baselineContestStore) as {
+    contests: Array<Record<string, unknown>>;
+  };
 
-  await writeFile(contestDataFilePath, baselineContestStore, 'utf8');
+  contestStore.contests = contestStore.contests.map((contest) =>
+    contest.id === 'week-1-qb-passing-yards'
+      ? {
+          ...contest,
+          entryFeeCents: 500,
+          entryCount: 600,
+          paidEntryCount: 600,
+        }
+      : contest,
+  );
+
+  await writeFile(contestDataFilePath, `${JSON.stringify(contestStore, null, 2)}\n`, 'utf8');
 
   return contestDataFilePath;
 }

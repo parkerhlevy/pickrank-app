@@ -3,6 +3,7 @@ import { ArrowRight, CreditCard, Info, ShieldCheck, WalletCards } from 'lucide-r
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Notice } from '@/components/ui/notice';
+import { launchMode } from '@/lib/launch-mode';
 
 export default function WalletPage() {
   return (
@@ -13,12 +14,12 @@ export default function WalletPage() {
             <p className="eyebrow">Wallet</p>
             <h1 className="text-3xl font-black leading-tight">PickRank Wallet</h1>
           </div>
-          <span className="status-pill shrink-0">Placeholder-safe</span>
+          <span className="status-pill shrink-0">{launchMode.displayName}</span>
         </div>
         <div className="flex flex-col gap-3">
           <p className="text-muted-foreground">
-            Account balance preview for contest funding and future winnings. Cash Balance and Site Credit stay distinct,
-            and wallet actions remain disabled until provider and compliance review is complete.
+            Beta Pass status for free beta contests. Paid balances, deposits, withdrawals, payouts, and wallet actions
+            remain disabled until provider and compliance review is complete.
           </p>
           <Link href="/how-it-works" className="inline-link shrink-0">
             How It Works
@@ -33,19 +34,19 @@ export default function WalletPage() {
             <CardTitle>Balance Overview</CardTitle>
           </div>
           <CardDescription className="text-slate-300">
-            Placeholder values with product-accurate PickRank balance labels.
+            Early Access Beta uses a Beta Pass instead of cash-like credits.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-3 pt-5 sm:grid-cols-2">
           <div className="metric-tile">
-            <p className="text-sm text-muted-foreground">Cash Balance</p>
-            <p className="numeric text-2xl font-bold">$0.00</p>
-            <p className="mt-1 text-xs text-muted-foreground">Withdrawable winnings after provider and compliance review.</p>
+            <p className="text-sm text-muted-foreground">{launchMode.betaPassLabel}</p>
+            <p className="numeric text-2xl font-bold">Active</p>
+            <p className="mt-1 text-xs text-muted-foreground">Covers free beta entries. No cash value.</p>
           </div>
           <div className="metric-tile">
-            <p className="text-sm text-muted-foreground">Site Credit</p>
+            <p className="text-sm text-muted-foreground">Future Paid Balances</p>
             <p className="numeric text-2xl font-bold">$0.00</p>
-            <p className="mt-1 text-xs text-muted-foreground">Non-withdrawable value for refunds or promotions.</p>
+            <p className="mt-1 text-xs text-muted-foreground">Not live during beta.</p>
           </div>
         </CardContent>
       </Card>
@@ -54,24 +55,24 @@ export default function WalletPage() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <CreditCard className="h-5 w-5 text-primary" aria-hidden="true" />
-            <CardTitle>Contest Entry Funding</CardTitle>
+          <CardTitle>Beta Entry Access</CardTitle>
           </div>
           <CardDescription>
-            Future contest entries will review available PickRank balances before any external amount due.
+            Beta entries are free to play. Future paid contest entries will use a separate provider-backed funding path.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
           <div className="detail-row">
-            <span>Site Credit</span>
-            <span className="text-muted-foreground">Applied first</span>
+            <span>{launchMode.betaPassLabel}</span>
+            <span className="text-muted-foreground">Active during beta</span>
           </div>
           <div className="detail-row">
-            <span>Cash Balance</span>
-            <span className="text-muted-foreground">Applied after Site Credit</span>
+            <span>No payouts</span>
+            <span className="text-muted-foreground">No cash prizes</span>
           </div>
           <div className="detail-row">
             <span>Amount Due Today</span>
-            <span className="text-muted-foreground">External provider required</span>
+            <span className="text-muted-foreground">$0.00 during beta</span>
           </div>
         </CardContent>
       </Card>
@@ -88,13 +89,13 @@ export default function WalletPage() {
             variant="muted"
             icon={Info}
             title="Wallet actions are not live yet"
-            description="Payment providers, external deposits, cash withdrawals, and wallet ledger history are not live in the current product."
+            description="Payment providers, external deposits, cash withdrawals, payouts, and wallet ledger history are not live in the current product."
           />
           <Notice
             variant="warning"
             icon={ShieldCheck}
             title="Compliance and provider review still required"
-            description="Site Credit cannot be withdrawn. Public real-money launch still requires legal, provider, and compliance review."
+            description="Beta Pass cannot be withdrawn or redeemed for cash. Public real-money launch still requires legal, provider, and compliance review."
             badge="Not live"
           />
         </CardContent>
@@ -115,7 +116,7 @@ export default function WalletPage() {
             variant="muted"
             icon={WalletCards}
             title="Wallet belongs to your PickRank account"
-            description="Use Profile for account identity and readiness. Use Wallet for the balance summary while actions are not live."
+            description="Use Profile for account identity and beta readiness. Use Wallet for Beta Pass status while paid actions are not live."
           />
           <div className="grid gap-3 sm:grid-cols-2">
             <Button asChild variant="secondary" className="w-full">

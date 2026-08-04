@@ -14,6 +14,15 @@ describe('contest data backbone', () => {
     expect(getContestDefaultLineupOrder(contest)).toHaveLength(10);
   });
 
+  it('keeps the public launch contest free to enter with no paid prize pool', async () => {
+    const contest = await getContestById('week-1-qb-passing-yards');
+
+    expect(contest.entryFeeCents).toBe(0);
+    expect(contest.paidEntryCount).toBe(0);
+    expect(contest.prizePoolCents).toBe(0);
+    expect(contest.payoutRows.every((row) => row.value === '$0.00')).toBe(true);
+  });
+
   it('returns the requested contest when building post-entry routes', async () => {
     const contest = await getContestById('week-1-sunday-qb-passing-yards');
 

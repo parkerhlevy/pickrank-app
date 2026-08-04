@@ -44,7 +44,7 @@ describe('contest entry confirmation policy', () => {
 
   it('fails closed for paid entries by default', () => {
     expect(canConfirmContestEntry(500)).toBe(false);
-    expect(getContestEntryConfirmationError(500)).toContain('Complete age, location');
+    expect(getContestEntryConfirmationError(500)).toContain('Complete age, state');
   });
 
   it('blocks paid entries when eligibility is still pending review', () => {
@@ -57,10 +57,10 @@ describe('contest entry confirmation policy', () => {
     ).toContain('pending legal and provider review');
   });
 
-  it('still fails closed on payment infrastructure after eligibility passes', () => {
+  it('still fails closed on paid launch mode after eligibility passes', () => {
     expect(canConfirmContestEntry(500, { eligibility: eligibleProfile })).toBe(false);
     expect(getContestEntryConfirmationError(500, { eligibility: eligibleProfile })).toContain(
-      'verified payment infrastructure',
+      'not available during Early Access Beta',
     );
   });
 
@@ -111,7 +111,7 @@ describe('contest entry confirmation policy', () => {
     expect(getContestEntryConfirmationError(500, {
       eligibility: eligibleProfile,
       viewerSource: 'supabase',
-    })).toContain('verified payment infrastructure');
+    })).toContain('not available during Early Access Beta');
   });
 
   it('never enables the E2E entry path in production', () => {

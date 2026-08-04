@@ -147,12 +147,12 @@ export default async function AdminContestsPage({
                     type="number"
                     min="0"
                     step="0.01"
-                    defaultValue="5.00"
+                    defaultValue="0.00"
                     required
                   />
                   <p className="text-xs leading-5 text-muted-foreground">
-                    Use 0.00 only for controlled free/test contests. Paid-entry launch still requires payment and
-                    compliance approval.
+                    Early Access Beta contests should use 0.00. Paid-entry launch still requires payment and compliance
+                    approval.
                   </p>
                 </Field>
                 <Field>
@@ -169,9 +169,8 @@ export default async function AdminContestsPage({
               </div>
 
               <div className="rounded-lg border bg-slate-50 px-3 py-3 text-sm text-muted-foreground">
-                Draft contests save as hidden with `qb_passing_yards`, the current lineup shell, and the current
-                economics defaults. Operators still run validation and confirm publish manually, including deliberate
-                $0 free/test contests.
+                Draft contests save as hidden with `qb_passing_yards`, the current lineup shell, and beta-safe $0 entry
+                defaults. Operators still run validation and confirm publish manually.
               </div>
 
               <Button type="submit" className="w-full">

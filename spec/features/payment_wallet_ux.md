@@ -18,6 +18,20 @@ There is no strong MVP shortcut for real-money contest entries and withdrawals.
 
 MVP should not attempt to manually manage card payments, bank payouts, compliance-sensitive money movement, or withdrawal operations without a payment provider.
 
+## Early Access Beta Override
+
+Early Access Beta is free to play.
+
+During beta:
+
+- entry cost is `$0.00`
+- Beta Pass covers free beta entry access
+- Beta Pass has no cash value
+- no payouts or cash prizes are available
+- no deposits, withdrawals, external payment sessions, cash-balance movement, or wallet-ledger money movement are live
+
+This override does not delete the paid-contest payment model. It defers it until legal, provider, payment, withdrawal, and compliance gates are complete.
+
 Provider selection is still open.
 
 Potential provider categories:

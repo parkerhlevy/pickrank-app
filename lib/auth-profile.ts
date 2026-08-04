@@ -1,9 +1,10 @@
 import type { User } from '@supabase/supabase-js';
+import { getEntryReviewLabel } from '@/lib/launch-mode';
 
 export const defaultReturnPath = '/profile';
 export const verifyEmailToEnterContestsMessage = 'Verify your email to enter contests.';
 export const eligibilityToEnterContestsMessage =
-  'Complete age, location, Terms, and Privacy acknowledgements before paid entry.';
+  'Complete age, state, Beta Terms, and Privacy acknowledgements before beta entry.';
 
 export type EligibilityStatus =
   | 'unknown'
@@ -186,15 +187,15 @@ export function validateEligibilityAcknowledgements({
   }
 
   if (!ageConfirmed) {
-    return 'Confirm you meet the age requirement to enter paid contests.';
+    return 'Confirm you meet the age requirement to enter beta contests.';
   }
 
   if (!termsAccepted) {
-    return 'Accept the Terms before paid entry.';
+    return 'Accept the Beta Terms before beta entry.';
   }
 
   if (!privacyPolicyAccepted) {
-    return 'Accept the Privacy Policy before paid entry.';
+    return 'Accept the Privacy Policy before beta entry.';
   }
 
   return null;
@@ -244,11 +245,12 @@ export function getReturnStepCopy(next: string): ReturnStepCopy {
   const isLineupPath = pathPart.endsWith('/lineup');
 
   if (stage === 'payment-review' || isPaymentPath) {
+    const entryReviewLabel = getEntryReviewLabel();
     return {
-      actionLabel: 'Continue to Payment Review',
-      detail: `Payment Review for ${contestTitle}`,
+      actionLabel: `Continue to ${entryReviewLabel}`,
+      detail: `${entryReviewLabel} for ${contestTitle}`,
       isContestFlow: true,
-      shortLabel: 'Payment Review',
+      shortLabel: entryReviewLabel,
     };
   }
 

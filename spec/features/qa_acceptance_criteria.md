@@ -93,6 +93,17 @@ MVP is not ready for beta unless:
 
 MVP is not ready for public real-money launch unless beta acceptance criteria pass and all legal/payment/provider launch gates are complete.
 
+Early Access Beta acceptance criteria:
+
+- public contests are free to enter
+- Beta Pass has no cash value
+- no payouts or cash prizes appear in beta results
+- beta entries increment total entries only
+- beta entries do not increment paid entries
+- paid entry remains blocked server-side
+- users complete sign-in, username, age confirmation, state capture, Beta Terms acceptance, and Privacy acceptance before beta entry
+- Beta Terms, Privacy Policy, Beta Contest Rules, and Responsible Play routes exist and are marked pending counsel review
+
 ---
 
 ## 1. Account + Auth Tests

@@ -141,7 +141,7 @@ test('signed-out users are redirected to auth from protected entry routes and ke
   }
 });
 
-test('signed-in users with pending eligibility cannot confirm paid contest entry', async ({ page }) => {
+test('signed-in users with pending paid eligibility can review free beta entry', async ({ page }) => {
   await page.context().addCookies([
     {
       name: e2eAuthCookieName,
@@ -167,15 +167,15 @@ test('signed-in users with pending eligibility cannot confirm paid contest entry
   ]);
 
   await page.goto('/contests/week-1-qb-passing-yards');
-  await expect(page.getByRole('button', { name: 'Eligibility Pending Review' })).toBeDisabled();
+  await expect(page.getByRole('link', { name: 'Enter Free Beta Contest' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Eligibility Pending Review' })).toHaveCount(0);
   await expect(page.getByRole('link', { name: 'Enter Contest - $5' })).toHaveCount(0);
 
   await page.goto('/contests/week-1-qb-passing-yards/payment');
 
-  await expect(page.getByText('Eligibility check')).toBeVisible();
-  await expect(page.getByText('Paid contest entry is unavailable while eligibility is pending legal and provider review.')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Confirm Entry' })).toBeDisabled();
+  await expect(page.getByText('Free beta entry', { exact: true })).toBeVisible();
+  await expect(page.getByText('This contest is free to play during Early Access Beta.')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Confirm Entry' })).toBeEnabled();
 });
 
 signedInTest.describe('protected entry flow with signed-in auth fixture', () => {
@@ -210,7 +210,9 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
 
     await page.goto('/contests/week-1-qb-passing-yards/payment');
     await expect(page.getByText('Step 2 of 4')).toBeVisible();
-    await expect(page.getByText('Review your entry before you confirm')).toBeVisible();
+    await expect(
+      page.getByText('Review your free beta entry and confirm your Beta Pass'),
+    ).toBeVisible();
     const confirmEntryButton = page.getByRole('button', { name: 'Confirm Entry' });
     await expect(confirmEntryButton).toBeVisible();
     await confirmEntryButton.click();

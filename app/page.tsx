@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { Brain, CalendarDays, CheckCircle2, MailCheck, PlayCircle, ShieldCheck, Trophy } from 'lucide-react';
 import { ContestBoardPreview } from '@/components/contests/contest-board-preview';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { launchMode } from '@/lib/launch-mode';
 import { WaitlistForm } from '@/components/waitlist/waitlist-form';
 
 const landingVideoPath = '/marketing/pickrank-landing-video-locked-in-final.mp4';
@@ -55,8 +56,8 @@ const trustSignals = [
     icon: CheckCircle2,
   },
   {
-    title: 'Email-only early access',
-    description: 'Join the waitlist now. Account setup and contest entry stay separate.',
+    title: launchMode.displayName,
+    description: 'Free beta contests use a Beta Pass. No payouts or cash prizes are available during beta.',
     icon: MailCheck,
   },
 ];
@@ -110,7 +111,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         <div className="relative grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
           <div className="space-y-5">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/8 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-blue-100">
-              Early access
+              {launchMode.displayName}
             </div>
             <div className="space-y-3">
               <Image
@@ -125,8 +126,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 15 players. Pick 10. Rank them.
               </h1>
               <p className="max-w-2xl text-base leading-7 text-slate-200 sm:text-lg">
-                Think you know who’s going off this week? Prove it. Rank your top 10 players, then see how your picks
-                stack up when the games are over and compete for the top spot.
+                Think you know who&apos;s going off this week? Prove it. Rank your top 10 players, then see how your picks
+                stack up when the games are over. Free to play during beta.
               </p>
             </div>
             <div className="max-w-xl">
@@ -246,7 +247,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         <div className="mx-auto max-w-2xl space-y-3">
           <h2 className="text-2xl font-black leading-tight">Think you can rank them better?</h2>
           <p className="text-sm leading-6 text-muted-foreground sm:text-base">
-            PickRank is coming soon. Join the waitlist and be among the first to play for cash prizes.
+            PickRank is opening as Early Access Beta. Join the waitlist and be among the first to play free beta contests.
           </p>
         </div>
         <div className="mx-auto w-full max-w-xl">

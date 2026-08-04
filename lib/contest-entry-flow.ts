@@ -5,6 +5,7 @@ import {
   type EligibilityStatus,
   verifyEmailToEnterContestsMessage,
 } from '@/lib/auth-profile';
+import { getEntryReviewLabel, launchMode } from '@/lib/launch-mode';
 
 export const contestEntryStages = ['not-entered', 'payment-review', 'entered', 'lineup'] as const;
 export const contestEntryCookieName = 'pickrank_demo_entry_state';
@@ -35,12 +36,12 @@ const stageCopyMap: Record<ContestEntryStage, ContestEntryStateCopy> = {
   'not-entered': {
     badge: 'Step 1 of 4',
     title: 'Review the contest before you enter',
-    description: 'Check the contest details, review your payment, then build your lineup before lock.',
+    description: 'Check the contest details, review your beta entry, then build your lineup before lock.',
   },
   'payment-review': {
     badge: 'Step 2 of 4',
-    title: 'Review your entry before you confirm',
-    description: 'Check your fee breakdown, then confirm your entry and head to your lineup.',
+    title: 'Review your beta entry before you confirm',
+    description: 'Confirm your Beta Pass entry, then head to your lineup.',
   },
   entered: {
     badge: 'Step 3 of 4',
@@ -58,12 +59,12 @@ const contestEntryStepCopy: ContestEntryStepCopy[] = [
   {
     key: 'not-entered',
     label: 'Contest Detail',
-    summary: 'Check the contest details, lock time, and payout overview before you enter.',
+    summary: 'Check the contest details, lock time, and beta results overview before you enter.',
   },
   {
     key: 'payment-review',
-    label: 'Payment Review',
-    summary: 'Review your entry fee, applied balances, and amount due today.',
+    label: getEntryReviewLabel(),
+    summary: 'Review your free beta entry and Beta Pass status.',
   },
   {
     key: 'entered',
@@ -274,9 +275,18 @@ export function getContestDetailPrimaryAction({
     };
   }
 
+  if (!isFreeEntryContest && !launchMode.paidEntryEnabled) {
+    return {
+      label: 'Paid Entry Coming Later',
+      href: null,
+      disabled: true,
+      tone: 'warning' as const,
+    };
+  }
+
   if (isContestOpen) {
     return {
-      label: isFreeEntryContest ? 'Enter Free Test Contest' : `Enter Contest - ${entryFee}`,
+      label: isFreeEntryContest ? 'Enter Free Beta Contest' : `Enter Contest - ${entryFee}`,
       href: next,
       disabled: false,
       tone: 'default' as const,

@@ -1,4 +1,5 @@
 import type { ProfileEligibility } from '@/lib/auth-profile';
+import { launchMode } from '@/lib/launch-mode';
 
 type ContestEntryViewerSource = 'anonymous' | 'supabase' | 'e2e-fixture';
 
@@ -18,7 +19,7 @@ export function isControlledTestEntryMode(context: ContestEntryConfirmationConte
 
 export function getPaidContestEligibilityError(eligibility: ProfileEligibility | null | undefined) {
   if (!eligibility?.isEligibilityComplete) {
-    return 'Complete age, location, Terms, and Privacy acknowledgements before paid entry.';
+    return 'Complete age, state, Beta Terms, and Privacy acknowledgements before contest entry.';
   }
 
   if (eligibility.accountStatus !== 'active') {
@@ -116,6 +117,10 @@ export function getContestEntryConfirmationError(
 
   if (eligibilityError) {
     return eligibilityError;
+  }
+
+  if (!launchMode.paidEntryEnabled) {
+    return 'Paid contest entry is not available during Early Access Beta.';
   }
 
   return 'Paid contest entry is unavailable until verified payment infrastructure is connected.';

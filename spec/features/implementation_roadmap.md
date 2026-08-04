@@ -24,6 +24,14 @@ Recommended build strategy:
 4. Add provider integrations.
 5. Add real-money launch gates only after legal/payment review.
 
+Current launch posture:
+
+```text
+Early Access Beta: free-to-play contests only.
+```
+
+Early Access Beta uses Beta Pass entry access. Beta Pass has no cash value. No payouts, cash prizes, deposits, withdrawals, or wallet-ledger money movement are live during beta.
+
 ---
 
 ## Build Philosophy
@@ -227,6 +235,8 @@ Allow internal team to create and publish weekly contests.
 ## Goal
 Build the playable contest loop using test/free entry mode.
 
+For Early Access Beta, this free-entry mode is the public launch mode, not only an internal proof mode.
+
 ## Build
 
 - entry creation endpoint
@@ -254,7 +264,7 @@ Do not block this phase on real payment integration.
 
 ## Done when
 
-- logged-in user can enter a test contest
+- logged-in user can enter a free beta contest after profile and beta acknowledgements are complete
 - default lineup is assigned
 - user can reorder QBs
 - user can save/re-save lineup

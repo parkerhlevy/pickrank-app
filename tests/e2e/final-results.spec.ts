@@ -264,6 +264,9 @@ test.beforeEach(async () => {
     if (contest.id === targetContestId) {
       return {
         ...contest,
+        entryFeeCents: 1000,
+        entryCount: 500,
+        paidEntryCount: 500,
         status: 'locked',
         visibilityStatus: 'visible',
       };
@@ -568,13 +571,13 @@ test('locks and finalizes the same zero-fee proof contest without paid count or 
 
   await entrantPage.goto(`/leaderboard?contest=${freeProofContestId}`);
   await expect(entrantPage.getByRole('heading', { name: 'Final Leaderboard' })).toBeVisible();
-  await expect(entrantPage.getByText('No payout').first()).toBeVisible();
+  await expect(entrantPage.getByText('Beta contest - no payout').first()).toBeVisible();
 
   await entrantPage.goto(`/contests/${freeProofContestId}/results`);
   await expect(entrantPage.getByText(`You finished ${entrantFinalResult!.finalRankDisplay}`)).toBeVisible();
   await expect(entrantPage.getByText(`${entrantFinalResult!.totalScore} pts`)).toBeVisible();
-  await expect(entrantPage.getByText('$0.00').first()).toBeVisible();
-  await expect(entrantPage.getByText('No payout').first()).toBeVisible();
+  await expect(entrantPage.getByText('Final Result', { exact: true })).toBeVisible();
+  await expect(entrantPage.getByText('Beta contest - no payout').first()).toBeVisible();
 
   await operatorContext.close();
   await entrantContext.close();

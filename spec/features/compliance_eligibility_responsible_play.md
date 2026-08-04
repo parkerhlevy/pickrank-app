@@ -18,6 +18,22 @@ However, paid sports-related contests are regulated differently across U.S. stat
 
 Do not assume nationwide paid contest availability.
 
+## Early Access Beta Boundary
+
+PickRank's first public launch mode is Early Access Beta with free-to-play contests only.
+
+Beta contests use a Beta Pass model:
+
+- Beta Pass grants free beta entry access.
+- Beta Pass has no cash value.
+- Beta Pass cannot be withdrawn or redeemed for cash.
+- Beta contests have no payouts and no cash prizes.
+- Paid contests remain planned for a later launch.
+
+Free beta launch is a risk-reduction product posture, not a legal bypass. Counsel should still review Beta Terms, Privacy Policy, Beta Contest Rules, no-cash-value language, age/state collection, and marketing claims before broad public use.
+
+During beta, completed age confirmation, state capture, Beta Terms acceptance, and Privacy acceptance may allow free beta entry. They must not be treated as public real-money paid-entry approval.
+
 ## Current Verification Boundary
 
 The current product foundation can collect and display account-level eligibility inputs, but it cannot independently verify legal eligibility for public real-money paid contests.

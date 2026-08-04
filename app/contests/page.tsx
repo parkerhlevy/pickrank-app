@@ -1,10 +1,11 @@
 import Link from 'next/link';
-import { ArrowRight, Clock, DollarSign, ListOrdered, ShieldCheck, Target, Users } from 'lucide-react';
+import { ArrowRight, Clock, ListOrdered, ShieldCheck, Target, Ticket, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { ContestBoardPreview } from '@/components/contests/contest-board-preview';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { getContestDefaultLineupOrder, getContestSelectablePlayers, listPublicContests, type ContestSummary } from '@/lib/contest-data';
+import { launchMode } from '@/lib/launch-mode';
 
 export default async function ContestsPage() {
   const contests = await listPublicContests();
@@ -24,8 +25,8 @@ export default async function ContestsPage() {
           </Link>
         </div>
         <p className="text-muted-foreground">
-          Find a contest, scan the 15-player slate, and decide if you can rank the top 10 more accurately than the field.
-          You can browse first and sign in only when you are ready to enter.
+          Find a free beta contest, scan the 15-player slate, and decide if you can rank the top 10 more accurately than
+          the field. You can browse first and sign in only when you are ready to enter.
         </p>
       </div>
 
@@ -33,7 +34,7 @@ export default async function ContestsPage() {
         <QuickRead
           icon={Target}
           title="One stat"
-          description="Each contest tracks one NFL stat category, such as QB passing yards."
+          description="Each free beta contest tracks one NFL stat category, such as QB passing yards."
         />
         <QuickRead
           icon={ListOrdered}
@@ -72,7 +73,7 @@ export default async function ContestsPage() {
             />
             <Button asChild className="w-full">
               <Link href={`/contests/${featuredContest.id}`}>
-                {featuredContest.contestStatus === 'open' ? 'Enter Contest' : 'View Contest'}
+                {featuredContest.contestStatus === 'open' ? 'Enter Free Beta Contest' : 'View Contest'}
               </Link>
             </Button>
           </CardContent>
@@ -171,10 +172,10 @@ function ContestStats({
   return (
     <div className={compact ? 'grid grid-cols-2 gap-3 text-sm' : 'grid grid-cols-2 gap-3 text-sm'}>
       <Stat icon={ListOrdered} label="Slate" value={contest.slate} />
-      <Stat icon={DollarSign} label="Prize Pool" value={contest.prizePool} />
+      <Stat icon={Ticket} label="Beta Pass" value={launchMode.betaEntryLabel} />
       <Stat icon={Users} label="Entries" value={contest.entries} />
       <Stat icon={Clock} label="Lock Time" value={formatLockTime(contest.lockTime)} />
-      <Stat icon={DollarSign} label="Entry Fee" value={contest.entryFee} />
+      <Stat icon={Ticket} label="Entry Cost" value={contest.entryFeeCents === 0 ? '$0.00' : contest.entryFee} />
     </div>
   );
 }

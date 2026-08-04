@@ -63,9 +63,10 @@ The repo is past bare Phase 0 and currently includes:
 - Vitest wired
 - Basic route smoke tests
 
-Current branch reality on `main` as of 2026-07-31:
+Current branch reality on `main` as of 2026-08-02:
 
-- this machine is currently on `main` at `809186f Document preseason signoff and legal questions`; local `main` matches `origin/main` with no committed-but-unpushed work, and generated `next-env.d.ts` typed-route churn remains the only live worktree dirt
+- this machine is currently on `main`; local `main` matches `origin/main` with no committed-but-unpushed work, the active worktree now contains the narrow 2026-08-02 Remotion marketing-video teaching-flow update, and generated `next-env.d.ts` typed-route churn remains separate generated noise
+- the active implementation direction has shifted to Early Access Beta: public launch contests are free to play, visible launch contest seed data uses `$0.00` entry cost and `0` paid entries, public copy uses Beta Pass/no-cash-value/no-payout language, `/contests/:contest_id/payment` remains the route but is labeled `Entry Review`, and paid contests remain the future product direction behind legal, provider, payment, withdrawal, and compliance gates
 - the latest pushed repo baseline includes the 2026-07-07 leaderboard hardening plus Supabase access tightening that keeps `/leaderboard?contest=...` in explicit placeholder states for non-final contests and moves the hidden replay/live validation scripts onto `SUPABASE_SERVICE_ROLE_KEY`
 - the homepage integration keeps the live landing page pointed at `public/marketing/pickrank-landing-video-locked-in-final.mp4` with `public/marketing/pickrank-landing-thumb.png` as the poster, adds the Remotion repo-hygiene helper notes and script, and updates homepage coverage in `tests/e2e/homepage.spec.ts`
 - the 2026-07-08 homepage landing-page polish pass keeps that same video baseline, keeps the tighter video-line headline `15 players. Pick 10. Rank them.`, shortens the hero copy, collapses the above-the-fold CTA to a single waitlist-focused action, and trims the extra helper copy in the hero and video card without changing product behavior
@@ -130,7 +131,9 @@ Current branch reality on `main` as of 2026-07-31:
 - the latest local provider/admin baseline now includes the repeatable Replay validation harness, the hidden 2026 in-season live validation contest prep and fetch helpers, and the `/admin/contests` provisional preview plus refresh surface
 - the current Remotion source baseline is a motion-polished `34.5s` waitlist-focused cut under `assets/marketing/video/`, aligned to the 15-player / pick-10 product framing and the `pickrankgames.com` brand
 - the latest rendered review asset is `assets/marketing/video/out/pickrank-landing-video.mp4`
-- the live landing page now serves the finalized `Locked In` export from `public/marketing/pickrank-landing-video-locked-in-final.mp4` with `public/marketing/pickrank-landing-thumb.png` as the poster image, while the Remotion source-of-truth render remains under `assets/marketing/video/out/`
+- the 2026-08-02 Remotion teaching-flow pass keeps the same 34.5-second timing, `Locked In` music bed, CTA, poster path, and homepage video path, but changes the opening lesson to objective-first copy: `Same 15-player slate.`, `Pick 10.`, `Rank the final order.`, and `Closest board wins.`
+- the live landing page now serves the updated `Locked In` export from `public/marketing/pickrank-landing-video-locked-in-final.mp4` with `public/marketing/pickrank-landing-thumb.png` as the poster image, while the Remotion source-of-truth render remains under `assets/marketing/video/out/`
+- repo verification for the 2026-08-02 Remotion teaching-flow pass passes repo `npm run typecheck`, repo `npm run test` (`35` files, `189` tests passed), focused `npx eslint app/page.tsx tests/e2e/homepage.spec.ts`, `npm run lint` inside `assets/marketing/video`, unsandboxed `npm run render -- --timeout=120000`, two Remotion still-frame visual checks for the opening and intro scenes, and unsandboxed focused `npx playwright test tests/e2e/homepage.spec.ts` (`6` passed) after the expected sandbox `listen EPERM` server-bind failure
 - the latest local video pass on 2026-07-02 loosened headline tracking for readability, removed the misleading ranking arrow marker, and rebuilt the scoring beat into a simpler two-example points equation so the slide reads as "lowest total wins" instead of a dense rule card
 - the latest local video pass on 2026-07-03 restored several scene states that had drifted backward during earlier scoring/readability edits: selection now uses `Slate` and `Your Board`, ranking now animates to a clean final reorder with Mahomes landing in `#1`, scoring cards and rule pills are aligned more consistently, the differentiator headline is split into three lines, the weekly board shows actual point totals, and the CTA again uses the logo plus one waitlist button instead of duplicate waitlist copy
 - the current cut lock now lives in `docs/marketing/remotion-current-cut.md`; future Remotion passes should read that file before editing scene copy, UI state, or CTA content so older brief ideas do not slip back into the active cut
@@ -208,7 +211,7 @@ Current branch reality on `main` as of 2026-07-31:
 - before any payment/wallet or entry-cancellation slice closes, rerun `db/tests/0010_entry_integrity_hardening.sql` and add executable database coverage for unauthorized and cross-user cancellation, payment/refund coupling, atomic rollback, idempotent retries, contest-state cutoffs, and ledger/count reconciliation; failure of any case is release-blocking
 - the internal replay/live validation scripts now require `SUPABASE_SERVICE_ROLE_KEY` instead of the browser anon key because those hidden validation contests and snapshot tables should no longer depend on public-table access
 - the 2026-07-13 read-only security review of auth, entry, results, admin, provisional snapshot, and hidden validation-script boundaries passed `npm run typecheck` plus `npm run test` (`27` files, `124` tests passed), and its two narrow follow-ups were completed on 2026-07-15; future auth or operator workflow widening should keep auth redirects pinned to trusted configured origins and keep public leaderboard/results identity reads limited to display-handle data for users with saved final rows
-- the active marketing/Remotion and design-doc work was intentionally parked on 2026-07-02 in the local stashes `parked-remotion-design-2026-07-02` and `parked-next-env-noise-2026-07-02`; there is no active marketing dirt in the live `main` worktree right now
+- the older marketing/Remotion and design-doc work was intentionally parked on 2026-07-02 in the local stashes `parked-remotion-design-2026-07-02` and `parked-next-env-noise-2026-07-02`; current active marketing dirt in the live `main` worktree belongs to the narrow 2026-08-02 teaching-flow update
 - the earlier `/private/tmp/pickrank-lineup-verify` detached worktree is no longer present on disk, and Git now marks `/private/tmp/pickrank-waitlist` on branch `codex/waitlist-workflow` as prunable stale worktree metadata because its gitdir link is broken; treat that path as a separate parked lane until Parker explicitly asks to repair or prune it, and keep it out of `main` hygiene or security follow-up commits
 - the 2026-07-31 maintenance pass re-confirmed that broken `/private/tmp/pickrank-waitlist` metadata through `git worktree prune --dry-run --verbose`, but left it untouched because the parked waitlist branch still carries unique work and this run favors preservation over aggressive cleanup
 - the July 15 security/final-results hardening slice is now committed on `main`; keep generated `next-env.d.ts` churn and local `docs/analysis/` notes out of unrelated release commits, and do not mix the parked `/private/tmp/pickrank-waitlist` lane into `main` unless Parker explicitly asks to reconcile or remove it
@@ -333,26 +336,26 @@ The MVP includes:
 
 ## Suggested Next Slice
 
-Current preseason testing checklist for the free/test contest proof pass:
+Current beta-launch checklist:
 
 ```text
-docs/preseason-free-test-contest-runbook.md
+Early Access Beta launch readiness
 ```
 
-Use that runbook as the game-mechanics checklist before official preseason testing: live site navigation, `$0` admin contest setup, controlled free/test entry, lineup save, operator lock, finalization, leaderboard/results, and manual QA signoff. `docs/preseason-testing-runbook.md` intentionally points back to this canonical runbook. The latest dated signoff is `docs/qa/preseason-free-test-signoff-2026-07-29.md` and is intentionally `PARTIAL`: service-role-backed live provider prep and snapshot persistence now pass, but active-window non-zero stats or in-progress game state still need proof.
+Use the beta posture as the launch source of truth: free-to-play contests, Beta Pass, no cash value, no payouts, no cash prizes, and paid contests deferred behind legal/provider/payment/withdrawal/compliance gates. The existing preseason free/test runbook still matters for proving the contest loop, but public copy and visible contest data now need to read as Early Access Beta, not an internal-only proof mode.
 
 Next recommended slice:
 
 ```text
-Continue PickRank using the repo as source of truth. Keep explanations business-friendly. If the next priority is product proofing, continue from `docs/qa/preseason-free-test-signoff-2026-07-29.md`: rerun `npm run validate:live-provisional` during an active 2026 preseason game window, capture game counts, top provisional QB order, and either non-zero player stats or in-progress game state, and update the signoff from `PARTIAL` only if that active-window provider proof passes while official results still require typed `FINAL`. Do not add payment providers, withdrawals, payouts, wallet-ledger movement, KYC vendor integration, geolocation enforcement, provider automation as official results, public paid-entry enablement, scoring changes, or broad contest operations. If the design lane stays open instead, review the 2026-07-30 public conversion screenshots and routes first, then either make a second public-copy pass from Parker's tone/trust feedback or move to the deferred account surface pass across `/auth`, `/profile`, and `/wallet`, keeping that work presentation/accessibility-only.
+Continue PickRank using the repo as source of truth. Review the Early Access Beta implementation across Home, Contests, Contest Detail, Entry Review, Entry Success, Build Your Lineup, Leaderboard, Results, Auth, Profile, Wallet, and `/legal/*`. Verify that public beta contests are free to play, Beta Pass has no cash value, no payouts or cash prizes are shown, paid entry remains fail-closed, and the legal routes are marked pending counsel review. Keep paid-game architecture intact. Do not add payment providers, withdrawals, payouts, cash-balance or wallet-ledger movement, KYC vendor integration, geolocation enforcement, provider automation as official results, scoring changes, or broad contest operations. Run typecheck, tests, and focused browser checks before closing.
 ```
 
 Definition of done:
 
 - Start from `docs/agent-handoff.md`, `spec/product_spec.md`, and the relevant `spec/features/` files
-- Preserve the verified production eligibility foundation, paid-entry block, and shipped controlled test-entry boundary
+- Preserve the verified production eligibility foundation, paid-entry block, and beta free-entry boundary
 - Keep reviewer/admin-shell work and controlled test-entry work separate unless a future user-approved slice explicitly reopens both
-- Use the `/admin/contests` `Test Entry Readiness` panel plus the approved `$0` proof lock control for the controlled preseason proof; do not add broader contest operations controls without a separate approved slice
+- Use `$0.00` beta contest defaults and the existing proof lock control for no-money beta proof; do not add broader contest operations controls without a separate approved slice
 - Keep `next-env.d.ts` out
 - Execute or rehearse the runbook with explicit pass/fail notes for each operator step
 - Confirm any issue found is logged as a separate narrow follow-up before code changes begin
@@ -364,7 +367,7 @@ Definition of done:
 Use this default starter prompt pattern unless the next slice needs a tighter scoped variation:
 
 ```text
-Continue PickRank using the repo as source of truth. Use clear, ASD-STE100-inspired technical English: short sentences, active voice, one idea per sentence, consistent terms, and short paragraphs. Keep explanations business-friendly. Keep this slice limited to the next concrete product or deployment milestone, not git recovery. Before changing behavior, read `docs/agent-handoff.md`, `spec/product_spec.md`, and the relevant `spec/features/` file for the area you are touching, plus any route, QA, or marketing docs that directly govern that slice. Keep the slice narrow, avoid mixing provider/admin/auth/marketing work unless the files clearly belong together, and treat `next-env.d.ts` as generated noise unless a diff proves otherwise. Explain results business-first: what changed, why it matters, what passed, what remains risky, and what I need to do next.
+Continue PickRank using the repo as source of truth. Use clear, ASD-STE100-inspired technical English: short sentences, active voice, one idea per sentence, consistent terms, and short paragraphs. Keep explanations business-friendly. The current launch posture is Early Access Beta: free-to-play contests, Beta Pass, no cash value, no payouts, no cash prizes, and paid contests deferred behind legal/provider/payment/withdrawal/compliance gates. Before changing behavior, read `docs/agent-handoff.md`, `spec/product_spec.md`, and the relevant `spec/features/` file for the area you are touching, plus any route, QA, or marketing docs that directly govern that slice. Keep the slice narrow, avoid mixing provider/admin/auth/marketing work unless the files clearly belong together, and treat `next-env.d.ts` as generated noise unless a diff proves otherwise. Do not add payment providers, withdrawals, payouts, cash-balance or wallet-ledger movement, KYC vendor integration, geolocation enforcement, provider automation as official results, scoring changes, or broad contest operations unless explicitly requested. Explain results business-first: what changed, why it matters, what passed, what remains risky, and what I need to do next.
 ```
 
 ## Generated Files to Avoid Committing

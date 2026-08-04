@@ -14,6 +14,10 @@ const appRoutes = [
   { path: '/admin/eligibility', file: 'app/admin/eligibility/page.tsx' },
   { path: '/how-it-works', file: 'app/how-it-works/page.tsx' },
   { path: '/leaderboard', file: 'app/leaderboard/page.tsx' },
+  { path: '/legal/beta-rules', file: 'app/legal/beta-rules/page.tsx' },
+  { path: '/legal/privacy', file: 'app/legal/privacy/page.tsx' },
+  { path: '/legal/responsible-play', file: 'app/legal/responsible-play/page.tsx' },
+  { path: '/legal/terms', file: 'app/legal/terms/page.tsx' },
   { path: '/profile', file: 'app/profile/page.tsx' },
   { path: '/wallet', file: 'app/wallet/page.tsx' },
 ];
