@@ -63,10 +63,13 @@ The repo is past bare Phase 0 and currently includes:
 - Vitest wired
 - Basic route smoke tests
 
-Current branch reality on `main` as of 2026-08-02:
+Current branch reality on `main` as of 2026-08-04:
 
-- this machine is currently on `main`; local `main` matches `origin/main` with no committed-but-unpushed work, the active worktree now contains the narrow 2026-08-02 Remotion marketing-video teaching-flow update, and generated `next-env.d.ts` typed-route churn remains separate generated noise
-- the active implementation direction has shifted to Early Access Beta: public launch contests are free to play, visible launch contest seed data uses `$0.00` entry cost and `0` paid entries, public copy uses Beta Pass/no-cash-value/no-payout language, `/contests/:contest_id/payment` remains the route but is labeled `Entry Review`, and paid contests remain the future product direction behind legal, provider, payment, withdrawal, and compliance gates
+- this machine is currently on `main`; local `main` matches `origin/main` with no committed-but-unpushed work after pushing `74be5a7 Add Gary Levy to operator seed` and `55b2bfc Implement Early Access Beta launch mode`
+- the remaining live worktree dirt belongs to the parked Remotion/video/generated lane: `assets/marketing/video/**`, `docs/marketing/remotion-current-cut.md`, `public/marketing/pickrank-landing-video-locked-in-final.mp4`, and generated `next-env.d.ts`; keep those files out of unrelated commits unless the next slice explicitly resumes the marketing-video lane
+- Early Access Beta is now the pushed and deployed production posture: public launch contests are free to play, visible launch contest seed data uses `$0.00` entry cost and `0` paid entries, public copy uses Beta Pass/no-cash-value/no-payout language, `/contests/:contest_id/payment` remains the route but is labeled `Entry Review`, and paid contests remain the future product direction behind legal, provider, payment, withdrawal, and compliance gates
+- Vercel production deployment `dpl_2KU3hFwby5MS5PsoMqJ7WHYoEf89` is `READY` for commit `55b2bfcd71b74a44c9d0fd62f3aed8262287a20f` with deployment URL `https://pickrank-lqyzb25u3-parker-levys-projects.vercel.app`
+- repo verification for the Early Access Beta pivot passed `npm run typecheck`, `npm run test` (`36` files, `196` tests), focused `npx playwright test tests/e2e/homepage.spec.ts tests/e2e/lineup-builder.spec.ts --workers=1` (`14` passed), focused `npx playwright test tests/e2e/final-results.spec.ts --workers=1` (`4` passed), and `git diff --check`
 - the latest pushed repo baseline includes the 2026-07-07 leaderboard hardening plus Supabase access tightening that keeps `/leaderboard?contest=...` in explicit placeholder states for non-final contests and moves the hidden replay/live validation scripts onto `SUPABASE_SERVICE_ROLE_KEY`
 - the homepage integration keeps the live landing page pointed at `public/marketing/pickrank-landing-video-locked-in-final.mp4` with `public/marketing/pickrank-landing-thumb.png` as the poster, adds the Remotion repo-hygiene helper notes and script, and updates homepage coverage in `tests/e2e/homepage.spec.ts`
 - the 2026-07-08 homepage landing-page polish pass keeps that same video baseline, keeps the tighter video-line headline `15 players. Pick 10. Rank them.`, shortens the hero copy, collapses the above-the-fold CTA to a single waitlist-focused action, and trims the extra helper copy in the hero and video card without changing product behavior
@@ -145,7 +148,7 @@ Current branch reality on `main` as of 2026-08-02:
 - Supabase role foundations now exist in repo migrations for `roles` and `user_roles`, with `contest_operator` as the single enforced MVP internal role
 - internal operator assignment can now be staged by email before signup through `pending_user_roles`, which auto-converts into a real `user_roles` assignment when the matching user account is created
 - the active Supabase project now has migrations `0001` through `0004` applied, plus the `assign_first_contest_operator.sql` seed
-- operator bootstrap is confirmed for `parkerhlevy@gmail.com` as a live `contest_operator`, while `glevy59@icloud.com` is correctly staged in `pending_user_roles` and should auto-convert after signup
+- operator bootstrap is confirmed for `parkerhlevy@gmail.com` as a live `contest_operator`; the repo seed now targets `parkerhlevy@gmail.com`, `gary.levy59@gmail.com`, and `glevy59@icloud.com` for operator assignment or pending-role staging, but the two Gary addresses were not re-applied or reverified against live Supabase during the Early Access Beta push
 - the admin flow now records `created_by_admin_id`, `validated_by_admin_id`, and `published_by_admin_id`, and draft contests can now carry real `slatePlayers` rows plus stricter publish validation through the shared contest repository layer
 - the lineup shell no longer relies on the temporary 10-player subset shortcut; signed-in users can now save one ranked 10-quarterback lineup from the full 15-player contest slate against a persisted entry record
 - protected contest-entry routes now share one auth gate for signed-out, profile-incomplete, and email-unverified users, and the contest-detail CTA mirrors that same gating path
@@ -342,12 +345,12 @@ Current beta-launch checklist:
 Early Access Beta launch readiness
 ```
 
-Use the beta posture as the launch source of truth: free-to-play contests, Beta Pass, no cash value, no payouts, no cash prizes, and paid contests deferred behind legal/provider/payment/withdrawal/compliance gates. The existing preseason free/test runbook still matters for proving the contest loop, but public copy and visible contest data now need to read as Early Access Beta, not an internal-only proof mode.
+Use the beta posture as the launch source of truth: free-to-play contests, Beta Pass, no cash value, no payouts, no cash prizes, and paid contests deferred behind legal/provider/payment/withdrawal/compliance gates. The repo and Vercel production deployment now carry that posture. The existing preseason free/test runbook still matters for proving the contest loop, but public copy and visible contest data should read as Early Access Beta, not an internal-only proof mode.
 
 Next recommended slice:
 
 ```text
-Continue PickRank using the repo as source of truth. Review the Early Access Beta implementation across Home, Contests, Contest Detail, Entry Review, Entry Success, Build Your Lineup, Leaderboard, Results, Auth, Profile, Wallet, and `/legal/*`. Verify that public beta contests are free to play, Beta Pass has no cash value, no payouts or cash prizes are shown, paid entry remains fail-closed, and the legal routes are marked pending counsel review. Keep paid-game architecture intact. Do not add payment providers, withdrawals, payouts, cash-balance or wallet-ledger movement, KYC vendor integration, geolocation enforcement, provider automation as official results, scoring changes, or broad contest operations. Run typecheck, tests, and focused browser checks before closing.
+Continue PickRank using the repo as source of truth. Run a production Early Access Beta smoke pass against `https://www.pickrankgames.com` and the latest Vercel production deployment for Home, Contests, Contest Detail, Entry Review, Entry Success, Build Your Lineup, Leaderboard, Results, Auth, Profile, Wallet, and `/legal/*`. Verify that public beta contests are free to play, Beta Pass has no cash value, no payouts or cash prizes are shown, paid entry remains fail-closed, and the legal routes are marked pending counsel review. Confirm whether live Supabase contest data also needs a beta-safe data update beyond the repo `data/contests.json` fixture. Keep paid-game architecture intact. Do not add payment providers, withdrawals, payouts, cash-balance or wallet-ledger movement, KYC vendor integration, geolocation enforcement, provider automation as official results, scoring changes, or broad contest operations. Run typecheck, tests, and focused browser checks before closing.
 ```
 
 Definition of done:
