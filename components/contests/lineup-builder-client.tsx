@@ -62,6 +62,11 @@ type PlayerContext = {
   homeAway: 'home' | 'away';
 };
 
+type PlayerDisplayContext = {
+  nameLabel: string;
+  matchupLabel: string;
+};
+
 export function LineupBuilderClient({
   contest,
   entryId,
@@ -85,7 +90,7 @@ export function LineupBuilderClient({
   const previousInitialLineupStateKey = useRef(initialLineupStateKey);
   const lockTimeLabel = contest.lockTime.replace('Locks ', '');
   const playerContextByName = new Map(
-    contest.slatePlayers.map((player) => [player.displayName, formatPlayerContext(player)]),
+    contest.slatePlayers.map((player) => [player.displayName, formatPlayerDisplayContext(player)]),
   );
 
   const hasUnsavedChanges = hasUnsavedLineupChanges(lineupState.selectedOrder, lineupState.savedSelectedOrder);
@@ -582,16 +587,14 @@ export function LineupBuilderClient({
                         #{index + 1}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <p className="truncate font-semibold">{name}</p>
-                          <span className={`rounded-full border px-2 py-0.5 text-[0.6875rem] font-black uppercase ${rankStateClass}`}>
-                            {rankStateLabel}
-                          </span>
-                        </div>
+                        <p className="truncate font-semibold">{playerContext?.nameLabel ?? name}</p>
                         {playerContext ? (
-                          <p className="numeric mt-1 truncate text-xs text-muted-foreground">{playerContext}</p>
+                          <p className="numeric mt-1 truncate text-xs text-muted-foreground">{playerContext.matchupLabel}</p>
                         ) : null}
                       </div>
+                      <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[0.6875rem] font-black uppercase ${rankStateClass}`}>
+                        {rankStateLabel}
+                      </span>
                       <div className="ml-auto flex shrink-0 items-center gap-1">
                         {isEditable ? (
                           <Button
@@ -667,9 +670,9 @@ export function LineupBuilderClient({
                       return (
                         <div key={name} className="detail-row items-center text-sm">
                           <div className="min-w-0">
-                            <p className="truncate font-semibold">{name}</p>
+                            <p className="truncate font-semibold">{playerContext?.nameLabel ?? name}</p>
                             {playerContext ? (
-                              <p className="numeric mt-1 truncate text-xs text-muted-foreground">{playerContext}</p>
+                              <p className="numeric mt-1 truncate text-xs text-muted-foreground">{playerContext.matchupLabel}</p>
                             ) : null}
                           </div>
                           <Button
@@ -781,7 +784,9 @@ export function LineupBuilderClient({
   );
 }
 
-function formatPlayerContext(player: PlayerContext) {
-  const marker = player.homeAway === 'home' ? 'vs' : '@';
-  return `${player.teamAbbreviation} ${marker} ${player.opponentAbbreviation}`;
+function formatPlayerDisplayContext(player: PlayerContext): PlayerDisplayContext {
+  return {
+    nameLabel: `${player.displayName} (${player.teamAbbreviation})`,
+    matchupLabel: `${player.homeAway === 'home' ? 'vs.' : '@'} ${player.opponentAbbreviation}`,
+  };
 }

@@ -23,6 +23,11 @@ type PlayerContext = {
   homeAway: 'home' | 'away';
 };
 
+type PlayerDisplayContext = {
+  nameLabel: string;
+  matchupLabel: string;
+};
+
 type ContestBoardStagePanelProps = {
   title: string;
   description: string;
@@ -103,7 +108,7 @@ export function ContestBoardPreview({
   const isCompact = variant === 'compact';
   const playerPoolLabel = formatPlayerPoolLabel(slateLabel);
   const playerContextByName = new Map(
-    playerContexts.map((player) => [player.displayName, formatPlayerContext(player)]),
+    playerContexts.map((player) => [player.displayName, formatPlayerDisplayContext(player)]),
   );
 
   return (
@@ -145,20 +150,24 @@ export function ContestBoardPreview({
             <span className="numeric text-xs font-bold text-slate-500">{statCategory}</span>
           </div>
           <div className="space-y-2">
-            {slatePreview.map((player) => (
-              <div
-                key={player}
-                className="flex items-center justify-between gap-2 rounded-md bg-white px-3 py-2 text-sm shadow-sm"
-              >
-                <span className="min-w-0">
-                  <span className="block truncate font-semibold">{player}</span>
-                  {playerContextByName.has(player) ? (
-                    <span className="numeric block truncate text-xs text-slate-500">{playerContextByName.get(player)}</span>
-                  ) : null}
-                </span>
-                <ArrowRight className="h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden="true" />
-              </div>
-            ))}
+            {slatePreview.map((player) => {
+              const playerContext = playerContextByName.get(player);
+
+              return (
+                <div
+                  key={player}
+                  className="flex items-center justify-between gap-2 rounded-md bg-white px-3 py-2 text-sm shadow-sm"
+                >
+                  <span className="min-w-0">
+                    <span className="block truncate font-semibold">{playerContext?.nameLabel ?? player}</span>
+                    {playerContext ? (
+                      <span className="numeric block truncate text-xs text-slate-500">{playerContext.matchupLabel}</span>
+                    ) : null}
+                  </span>
+                  <ArrowRight className="h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden="true" />
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -171,23 +180,27 @@ export function ContestBoardPreview({
             <span className="numeric text-xs font-bold text-blue-700">{rankedPlayers.length}/10 ranked</span>
           </div>
           <div className="grid gap-2">
-            {rankedPreview.map((player, index) => (
-              <div
-                key={`${player}-${index}`}
-                className="flex items-center gap-2 rounded-md border border-blue-100 bg-white px-3 py-2 text-sm shadow-sm"
-              >
-                <span className="numeric flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-slate-950 text-xs font-black text-white">
-                  {index + 1}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate font-semibold">{player}</span>
-                  {playerContextByName.has(player) ? (
-                    <span className="numeric block truncate text-xs text-slate-500">{playerContextByName.get(player)}</span>
-                  ) : null}
-                </span>
-                <GripVertical className="h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden="true" />
-              </div>
-            ))}
+            {rankedPreview.map((player, index) => {
+              const playerContext = playerContextByName.get(player);
+
+              return (
+                <div
+                  key={`${player}-${index}`}
+                  className="flex items-center gap-2 rounded-md border border-blue-100 bg-white px-3 py-2 text-sm shadow-sm"
+                >
+                  <span className="numeric flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-slate-950 text-xs font-black text-white">
+                    {index + 1}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-semibold">{playerContext?.nameLabel ?? player}</span>
+                    {playerContext ? (
+                      <span className="numeric block truncate text-xs text-slate-500">{playerContext.matchupLabel}</span>
+                    ) : null}
+                  </span>
+                  <GripVertical className="h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden="true" />
+                </div>
+              );
+            })}
           </div>
           {variant !== 'compact' ? (
             <p className="mt-3 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold leading-5 text-emerald-900">
@@ -303,9 +316,11 @@ function formatPlayerPoolLabel(label: string) {
   return label.replace(/\bslate\b/gi, 'player pool');
 }
 
-function formatPlayerContext(player: PlayerContext) {
-  const marker = player.homeAway === 'home' ? 'vs' : '@';
-  return `${player.teamAbbreviation} ${marker} ${player.opponentAbbreviation}`;
+function formatPlayerDisplayContext(player: PlayerContext): PlayerDisplayContext {
+  return {
+    nameLabel: `${player.displayName} (${player.teamAbbreviation})`,
+    matchupLabel: `${player.homeAway === 'home' ? 'vs.' : '@'} ${player.opponentAbbreviation}`,
+  };
 }
 
 function BoardStageTile({

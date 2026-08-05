@@ -316,8 +316,8 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
     await expect(rankedLineupCard.locator('.status-pill').first()).toHaveText('10/10 Ranked');
     await expect(page.getByRole('button', { name: 'Save Your Board' })).toBeDisabled();
     await expect(page.locator('[data-lineup-player]').first()).toContainText('#1');
-    await expect(page.locator('[data-lineup-player]').first()).toContainText('Josh Allen');
-    await expect(page.locator('[data-lineup-player]').first()).toContainText('BUF vs BAL');
+    await expect(page.locator('[data-lineup-player]').first()).toContainText('Josh Allen (BUF)');
+    await expect(page.locator('[data-lineup-player]').first()).toContainText('vs. BAL');
     await expect(page.getByText(/Fill any open board spots from the player pool/i)).toBeVisible();
     await expect(page.getByText('Available Quarterbacks')).toBeVisible();
     await expect(page.getByText('C.J. Stroud')).toBeVisible();
@@ -458,8 +458,8 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
 
     await expect(rankedLineupCard.locator('.status-pill').first()).toHaveText('10/10 Ranked');
     await expect(page.getByText('5 Left in Pool')).toBeVisible();
-    await expect(page.getByText('C.J. Stroud')).toBeVisible();
-    await expect(page.getByText('HOU vs IND')).toBeVisible();
+    await expect(page.getByText('C.J. Stroud (HOU)')).toBeVisible();
+    await expect(page.getByText('vs. IND')).toBeVisible();
     await expect(page.getByText('Patrick Mahomes')).toBeVisible();
   });
 });
