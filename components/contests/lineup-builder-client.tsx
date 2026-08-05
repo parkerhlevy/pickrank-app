@@ -109,6 +109,9 @@ export function LineupBuilderClient({
       : lineupState.source === 'user_saved'
         ? 'Your saved board is current.'
         : 'This assigned board is current until you make a change.';
+  const savePanelClassName = hasUnsavedChanges
+    ? 'action-panel sticky bottom-24 z-20 sm:bottom-20'
+    : 'action-panel';
 
   useEffect(() => {
     if (previousInitialLineupStateKey.current === initialLineupStateKey) {
@@ -441,7 +444,7 @@ export function LineupBuilderClient({
 
   return (
     <>
-      <div ref={pageRootRef} className="space-y-6 pb-28" data-lineup-client-ready="false">
+      <div ref={pageRootRef} className="space-y-4 pb-32 sm:space-y-6 sm:pb-36" data-lineup-client-ready="false">
         <Button asChild variant="ghost" size="sm" className="-ml-3 justify-start">
           <Link href={`/contests/${contest.id}`}>
             <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
@@ -459,7 +462,7 @@ export function LineupBuilderClient({
                   {saveStateLabel}
                 </span>
               </div>
-              <h1 className="text-3xl font-black leading-tight">Build Your Board</h1>
+              <h1 className="text-2xl font-black leading-tight sm:text-3xl">Build Your Board</h1>
             </div>
             <Link href="/how-it-works" className="inline-link shrink-0">
               How It Works
@@ -468,7 +471,7 @@ export function LineupBuilderClient({
           <p className="text-muted-foreground">
             Choose your top 10 quarterbacks from the full player pool, rank them, and save one board for this single contest entry before lock.
           </p>
-          <div className="grid gap-2 text-sm sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2 text-sm">
             <div className="metric-tile">
               <p className="text-xs text-muted-foreground">Ranked</p>
               <p className="numeric mt-1 font-black">{lineupState.selectedOrder.length}/10</p>
@@ -486,7 +489,7 @@ export function LineupBuilderClient({
               <p className="numeric mt-1 font-black">{lockTimeLabel}</p>
             </div>
           </div>
-          <div className="section-card-muted flex flex-col gap-2 px-3 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+          <div className="section-card-muted flex flex-col gap-2 px-3 py-2.5 text-sm sm:flex-row sm:items-center sm:justify-between sm:py-3">
             <div>
               <p className="font-semibold">Step 4: Build Your Board</p>
               <p className="text-muted-foreground">{stateCopy.description}</p>
@@ -526,8 +529,8 @@ export function LineupBuilderClient({
         ) : null}
 
         <Card className="section-card">
-          <CardHeader>
-            <div className="flex items-start justify-between gap-3">
+          <CardHeader className="px-4 py-4 sm:px-6 sm:py-6">
+            <div className="grid gap-2 sm:flex sm:items-start sm:justify-between sm:gap-3">
               <div>
                 <CardTitle>{isEditable ? 'Your Board' : 'Locked Board'}</CardTitle>
                 <CardDescription>
@@ -541,9 +544,9 @@ export function LineupBuilderClient({
               </span>
             </div>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="section-card-muted px-3 py-3 text-sm">
-              <div className="flex items-center justify-between gap-3">
+          <CardContent className="space-y-3 px-4 pb-4 sm:px-6 sm:pb-6">
+            <div className="section-card-muted px-3 py-2.5 text-sm sm:py-3">
+              <div className="grid gap-2 sm:flex sm:items-center sm:justify-between sm:gap-3">
                 <div>
                   <p className="font-semibold">{isEditable ? 'Board Progress' : 'Saved Board Status'}</p>
                   <p className="text-muted-foreground">
@@ -557,7 +560,7 @@ export function LineupBuilderClient({
                 <span className="numeric status-pill shrink-0">{lineupState.selectedOrder.length}/10 Ranked</span>
               </div>
             </div>
-            <div className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(18rem,0.8fr)]">
+            <div className="grid gap-4">
               <div className="space-y-2">
                 {lineupState.selectedOrder.map((name, index) => {
                   const savedIndex = lineupState.savedSelectedOrder.indexOf(name);
@@ -579,29 +582,35 @@ export function LineupBuilderClient({
                     <div
                       key={name}
                       data-lineup-player={name}
-                      className={`section-card flex items-center gap-3 border-l-4 border-l-primary px-3 py-2.5 text-sm transition-[background-color,border-color,box-shadow,scale] ${
+                      className={`section-card grid gap-2 border-l-4 border-l-primary px-2.5 py-2.5 text-sm transition-[background-color,border-color,box-shadow,scale] ${
                         draggingPlayer === name ? 'scale-[0.99] border-primary bg-blue-50 shadow-md' : ''
                       }`}
                     >
-                      <div className="numeric flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-slate-950 text-sm font-black text-white">
-                        #{index + 1}
+                      <div className="grid grid-cols-[2.5rem_minmax(0,1fr)_auto] items-center gap-2">
+                        <div className="numeric flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-slate-950 text-sm font-black text-white">
+                          #{index + 1}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate font-semibold leading-5">{playerContext?.nameLabel ?? name}</p>
+                          {playerContext ? (
+                            <p className="numeric mt-0.5 truncate text-xs text-muted-foreground">{playerContext.matchupLabel}</p>
+                          ) : null}
+                        </div>
+                        <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[0.6875rem] font-black uppercase ${rankStateClass}`}>
+                          {rankStateLabel}
+                        </span>
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate font-semibold">{playerContext?.nameLabel ?? name}</p>
-                        {playerContext ? (
-                          <p className="numeric mt-1 truncate text-xs text-muted-foreground">{playerContext.matchupLabel}</p>
-                        ) : null}
-                      </div>
-                      <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[0.6875rem] font-black uppercase ${rankStateClass}`}>
-                        {rankStateLabel}
-                      </span>
-                      <div className="ml-auto flex shrink-0 items-center gap-1">
+                      <div
+                        className={`grid gap-1.5 border-t border-slate-100 pt-2 ${
+                          isEditable ? 'grid-cols-4' : 'grid-cols-1'
+                        }`}
+                      >
                         {isEditable ? (
                           <Button
                             type="button"
                             variant="ghost"
                             size="sm"
-                            className="h-9 w-9 min-h-9 min-w-9 rounded-md px-0"
+                            className="h-11 min-h-11 w-full min-w-11 rounded-md px-0"
                             onClick={() => handleRemovePlayer(name)}
                             aria-label={`Remove ${name} from your board`}
                           >
@@ -614,7 +623,7 @@ export function LineupBuilderClient({
                               type="button"
                               variant="secondary"
                               size="sm"
-                              className="h-9 w-9 min-h-9 min-w-9 rounded-md px-0"
+                              className="h-11 min-h-11 w-full min-w-11 rounded-md px-0"
                               onClick={() => handleMovePlayer(name, -1)}
                               disabled={index === 0}
                               aria-label={`Move ${name} up one rank`}
@@ -625,7 +634,7 @@ export function LineupBuilderClient({
                               type="button"
                               variant="secondary"
                               size="sm"
-                              className="h-9 w-9 min-h-9 min-w-9 rounded-md px-0"
+                              className="h-11 min-h-11 w-full min-w-11 rounded-md px-0"
                               onClick={() => handleMovePlayer(name, 1)}
                               disabled={index === lineupState.selectedOrder.length - 1}
                               aria-label={`Move ${name} down one rank`}
@@ -638,7 +647,7 @@ export function LineupBuilderClient({
                           type="button"
                           variant="secondary"
                           size="sm"
-                          className={`h-9 w-9 min-h-9 min-w-9 shrink-0 rounded-md border px-0 shadow-sm touch-none ${
+                          className={`h-11 min-h-11 w-full min-w-11 shrink-0 touch-none rounded-md border px-0 shadow-sm ${
                             draggingPlayer === name
                               ? 'cursor-grabbing border-primary bg-blue-100'
                               : 'cursor-grab border-slate-300 bg-white hover:border-primary hover:bg-blue-50'
@@ -654,8 +663,8 @@ export function LineupBuilderClient({
                   );
                 })}
               </div>
-              <div className="space-y-2 border-t pt-3 lg:border-l lg:border-t-0 lg:pl-4 lg:pt-0">
-                <div className="flex items-center justify-between gap-3">
+              <div className="space-y-2 border-t pt-3">
+                <div className="grid gap-2 sm:flex sm:items-center sm:justify-between sm:gap-3">
                   <div>
                     <p className="font-semibold">Available Quarterbacks</p>
                     <p className="text-xs text-muted-foreground">Fill any open board spots from the player pool.</p>
@@ -668,7 +677,7 @@ export function LineupBuilderClient({
                       const playerContext = playerContextByName.get(name);
 
                       return (
-                        <div key={name} className="detail-row items-center text-sm">
+                        <div key={name} className="detail-row items-center px-3 py-2.5 text-sm">
                           <div className="min-w-0">
                             <p className="truncate font-semibold">{playerContext?.nameLabel ?? name}</p>
                             {playerContext ? (
@@ -679,7 +688,7 @@ export function LineupBuilderClient({
                             type="button"
                             variant="secondary"
                             size="sm"
-                            className="h-9 shrink-0 gap-1 px-3"
+                            className="h-10 shrink-0 gap-1 px-3 sm:h-9"
                             onClick={() => handleAddPlayer(name)}
                             disabled={!isEditable || lineupState.selectedOrder.length >= 10}
                           >
@@ -700,8 +709,8 @@ export function LineupBuilderClient({
           </CardContent>
         </Card>
 
-        <div className="action-panel sticky bottom-20">
-          <div className="mb-3 grid gap-3 text-sm sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+        <div className={savePanelClassName}>
+          <div className="mb-3 grid gap-2 text-sm sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-3">
             <div className="flex items-start gap-3">
               <div
                 className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
@@ -719,7 +728,7 @@ export function LineupBuilderClient({
                 <p className="text-xs text-muted-foreground">{showSavedBanner ? 'Board saved just now.' : saveStateDescription}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-muted-foreground">
+            <div className="flex min-h-10 items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-muted-foreground">
               <Clock className="h-4 w-4 text-primary" aria-hidden="true" />
               <span className="numeric">Lock: {lockTimeLabel}</span>
             </div>
