@@ -23,8 +23,8 @@ export default function BetaRulesPage() {
           <CardDescription>{launchMode.betaNoCashValueCopy}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
-          <p>Each MVP beta contest uses a 15-quarterback slate and asks users to pick and rank 10 quarterbacks by passing yards.</p>
-          <p>Entries lock at the contest lock time. Lineups cannot be edited after lock.</p>
+          <p>Each MVP beta contest uses a 15-quarterback player pool and asks users to pick and rank 10 quarterbacks by passing yards.</p>
+          <p>Entries lock at the contest lock time. Boards cannot be edited after lock.</p>
           <p>Final results use saved final stats, rank-differential scoring, and the locked PickRank tiebreakers.</p>
           <p>Lower total score wins the beta leaderboard. Beta standings do not create cash prizes, payouts, or withdrawable balances.</p>
           <p>PickRank can pause, cancel, correct, or rerun a beta contest if testing, data, integrity, or operational issues require it.</p>

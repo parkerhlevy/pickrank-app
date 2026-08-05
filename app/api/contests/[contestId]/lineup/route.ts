@@ -22,7 +22,7 @@ export async function POST(
   if (!isContestLineupEditable(contest)) {
     return NextResponse.json(
       {
-        message: 'This contest is locked, so the lineup is now read-only.',
+        message: 'This contest is locked, so your board is now read-only.',
       },
       { status: 409 },
     );
@@ -31,13 +31,13 @@ export async function POST(
   const body = (await request.json()) as { order?: string[] };
 
   if (!Array.isArray(body.order)) {
-    return NextResponse.json({ message: 'A lineup order is required.' }, { status: 400 });
+    return NextResponse.json({ message: 'A board order is required.' }, { status: 400 });
   }
 
   const viewerIdentity = await getViewerIdentity();
 
   if (!viewerIdentity.isAuthenticated || !viewerIdentity.isProfileComplete || !viewerIdentity.isEmailVerified || !viewerIdentity.userId) {
-    return NextResponse.json({ message: 'Sign in with a ready account before saving a lineup.' }, { status: 401 });
+    return NextResponse.json({ message: 'Sign in with a ready account before saving your board.' }, { status: 401 });
   }
 
   try {
@@ -57,7 +57,7 @@ export async function POST(
 
     return response;
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unable to save this lineup right now.';
+    const message = error instanceof Error ? error.message : 'Unable to save your board right now.';
     const status = message === 'No persisted entry exists for this contest.' ? 404 : 400;
 
     return NextResponse.json({ message }, { status });

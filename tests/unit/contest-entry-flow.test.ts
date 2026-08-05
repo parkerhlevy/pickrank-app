@@ -28,7 +28,7 @@ describe('contest entry flow state', () => {
     expect(getContestEntryStage('unknown', 'payment-review')).toBe('payment-review');
   });
 
-  it('maps later-stage detail visits to lineup editing', () => {
+  it('maps later-stage detail visits to board editing', () => {
     expect(
       getContestDetailPrimaryAction({
         contestId: 'week-1-qb-passing-yards',
@@ -40,7 +40,7 @@ describe('contest entry flow state', () => {
         isEmailVerified: true,
       }),
     ).toEqual({
-      label: 'Edit Lineup',
+      label: 'Edit Your Board',
       href: '/contests/week-1-qb-passing-yards/progress?stage=lineup',
       disabled: false,
       tone: 'default',
@@ -59,7 +59,7 @@ describe('contest entry flow state', () => {
         isEmailVerified: true,
       }),
     ).toEqual({
-      label: 'View Lineup',
+      label: 'View Your Board',
       href: '/contests/week-1-qb-passing-yards/progress?stage=lineup',
       disabled: false,
       tone: 'default',
@@ -334,14 +334,14 @@ describe('contest entry flow state', () => {
       {
         key: 'entered',
         label: 'Entry Success',
-        summary: 'See your confirmed entry and head straight into your lineup.',
+        summary: 'See your confirmed entry and head straight into your board.',
         stepNumber: 3,
         status: 'upcoming',
       },
       {
         key: 'lineup',
-        label: 'Build Your Lineup',
-        summary: 'Rank your players and save your order until lock.',
+        label: 'Build Your Board',
+        summary: 'Rank your players and save your board until lock.',
         stepNumber: 4,
         status: 'upcoming',
       },

@@ -149,7 +149,7 @@ async function renderLeaderboardPage(requestedContestId?: string) {
         <>
           <ContestBoardStagePanel
             title={contest.title}
-            description="This contest board is resolved from saved final scoring. The slate is closed, rankings are final, and lower total score ranks higher."
+            description="This contest board is resolved from saved final scoring. The player pool is closed, rankings are final, and lower total score ranks higher."
             slateLabel={contest.slate}
             statCategory={contest.statCategory}
             lockTimeLabel={finalizedLabel}

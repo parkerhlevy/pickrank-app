@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { ArrowLeft, CheckCircle2, Clock, ListChecks } from 'lucide-react';
 import { redirect } from 'next/navigation';
-import { ContestBoardStagePanel, ContestJourneyRail } from '@/components/contests/contest-board-preview';
+import { ContestBoardStagePanel } from '@/components/contests/contest-board-preview';
 import { Notice } from '@/components/ui/notice';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -73,27 +73,25 @@ export default async function EntrySuccessPage({
         <p className="eyebrow">Entry Success</p>
         <h1 className="text-3xl font-black leading-tight">{contest.title}</h1>
         <p className="text-muted-foreground">
-          Your entry is confirmed. Head into Build Your Lineup now and keep editing until the contest locks.
+          Your entry is confirmed. Head into Build Your Board now and keep editing until the contest locks.
         </p>
       </div>
 
       <ContestBoardStagePanel
         title={contest.title}
-        description="Your entry is confirmed for this contest board. Continue to Build Your Lineup and save the ranked 10 before lock."
+        description="Your entry is confirmed for this contest board. Continue to Build Your Board and save your ranked 10 before lock."
         slateLabel={contest.slate}
         statCategory={contest.statCategory}
         lockTimeLabel={contest.lockTime.replace('Locks ', '')}
-        rankedCountLabel="Lineup ready"
+        rankedCountLabel="Board ready"
         stateLabel="Entry Confirmed"
       />
-
-      <ContestJourneyRail currentStage="entry-confirmed" />
 
       <Card className="section-card overflow-hidden">
         <CardHeader className="border-b border-emerald-900/60 bg-[linear-gradient(180deg,hsl(151_63%_18%)_0%,hsl(160_55%_20%)_100%)] text-white">
           <CardTitle>You&apos;re In</CardTitle>
           <CardDescription className="text-emerald-200">
-            Your contest entry is confirmed and your lineup is ready for your rankings.
+            Your contest entry is confirmed and your board is ready for your rankings.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 pt-5 text-sm">
@@ -110,14 +108,14 @@ export default async function EntrySuccessPage({
           </div>
           <div className="flex items-start gap-2">
             <ListChecks className="mt-0.5 h-4 w-4 text-primary" aria-hidden="true" />
-            <p className="numeric">Your lineup screen is ready with one clear next step: rank your top 10 quarterbacks and save your order.</p>
+            <p className="numeric">Your board screen is ready with one clear next step: rank your top 10 quarterbacks and save your board.</p>
           </div>
         </CardContent>
       </Card>
 
       <div className="action-panel">
         <Button asChild className="w-full">
-          <Link href={getContestEntryProgressHref(contest.id, 'lineup')}>Continue to Build Your Lineup</Link>
+          <Link href={getContestEntryProgressHref(contest.id, 'lineup')}>Continue to Build Your Board</Link>
         </Button>
       </div>
     </div>

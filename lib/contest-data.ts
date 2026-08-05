@@ -1114,7 +1114,7 @@ function toContestSummary(contest: ContestRecord): ContestSummary {
     entryCount: contest.entryCount,
     paidEntryCount: contest.paidEntryCount,
     minimum: `This contest needs at least ${contest.minEntriesToRun} total entries to run`,
-    slate: `${contest.slateSize}-QB slate`,
+    slate: `${contest.slateSize}-QB player pool`,
     slateSize: contest.slateSize,
     task,
     statCategory: 'Passing yards',

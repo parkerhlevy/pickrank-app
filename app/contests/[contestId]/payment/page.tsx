@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { AlertTriangle, ArrowLeft, CheckCircle2, CreditCard, ShieldCheck } from 'lucide-react';
 import { redirect } from 'next/navigation';
-import { ContestBoardStagePanel, ContestJourneyRail } from '@/components/contests/contest-board-preview';
+import { ContestBoardStagePanel } from '@/components/contests/contest-board-preview';
 import { Notice } from '@/components/ui/notice';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -99,21 +99,19 @@ export default async function PaymentReviewPage({
         <p className="eyebrow">{entryReviewLabel}</p>
         <h1 className="text-3xl font-black leading-tight">{contest.title}</h1>
         <p className="text-muted-foreground">
-          Review your free beta entry and confirm your Beta Pass before you continue to lineup setup.
+          Review your free beta entry and confirm your Beta Pass before you build your board.
         </p>
       </div>
 
       <ContestBoardStagePanel
         title={contest.title}
-        description="This entry belongs to one contest board. Confirm your Beta Pass entry first, then Build Your Lineup by ranking your top 10 from the slate."
+        description="This entry belongs to one contest board. Confirm your Beta Pass entry first, then Build Your Board by ranking your top 10 from the player pool."
         slateLabel={contest.slate}
         statCategory={contest.statCategory}
         lockTimeLabel={contest.lockTime.replace('Locks ', '')}
         rankedCountLabel="Ready after entry"
         stateLabel={entryReviewLabel}
       />
-
-      <ContestJourneyRail currentStage="entry-review" />
 
       <Card className="section-card overflow-hidden">
         <CardHeader className="section-card-header">
@@ -139,7 +137,7 @@ export default async function PaymentReviewPage({
           <div className="flex items-start justify-between gap-3">
             <div>
               <CardTitle>{stateCopy.title}</CardTitle>
-              <CardDescription>Confirm this entry, then head straight into Build Your Lineup for this contest.</CardDescription>
+              <CardDescription>Confirm this entry, then head straight into Build Your Board for this contest.</CardDescription>
             </div>
             <span className="status-pill shrink-0">{stateCopy.badge}</span>
           </div>
@@ -179,7 +177,7 @@ export default async function PaymentReviewPage({
             variant="success"
             icon={CheckCircle2}
             title="After confirmation"
-            description="Once you confirm, your entry is saved and you can head straight into Build Your Lineup."
+            description="Once you confirm, your entry is saved and you can head straight into Build Your Board."
           />
           <div className="section-card-muted px-3 py-3">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Up next</p>

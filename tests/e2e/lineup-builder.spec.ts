@@ -198,7 +198,7 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
     await writeFile(entryStorePath, originalEntryStore, 'utf8');
   });
 
-  signedInTest('entry screens reinforce the four-step handoff into the lineup builder', async ({ page }) => {
+  signedInTest('entry screens reinforce the four-step handoff into the board builder', async ({ page }) => {
     await allowControlledTestEntry(page);
     await page.context().addCookies([
       {
@@ -218,7 +218,7 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
     await confirmEntryButton.click();
     await expect(page).toHaveURL(/\/contests\/week-1-qb-passing-yards\/progress\?stage=entered$/);
     await expect(page.getByText('Step 3 of 4')).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Continue to Build Your Lineup' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Continue to Build Your Board' })).toBeVisible();
 
     await page.context().addCookies([
       {
@@ -230,10 +230,10 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
 
     await page.goto('/contests/week-1-qb-passing-yards/lineup');
     await expect(page.getByText('Step 4 of 4')).toBeVisible();
-    await expect(page.getByText('Step 4: Build Your Lineup')).toBeVisible();
+    await expect(page.getByText('Step 4: Build Your Board')).toBeVisible();
   });
 
-  signedInTest('controlled test entry creates one default lineup and routes to Build Your Lineup without paid count movement', async ({ page }) => {
+  signedInTest('controlled test entry creates one default board and routes to Build Your Board without paid count movement', async ({ page }) => {
     await allowControlledTestEntry(page);
     await updateContestFixture('week-1-qb-passing-yards', {
       entryFeeCents: 0,
@@ -256,9 +256,9 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
     await page.getByRole('button', { name: 'Confirm Entry' }).click();
 
     await expect(page).toHaveURL(/\/contests\/week-1-qb-passing-yards\/progress\?stage=entered$/);
-    await page.getByRole('link', { name: 'Continue to Build Your Lineup' }).click();
+    await page.getByRole('link', { name: 'Continue to Build Your Board' }).click();
     await expect(page).toHaveURL(/\/contests\/week-1-qb-passing-yards\/lineup$/);
-    await expect(page.locator('h1').filter({ hasText: 'Build Your Lineup' })).toBeVisible();
+    await expect(page.locator('h1').filter({ hasText: 'Build Your Board' })).toBeVisible();
     await expect(page.locator('[data-lineup-player]')).toHaveCount(10);
 
     const savedStore = JSON.parse(await readFile(entryStorePath, 'utf8')) as {
@@ -288,7 +288,7 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
     expect(reusedCounts.paidEntryCount).toBe(0);
   });
 
-  signedInTest('ready signed-in users can open the lineup builder from the protected route', async ({ page }) => {
+  signedInTest('ready signed-in users can open the board builder from the protected route', async ({ page }) => {
     await seedEntryStore([
       {
         entryId: 'demo-entry-open',
@@ -310,19 +310,20 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
 
     await page.goto('/contests/week-1-qb-passing-yards/lineup');
 
-    await expect(page.locator('h1').filter({ hasText: 'Build Your Lineup' })).toBeVisible();
-    const rankedLineupCard = page.locator('.section-card').filter({ has: page.getByText('Your Ranked 10') });
+    await expect(page.locator('h1').filter({ hasText: 'Build Your Board' })).toBeVisible();
+    const rankedLineupCard = page.locator('.section-card').filter({ has: page.getByRole('heading', { name: 'Your Board' }) });
 
     await expect(rankedLineupCard.locator('.status-pill').first()).toHaveText('10/10 Ranked');
-    await expect(page.getByRole('button', { name: 'Save Lineup' })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Save Your Board' })).toBeDisabled();
     await expect(page.locator('[data-lineup-player]').first()).toContainText('#1');
     await expect(page.locator('[data-lineup-player]').first()).toContainText('Josh Allen');
-    await expect(page.getByText(/Add quarterbacks from the available slate/i)).toBeVisible();
+    await expect(page.locator('[data-lineup-player]').first()).toContainText('BUF vs BAL');
+    await expect(page.getByText(/Fill any open board spots from the player pool/i)).toBeVisible();
     await expect(page.getByText('Available Quarterbacks')).toBeVisible();
     await expect(page.getByText('C.J. Stroud')).toBeVisible();
   });
 
-  signedInTest('ready signed-in users can reorder the ranked lineup with keyboard-accessible controls', async ({ page }) => {
+  signedInTest('ready signed-in users can reorder the ranked board with keyboard-accessible controls', async ({ page }) => {
     await seedEntryStore([
       {
         entryId: 'demo-entry-keyboard-rank',
@@ -349,7 +350,7 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
 
     await expect(page.locator('[data-lineup-player]').first()).toContainText('Joe Burrow');
     await expect(page.locator('[data-lineup-player]').nth(1)).toContainText('Josh Allen');
-    await expect(page.getByRole('button', { name: 'Save Lineup' })).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Save Your Board' })).toBeEnabled();
 
     await page.getByRole('button', { name: 'Move Josh Allen up one rank' }).focus();
     await page.keyboard.press('Enter');
@@ -358,7 +359,7 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
     await expect(page.locator('[data-lineup-player]').nth(1)).toContainText('Joe Burrow');
   });
 
-  signedInTest('locked zero-fee contests block new entries and lineup mutation while preserving the saved lineup', async ({ page }) => {
+  signedInTest('locked zero-fee contests block new entries and board mutation while preserving the saved board', async ({ page }) => {
     await updateContestFixture('week-1-qb-passing-yards', {
       entryFeeCents: 0,
       entryCount: 1,
@@ -387,9 +388,9 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
 
     await page.goto('/contests/week-1-qb-passing-yards/lineup');
 
-    await expect(page.getByText('Lineup Locked')).toBeVisible();
+    await expect(page.getByText('Board Locked')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Locked - Read Only' })).toBeDisabled();
-    await expect(page.getByRole('button', { name: 'Joe Burrow lineup position is locked' })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Joe Burrow board position is locked' })).toBeDisabled();
 
     const saveAttempt = await page.evaluate(async (order) => {
       const response = await fetch('/api/contests/week-1-qb-passing-yards/lineup', {
@@ -409,7 +410,7 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
 
     expect(saveAttempt).toEqual({
       status: 409,
-      message: 'This contest is locked, so the lineup is now read-only.',
+      message: 'This contest is locked, so your board is now read-only.',
     });
 
     await page.context().addCookies([
@@ -431,7 +432,7 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
     await expect(page).toHaveURL(/message=This(%20|\+)contest(%20|\+)is(%20|\+)no(%20|\+)longer(%20|\+)accepting(%20|\+)entries/);
   });
 
-  signedInTest('ready signed-in users see the full 15-player lineup pool on the builder screen', async ({ page }) => {
+  signedInTest('ready signed-in users see the full 15-player pool on the board builder screen', async ({ page }) => {
     await seedEntryStore([
       {
         entryId: 'demo-entry-open',
@@ -453,11 +454,12 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
 
     await page.goto('/contests/week-1-qb-passing-yards/lineup');
     await expect(page.locator('[data-lineup-player]')).toHaveCount(10);
-    const rankedLineupCard = page.locator('.section-card').filter({ has: page.getByText('Your Ranked 10') });
+    const rankedLineupCard = page.locator('.section-card').filter({ has: page.getByRole('heading', { name: 'Your Board' }) });
 
     await expect(rankedLineupCard.locator('.status-pill').first()).toHaveText('10/10 Ranked');
-    await expect(page.getByText('5 Left in Slate')).toBeVisible();
+    await expect(page.getByText('5 Left in Pool')).toBeVisible();
     await expect(page.getByText('C.J. Stroud')).toBeVisible();
+    await expect(page.getByText('HOU vs IND')).toBeVisible();
     await expect(page.getByText('Patrick Mahomes')).toBeVisible();
   });
 });

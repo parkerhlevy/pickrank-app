@@ -36,22 +36,22 @@ const stageCopyMap: Record<ContestEntryStage, ContestEntryStateCopy> = {
   'not-entered': {
     badge: 'Step 1 of 4',
     title: 'Review the contest before you enter',
-    description: 'Check the contest details, review your beta entry, then build your lineup before lock.',
+    description: 'Check the contest details, review your beta entry, then build your board before lock.',
   },
   'payment-review': {
     badge: 'Step 2 of 4',
     title: 'Review your beta entry before you confirm',
-    description: 'Confirm your Beta Pass entry, then head to your lineup.',
+    description: 'Confirm your Beta Pass entry, then head to your board.',
   },
   entered: {
     badge: 'Step 3 of 4',
     title: "You're in",
-    description: 'Your entry is confirmed. Next up: Build Your Lineup before lock.',
+    description: 'Your entry is confirmed. Next up: Build Your Board before lock.',
   },
   lineup: {
     badge: 'Step 4 of 4',
-    title: 'Build Your Lineup',
-    description: 'Rank your players and save changes until the contest locks.',
+    title: 'Build Your Board',
+    description: 'Rank your players and save your board until the contest locks.',
   },
 };
 
@@ -69,12 +69,12 @@ const contestEntryStepCopy: ContestEntryStepCopy[] = [
   {
     key: 'entered',
     label: 'Entry Success',
-    summary: 'See your confirmed entry and head straight into your lineup.',
+    summary: 'See your confirmed entry and head straight into your board.',
   },
   {
     key: 'lineup',
-    label: 'Build Your Lineup',
-    summary: 'Rank your players and save your order until lock.',
+    label: 'Build Your Board',
+    summary: 'Rank your players and save your board until lock.',
   },
 ];
 
@@ -204,7 +204,7 @@ export function getContestDetailPrimaryAction({
 
   if (hasEntry) {
     return {
-      label: isContestOpen ? 'Edit Lineup' : 'View Lineup',
+      label: isContestOpen ? 'Edit Your Board' : 'View Your Board',
       href: getContestEntryProgressHref(contestId, 'lineup'),
       disabled: false,
       tone: 'default' as const,

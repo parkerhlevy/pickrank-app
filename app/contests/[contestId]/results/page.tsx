@@ -45,7 +45,7 @@ export default async function ContestResultsPage({
           </div>
           <span className="status-pill shrink-0">Saved Final</span>
         </div>
-        <p className="text-muted-foreground">Your final finish and lineup breakdown now read from the saved contest results.</p>
+        <p className="text-muted-foreground">Your final finish and board breakdown now read from the saved contest results.</p>
       </section>
 
       <ContestBoardStagePanel
@@ -158,8 +158,8 @@ export default async function ContestResultsPage({
 
       <Card className="section-card">
         <CardHeader>
-          <CardTitle>Lineup Breakdown</CardTitle>
-          <CardDescription>Review the saved final distances for each quarterback in your lineup order.</CardDescription>
+          <CardTitle>Board Breakdown</CardTitle>
+          <CardDescription>Review the saved final distances for each quarterback in your board order.</CardDescription>
         </CardHeader>
         <CardContent>
           <details>

@@ -25,7 +25,7 @@ export default async function ContestsPage() {
           </Link>
         </div>
         <p className="text-muted-foreground">
-          Find a free beta contest, scan the 15-player slate, and decide if you can rank the top 10 more accurately than
+          Find a free beta contest, scan the 15-player pool, and decide if you can build a more accurate board than
           the field. You can browse first and sign in only when you are ready to enter.
         </p>
       </div>
@@ -39,7 +39,7 @@ export default async function ContestsPage() {
         <QuickRead
           icon={ListOrdered}
           title="Pick 10"
-          description="Review the full slate, pick 10 players, and put them in order before lock."
+          description="Review the player pool, pick 10 players, and put your board in order before lock."
         />
         <QuickRead
           icon={ShieldCheck}
@@ -171,7 +171,7 @@ function ContestStats({
 }) {
   return (
     <div className={compact ? 'grid grid-cols-2 gap-3 text-sm' : 'grid grid-cols-2 gap-3 text-sm'}>
-      <Stat icon={ListOrdered} label="Slate" value={contest.slate} />
+      <Stat icon={ListOrdered} label="Player Pool" value={formatPlayerPoolLabel(contest.slate)} />
       <Stat icon={Ticket} label="Beta Pass" value={launchMode.betaEntryLabel} />
       <Stat icon={Users} label="Entries" value={contest.entries} />
       <Stat icon={Clock} label="Lock Time" value={formatLockTime(contest.lockTime)} />
@@ -182,6 +182,10 @@ function ContestStats({
 
 function formatLockTime(lockTime: string) {
   return lockTime.replace(/^Locks\s+/, '');
+}
+
+function formatPlayerPoolLabel(label: string) {
+  return label.replace(/\bslate\b/gi, 'player pool');
 }
 
 function Stat({

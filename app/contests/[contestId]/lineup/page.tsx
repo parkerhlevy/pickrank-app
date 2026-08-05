@@ -6,7 +6,6 @@ import {
   contestEntryCookieName,
   getContestEntryRouteState,
   getContestEntryStateCopy,
-  getContestEntrySteps,
   getPersistedContestEntryStage,
 } from '@/lib/contest-entry-flow';
 import {
@@ -62,7 +61,6 @@ export default async function LineupBuilderPage({
   }
 
   const stateCopy = getContestEntryStateCopy(routeState.stage);
-  const flowSteps = getContestEntrySteps(routeState.stage);
   const isEditable = isContestLineupEditable(contest);
 
   if (!persistedEntry) {
@@ -86,7 +84,6 @@ export default async function LineupBuilderPage({
       initialLineupState={initialLineupState}
       isEditable={isEditable}
       stateCopy={stateCopy}
-      flowSteps={flowSteps}
     />
   );
 }

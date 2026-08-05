@@ -14,7 +14,7 @@ const hasLandingVideo = existsSync(join(process.cwd(), 'public', landingVideoPat
 const whyPickRankCards = [
   {
     title: 'No drafting. No season-long commitment.',
-    description: 'One slate. One ranking. One week at a time.',
+    description: 'One player pool. One board. One week at a time.',
     icon: CalendarDays,
   },
   {
@@ -31,16 +31,16 @@ const whyPickRankCards = [
 
 const steps = [
   {
-    title: 'Start with the slate',
-    description: 'Each contest starts with 15 players in one stat category.',
+    title: 'Start with the player pool',
+    description: 'Each weekly contest starts with 15 players in one stat category.',
   },
   {
-    title: 'Rank your top 10',
-    description: 'Choose who you think will finish highest and put them in order.',
+    title: 'Build your board',
+    description: 'Pick 10 players from that pool and rank them by the contest stat.',
   },
   {
-    title: 'See how you stack up',
-    description: 'After final stats are saved, the most accurate rankings rise to the top.',
+    title: 'Compare the final order',
+    description: 'Your score comes from how close your board is to the final stat order. Lowest score wins.',
   },
 ];
 
@@ -126,8 +126,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 15 players. Pick 10. Rank them.
               </h1>
               <p className="max-w-2xl text-base leading-7 text-slate-200 sm:text-lg">
-                Think you know who&apos;s going off this week? Prove it. Rank your top 10 players, then see how your picks
-                stack up when the games are over. Free to play during beta.
+                Pick 10 players from a weekly player pool. Rank your board by the contest stat. When final stats are
+                saved, the closest board wins. Free to play during beta.
               </p>
             </div>
             <div className="max-w-xl">
@@ -172,8 +172,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                   <PlayCircle className="mb-3 h-10 w-10 text-blue-200" aria-hidden="true" />
                   <p className="text-lg font-semibold text-white">Walkthrough video coming soon</p>
                   <p className="mt-2 max-w-sm text-sm leading-6 text-slate-300">
-                    You can browse the live product screens now. A short walkthrough of contest entry and lineup setup is
-                    on the way.
+                    You can browse the live product screens now. A short walkthrough of contest entry and board setup is on
+                    the way.
                   </p>
                 </div>
               )}
@@ -184,28 +184,28 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
       <section className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
         <div className="screen-header space-y-3">
-          <p className="eyebrow">Contest-as-Board</p>
-          <h2 className="text-2xl font-black leading-tight">Each contest gets its own board.</h2>
+          <p className="eyebrow">Weekly Board Snapshot</p>
+          <h2 className="text-2xl font-black leading-tight">The game is the distance between your board and the final order.</h2>
           <p className="text-sm leading-6 text-muted-foreground sm:text-base">
-            Open a contest, scan the slate, then turn that slate into a ranked 10 before lock. Multiple contests can run
-            in the same week because each one carries its own slate, lock time, entry path, and final accuracy score.
+            Open a contest, scan the player pool, pick 10 players, then rank your board before lock. Final scoring compares
+            your board to the official stat order. Lowest score wins.
           </p>
         </div>
         <ContestBoardPreview
           title="Week 1 QB Passing Yards"
-          slateLabel="15-QB slate"
+          slateLabel="15-QB player pool"
           statCategory="Passing yards"
           lockTimeLabel="Sun 1:00 PM ET"
           rankedPlayers={demoBoardPlayers}
           slatePlayers={demoSlatePlayers}
-          variant="feature"
+          variant="compact"
         />
       </section>
 
       <section className="space-y-4">
         <div className="space-y-1">
           <h2 className="text-2xl font-black leading-tight">How PickRank works</h2>
-          <p className="text-muted-foreground">The whole game is one weekly accuracy test.</p>
+          <p className="text-muted-foreground">Pick from the player pool. Rank your board. Lowest score wins.</p>
         </div>
         <div className="grid gap-4 lg:grid-cols-3">
           {steps.map((step, index) => (

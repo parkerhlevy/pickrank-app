@@ -22,7 +22,7 @@ export default function PrivacyPolicyPage() {
           <CardDescription>Pending counsel review before broader public use.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
-          <p>PickRank collects account access data, public username, age confirmation, state, Beta Terms acceptance, Privacy Policy acceptance, contest entries, lineup saves, and final results activity.</p>
+          <p>PickRank collects account access data, public username, age confirmation, state, Beta Terms acceptance, Privacy Policy acceptance, contest entries, board saves, and final results activity.</p>
           <p>PickRank should collect only data needed for account access, beta contest operation, support, security, analytics, and legal or compliance review.</p>
           <p>PickRank does not collect payment card data, bank data, withdrawal data, or KYC documents during Early Access Beta.</p>
           <p>PickRank is not intended for children under 13.</p>

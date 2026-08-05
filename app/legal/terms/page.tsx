@@ -25,7 +25,7 @@ export default function BetaTermsPage() {
         <CardContent className="space-y-3 text-sm text-muted-foreground">
           <p>Beta contests are free to play. Paid contests are planned for a later launch.</p>
           <p>Users need an account, public username, age confirmation, state capture, Beta Terms acceptance, and Privacy Policy acceptance before beta entry.</p>
-          <p>Beta access can change, pause, or end while PickRank tests contest setup, lineup save, lock, scoring, and final results workflows.</p>
+          <p>Beta access can change, pause, or end while PickRank tests contest setup, board save, lock, scoring, and final results workflows.</p>
           <p>These terms do not authorize real-money payments, deposits, withdrawals, payouts, or cash prizes.</p>
           <Link href="/legal/privacy" className="inline-link">
             Review Privacy Policy

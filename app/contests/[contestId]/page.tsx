@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { ArrowLeft, BarChart3, ChevronRight, Clock, ListOrdered, Lock, ShieldCheck, Ticket, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { ContestBoardPreview, ContestJourneyRail } from '@/components/contests/contest-board-preview';
+import { ContestBoardPreview } from '@/components/contests/contest-board-preview';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getContestDetailPrimaryAction } from '@/lib/contest-entry-flow';
@@ -81,14 +81,14 @@ export default async function ContestDetailPage({
         <CardHeader>
           <CardTitle>Quick Read</CardTitle>
           <CardDescription>
-            This contest is one accuracy board. Review the slate, rank your top 10, and save before lock.
+            This contest is one accuracy board. Review the player pool, rank your top 10, and save your board before lock.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-2 sm:grid-cols-3 sm:gap-3">
           <QuickReadItem
             icon={ListOrdered}
             title="What you do"
-            description={`Pick and rank 10 quarterbacks from the ${contest.slateSize}-player slate.`}
+            description={`Pick and rank 10 quarterbacks from the ${contest.slateSize}-player pool.`}
           />
           <QuickReadItem
             icon={BarChart3}
@@ -108,7 +108,7 @@ export default async function ContestDetailPage({
           <CardTitle className="text-base">Contest Details</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-2 pt-4 text-sm">
-          <DetailStat icon={Users} label="Slate" value={contest.slate} />
+          <DetailStat icon={Users} label="Player Pool" value={formatPlayerPoolLabel(contest.slate)} />
           <DetailStat icon={Clock} label="Stat Category" value={contest.statCategory} />
           <DetailStat icon={Ticket} label="Beta Pass" value={launchMode.betaEntryLabel} />
           <DetailStat icon={Users} label="Entries" value={contest.entries} />
@@ -127,10 +127,9 @@ export default async function ContestDetailPage({
         lockTimeLabel={contest.lockTime.replace('Locks ', '')}
         rankedPlayers={defaultLineupOrder}
         slatePlayers={selectablePlayers}
+        playerContexts={contest.slatePlayers}
         variant="detail"
       />
-
-      <ContestJourneyRail currentStage="slate" />
 
       <Card className="section-card">
         <CardHeader>
@@ -138,7 +137,7 @@ export default async function ContestDetailPage({
             <div>
               <CardTitle>Contest Flow</CardTitle>
               <CardDescription>
-                Review the contest, confirm your free beta entry, Build Your Lineup before lock, then return for final results
+                Review the contest, confirm your free beta entry, Build Your Board before lock, then return for final results
                 after scoring is saved.
               </CardDescription>
             </div>
@@ -152,8 +151,8 @@ export default async function ContestDetailPage({
           <div className="space-y-2">
             {[
               'Review your Beta Pass entry before you confirm.',
-              `Pick and rank your top 10 quarterbacks from the ${contest.slateSize}-player slate.`,
-              `Save your lineup before ${contest.lockTime.replace('Locks ', '')}.`,
+              `Pick and rank your top 10 quarterbacks from the ${contest.slateSize}-player pool.`,
+              `Save your board before ${contest.lockTime.replace('Locks ', '')}.`,
             ].map((step) => (
               <div key={step} className="step-row text-sm">
                 <span className="numeric font-medium">{step}</span>
@@ -260,4 +259,8 @@ function QuickReadItem({
       </div>
     </div>
   );
+}
+
+function formatPlayerPoolLabel(label: string) {
+  return label.replace(/\bslate\b/gi, 'player pool');
 }

@@ -13,7 +13,7 @@ test('homepage loads as a landing page with waitlist forms and no bottom nav', a
   await expect(page.getByText('Enter your email and we’ll send launch updates before account signup opens.')).toHaveCount(2);
   await expect(page.getByLabel('I agree to receive PickRank launch and product update emails. I can unsubscribe anytime.')).toHaveCount(2);
   await expect(page.getByText('By joining, you agree to receive PickRank launch emails. Unsubscribe anytime.')).toHaveCount(0);
-  await expect(page.getByText('Contest-as-Board')).toBeVisible();
+  await expect(page.getByText('Weekly Board Snapshot')).toBeVisible();
   await expect(page.getByText('Skill contest')).toBeVisible();
   await expect(page.getByText('Final-only scoring')).toBeVisible();
   await expect(page.getByText('Early Access Beta').first()).toBeVisible();
@@ -33,7 +33,7 @@ test('public conversion routes explain the contest mechanics before entry', asyn
   await page.goto('/contests');
 
   await expect(page.getByRole('heading', { name: 'Open Contests' })).toBeVisible();
-  await expect(page.getByText('Find a free beta contest, scan the 15-player slate')).toBeVisible();
+  await expect(page.getByText('Find a free beta contest, scan the 15-player pool')).toBeVisible();
   await expect(page.getByText('Pick 10', { exact: true })).toBeVisible();
   await expect(page.getByText('Accuracy wins')).toBeVisible();
 

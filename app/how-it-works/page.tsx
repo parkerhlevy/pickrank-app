@@ -13,14 +13,14 @@ export default function HowItWorksPage() {
     },
     {
       icon: CheckCircle2,
-      title: 'Build Your Lineup',
-      description: 'For the MVP QB format, select and rank your top 10 from a 15-quarterback slate.',
+      title: 'Build Your Board',
+      description: 'For the MVP QB format, select and rank your top 10 from a 15-quarterback player pool.',
     },
     {
       icon: BarChart3,
       title: 'Compare final stats',
       description:
-        'After final stats are reviewed, each saved rank is compared with the official final rank. Add those differences across your lineup. Lower total wins.',
+        'After final stats are reviewed, each saved board rank is compared with the official final rank. Add those differences across your board. Lower total wins.',
       href: '#rank-differential-example',
     },
     {
@@ -38,7 +38,7 @@ export default function HowItWorksPage() {
             <p className="eyebrow">How It Works</p>
             <h1 className="text-3xl font-black leading-tight">Skill-based ranking contests</h1>
             <p className="text-muted-foreground">
-              PickRank asks one question: can you rank a player slate closer to the final stat order than everyone else?
+              PickRank asks one question: can you rank your board closer to the final stat order than everyone else?
             </p>
           </div>
           <span className="status-pill shrink-0">Public Guide</span>
@@ -49,7 +49,7 @@ export default function HowItWorksPage() {
         <GuideTile
           icon={ListOrdered}
           title="Pick 10 from 15"
-          description="Start with the full slate. Save your ranked 10 before the contest locks."
+          description="Start with the player pool. Save your board before the contest locks."
         />
         <GuideTile
           icon={BarChart3}
@@ -106,7 +106,7 @@ export default function HowItWorksPage() {
         <CardContent className="space-y-2 text-sm">
           {[
             ['Rank differential', 'Add the distance between each saved rank and the official final rank.'],
-            ['Lower score wins', 'The best lineup has the lowest total differential across the 10 ranked picks.'],
+            ['Lower score wins', 'The best board has the lowest total differential across the 10 ranked picks.'],
             ['Tiebreaker 1', 'Most exact picks.'],
             ['Tiebreaker 2', 'Most one-off-or-better picks.'],
             ['Tiebreaker 3', 'Closest placement of the actual QB1.'],
@@ -122,7 +122,7 @@ export default function HowItWorksPage() {
       <Card className="section-card">
         <CardHeader>
           <CardTitle>Rank Differential Example</CardTitle>
-          <CardDescription>Each lineup spot is compared to the official final rank for that stat.</CardDescription>
+          <CardDescription>Each board rank is compared to the official final rank for that stat.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <div className="overflow-hidden rounded-lg border">
@@ -173,7 +173,7 @@ export default function HowItWorksPage() {
             <span className="text-muted-foreground">Browse current contest details</span>
           </div>
           <div className="detail-row">
-            <span>Build Your Lineup</span>
+            <span>Build Your Board</span>
             <span className="text-muted-foreground">Available after entry confirmation</span>
           </div>
           <Button asChild className="w-full">

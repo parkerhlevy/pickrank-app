@@ -265,10 +265,10 @@ export function getReturnStepCopy(next: string): ReturnStepCopy {
 
   if (stage === 'lineup' || isLineupPath) {
     return {
-      actionLabel: 'Continue to Build Your Lineup',
-      detail: `Build Your Lineup for ${contestTitle}`,
+      actionLabel: 'Continue to Build Your Board',
+      detail: `Build Your Board for ${contestTitle}`,
       isContestFlow: true,
-      shortLabel: 'Build Your Lineup',
+      shortLabel: 'Build Your Board',
     };
   }
 

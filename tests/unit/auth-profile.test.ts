@@ -51,10 +51,10 @@ describe('auth profile helpers', () => {
 
   it('describes canonical contest routes in user-facing return copy', () => {
     expect(getReturnStepCopy('/contests/week-1-qb-passing-yards/lineup')).toEqual({
-      actionLabel: 'Continue to Build Your Lineup',
-      detail: 'Build Your Lineup for Week 1 QB Passing Yards',
+      actionLabel: 'Continue to Build Your Board',
+      detail: 'Build Your Board for Week 1 QB Passing Yards',
       isContestFlow: true,
-      shortLabel: 'Build Your Lineup',
+      shortLabel: 'Build Your Board',
     });
   });
 

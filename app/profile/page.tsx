@@ -65,7 +65,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         <p className="text-muted-foreground">
           {user
             ? 'Your profile connects public contest identity, beta entry readiness, and wallet access in one account surface.'
-            : 'Browse contests without signing in. Create an account to enter free beta contests, save lineups, and keep your place in the flow.'}
+            : 'Browse contests without signing in. Create an account to enter free beta contests, save your board, and keep your place in the flow.'}
         </p>
       </section>
 
@@ -145,11 +145,11 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
             <UserCircle className="h-5 w-5 text-blue-300" aria-hidden="true" />
             <CardTitle>{user ? 'Account Session' : 'Account Access'}</CardTitle>
           </div>
-          <CardDescription className="text-slate-300">
-            {user
-              ? 'Your PickRank session is active for profile, lineup, and wallet surfaces.'
-              : 'Create an account or log in to move from contest browsing into entry, lineup, and wallet views.'}
-          </CardDescription>
+            <CardDescription className="text-slate-300">
+              {user
+              ? 'Your PickRank session is active for profile, board, and wallet surfaces.'
+              : 'Create an account or log in to move from contest browsing into entry, board, and wallet views.'}
+            </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 pt-5">
           {status === 'profile-saved' ? (
