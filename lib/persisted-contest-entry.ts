@@ -3,6 +3,7 @@ import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { z } from 'zod';
 import { updateContestEntryCounts } from '@/lib/contest-data';
+import { contestRankedPlayerCount } from '@/lib/contest-rules';
 import type { Database } from '@/lib/supabase/types';
 
 export type PersistedContestEntrySource = 'default_assigned' | 'user_saved';
@@ -34,7 +35,7 @@ const persistedContestEntryRecordSchema = z.object({
   entryId: z.string().min(1),
   contestId: z.string().min(1),
   userId: z.string().min(1),
-  lineupOrder: z.array(z.string().min(1)).length(10),
+  lineupOrder: z.array(z.string().min(1)).length(contestRankedPlayerCount),
   lastSavedAt: z.string().datetime().nullable(),
   source: z.enum(['default_assigned', 'user_saved']),
   createdAt: z.string().datetime(),
@@ -685,7 +686,7 @@ function normalizeLineupOrder(value: unknown, players: string[], defaultSelected
 
   const filteredPlayers = value.filter((item): item is string => typeof item === 'string' && players.includes(item));
 
-  if (filteredPlayers.length !== 10 || new Set(filteredPlayers).size !== 10) {
+  if (filteredPlayers.length !== contestRankedPlayerCount || new Set(filteredPlayers).size !== contestRankedPlayerCount) {
     return [...fallbackSelectedOrder];
   }
 

@@ -20,6 +20,11 @@ const baselineFinalStats = [
   { playerId: 'qb-jared-goff', finalStat: 290, passingTouchdowns: 2 },
   { playerId: 'qb-tua-tagovailoa', finalStat: 210, passingTouchdowns: 1 },
   { playerId: 'qb-matthew-stafford', finalStat: 205, passingTouchdowns: 1 },
+  { playerId: 'qb-baker-mayfield', finalStat: 190, passingTouchdowns: 1 },
+  { playerId: 'qb-trevor-lawrence', finalStat: 185, passingTouchdowns: 1 },
+  { playerId: 'qb-kyler-murray', finalStat: 180, passingTouchdowns: 1 },
+  { playerId: 'qb-sam-darnold', finalStat: 175, passingTouchdowns: 1 },
+  { playerId: 'qb-russell-wilson', finalStat: 170, passingTouchdowns: 1 },
 ];
 
 const correctedFinalStats = [
@@ -38,6 +43,11 @@ const correctedFinalStats = [
   { playerId: 'qb-jared-goff', finalStat: 290, passingTouchdowns: 2 },
   { playerId: 'qb-tua-tagovailoa', finalStat: 210, passingTouchdowns: 1 },
   { playerId: 'qb-matthew-stafford', finalStat: 205, passingTouchdowns: 1 },
+  { playerId: 'qb-baker-mayfield', finalStat: 190, passingTouchdowns: 1 },
+  { playerId: 'qb-trevor-lawrence', finalStat: 185, passingTouchdowns: 1 },
+  { playerId: 'qb-kyler-murray', finalStat: 180, passingTouchdowns: 1 },
+  { playerId: 'qb-sam-darnold', finalStat: 175, passingTouchdowns: 1 },
+  { playerId: 'qb-russell-wilson', finalStat: 170, passingTouchdowns: 1 },
 ];
 
 async function createTempFilePath(fileName: string) {

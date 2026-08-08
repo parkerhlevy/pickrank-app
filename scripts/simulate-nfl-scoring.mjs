@@ -19,7 +19,7 @@ const SCORING_TABLE = new Map([
 const DEFAULTS = {
   season: 2025,
   entries: 500,
-  slateSize: 15,
+  slateSize: 20,
   rankedPicks: 10,
   seed: 20250608,
 };
@@ -83,7 +83,7 @@ function printHelp() {
 Usage:
   npm run simulate:nfl-scoring -- --season 2025 --entries 500
   npm run simulate:nfl-scoring -- --season 2025 --week 7 --entries 1000
-  npm run simulate:nfl-scoring -- --season 2025 --entries 25 --slate-size 15 --ranked-picks 10
+  npm run simulate:nfl-scoring -- --season 2025 --entries 25 --slate-size 20 --ranked-picks 10
 
 Outputs:
   docs/scoring-simulations/nfl-<season>-pickrank-scoring-simulation.md
@@ -701,7 +701,7 @@ function renderReport({ season, entries, slateSize, rankedPicks, sourceUrl, week
 
   const statTieText = deepDive.statTieGroups.length
     ? deepDive.statTieGroups.map((group) => `- ${group.rankDisplay} (${group.range}), ${group.passingYards} yards: ${group.players.join(', ')}`).join('\n')
-    : '- No player passing-yard ties inside this 15-QB slate.';
+    : `- No player passing-yard ties inside this ${slateSize}-QB player pool.`;
   const paidTieText = [
     renderPaidTieGroups(deepDive.mvp.paidTieGroups, 'MVP points'),
     renderPaidTieGroups(deepDive.differential.paidTieGroups, 'Raw differential'),
@@ -728,7 +728,7 @@ This is a simulation artifact, not production scoring code. Contestant entries a
 - Historical MVP scoring: Exact 15, 1 off 7, 2 off 5, 3 off 3, 4+ off 0. Highest total wins.
 - Raw differential scoring: sum of rank differentials across the ${rankedPicks} selected QBs. Each selected QB's actual rank is still measured against the full ${slateSize}-QB slate. Lowest total wins.
 - Differential with tiebreakers: raw differential first, then most exact picks, then most one-off-or-better picks, then closest placement of the actual QB1. This is the current repo scoring direction because it produced the fewest payout-relevant ties in this test set.
-- Weighted differential scoring: top-3 actual finishers use distance x 4, actual ranks 4-10 use distance x 2, and actual ranks 11-15 use distance x 1. Weight buckets use actual rank minimum for tied stat ranks.
+- Weighted differential scoring: top-3 actual finishers use distance x 4, actual ranks 4-10 use distance x 2, and actual ranks 11-${slateSize} use distance x 1. Weight buckets use actual rank minimum for tied stat ranks.
 - Player stat ties: all scoring models use the same tied actual rank range logic.
 - Contestant lineups: deterministic synthetic entries using season-to-date prior passing-yard rank, projection noise, alphabetical order, and random strategies.
 

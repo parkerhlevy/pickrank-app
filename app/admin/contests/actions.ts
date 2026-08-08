@@ -14,6 +14,7 @@ import {
   type ContestSlatePlayer,
 } from '@/lib/contest-data';
 import { canFinalizeContestStatus, parseFinalStatRows } from '@/lib/contest-finalization';
+import { contestPlayerPoolSize } from '@/lib/contest-rules';
 import { requireContestOperator } from '@/lib/contest-operator-access';
 import {
   buildReplayValidationRefreshMessage,
@@ -39,7 +40,7 @@ const contestIdSchema = z.object({
 
 const saveContestSlateSchema = z.object({
   contestId: z.string().trim().min(1, 'Contest not found.'),
-  slateRows: z.string().trim().min(1, 'Add 15 quarterback rows before saving the slate.'),
+  slateRows: z.string().trim().min(1, `Add ${contestPlayerPoolSize} quarterback rows before saving the player pool.`),
 });
 
 const finalizeContestSchema = z.object({
@@ -132,7 +133,7 @@ export async function saveContestSlateAction(formData: FormData) {
     redirect(
       buildAdminContestsRedirect(
         'saved',
-        `Draft slate saved for ${contest.title}. Validation still requires a full 15-QB pass.`,
+        `Draft player pool saved for ${contest.title}. Validation still requires a full ${contestPlayerPoolSize}-QB pass.`,
       ),
     );
   } catch (error) {

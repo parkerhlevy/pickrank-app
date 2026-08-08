@@ -14,7 +14,7 @@ export default function HowItWorksPage() {
     {
       icon: CheckCircle2,
       title: 'Build Your Board',
-      description: 'For the MVP QB format, select and rank your top 10 from a 15-quarterback player pool.',
+      description: 'For the MVP QB format, select and rank your top 10 from a 20-quarterback player pool.',
     },
     {
       icon: BarChart3,
@@ -48,7 +48,7 @@ export default function HowItWorksPage() {
       <section className="grid gap-3 sm:grid-cols-3" aria-label="PickRank basics">
         <GuideTile
           icon={ListOrdered}
-          title="Pick 10 from 15"
+          title="Pick 10 from 20"
           description="Start with the player pool. Save your board before the contest locks."
         />
         <GuideTile

@@ -61,6 +61,11 @@ const finalStatRows = [
   'qb-jared-goff|Jared Goff|290|2',
   'qb-tua-tagovailoa|Tua Tagovailoa|210|1',
   'qb-matthew-stafford|Matthew Stafford|205|1',
+  'qb-baker-mayfield|Baker Mayfield|190|1',
+  'qb-trevor-lawrence|Trevor Lawrence|185|1',
+  'qb-kyler-murray|Kyler Murray|180|1',
+  'qb-sam-darnold|Sam Darnold|175|1',
+  'qb-russell-wilson|Russell Wilson|170|1',
 ].join('\n');
 
 const correctedFinalStatRows = [
@@ -79,6 +84,11 @@ const correctedFinalStatRows = [
   'qb-jared-goff|Jared Goff|290|2',
   'qb-tua-tagovailoa|Tua Tagovailoa|210|1',
   'qb-matthew-stafford|Matthew Stafford|205|1',
+  'qb-baker-mayfield|Baker Mayfield|190|1',
+  'qb-trevor-lawrence|Trevor Lawrence|185|1',
+  'qb-kyler-murray|Kyler Murray|180|1',
+  'qb-sam-darnold|Sam Darnold|175|1',
+  'qb-russell-wilson|Russell Wilson|170|1',
 ].join('\n');
 
 const seededEntries = withSavedEntryMetadata([
@@ -838,6 +848,11 @@ function inferProviderGameId(playerId: string) {
     'qb-jared-goff': 'det-chi-2026-wk1',
     'qb-tua-tagovailoa': 'mia-nyj-2026-wk1',
     'qb-matthew-stafford': 'lar-ari-2026-wk1',
+    'qb-baker-mayfield': 'tb-atl-2026-wk1',
+    'qb-trevor-lawrence': 'jax-car-2026-wk1',
+    'qb-kyler-murray': 'ari-lar-2026-wk1',
+    'qb-sam-darnold': 'sea-sf-2026-wk1',
+    'qb-russell-wilson': 'nyg-was-2026-wk1',
   };
 
   return gameIds[playerId] ?? '';

@@ -12,6 +12,8 @@ import {
 
 export { replayValidationContestId } from './replay-provisional-validation-config';
 
+const replayValidationRankedPlayerCount = 10;
+
 type ReplayValidationSlatePlayer = {
   playerId: string;
   providerPlayerId: string;
@@ -104,7 +106,7 @@ async function upsertReplayValidationContest(
 ) {
   const supabase = await createSupabaseClient();
   const now = new Date().toISOString();
-  const lineupPlayers = contest.slatePlayers.slice(0, 10).map((player) => player.displayName);
+  const lineupPlayers = contest.slatePlayers.slice(0, replayValidationRankedPlayerCount).map((player) => player.displayName);
 
   const { error: contestError } = await supabase.from('contests').upsert(
     {

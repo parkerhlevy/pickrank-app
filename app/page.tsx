@@ -32,7 +32,7 @@ const whyPickRankCards = [
 const steps = [
   {
     title: 'Start with the player pool',
-    description: 'Each weekly contest starts with 15 players in one stat category.',
+    description: 'Each weekly contest starts with 20 players in one stat category.',
   },
   {
     title: 'Build your board',
@@ -81,6 +81,11 @@ const demoSlatePlayers = [
   'Trevor Lawrence',
   'Matthew Stafford',
   'Geno Smith',
+  'Baker Mayfield',
+  'Kyler Murray',
+  'Jared Goff',
+  'Caleb Williams',
+  'Jayden Daniels',
   ...demoBoardPlayers,
 ];
 
@@ -123,7 +128,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 priority
               />
               <h1 className="max-w-xl text-4xl font-black leading-tight text-white sm:text-5xl">
-                15 players. Pick 10. Rank them.
+                20 players. Pick 10. Rank them.
               </h1>
               <p className="max-w-2xl text-base leading-7 text-slate-200 sm:text-lg">
                 Pick 10 players from a weekly player pool. Rank your board by the contest stat. When final stats are
@@ -193,7 +198,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         </div>
         <ContestBoardPreview
           title="Week 1 QB Passing Yards"
-          slateLabel="15-QB player pool"
+          slateLabel="20-QB player pool"
           statCategory="Passing yards"
           lockTimeLabel="Sun 1:00 PM ET"
           rankedPlayers={demoBoardPlayers}

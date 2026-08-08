@@ -93,10 +93,10 @@ Can wait until after MVP.
 |---|---|---|
 | Product type | locked | Skill-based NFL prediction contest |
 | MVP stat category | locked | QB Passing Yards |
-| Slate size | locked | 15 quarterbacks |
-| User task | locked | Pick and rank the top 10 QBs by passing yards from the 15-QB slate |
+| Slate size | locked | 20 quarterbacks |
+| User task | locked | Pick and rank the top 10 QBs by passing yards from the 20-QB player pool |
 | Scoring model | locked | Low-score total rank differential scoring |
-| Scoring table | locked | Each selected QB earns `abs(user_rank - actual_rank)` points against the full 15-QB slate |
+| Scoring table | locked | Each selected QB earns `abs(user_rank - actual_rank)` points against the full 20-QB player pool |
 | Leaderboard tiebreakers | locked | Most exact picks, then most one-off-or-better picks, then closest placement of the actual QB1, then selected QB1 through QB5 passing TDs in order |
 | Scoring-model validation basis | locked | 2025 repo simulation favored differential with tiebreakers because it produced the fewest payout-relevant ties among tested models |
 | Single-entry MVP | locked | One entry per user per contest |
@@ -260,7 +260,7 @@ External-stat beta or real-money launch.
 Which scoring direction and leaderboard tiebreakers should PickRank treat as the product truth for MVP?
 
 ### Locked model
-Use the same 15-player weekly slate and the user's 10 submitted ranked QBs, and score each selected player by raw rank differential against the full 15-QB slate:
+Use the same 20-player weekly player pool and the user's 10 submitted ranked QBs, and score each selected player by raw rank differential against the full 20-QB player pool:
 
 ```text
 differential = abs(user_rank - actual_rank)

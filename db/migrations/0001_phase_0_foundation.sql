@@ -14,7 +14,7 @@ create table if not exists public.contests (
   id uuid primary key default gen_random_uuid(),
   title text not null,
   stat_type text not null default 'qb_passing_yards',
-  slate_size integer not null default 15,
+  slate_size integer not null default 20,
   entry_fee_cents integer not null default 0,
   lock_time timestamptz not null,
   status text not null default 'draft',

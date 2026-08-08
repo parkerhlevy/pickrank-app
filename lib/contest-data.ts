@@ -4,6 +4,7 @@ import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { z } from 'zod';
 import { hasBrowserSupabaseConfig } from '@/lib/env';
+import { contestPlayerPoolSize, contestRankedPlayerCount } from '@/lib/contest-rules';
 import type { Database, Json } from '@/lib/supabase/types';
 
 const contestStatusSchema = z.enum([
@@ -61,7 +62,7 @@ const contestRecordSchema = z.object({
   publishedAt: z.string().datetime().nullable(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
-  lineupPlayers: z.array(z.string().min(1)).length(10),
+  lineupPlayers: z.array(z.string().min(1)).length(contestRankedPlayerCount),
   slatePlayers: z.array(contestSlatePlayerSchema),
   validation: z.object({
     status: z.enum(['not_run', 'passed', 'failed']),
@@ -830,7 +831,7 @@ export function buildDraftContestRecord(
     week: input.week,
     contestType: 'public_paid',
     statType: 'qb_passing_yards',
-    slateSize: 15,
+    slateSize: contestPlayerPoolSize,
     entryFeeCents: input.entryFeeCents,
     entryCount: 0,
     paidEntryCount: 0,
@@ -1208,8 +1209,10 @@ function buildContestValidationResult(contest: ContestRecord, now: string, valid
     errors.push('Only QB Passing Yards is supported in the current admin flow.');
   }
 
-  if (contest.slatePlayers.length !== 15) {
-    errors.push(`Add exactly 15 quarterbacks before publish. Current slate count: ${contest.slatePlayers.length}.`);
+  if (contest.slatePlayers.length !== contestPlayerPoolSize) {
+    errors.push(
+      `Add exactly ${contestPlayerPoolSize} quarterbacks before publish. Current player pool count: ${contest.slatePlayers.length}.`,
+    );
   }
 
   const duplicatePlayerIds = findDuplicates(contest.slatePlayers.map((player) => player.playerId));
@@ -1261,8 +1264,8 @@ function buildContestValidationResult(contest: ContestRecord, now: string, valid
     }
   }
 
-  if (contest.lineupPlayers.length !== 10) {
-    errors.push('Save a 10-player default lineup order before publish.');
+  if (contest.lineupPlayers.length !== contestRankedPlayerCount) {
+    errors.push(`Save a ${contestRankedPlayerCount}-player default board order before publish.`);
   }
 
   return {
@@ -1355,7 +1358,7 @@ function normalizeContestSlatePlayers(slatePlayers: ContestSlatePlayer[]) {
 function buildLineupShellPlayersFromSlate(slatePlayers: ContestSlatePlayer[]) {
   return [...slatePlayers]
     .sort((a, b) => a.displayName.localeCompare(b.displayName))
-    .slice(0, 10)
+    .slice(0, contestRankedPlayerCount)
     .map((player) => player.displayName);
 }
 
@@ -1429,7 +1432,7 @@ function toContestRecord({
     createdAt: normalizeIsoDateTime(row.created_at),
     updatedAt: normalizeIsoDateTime(row.updated_at),
     lineupPlayers:
-      row.lineup_players && row.lineup_players.length === 10
+      row.lineup_players && row.lineup_players.length === contestRankedPlayerCount
         ? row.lineup_players
         : slatePlayers.length > 0
           ? buildLineupShellPlayersFromSlate(slatePlayers)

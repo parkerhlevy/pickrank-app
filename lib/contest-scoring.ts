@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { contestRankedPlayerCount } from '@/lib/contest-rules';
 import type { ContestSlatePlayer } from '@/lib/contest-data';
 
 export const scoringVersion = 'rank_differential_v2';
@@ -37,7 +38,7 @@ const scoredEntrySchema = z.object({
   entryId: z.string().min(1),
   contestId: z.string().min(1),
   userId: z.string().min(1),
-  lineupOrder: z.array(z.string().min(1)).length(10),
+  lineupOrder: z.array(z.string().min(1)).length(contestRankedPlayerCount),
   totalScore: z.number().int().nonnegative(),
   exactPicks: z.number().int().nonnegative(),
   oneOffOrBetterPicks: z.number().int().nonnegative(),
@@ -56,7 +57,7 @@ const scoredEntrySchema = z.object({
   payoutStatus: z.enum(['pending', 'paid']),
   scoreFinalizedAt: z.string().datetime(),
   scoringVersion: z.literal(scoringVersion),
-  playerScores: z.array(entryPlayerScoreSchema).length(10),
+  playerScores: z.array(entryPlayerScoreSchema).length(contestRankedPlayerCount),
 });
 
 export type ContestPlayerFinalStat = z.infer<typeof contestPlayerFinalStatSchema>;

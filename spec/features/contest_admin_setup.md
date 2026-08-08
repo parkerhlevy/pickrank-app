@@ -82,7 +82,7 @@ Admin sets:
 MVP defaults:
 
 - contest category: `QB Passing Yards`
-- slate size: `15`
+- slate size: `20`
 - contest type: `public paid contest`
 - entry model: `single entry per user`
 
@@ -134,7 +134,7 @@ Required player fields:
 MVP slate size:
 
 ```text
-15 quarterbacks
+20 quarterbacks
 ```
 
 ### Slate selection rule
@@ -153,7 +153,7 @@ User-facing default order remains controlled by the lineup builder rules.
 
 Before publishing, the system must validate:
 
-- exactly 15 players selected
+- exactly 20 players selected
 - all selected players are quarterbacks
 - no duplicate players
 - every player has a provider player ID
@@ -366,7 +366,7 @@ Contest cannot publish unless:
 
 - contest title exists
 - stat type exists and is supported
-- exactly 15 slate players are selected
+- exactly 20 slate players are selected
 - all slate players have provider IDs
 - all slate players have game IDs
 - no duplicate slate players

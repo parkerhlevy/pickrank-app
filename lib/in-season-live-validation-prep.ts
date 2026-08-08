@@ -1,5 +1,7 @@
 import type { ContestSlatePlayer } from './contest-data';
 
+const liveValidationRankedPlayerCount = 10;
+
 export const inSeasonLiveValidationContestId = 'week-1-qb-passing-yards-live-validation-2026';
 export const inSeasonLiveValidationContestTitle = 'Week 1 QB Passing Yards Live Validation';
 export const inSeasonLiveValidationContestDescription =
@@ -141,7 +143,7 @@ export function buildInSeasonLiveValidationContest(input: {
   const lineupPlayers = slatePlayers
     .slice()
     .sort((left, right) => left.sortOrderInternal - right.sortOrderInternal)
-    .slice(0, 10)
+    .slice(0, liveValidationRankedPlayerCount)
     .map((player) => player.displayName);
 
   return {

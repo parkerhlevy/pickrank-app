@@ -7,10 +7,10 @@ import {
 } from '../../lib/contest-data';
 
 describe('contest data backbone', () => {
-  it('exposes the full 15-player slate plus a 10-player default ranking for the lineup flow', async () => {
+  it('exposes the full 20-player pool plus a 10-player default ranking for the board flow', async () => {
     const contest = await getContestById('week-1-qb-passing-yards');
 
-    expect(getContestSelectablePlayers(contest)).toHaveLength(15);
+    expect(getContestSelectablePlayers(contest)).toHaveLength(20);
     expect(getContestDefaultLineupOrder(contest)).toHaveLength(10);
   });
 

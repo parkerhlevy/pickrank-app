@@ -432,7 +432,7 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
     await expect(page).toHaveURL(/message=This(%20|\+)contest(%20|\+)is(%20|\+)no(%20|\+)longer(%20|\+)accepting(%20|\+)entries/);
   });
 
-  signedInTest('ready signed-in users see the full 15-player pool on the board builder screen', async ({ page }) => {
+  signedInTest('ready signed-in users see the full 20-player pool on the board builder screen', async ({ page }) => {
     await seedEntryStore([
       {
         entryId: 'demo-entry-open',
@@ -457,7 +457,7 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
     const rankedLineupCard = page.locator('.section-card').filter({ has: page.getByRole('heading', { name: 'Your Board' }) });
 
     await expect(rankedLineupCard.locator('.status-pill').first()).toHaveText('10/10 Ranked');
-    await expect(page.getByText('5 Left in Pool')).toBeVisible();
+    await expect(page.getByText('10 Left in Pool')).toBeVisible();
     await expect(page.getByText('C.J. Stroud (HOU)')).toBeVisible();
     await expect(page.getByText('vs. IND')).toBeVisible();
     await expect(page.getByText('Patrick Mahomes')).toBeVisible();

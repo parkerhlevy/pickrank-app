@@ -4,7 +4,7 @@ test('homepage loads as a landing page with waitlist forms and no bottom nav', a
   await page.goto('/');
 
   await expect(page.getByRole('img', { name: 'PickRank' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: '15 players. Pick 10. Rank them.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '20 players. Pick 10. Rank them.' })).toBeVisible();
   const waitlistButtons = page.getByRole('button', { name: 'Join the waitlist' });
   await expect(waitlistButtons).toHaveCount(2);
   await expect(page.getByRole('link', { name: 'Join the waitlist' })).toHaveCount(0);
@@ -33,7 +33,7 @@ test('public conversion routes explain the contest mechanics before entry', asyn
   await page.goto('/contests');
 
   await expect(page.getByRole('heading', { name: 'Open Contests' })).toBeVisible();
-  await expect(page.getByText('Find a free beta contest, scan the 15-player pool')).toBeVisible();
+  await expect(page.getByText('Find a free beta contest, scan the 20-player pool')).toBeVisible();
   await expect(page.getByText('Pick 10', { exact: true })).toBeVisible();
   await expect(page.getByText('Accuracy wins')).toBeVisible();
 
@@ -48,7 +48,7 @@ test('public conversion routes explain the contest mechanics before entry', asyn
 
   await expect(page.getByRole('heading', { name: 'Skill-based ranking contests' })).toBeVisible();
   const basics = page.getByLabel('PickRank basics');
-  await expect(basics.getByText('Pick 10 from 15')).toBeVisible();
+  await expect(basics.getByText('Pick 10 from 20')).toBeVisible();
   await expect(basics.getByText('Lower score wins')).toBeVisible();
   await expect(page.getByRole('table')).toBeVisible();
 });

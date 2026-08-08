@@ -49,7 +49,7 @@ seed_contests as (
       1,
       'public_paid',
       'qb_passing_yards',
-      15,
+      20,
       500,
       600,
       600,
@@ -84,7 +84,7 @@ seed_contests as (
       2,
       'public_paid',
       'qb_passing_yards',
-      15,
+      20,
       500,
       0,
       0,
@@ -220,6 +220,11 @@ from (
     ((select id from public_contest), 'qb-jared-goff', 'provider-qb-jared-goff', 'det-chi-2026-wk1', 'Jared Goff', 'DET', 'CHI', 'home', 13, '2026-09-07T17:00:00Z', 'active'),
     ((select id from public_contest), 'qb-tua-tagovailoa', 'provider-qb-tua-tagovailoa', 'mia-nyj-2026-wk1', 'Tua Tagovailoa', 'MIA', 'NYJ', 'home', 14, '2026-09-07T17:00:00Z', 'active'),
     ((select id from public_contest), 'qb-matthew-stafford', 'provider-qb-matthew-stafford', 'lar-ari-2026-wk1', 'Matthew Stafford', 'LAR', 'ARI', 'home', 15, '2026-09-07T20:25:00Z', 'active'),
+    ((select id from public_contest), 'qb-baker-mayfield', 'provider-qb-baker-mayfield', 'tb-atl-2026-wk1', 'Baker Mayfield', 'TB', 'ATL', 'away', 16, '2026-09-07T17:00:00Z', 'active'),
+    ((select id from public_contest), 'qb-trevor-lawrence', 'provider-qb-trevor-lawrence', 'jax-car-2026-wk1', 'Trevor Lawrence', 'JAX', 'CAR', 'home', 17, '2026-09-07T17:00:00Z', 'active'),
+    ((select id from public_contest), 'qb-kyler-murray', 'provider-qb-kyler-murray', 'ari-lar-2026-wk1', 'Kyler Murray', 'ARI', 'LAR', 'away', 18, '2026-09-07T20:25:00Z', 'active'),
+    ((select id from public_contest), 'qb-sam-darnold', 'provider-qb-sam-darnold', 'sea-sf-2026-wk1', 'Sam Darnold', 'SEA', 'SF', 'away', 19, '2026-09-07T20:05:00Z', 'active'),
+    ((select id from public_contest), 'qb-russell-wilson', 'provider-qb-russell-wilson', 'nyg-was-2026-wk1', 'Russell Wilson', 'NYG', 'WAS', 'away', 20, '2026-09-07T17:00:00Z', 'active'),
     ((select id from draft_contest), 'qb-josh-allen', 'provider-qb-josh-allen', 'buf-bal-2026-wk2', 'Josh Allen', 'BUF', 'BAL', 'home', 1, '2026-09-11T00:20:00Z', 'active'),
     ((select id from draft_contest), 'qb-joe-burrow', 'provider-qb-joe-burrow', 'cin-cle-2026-wk2', 'Joe Burrow', 'CIN', 'CLE', 'away', 2, '2026-09-11T20:25:00Z', 'active'),
     ((select id from draft_contest), 'qb-derek-carr', 'provider-qb-derek-carr', 'no-atl-2026-wk2', 'Derek Carr', 'NO', 'ATL', 'home', 3, '2026-09-11T20:25:00Z', 'active'),
@@ -234,7 +239,12 @@ from (
     ((select id from draft_contest), 'qb-patrick-mahomes', 'provider-qb-patrick-mahomes', 'kc-den-2026-wk2', 'Patrick Mahomes', 'KC', 'DEN', 'home', 12, '2026-09-12T00:20:00Z', 'active'),
     ((select id from draft_contest), 'qb-jared-goff', 'provider-qb-jared-goff', 'det-chi-2026-wk2', 'Jared Goff', 'DET', 'CHI', 'home', 13, '2026-09-11T20:25:00Z', 'active'),
     ((select id from draft_contest), 'qb-tua-tagovailoa', 'provider-qb-tua-tagovailoa', 'mia-nyj-2026-wk2', 'Tua Tagovailoa', 'MIA', 'NYJ', 'away', 14, '2026-09-11T20:25:00Z', 'active'),
-    ((select id from draft_contest), 'qb-matthew-stafford', 'provider-qb-matthew-stafford', 'lar-ari-2026-wk2', 'Matthew Stafford', 'LAR', 'ARI', 'home', 15, '2026-09-11T23:25:00Z', 'active')
+    ((select id from draft_contest), 'qb-matthew-stafford', 'provider-qb-matthew-stafford', 'lar-ari-2026-wk2', 'Matthew Stafford', 'LAR', 'ARI', 'home', 15, '2026-09-11T23:25:00Z', 'active'),
+    ((select id from draft_contest), 'qb-baker-mayfield', 'provider-qb-baker-mayfield', 'tb-atl-2026-wk2', 'Baker Mayfield', 'TB', 'ATL', 'away', 16, '2026-09-11T20:25:00Z', 'active'),
+    ((select id from draft_contest), 'qb-trevor-lawrence', 'provider-qb-trevor-lawrence', 'jax-car-2026-wk2', 'Trevor Lawrence', 'JAX', 'CAR', 'home', 17, '2026-09-11T20:25:00Z', 'active'),
+    ((select id from draft_contest), 'qb-kyler-murray', 'provider-qb-kyler-murray', 'ari-lar-2026-wk2', 'Kyler Murray', 'ARI', 'LAR', 'away', 18, '2026-09-11T23:25:00Z', 'active'),
+    ((select id from draft_contest), 'qb-sam-darnold', 'provider-qb-sam-darnold', 'sea-sf-2026-wk2', 'Sam Darnold', 'SEA', 'SF', 'away', 19, '2026-09-11T23:05:00Z', 'active'),
+    ((select id from draft_contest), 'qb-russell-wilson', 'provider-qb-russell-wilson', 'nyg-was-2026-wk2', 'Russell Wilson', 'NYG', 'WAS', 'away', 20, '2026-09-11T20:25:00Z', 'active')
 ) as seed_rows (
   contest_id,
   player_id,
@@ -263,7 +273,7 @@ select
   case when contests.slug = 'week-1-qb-passing-yards' then '{}'::text[] else '{}'::text[] end,
   case
     when contests.slug = 'week-1-qb-passing-yards'
-      then array['The public lineup shell still uses a temporary 10-player subset until the full 15-to-10 selection flow lands.']
+      then array['The public board builder uses a 20-player pool with one saved 10-player board.']
     else '{}'::text[]
   end,
   case when contests.slug = 'week-1-qb-passing-yards' then '2026-08-28T12:00:00Z'::timestamptz else now() end,

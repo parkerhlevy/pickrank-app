@@ -3,6 +3,7 @@ import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { z } from 'zod';
 import { formatCents, getContestById, updateContestStatus, type ContestSlatePlayer } from '@/lib/contest-data';
+import { contestRankedPlayerCount } from '@/lib/contest-rules';
 import {
   buildContestPlayerResults,
   buildPayoutSlots,
@@ -84,7 +85,7 @@ const finalizedContestResultSchema = z.object({
       amountCents: z.number().int().nonnegative(),
     }),
   ),
-  playerResults: z.array(contestPlayerResultSchema).length(15),
+  playerResults: z.array(contestPlayerResultSchema).min(contestRankedPlayerCount),
   entryResults: z.array(finalizedEntryResultSchema),
   entryPlayerScores: z.array(entryPlayerScoreSchema),
 });

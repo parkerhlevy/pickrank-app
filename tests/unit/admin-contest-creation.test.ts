@@ -76,12 +76,12 @@ describe('admin contest draft creation', () => {
       dataFilePath,
     });
 
-    expect(savedContest.slatePlayers).toHaveLength(15);
+    expect(savedContest.slatePlayers).toHaveLength(20);
     expect(savedContest.lineupPlayers).toHaveLength(10);
     expect(savedContest.validation.status).toBe('not_run');
   });
 
-  it('blocks publish when the required 15-player slate has not been saved', async () => {
+  it('blocks publish when the required 20-player pool has not been saved', async () => {
     const tempDirectory = await mkdtemp(path.join(os.tmpdir(), 'pickrank-contests-'));
     const dataFilePath = path.join(tempDirectory, 'contests.json');
 
@@ -106,7 +106,7 @@ describe('admin contest draft creation', () => {
         dataFilePath,
         now: '2026-09-10T00:00:00.000Z',
       }),
-    ).rejects.toThrow('Add exactly 15 quarterbacks before publish.');
+    ).rejects.toThrow('Add exactly 20 quarterbacks before publish.');
   });
 
   it('validates and publishes a draft contest with operator audit fields', async () => {
@@ -324,7 +324,7 @@ describe('admin contest draft creation', () => {
               week: 4,
               contestType: 'public_paid',
               statType: 'qb_passing_yards',
-              slateSize: 15,
+              slateSize: 20,
               entryFeeCents: 500,
               entryCount: 0,
               paidEntryCount: 0,
@@ -460,6 +460,11 @@ function buildValidSlatePlayers(gameStartTime: string): ContestSlatePlayer[] {
     ['qb-jared-goff', 'provider-qb-jared-goff', 'det-chi-2026', 'Jared Goff', 'DET', 'CHI', 'home'],
     ['qb-tua-tagovailoa', 'provider-qb-tua-tagovailoa', 'mia-nyj-2026', 'Tua Tagovailoa', 'MIA', 'NYJ', 'away'],
     ['qb-matthew-stafford', 'provider-qb-matthew-stafford', 'lar-ari-2026', 'Matthew Stafford', 'LAR', 'ARI', 'home'],
+    ['qb-baker-mayfield', 'provider-qb-baker-mayfield', 'tb-atl-2026', 'Baker Mayfield', 'TB', 'ATL', 'away'],
+    ['qb-trevor-lawrence', 'provider-qb-trevor-lawrence', 'jax-car-2026', 'Trevor Lawrence', 'JAX', 'CAR', 'home'],
+    ['qb-kyler-murray', 'provider-qb-kyler-murray', 'ari-lar-2026', 'Kyler Murray', 'ARI', 'LAR', 'away'],
+    ['qb-sam-darnold', 'provider-qb-sam-darnold', 'sea-sf-2026', 'Sam Darnold', 'SEA', 'SF', 'away'],
+    ['qb-russell-wilson', 'provider-qb-russell-wilson', 'nyg-was-2026', 'Russell Wilson', 'NYG', 'WAS', 'away'],
   ] as const;
 
   return rows.map((row, index) => ({

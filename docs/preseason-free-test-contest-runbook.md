@@ -17,6 +17,7 @@ Allowed modes:
 - live public site route checks
 - local or staging file-backed E2E free/test entry
 - hidden internal provider validation contests
+- dry-run provider prep from local fixture data
 - manual/test final stats for operator finalization proof
 - saved final leaderboard/results verification after typed `FINAL`
 
@@ -54,7 +55,7 @@ Live route proof captured on 2026-07-27:
 | Route | Expected proof | Latest result |
 |---|---|---|
 | `https://www.pickrankgames.com/` | Home responds | `200` from Vercel |
-| `https://www.pickrankgames.com/contests` | Open Contests responds | `200`; page includes `Open Contests`, `Week 1 QB Passing Yards`, `15-QB slate`, `Ranked 10`, and `Enter Contest` |
+| `https://www.pickrankgames.com/contests` | Open Contests responds | `200`; page includes `Open Contests`, `Week 1 QB Passing Yards`, `20-QB player pool`, `Ranked 10`, and `Enter Contest` |
 | `https://www.pickrankgames.com/contests/week-1-qb-passing-yards` | Contest Detail responds | `200`; page includes `Week 1 QB Passing Yards`, `Contest Details`, `Contest Board`, `Contest Progression`, `Ranked 10`, `Save your lineup before Thu, Sep 3, 8:15 PM ET`, and signed-out entry routes through `/auth` |
 | `https://www.pickrankgames.com/leaderboard` | Leaderboard responds | `200`; page says leaderboards are `Final only` and that standings appear after saved final scoring is confirmed |
 | `https://www.pickrankgames.com/how-it-works` | How It Works responds | `200` |
@@ -87,7 +88,7 @@ Pass criteria:
 
 - Each route returns `200`.
 - Contests page shows the current contest slate.
-- Contest Detail explains the 15-player slate, ranked 10, lower-score-wins mechanic, lock time, projected payouts, and progression from slate to final results.
+- Contest Detail explains the 20-player pool, ranked 10, lower-score-wins mechanic, lock time, projected payouts, and progression from player pool to final results.
 - Leaderboard stays final-only when no public final contest exists.
 - Signed-out entry sends the user to Auth rather than creating an entry.
 
@@ -110,7 +111,7 @@ Checklist:
 
 - Create a draft contest in `draft`.
 - Confirm the draft is hidden from public lobby.
-- Save exactly 15 quarterbacks.
+- Save exactly 20 quarterbacks.
 - Confirm each slate player has provider player ID, provider game ID, team, opponent, position, and game start time.
 - Run validation before publish.
 - Confirm invalid slate publish is blocked.
@@ -126,7 +127,7 @@ npx vitest run tests/unit/admin-contest-creation.test.ts
 Pass criteria:
 
 - hidden draft creation passes
-- 15-player slate save passes
+- 20-player pool save passes
 - invalid publish fails
 - valid publish saves `scheduled` or `open`
 - scheduled-to-open and open-to-locked transitions log once
@@ -166,7 +167,7 @@ Goal: prove a test entrant can reach the lineup builder, see the full slate, sav
 Checklist:
 
 - Enter a test/free contest.
-- Confirm the lineup builder shows 10 ranked quarterbacks and 5 remaining slate players.
+- Confirm the lineup builder shows 10 ranked quarterbacks and 10 remaining player-pool players.
 - Move quarterbacks into a new order.
 - Save lineup.
 - Reload.
@@ -182,7 +183,7 @@ npx playwright test tests/e2e/lineup-builder.spec.ts
 
 Pass criteria:
 
-- ranked lineup contains exactly 10 unique quarterbacks from the 15-player slate
+- ranked lineup contains exactly 10 unique quarterbacks from the 20-player pool
 - available slate derives from the full contest slate
 - saved source changes to `user_saved`
 - invalid lineup order is rejected
@@ -222,6 +223,7 @@ Checklist:
 
 - Confirm `.env.local` or the target environment has the intended provider mode and credentials.
 - Use the hidden 2026 live validation contest for true current-season validation.
+- Run dry-run prep before any hidden-contest mutation.
 - Run the live validation harness during preseason games as the first realistic non-zero player-stat window.
 - Confirm the harness reads `ScoresByWeek` and `PlayerGameStatsByWeek`.
 - Confirm snapshots persist into provisional snapshot storage.
@@ -231,6 +233,7 @@ Checklist:
 Executable proof:
 
 ```bash
+npm run prepare:live-validation-contest:dry-run
 npm run prepare:live-validation-contest
 npm run validate:live-provisional
 npx vitest run tests/unit/provisional-stats-provider.test.ts tests/unit/in-season-live-validation.test.ts tests/unit/in-season-live-validation-prep.test.ts
@@ -238,7 +241,8 @@ npx vitest run tests/unit/provisional-stats-provider.test.ts tests/unit/in-seaso
 
 Pass criteria:
 
-- hidden current-season validation contest has numeric SportsDataIO player and game IDs
+- dry-run prep reports a 20-player pool and no guessed provider IDs
+- hidden current-season validation contest has numeric SportsDataIO player and game IDs after explicit approval to write it
 - provider request succeeds with the standard live host/header contract
 - non-zero preseason stats are captured once games are active
 - game counts and ordering are persisted as provisional snapshot rows
@@ -257,7 +261,7 @@ Checklist:
 
 - Use the operator/admin finalization path.
 - Prefill or enter final QB passing-yard rows.
-- Confirm all 15 slate rows are present and names match.
+- Confirm all 20 player rows are present and names match.
 - Type `FINAL`.
 - Publish final results.
 - Rerun after a stat correction and confirm saved rows replace cleanly.
@@ -346,6 +350,7 @@ Run this order for a complete preseason proof pass:
 npm run typecheck
 npx vitest run tests/unit/admin-contest-creation.test.ts tests/unit/contest-entry-confirmation.test.ts tests/unit/persisted-contest-entry.test.ts tests/unit/lineup-builder-state.test.ts tests/unit/contest-entry-flow.test.ts tests/unit/provisional-stats-provider.test.ts tests/unit/in-season-live-validation.test.ts tests/unit/in-season-live-validation-prep.test.ts tests/unit/contest-finalization.test.ts tests/unit/contest-results.test.ts
 npx playwright test tests/e2e/lineup-builder.spec.ts
+npm run prepare:live-validation-contest:dry-run
 npm run prepare:live-validation-contest
 npm run validate:live-provisional
 npx playwright test tests/e2e/final-results.spec.ts

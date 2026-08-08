@@ -61,8 +61,8 @@ See /spec/features/phase_0_implementation_plan.md
 3. Contest Structure
 Contest Type (MVP)
 Stat Category: QB Passing Yards  
-Slate Size: 15 quarterbacks  
-User Task: Pick and rank the top 10 QBs by passing yards from the 15-QB slate
+Slate Size: 20 quarterbacks
+User Task: Pick and rank the top 10 QBs by passing yards from the 20-QB player pool
 Contest Lock
 Entries lock at kickoff of the first game of the slate (typically
 Thursday Night Football).
@@ -93,7 +93,7 @@ distance = abs(user_rank - actual_rank)
 points = distance
 Total score = sum of points from the user's 10 selected QBs.
 Lowest total score wins.
-Actual rank is always measured against the full 15-QB slate, not only against the user's selected 10.
+Actual rank is always measured against the full 20-QB player pool, not only against the user's selected 10.
 Leaderboard Tie Resolution
 If two entries finish with the same total score, resolve the order
 using these tiebreakers in sequence:
@@ -185,7 +185,7 @@ Enter Contest
 Example:
 Week 7 QB Passing Yards  
 Entries lock: Thu 8:15 PM ET
-15 Quarterbacks  
+20 Quarterbacks
 Rank QBs by passing yards
 Prize Pool: $8,715  
 1,284 Entries
@@ -305,7 +305,7 @@ See /spec/features/results_reveal.md
 For MVP: Single entry per user
 Contest must reach at least 4 paid entries by lock time to run.
 Future: Multi-entry contests
-Scoring direction is locked for MVP: each selected player receives `abs(user_rank - actual_rank)` points, all 10 selected player differentials are summed, and the lowest total score wins. Actual rank is measured against the full 15-QB slate. Player stat ties use the same tied actual rank range logic as the rest of MVP scoring.
+Scoring direction is locked for MVP: each selected player receives `abs(user_rank - actual_rank)` points, all 10 selected player differentials are summed, and the lowest total score wins. Actual rank is measured against the full 20-QB player pool. Player stat ties use the same tied actual rank range logic as the rest of MVP scoring.
 ---
 16. Backend Data Model
 Detailed MVP backend object and service design is defined in:

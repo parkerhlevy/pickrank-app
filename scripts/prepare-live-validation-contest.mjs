@@ -12,6 +12,7 @@ main().catch((error) => {
 });
 
 async function main() {
+  const options = parseArgs(process.argv.slice(2));
   const env = await loadEnvFile(path.join(process.cwd(), '.env.local'));
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_SERVICE_ROLE_KEY;
@@ -21,7 +22,7 @@ async function main() {
     env.PICKRANK_SPORTSDATAIO_LIVE_BASE_URL ||
     'https://api.sportsdata.io/v3/nfl';
 
-  if (!supabaseUrl || !supabaseServiceRoleKey) {
+  if (!options.sourceFilePath && (!supabaseUrl || !supabaseServiceRoleKey)) {
     throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY for live validation contest prep.');
   }
 
@@ -29,8 +30,11 @@ async function main() {
     throw new Error('Missing PICKRANK_SPORTSDATAIO_LIVE_API_KEY for live validation contest prep.');
   }
 
-  const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
-  const sourceContest = await loadSourceContest(supabase, 'week-1-qb-passing-yards');
+  const supabase =
+    supabaseUrl && supabaseServiceRoleKey ? createClient(supabaseUrl, supabaseServiceRoleKey) : null;
+  const sourceContest = options.sourceFilePath
+    ? await loadSourceContestFromFile(path.resolve(process.cwd(), options.sourceFilePath), 'week-1-qb-passing-yards')
+    : await loadSourceContest(supabase, 'week-1-qb-passing-yards');
   const normalizedLiveBaseUrl = liveBaseUrl.replace(/\/$/, '');
   const [scores, depthCharts, teams] = await Promise.all([
     fetchSportsDataIoJson(`${normalizedLiveBaseUrl}/scores/json/ScoresByWeek/2026reg/1`, liveApiKey),
@@ -65,11 +69,18 @@ async function main() {
     ),
   });
 
-  await upsertPreparedContest(supabase, preparedContest);
+  if (!options.dryRun) {
+    if (!supabase) {
+      throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY for live validation contest prep.');
+    }
+
+    await upsertPreparedContest(supabase, preparedContest);
+  }
 
   console.log(
     JSON.stringify(
       {
+        dryRun: options.dryRun,
         contestSlug: preparedContest.id,
         slateSize: preparedContest.slatePlayers.length,
         replacements: preparedContest.replacements,
@@ -82,11 +93,51 @@ async function main() {
           opponentAbbreviation: player.opponentAbbreviation,
           homeAway: player.homeAway,
         })),
+        addedFive: preparedContest.slatePlayers.slice(-5).map((player) => ({
+          displayName: player.displayName,
+          providerPlayerId: player.providerPlayerId,
+          providerGameId: player.providerGameId,
+          teamAbbreviation: player.teamAbbreviation,
+          opponentAbbreviation: player.opponentAbbreviation,
+          homeAway: player.homeAway,
+        })),
       },
       null,
       2,
     ),
   );
+}
+
+function parseArgs(args) {
+  const options = {
+    dryRun: false,
+    sourceFilePath: '',
+  };
+
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index];
+
+    if (arg === '--dry-run') {
+      options.dryRun = true;
+      continue;
+    }
+
+    if (arg === '--source-file') {
+      const value = args[index + 1];
+
+      if (!value) {
+        throw new Error('Add a file path after --source-file.');
+      }
+
+      options.sourceFilePath = value;
+      index += 1;
+      continue;
+    }
+
+    throw new Error(`Unknown argument: ${arg}`);
+  }
+
+  return options;
 }
 
 async function loadSourceContest(supabase, slug) {
@@ -111,23 +162,52 @@ async function loadSourceContest(supabase, slug) {
     throw new Error(`Unable to load source contest slate rows: ${slateError.message}`);
   }
 
-      return {
-        slug: contestRow.slug,
-        title: contestRow.title,
-        season: contestRow.season,
-        week: contestRow.week,
-        slatePlayers: (slateRows || []).map((row) => ({
-          playerId: row.player_id,
-          providerPlayerId: row.provider_player_id || row.player_id,
-          providerGameId: row.provider_game_id || row.player_id,
-          displayName: row.display_name || row.player_name,
-          teamAbbreviation: row.team_abbreviation,
-          opponentAbbreviation: row.opponent_abbreviation,
+  return {
+    slug: contestRow.slug,
+    title: contestRow.title,
+    season: contestRow.season,
+    week: contestRow.week,
+    slatePlayers: (slateRows || []).map((row) => ({
+      playerId: row.player_id,
+      providerPlayerId: row.provider_player_id || row.player_id,
+      providerGameId: row.provider_game_id || row.player_id,
+      displayName: row.display_name || row.player_name,
+      teamAbbreviation: row.team_abbreviation,
+      opponentAbbreviation: row.opponent_abbreviation,
       homeAway: row.home_away,
       gameStartTime: normalizeDateTime(row.game_start_time),
       position: row.position,
       activeStatus: row.active_status,
       sortOrderInternal: row.sort_order_internal,
+    })),
+  };
+}
+
+async function loadSourceContestFromFile(filePath, slug) {
+  const store = JSON.parse(await readFile(filePath, 'utf8'));
+  const contest = (store.contests || []).find((candidate) => candidate.id === slug);
+
+  if (!contest) {
+    throw new Error(`Unable to load source contest ${slug} from ${filePath}.`);
+  }
+
+  return {
+    slug: contest.id,
+    title: contest.title,
+    season: contest.season,
+    week: contest.week,
+    slatePlayers: (contest.slatePlayers || []).map((player) => ({
+      playerId: player.playerId,
+      providerPlayerId: player.providerPlayerId || player.playerId,
+      providerGameId: player.providerGameId || player.playerId,
+      displayName: player.displayName,
+      teamAbbreviation: player.teamAbbreviation,
+      opponentAbbreviation: player.opponentAbbreviation,
+      homeAway: player.homeAway,
+      gameStartTime: normalizeDateTime(player.gameStartTime),
+      position: player.position,
+      activeStatus: player.activeStatus,
+      sortOrderInternal: player.sortOrderInternal,
     })),
   };
 }

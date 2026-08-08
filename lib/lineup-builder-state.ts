@@ -1,3 +1,5 @@
+import { contestRankedPlayerCount } from '@/lib/contest-rules';
+
 export type LineupSource = 'default_assigned' | 'user_saved';
 
 export type LineupState = {
@@ -70,7 +72,7 @@ export function moveLineupPlayer(selectedOrder: string[], fromIndex: number, toI
 }
 
 export function addLineupPlayer(selectedOrder: string[], player: string) {
-  if (selectedOrder.includes(player) || selectedOrder.length >= 10) {
+  if (selectedOrder.includes(player) || selectedOrder.length >= contestRankedPlayerCount) {
     return selectedOrder;
   }
 
@@ -99,8 +101,10 @@ export function getAvailablePlayers(players: string[], selectedOrder: string[]) 
 
 function normalizeSelectedOrder(value: unknown, players: string[], fallbackOrder?: string[]) {
   const fallbackSelectedOrder = Array.isArray(fallbackOrder)
-    ? fallbackOrder.filter((player, index, allPlayers) => players.includes(player) && allPlayers.indexOf(player) === index).slice(0, 10)
-    : players.slice(0, 10);
+    ? fallbackOrder
+        .filter((player, index, allPlayers) => players.includes(player) && allPlayers.indexOf(player) === index)
+        .slice(0, contestRankedPlayerCount)
+    : players.slice(0, contestRankedPlayerCount);
 
   if (!Array.isArray(value)) {
     return fallbackSelectedOrder;
@@ -108,7 +112,7 @@ function normalizeSelectedOrder(value: unknown, players: string[], fallbackOrder
 
   const filteredPlayers = value.filter((item): item is string => typeof item === 'string' && players.includes(item));
 
-  if (filteredPlayers.length !== 10 || new Set(filteredPlayers).size !== 10) {
+  if (filteredPlayers.length !== contestRankedPlayerCount || new Set(filteredPlayers).size !== contestRankedPlayerCount) {
     return fallbackSelectedOrder;
   }
 

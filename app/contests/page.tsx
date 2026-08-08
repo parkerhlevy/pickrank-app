@@ -25,7 +25,7 @@ export default async function ContestsPage() {
           </Link>
         </div>
         <p className="text-muted-foreground">
-          Find a free beta contest, scan the 15-player pool, and decide if you can build a more accurate board than
+          Find a free beta contest, scan the 20-player pool, and decide if you can build a more accurate board than
           the field. You can browse first and sign in only when you are ready to enter.
         </p>
       </div>

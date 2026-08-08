@@ -208,7 +208,7 @@ Source specs:
 | week | integer/string | NFL week |
 | contest_type | enum | public_paid |
 | stat_type | enum | qb_passing_yards for MVP |
-| slate_size | integer | 15 for MVP |
+| slate_size | integer | 20 for MVP |
 | entry_fee | integer | cents |
 | total_entry_fees | integer | cents, derived/persisted |
 | platform_fee_percentage | decimal | 0.30 MVP |

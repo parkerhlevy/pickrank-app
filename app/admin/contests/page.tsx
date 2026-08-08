@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { canFinalizeContestStatus } from '@/lib/contest-finalization';
 import { listAdminContests, type ContestSummary } from '@/lib/contest-data';
+import { contestPlayerPoolSize, contestRankedPlayerCount } from '@/lib/contest-rules';
 import { requireContestOperator } from '@/lib/contest-operator-access';
 import {
   listAdminTestEntryReadiness,
@@ -206,7 +207,7 @@ export default async function AdminContestsPage({
                       Validation: {contest.validation.status === 'not_run' ? 'Not run' : contest.validation.status}
                     </p>
                     <p className="numeric mt-1 text-muted-foreground">
-                      Slate setup: {contest.slatePlayers.length}/15 quarterbacks saved
+                      Player pool setup: {contest.slatePlayers.length}/{contestPlayerPoolSize} quarterbacks saved
                     </p>
                     {contest.validation.errors.length > 0 ? (
                       <p className="mt-1 text-amber-900">{contest.validation.errors[0]}</p>
@@ -431,7 +432,10 @@ export default async function AdminContestsPage({
                 .
               </p>
               <p>Public entry and lineup flows now use server-backed entry records while the payment step stays a non-provider placeholder.</p>
-              <p>The lineup builder now shows the full 15-player slate and saves one ranked 10-player lineup for each entry.</p>
+              <p>
+                The board builder now shows the full {contestPlayerPoolSize}-player pool and saves one ranked{' '}
+                {contestRankedPlayerCount}-player board for each entry.
+              </p>
             </CardContent>
           </Card>
         </div>
