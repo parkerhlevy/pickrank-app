@@ -4,6 +4,7 @@ import {
   renderWaitlistWelcomeEmailHtml,
   renderWaitlistWelcomeEmailText,
   waitlistHomepageUrl,
+  waitlistPostalAddress,
   waitlistWelcomeEmailSubject,
 } from '../../lib/waitlist-email';
 
@@ -367,7 +368,7 @@ describe('waitlist signup workflow', () => {
 });
 
 describe('waitlist welcome email template', () => {
-  it('contains the approved subject, core copy, homepage link, branding, and unsubscribe note', () => {
+  it('contains the approved subject, core copy, homepage link, branding, and beta legal footer', () => {
     const html = renderWaitlistWelcomeEmailHtml();
     const text = renderWaitlistWelcomeEmailText();
 
@@ -377,8 +378,13 @@ describe('waitlist welcome email template', () => {
     expect(html).toContain('proper signup and eligibility flow');
     expect(html).toContain(waitlistHomepageUrl);
     expect(html).toContain('alt="PickRank"');
-    expect(html).toContain('Unsubscribe links are managed in Resend');
+    expect(html).toContain('No purchase, no entry fee, no prizes');
+    expect(html).toContain(waitlistPostalAddress);
+    expect(html).toContain('/legal/privacy');
+    expect(html).toContain('Future launch emails will include an unsubscribe link');
+    expect(html).toContain('not affiliated with or endorsed by the NFL');
     expect(text).toContain('The PickRank Team');
     expect(text).toContain(waitlistHomepageUrl);
+    expect(text).toContain(waitlistPostalAddress);
   });
 });

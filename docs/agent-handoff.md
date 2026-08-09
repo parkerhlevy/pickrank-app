@@ -86,6 +86,7 @@ Current branch reality on `main` as of 2026-08-08:
 - the matching source in `app/page.tsx` and focused homepage coverage in `tests/e2e/homepage.spec.ts` are aligned with this handoff update on `main`, keeping GitHub aligned with the live wording
 - the 2026-07-21 waitlist reconciliation slice is live in production: homepage waitlist CTAs are email-only forms with an explicit marketing-consent checkbox, `public.waitlist_signups` is the Supabase source of truth from migration `0012_waitlist_signups.sql`, Resend contact/welcome-email sync stays server-only behind `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `RESEND_REPLY_TO_EMAIL`, and `RESEND_WAITLIST_SEGMENT_ID`, and `/auth` remains reserved for protected account/contest flows; Parker applied `0012` to linked Supabase project `jmvzdspiobcjrewndhuf`, confirmed `public.waitlist_signups` exists, created the Resend `PickRank Waitlist` segment, added the required Resend variables plus `SUPABASE_SERVICE_ROLE_KEY` in Vercel for Production and Preview, changed the Resend key to Full access, and production testing confirmed Supabase capture, Resend segment sync, and welcome-email send; the remaining follow-up is email deliverability polish because a successful test email reached Parker's work-email junk folder
 - `docs/waitlist-workflow.md` records the narrow deliverability-prep boundary for that follow-up, and `docs/waitlist-deliverability-audit-2026-07-22.md` now includes the live deliverability result: after explicit approval, `auth.pickrankgames.com` was removed from Resend to stay on the one-domain plan, `pickrankgames.com` was added and verified in Resend, authoritative DNS moved from ZenBusiness SystemDNS to Cloudflare Free nameservers `gannon.ns.cloudflare.com` and `val.ns.cloudflare.com`, Cloudflare carries the copied web/mail records plus the new Resend DKIM, return-path SPF/MX, and DMARC records, Vercel `RESEND_FROM_EMAIL` now uses `PickRank <hello@pickrankgames.com>` for Production and Preview while `RESEND_REPLY_TO_EMAIL` remains unchanged, Production was redeployed from `main` commit `5402c0a`, and a fresh Gmail plus-alias production signup landed in Gmail Inbox/Updates with Resend `Delivered`, `From: PickRank <hello@pickrankgames.com>`, root-domain DKIM pass, return-path SPF pass for `send.pickrankgames.com`, and unchanged `Reply-To: info@pickrankgames.com`; treat root-domain waitlist deliverability as good enough for the current priority level, with iCloud, Outlook/Hotmail, work-email retesting, tracking metrics, and stricter DMARC left as later polish
+- email-provider migration remains out of scope for the registrar-transfer slice; Cloudflare Email Routing is a viable later option for inbound forwarding to Gmail, but it is not a full mailbox and does not support normal sending or replying from PickRank domain addresses; moving to Cloudflare Email Routing later would require MX record changes, so treat it as a separate email-only slice after the registrar transfer is complete
 - the 2026-07-18 Contest-as-Board presentation slice adds reusable `components/contests/contest-board-preview.tsx` and wires it into Home, Open Contests, and Contest Detail so each contest reads as its own slate-to-ranked-10 board before the auth-gated lineup builder; this keeps routes, auth gates, scoring, entry, payout, wallet, and contest-data behavior unchanged
 - repo verification for the 2026-07-18 Contest-as-Board slice passes `npm run typecheck`, focused `npx eslint app/page.tsx app/contests/page.tsx 'app/contests/[contestId]/page.tsx' components/contests/contest-board-preview.tsx`, `npm run test` (`27` files, `126` tests passed), and `npx playwright test tests/e2e/homepage.spec.ts`; Playwright route screenshots were captured only after allowing Chromium outside the macOS sandbox because sandboxed browser launch failed at `MachPortRendezvousServer` permission setup
 - the follow-on 2026-07-18 auth-gated Contest-as-Board slice extends the same component with a non-interactive stage panel for Payment Review, Entry Success, and Build Your Lineup, preserving the pre-entry boundary by saying the ranked 10 is ready after entry instead of showing a fake assigned lineup before confirmation
@@ -352,33 +353,78 @@ The MVP includes:
 - Auth/profile requirements
 - Compliance and responsible play requirements
 
+## Active Legal Beta Action List
+
+Source: the August 6 legal consultant call with Ross, Ross's August 6 beta document package in the shared Drive folder, plus the current repo beta posture.
+
+Current decision frame:
+
+- Phase 1 is strictly free-to-play Early Access Beta.
+- Do not add paid entry, deposits, withdrawals, payouts, cash prizes, cash-balance movement, KYC vendor flows, geolocation enforcement, or state-by-state paid eligibility in this lane.
+- Keep the public product posture consistent everywhere: Beta Pass, no cash value, no payouts, no cash prizes, and paid contests deferred behind legal/provider/payment/withdrawal/compliance gates.
+- Treat Ross's revised core docs as the source for final legal wording once Parker approves them. Until then, site legal pages can be scaffolded and linked, but final terms should not be invented.
+- The Drive package currently contains Office `.docx` files, not native Google Docs. The connector can read them. If connector-native document edits are needed, first confirm whether the Office-mode files must be converted or replaced.
+- The revised Contest Rules still describe the old 15-player slate. They must be corrected to the repo's 20-player pool / ranked 10-player board rule before publication.
+- Parker chose `13+` as the Early Access Beta age posture on 2026-08-08. The current local worktree now collects DOB directly in PickRank account/profile setup and blocks under-13 users before beta entry. It does not rely on Google SSO or Google People API birthday scopes.
+
+What can be done now:
+
+- Keep `/legal/terms`, `/legal/privacy`, `/legal/beta-rules`, and `/legal/responsible-play` aligned with the free beta posture and the current 20-player pool / ranked 10-player board mechanic. The current local legal routes now use beta-ready site copy based on Parker's supplied decisions, including the `13+` beta posture, DOB collection, Playground Sports, LLC as operator, August 9, 2026 effective/updated dates, Washington law, King County venue, `support@pickrankgames.com`, 30-day deletion target, and 7-day enforcement review target.
+- Correct the beta Official Contest Rules before publication: use a 20-quarterback player pool, rank 10, actual rank measured against all 20 players, tied player stats sharing an actual rank range, and the locked repo entry tiebreakers. The site summary copy is updated locally; Ross's Office-mode `.docx` rules file still needs conversion/replacement or manual edit before it can be treated as final.
+- Keep the global legal footer visible on public and account routes. It links Terms, Privacy, Beta Rules, and Responsible Play. The local legal pages also cross-link each other.
+- Audit homepage, contest, auth, profile, wallet, and email copy for paid-launch remnants, cash-prize implications, "credits" ambiguity, or betting/wagering language.
+- Confirm the waitlist form and welcome-email copy clearly state marketing consent and unsubscribe availability before any broader outreach. The waitlist form already requires explicit marketing consent and says users can unsubscribe anytime.
+- Update the welcome-email footer before broader outreach so it includes why the recipient is receiving the email, no-purchase/no-entry-fee/no-prizes language, unsubscribe or Resend preference handling, Privacy Policy link once live, the required real postal address, and the NFL/no-endorsement disclaimer. The local welcome email now includes the source, no-purchase/no-entry-fee/no-prizes language, Privacy Policy link, future Resend unsubscribe language, Playground Sports, LLC's supplied postal address, and NFL/no-endorsement disclaimer. A live campaign unsubscribe/preference URL remains required before marketing broadcasts.
+- Review Ross's revised core beta docs against the site-ready Terms and Privacy copy before final publication.
+- Keep first-party DOB collection in the account/profile setup flow for the `13+` beta posture. The local implementation blocks under-13 users before beta entry, updates Privacy/Terms placeholder copy, adds the profile `date_of_birth` schema hook, and updates validation/tests. Parent-report handling copy still needs the final monitored email address.
+- Parker supplied the remaining beta results-rule publication details: finality window is 24 hours after the last slate game ends, and cancellation threshold is N/A during free beta with no cash prizes. SportsDataIO is named in local Beta Rules site copy, but internal follow-up must review SportsDataIO terms and the August 6 test-game use case before treating that provider wording as fully cleared.
+
+Decisions Parker needs to make:
+
+- Review SportsDataIO terms, including the August 6 test-game use case, before treating the provider wording as fully cleared.
+- Review Ross's revised document overview first, then approve the exact beta docs before final site copy changes.
+- Decide whether `PickRank` remains the long-term name before spending on trademark clearance or intent-to-use filing.
+- Defer entity restructuring unless traction, fundraising plans, or Phase 2 paid-contest planning make it necessary.
+
+Deferred Phase 2 items:
+
+- Paid-contest Terms, paid Official Contest Rules, payment provider selection, payout provider selection, KYC/identity, geolocation, taxes, supported-state rules, responsible-play operations, refunds, wallet ledger movement, and public paid eligibility approval.
+- Trademark filing, code/UI copyright registration, and trade-secret process work after the name and business direction are more settled.
+
 ## Suggested Next Slice
 
 Current beta-launch checklist:
 
 ```text
-Early Access Beta launch readiness
+Legal beta publishing readiness
 ```
 
-Use the beta posture as the launch source of truth: free-to-play contests, Beta Pass, no cash value, no payouts, no cash prizes, and paid contests deferred behind legal/provider/payment/withdrawal/compliance gates. The repo and Vercel production deployment now carry that posture. The existing preseason free/test runbook still matters for proving the contest loop, but public copy and visible contest data should read as Early Access Beta, not an internal-only proof mode.
+Use the beta posture as the launch source of truth: free-to-play contests, Beta Pass, no cash value, no payouts, no cash prizes, and paid contests deferred behind legal/provider/payment/withdrawal/compliance gates. The repo and Vercel production deployment now carry that posture. The immediate website work is legal-copy readiness, visible legal-route linking, waitlist/email consent language, and age-posture alignment. The existing preseason free/test runbook and provider/data path still matter, but they are separate from the legal beta publishing lane.
 
 Next recommended slice:
 
 ```text
-Continue PickRank using the repo as source of truth. Start from the current mixed local 20-player/provider-ready lane on `main` and keep that lane narrow. Use `docs/provider-readiness-20-player-pool-2026-08-05.md` as the data review artifact. Decide whether ARI/NYG should follow SportsDataIO current QB1 replacements (`Jacoby Brissett`, `Jaxson Dart`) or keep the local placeholder names pending separate confirmation. After explicit approval, load `SUPABASE_SERVICE_ROLE_KEY`, run `npm run prepare:live-validation-contest`, then run `npm run validate:live-provisional`. Do not change scoring rules, payments, wallet, eligibility, auth gates, routes, legal/compliance logic, or official finalization. Keep the parked Remotion/video/generated lane separate from the provider/data approval lane. Remind Parker to return to the human review questions after this provider/data pass.
+Continue PickRank using the repo as source of truth. Work on legal beta publishing readiness only. Start from `docs/agent-handoff.md`, `spec/product_spec.md`, `spec/features/compliance_eligibility_responsible_play.md`, `spec/features/payment_wallet_ux.md`, the current `app/legal/*` routes, waitlist copy, and the August 6 Ross call action list. Keep Phase 1 strictly free-to-play Early Access Beta: Beta Pass, no cash value, no payouts, no cash prizes, and no paid-entry behavior. Preserve Parker's current `13+` Early Access Beta posture and the first-party DOB collection / under-13 blocking path. Finish legal-route discovery links and broadcast-email compliance gaps, especially the live unsubscribe/preference URL. Replace placeholder legal-page copy only after Parker approves the corrected core beta docs. Keep provider/data, Remotion/video, scoring, auth, payment, wallet, KYC, geolocation, and public paid eligibility changes out of this lane.
 ```
 
 Definition of done:
 
-- Start from `docs/agent-handoff.md`, `spec/product_spec.md`, `spec/features/contest_admin_setup.md`, `spec/features/stat_finalization.md`, and the current provider validation docs
-- Preserve the verified production eligibility foundation, paid-entry block, beta free-entry boundary, and pick-10 scoring rule
-- Do not mutate live Supabase data without explicit Parker approval after the exact data diff is shown
-- Treat the five newly added local fixture quarterbacks as placeholders until Parker approves the provider-derived replacements and live hidden-contest mutation
+- Start from `docs/agent-handoff.md`, `spec/product_spec.md`, `spec/features/compliance_eligibility_responsible_play.md`, `spec/features/payment_wallet_ux.md`, `app/legal/*`, waitlist copy, and email copy
+- Preserve the verified production eligibility foundation, paid-entry block, beta free-entry boundary, 20-player pool, and ranked 10-player board rule
+- Confirm public copy does not imply paid launch, cash prizes, payouts, deposits, withdrawals, cash balance movement, or legal eligibility approval
+- Confirm Terms, Privacy Policy, Beta Contest Rules, and Responsible Play are discoverable from the relevant public and account surfaces
+- Confirm waitlist and email copy include consent and unsubscribe language before broader outreach
+- Record the beta age posture and do not support under-13 beta use
 - Keep `next-env.d.ts` out
-- Execute or rehearse the provider/data path with explicit pass/fail notes for each operator step
 - Confirm any issue found is logged as a separate narrow follow-up before code changes begin
 - Confirm payment providers, withdrawals, payouts, cash-balance and wallet-ledger movement, KYC vendor integration, geolocation, and public paid entry remain out of scope
 - Update this handoff note again if repo reality or the next recommended move changes
+
+Queued separate provider/data slice:
+
+```text
+Continue PickRank using the repo as source of truth. Start from the current mixed local 20-player/provider-ready lane on `main` and keep that lane narrow. Use `docs/provider-readiness-20-player-pool-2026-08-05.md` as the data review artifact. Decide whether ARI/NYG should follow SportsDataIO current QB1 replacements (`Jacoby Brissett`, `Jaxson Dart`) or keep the local placeholder names pending separate confirmation. After explicit approval, load `SUPABASE_SERVICE_ROLE_KEY`, run `npm run prepare:live-validation-contest`, then run `npm run validate:live-provisional`. Do not change scoring rules, payments, wallet, eligibility, auth gates, routes, legal/compliance logic, or official finalization. Keep the parked Remotion/video/generated lane separate from the provider/data approval lane.
+```
 
 ## Starter Prompt For Future Chats
 

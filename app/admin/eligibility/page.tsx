@@ -101,7 +101,7 @@ export default async function AdminEligibilityPage({
               </div>
 
               <div className="mt-4 grid gap-2 text-xs text-muted-foreground sm:grid-cols-3 lg:grid-cols-6">
-                <ReviewFact label="Age" value={candidate.eligibility.ageConfirmed ? 'Captured' : 'Missing'} />
+                <ReviewFact label="DOB / age" value={candidate.eligibility.ageConfirmed ? 'Captured' : 'Missing'} />
                 <ReviewFact label="Terms" value={candidate.eligibility.termsAcceptedAt ? 'Captured' : 'Missing'} />
                 <ReviewFact label="Privacy" value={candidate.eligibility.privacyPolicyAcceptedAt ? 'Captured' : 'Missing'} />
                 <ReviewFact label="KYC" value={formatStatus(candidate.eligibility.kycStatus)} />

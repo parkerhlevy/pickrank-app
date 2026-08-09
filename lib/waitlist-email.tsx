@@ -2,6 +2,8 @@ export const waitlistWelcomeEmailSubject = 'You’re on the PickRank waitlist';
 export const waitlistWelcomeEmailPreviewText =
   'You’re officially on the list. We’ll send launch updates as PickRank gets closer.';
 export const waitlistHomepageUrl = 'https://www.pickrankgames.com';
+export const waitlistPrivacyUrl = `${waitlistHomepageUrl}/legal/privacy`;
+export const waitlistPostalAddress = 'Playground Sports, LLC, 5014 42nd Ave SW, Unit C, Seattle, WA 98136';
 
 export function WaitlistWelcomeEmail() {
   return (
@@ -63,8 +65,15 @@ export function WaitlistWelcomeEmail() {
             </div>
           </section>
           <p style={{ margin: '18px 0 0', color: '#64748b', fontSize: 12, lineHeight: '18px', textAlign: 'center' }}>
-            You are receiving this because you joined the PickRank waitlist. Unsubscribe links are managed in Resend for
-            future launch broadcasts.
+            You are receiving this because you joined the PickRank waitlist at pickrankgames.com.
+            {' '}PickRank is a free skill-based fantasy game. No purchase, no entry fee, no prizes.
+            {' '}Future launch emails will include an unsubscribe link managed through Resend.
+            {' '}Playground Sports, LLC, 5014 42nd Ave SW, Unit C, Seattle, WA 98136.
+            {' '}Review the PickRank Privacy Policy at{' '}
+            <a href={waitlistPrivacyUrl} style={{ color: '#2563eb' }}>
+              {waitlistPrivacyUrl}
+            </a>
+            . PickRank is not affiliated with or endorsed by the NFL, any NFL club, or the NFL Players Association.
           </p>
         </main>
       </body>
@@ -96,7 +105,7 @@ export function renderWaitlistWelcomeEmailHtml() {
           <p style="margin:28px 0 0;font-size:16px;line-height:26px;">The PickRank Team</p>
         </div>
       </section>
-      <p style="margin:18px 0 0;color:#64748b;font-size:12px;line-height:18px;text-align:center;">You are receiving this because you joined the PickRank waitlist. Unsubscribe links are managed in Resend for future launch broadcasts.</p>
+      <p style="margin:18px 0 0;color:#64748b;font-size:12px;line-height:18px;text-align:center;">You are receiving this because you joined the PickRank waitlist at pickrankgames.com. PickRank is a free skill-based fantasy game. No purchase, no entry fee, no prizes. Future launch emails will include an unsubscribe link managed through Resend. ${waitlistPostalAddress}. Review the PickRank Privacy Policy at <a href="${waitlistPrivacyUrl}" style="color:#2563eb;">${waitlistPrivacyUrl}</a>. PickRank is not affiliated with or endorsed by the NFL, any NFL club, or the NFL Players Association.</p>
     </main>
   </body>
 </html>`;
@@ -118,6 +127,11 @@ export function renderWaitlistWelcomeEmailText() {
     '',
     'The PickRank Team',
     '',
-    'You are receiving this because you joined the PickRank waitlist. Unsubscribe links are managed in Resend for future launch broadcasts.',
+    'You are receiving this because you joined the PickRank waitlist at pickrankgames.com.',
+    'PickRank is a free skill-based fantasy game. No purchase, no entry fee, no prizes.',
+    waitlistPostalAddress,
+    `Privacy Policy: ${waitlistPrivacyUrl}`,
+    'Future launch emails will include an unsubscribe link managed through Resend.',
+    'PickRank is not affiliated with or endorsed by the NFL, any NFL club, or the NFL Players Association.',
   ].join('\n');
 }

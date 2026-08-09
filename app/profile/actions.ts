@@ -5,6 +5,7 @@ import {
   buildAuthHref,
   defaultReturnPath,
   getProfileIdentity,
+  normalizeDateOfBirth,
   normalizeJurisdiction,
   normalizeReturnPath,
   normalizeUsername,
@@ -72,11 +73,11 @@ export async function completeProfile(formData: FormData) {
 export async function completeEligibilityProfile(formData: FormData) {
   const next = normalizeReturnPath(String(formData.get('next') || defaultReturnPath), defaultReturnPath);
   const jurisdictionInput = String(formData.get('jurisdiction') || '');
-  const ageConfirmed = formData.get('ageConfirmed') === 'on';
+  const dateOfBirthInput = String(formData.get('dateOfBirth') || '');
   const termsAccepted = formData.get('termsAccepted') === 'on';
   const privacyPolicyAccepted = formData.get('privacyPolicyAccepted') === 'on';
   const validationMessage = validateEligibilityAcknowledgements({
-    ageConfirmed,
+    dateOfBirth: dateOfBirthInput,
     termsAccepted,
     privacyPolicyAccepted,
     jurisdiction: jurisdictionInput,
@@ -101,8 +102,15 @@ export async function completeEligibilityProfile(formData: FormData) {
 
   const now = new Date().toISOString();
   const jurisdiction = normalizeJurisdiction(jurisdictionInput);
+  const dateOfBirth = normalizeDateOfBirth(dateOfBirthInput);
+
+  if (!dateOfBirth) {
+    redirect(buildProfileRedirect(next, 'error', 'Enter a valid date of birth.'));
+  }
+
   const { error } = await supabase.auth.updateUser({
     data: {
+      date_of_birth: dateOfBirth,
       age_confirmed: true,
       jurisdiction,
       terms_accepted_at: now,

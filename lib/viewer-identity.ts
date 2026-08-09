@@ -26,6 +26,7 @@ type E2eAuthCookiePayload = {
   userId?: string;
   roleSlugs?: string[];
   ageConfirmed?: boolean;
+  dateOfBirth?: string;
   jurisdiction?: string;
   termsAcceptedAt?: string;
   privacyPolicyAcceptedAt?: string;
@@ -42,6 +43,7 @@ export type E2eAuthFixture = {
   userId: string;
   roleSlugs: string[];
   ageConfirmed: boolean;
+  dateOfBirth: string;
   jurisdiction: string;
   termsAcceptedAt: string;
   privacyPolicyAcceptedAt: string;
@@ -72,6 +74,7 @@ export function getE2eAuthFixture(cookieValue: string | undefined): E2eAuthFixtu
           ? parsed.roleSlugs
           : [],
       ageConfirmed: parsed.ageConfirmed === true,
+      dateOfBirth: typeof parsed.dateOfBirth === 'string' ? parsed.dateOfBirth : '',
       jurisdiction: typeof parsed.jurisdiction === 'string' ? parsed.jurisdiction : '',
       termsAcceptedAt:
         typeof parsed.termsAcceptedAt === 'string' ? parsed.termsAcceptedAt : '',
@@ -100,10 +103,11 @@ export function getE2eViewerIdentity(cookieValue: string | undefined): ViewerIde
   const identity = getProfileIdentity({
     email: fixture.email,
     email_confirmed_at: fixture.emailConfirmedAt,
-    user_metadata: {
-      username: fixture.username,
-      display_name: fixture.displayName,
-      age_confirmed: fixture.ageConfirmed,
+      user_metadata: {
+        username: fixture.username,
+        display_name: fixture.displayName,
+        date_of_birth: fixture.dateOfBirth,
+        age_confirmed: fixture.ageConfirmed,
       jurisdiction: fixture.jurisdiction,
       terms_accepted_at: fixture.termsAcceptedAt,
       privacy_policy_accepted_at: fixture.privacyPolicyAcceptedAt,

@@ -158,7 +158,7 @@ export default async function PaymentReviewPage({
                 ? 'This contest is free to play during Early Access Beta. It does not require paid-entry eligibility approval.'
                 : viewerIdentity.eligibility.isEligibleForPaidEntry
                 ? 'This account is marked eligible for paid entry.'
-                : 'Paid contests require age confirmation, state capture, Terms acceptance, Privacy acceptance, and an eligible account status.'
+                : 'Paid contests require date of birth, state capture, Terms acceptance, Privacy acceptance, and an eligible account status.'
             }
             badge={isFreeEntryContest ? 'Beta' : viewerIdentity.eligibility.isEligibleForPaidEntry ? 'Eligible' : 'Required'}
           />

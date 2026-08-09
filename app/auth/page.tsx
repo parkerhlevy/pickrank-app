@@ -50,7 +50,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
             <CardDescription>{returnStep.detail}</CardDescription>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
-            Google or email sign-in confirms account access. PickRank still captures public username, age confirmation,
+            Google or email sign-in confirms account access. PickRank still captures public username, date of birth,
             state, Beta Terms acceptance, and Privacy acceptance before beta entry.
           </CardContent>
         </Card>
@@ -170,7 +170,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
             feels clear and tied to one account.
           </p>
           <div className="soft-panel text-foreground">
-            Google sign-in does not provide age, state, Beta Terms acceptance, or Privacy acceptance. PickRank captures
+            Google sign-in does not provide date of birth, state, Beta Terms acceptance, or Privacy acceptance. PickRank captures
             those in Profile before beta contest entry. {launchMode.betaNoCashValueCopy}
           </div>
           {next !== defaultReturnPath ? (

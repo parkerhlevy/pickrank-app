@@ -8,6 +8,7 @@ const readyAccountCookieValue = JSON.stringify({
   emailConfirmedAt: '2026-06-29T00:00:00.000Z',
   userId: defaultE2eViewerUserId,
   ageConfirmed: true,
+  dateOfBirth: '1990-01-01',
   jurisdiction: 'CA',
   termsAcceptedAt: '2026-06-29T00:00:00.000Z',
   privacyPolicyAcceptedAt: '2026-06-29T00:00:00.000Z',

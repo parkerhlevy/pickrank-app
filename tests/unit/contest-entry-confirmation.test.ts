@@ -12,6 +12,7 @@ import type { ProfileEligibility } from '../../lib/auth-profile';
 
 const eligibleProfile: ProfileEligibility = {
   ageConfirmed: true,
+  dateOfBirth: '1990-01-01',
   jurisdiction: 'CA',
   termsAcceptedAt: '2026-07-24T00:00:00.000Z',
   privacyPolicyAcceptedAt: '2026-07-24T00:00:00.000Z',
@@ -44,7 +45,7 @@ describe('contest entry confirmation policy', () => {
 
   it('fails closed for paid entries by default', () => {
     expect(canConfirmContestEntry(500)).toBe(false);
-    expect(getContestEntryConfirmationError(500)).toContain('Complete age, state');
+    expect(getContestEntryConfirmationError(500)).toContain('Complete date of birth, state');
   });
 
   it('blocks paid entries when eligibility is still pending review', () => {

@@ -27,6 +27,9 @@ test('homepage loads as a landing page with waitlist forms and no bottom nav', a
   await expect(page.getByText('Walkthrough video coming soon')).toHaveCount(0);
   await expect(page.getByText('Understand the weekly contest structure before you commit to the flow.')).toHaveCount(0);
   await expect(page.getByRole('navigation')).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'Terms' })).toHaveAttribute('href', '/legal/terms');
+  await expect(page.getByRole('link', { name: 'Privacy' })).toHaveAttribute('href', '/legal/privacy');
+  await expect(page.getByText('Early Access Beta is free to play. No purchase')).toBeVisible();
 });
 
 test('public conversion routes explain the contest mechanics before entry', async ({ page }) => {
@@ -85,6 +88,32 @@ test('auth remains available as a separate protected-flow route', async ({ page 
   await page.goto('/auth');
 
   await expect(page.getByRole('heading', { name: 'Account Access' })).toBeVisible();
+});
+
+test('legal terms and privacy pages are available with beta-ready details', async ({ page }) => {
+  await page.goto('/legal/terms');
+
+  await expect(page.getByRole('heading', { name: 'Beta Terms' })).toBeVisible();
+  await expect(page.getByText('Effective August 9, 2026. Last updated August 9, 2026.')).toBeVisible();
+  await expect(page.getByText('PickRank is operated by Playground Sports, LLC')).toBeVisible();
+  await expect(page.getByText('support@pickrankgames.com')).toHaveCount(2);
+  await expect(page.getByText('No purchase, entry fee, deposit, payout, withdrawal, cash prize')).toBeVisible();
+  await expect(page.getByText('These Beta Terms are governed by Washington law')).toBeVisible();
+  await expect(page.getByText('finalize beta results within 24 hours after the last slate game ends')).toBeVisible();
+
+  await page.goto('/legal/beta-rules');
+
+  await expect(page.getByRole('heading', { name: 'Beta Contest Rules', exact: true })).toBeVisible();
+  await expect(page.getByText('finalize beta results within 24 hours after the last slate game ends')).toBeVisible();
+  await expect(page.getByText('There is no cash-prize cancellation threshold during free beta')).toBeVisible();
+
+  await page.goto('/legal/privacy');
+
+  await expect(page.getByRole('heading', { name: 'Privacy Policy' })).toBeVisible();
+  await expect(page.getByText('Effective August 9, 2026. Last updated August 9, 2026.')).toBeVisible();
+  await expect(page.getByText('date of birth, state, Beta Terms acceptance')).toBeVisible();
+  await expect(page.getByText('Users can request account deletion')).toBeVisible();
+  await expect(page.getByText('within 30 days')).toBeVisible();
 });
 
 test('logged-out leaderboard contest route stays public and final-only', async ({ page }) => {

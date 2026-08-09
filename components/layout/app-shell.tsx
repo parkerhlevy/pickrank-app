@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import { BottomNav } from '@/components/layout/bottom-nav';
+import { LegalFooter } from '@/components/layout/legal-footer';
 import { isAdminRoute } from '@/lib/app-route-scope';
 import { cn } from '@/lib/utils';
 
@@ -22,6 +23,14 @@ export function AppShell({ children }: Readonly<{ children: React.ReactNode }>) 
       >
         {children}
       </main>
+      {!isAdmin ? (
+        <LegalFooter
+          className={cn(
+            isLandingPage && 'max-w-5xl pb-8',
+            !isLandingPage && 'max-w-md pb-28',
+          )}
+        />
+      ) : null}
       <BottomNav />
     </>
   );

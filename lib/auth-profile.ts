@@ -4,7 +4,8 @@ import { getEntryReviewLabel } from '@/lib/launch-mode';
 export const defaultReturnPath = '/profile';
 export const verifyEmailToEnterContestsMessage = 'Verify your email to enter contests.';
 export const eligibilityToEnterContestsMessage =
-  'Complete age, state, Beta Terms, and Privacy acknowledgements before beta entry.';
+  'Complete date of birth, state, Beta Terms, and Privacy acknowledgements before beta entry.';
+export const betaMinimumAge = 13;
 
 export type EligibilityStatus =
   | 'unknown'
@@ -19,6 +20,7 @@ export type SelfExclusionStatus = 'none' | 'requested' | 'active' | 'expired';
 
 export type ProfileEligibility = {
   ageConfirmed: boolean;
+  dateOfBirth: string | null;
   jurisdiction: string;
   termsAcceptedAt: string | null;
   privacyPolicyAcceptedAt: string | null;
@@ -169,13 +171,76 @@ export function validateJurisdiction(value: string) {
   return null;
 }
 
+export function normalizeDateOfBirth(value: string) {
+  const dateOfBirth = value.trim();
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateOfBirth)) {
+    return null;
+  }
+
+  const [yearText, monthText, dayText] = dateOfBirth.split('-');
+  const year = Number(yearText);
+  const month = Number(monthText);
+  const day = Number(dayText);
+  const date = new Date(Date.UTC(year, month - 1, day));
+
+  if (
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  ) {
+    return null;
+  }
+
+  return dateOfBirth;
+}
+
+export function calculateAge(dateOfBirth: string, asOf = new Date()) {
+  const normalizedDateOfBirth = normalizeDateOfBirth(dateOfBirth);
+
+  if (!normalizedDateOfBirth) {
+    return null;
+  }
+
+  const [yearText, monthText, dayText] = normalizedDateOfBirth.split('-');
+  const birthYear = Number(yearText);
+  const birthMonth = Number(monthText);
+  const birthDay = Number(dayText);
+  const asOfYear = asOf.getUTCFullYear();
+  const asOfMonth = asOf.getUTCMonth() + 1;
+  const asOfDay = asOf.getUTCDate();
+  const hadBirthdayThisYear = asOfMonth > birthMonth || (asOfMonth === birthMonth && asOfDay >= birthDay);
+
+  return asOfYear - birthYear - (hadBirthdayThisYear ? 0 : 1);
+}
+
+export function validateDateOfBirthForBeta(value: string, asOf = new Date()) {
+  const normalizedDateOfBirth = normalizeDateOfBirth(value);
+
+  if (!normalizedDateOfBirth) {
+    return 'Enter a valid date of birth.';
+  }
+
+  const age = calculateAge(normalizedDateOfBirth, asOf);
+
+  if (age === null || age < 0) {
+    return 'Enter a valid date of birth.';
+  }
+
+  if (age < betaMinimumAge) {
+    return 'PickRank Early Access Beta is for users who are at least 13 years old.';
+  }
+
+  return null;
+}
+
 export function validateEligibilityAcknowledgements({
-  ageConfirmed,
+  dateOfBirth,
   termsAccepted,
   privacyPolicyAccepted,
   jurisdiction,
 }: {
-  ageConfirmed: boolean;
+  dateOfBirth: string;
   termsAccepted: boolean;
   privacyPolicyAccepted: boolean;
   jurisdiction: string;
@@ -186,8 +251,10 @@ export function validateEligibilityAcknowledgements({
     return jurisdictionMessage;
   }
 
-  if (!ageConfirmed) {
-    return 'Confirm you meet the age requirement to enter beta contests.';
+  const dateOfBirthMessage = validateDateOfBirthForBeta(dateOfBirth);
+
+  if (dateOfBirthMessage) {
+    return dateOfBirthMessage;
   }
 
   if (!termsAccepted) {
@@ -287,6 +354,10 @@ export function getProfileIdentity(user: User | null): ProfileIdentity {
   const email = user?.email ?? '';
   const emailConfirmedAt = user?.email_confirmed_at ?? null;
   const ageConfirmed = metadata.age_confirmed === true;
+  const dateOfBirth =
+    typeof metadata.date_of_birth === 'string' && normalizeDateOfBirth(metadata.date_of_birth)
+      ? metadata.date_of_birth
+      : null;
   const jurisdiction = typeof metadata.jurisdiction === 'string' ? normalizeJurisdiction(metadata.jurisdiction) : '';
   const termsAcceptedAt = typeof metadata.terms_accepted_at === 'string' ? metadata.terms_accepted_at : null;
   const privacyPolicyAcceptedAt =
@@ -311,7 +382,9 @@ export function getProfileIdentity(user: User | null): ProfileIdentity {
   const eligibilityCheckedAt =
     typeof metadata.eligibility_checked_at === 'string' ? metadata.eligibility_checked_at : null;
   const restrictionReason = typeof metadata.restriction_reason === 'string' ? metadata.restriction_reason : null;
-  const isEligibilityComplete = Boolean(ageConfirmed && jurisdiction && termsAcceptedAt && privacyPolicyAcceptedAt);
+  const isEligibilityComplete = Boolean(
+    ageConfirmed && dateOfBirth && jurisdiction && termsAcceptedAt && privacyPolicyAcceptedAt,
+  );
   const isEligibleForPaidEntry =
     isEligibilityComplete &&
     accountStatus === 'active' &&
@@ -329,6 +402,7 @@ export function getProfileIdentity(user: User | null): ProfileIdentity {
     isEmailVerified: Boolean(emailConfirmedAt),
     eligibility: {
       ageConfirmed,
+      dateOfBirth,
       jurisdiction,
       termsAcceptedAt,
       privacyPolicyAcceptedAt,

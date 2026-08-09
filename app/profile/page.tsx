@@ -50,6 +50,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
   const needsUsername = Boolean(user && !identity.isProfileComplete);
   const needsEligibility = Boolean(user && !identity.eligibility.isEligibilityComplete);
   const needsAccountSetup = needsUsername || needsEligibility;
+  const todayDateInput = new Date().toISOString().slice(0, 10);
 
   return (
     <div className="space-y-6">
@@ -85,7 +86,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
               <SetupRow label="Email verified through sign-in" value={identity.isEmailVerified ? 'Complete' : 'Pending'} />
               <SetupRow label="Public username" value={identity.isProfileComplete ? 'Complete' : 'Required'} />
               <SetupRow
-                label="Age, state, Beta Terms, and Privacy"
+                label="DOB, state, Beta Terms, and Privacy"
                 value={identity.eligibility.isEligibilityComplete ? 'Captured' : 'Required'}
               />
             </div>
@@ -93,7 +94,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
               variant="warning"
               icon={ShieldCheck}
               title="Beta acknowledgements required"
-              description="Google does not provide the age confirmation, state, Beta Terms acceptance, or Privacy acceptance PickRank needs before beta contests."
+              description="Google does not provide the date of birth, state, Beta Terms acceptance, or Privacy acceptance PickRank needs before beta contests."
               badge="Action needed"
             />
             {needsUsername ? (
@@ -230,7 +231,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                   </div>
                 </div>
                 <div className="grid gap-2">
-                  <ReadinessRow label="Age confirmation" value={identity.eligibility.ageGateStatus === 'confirmed' ? 'Confirmed' : 'Pending'} />
+                  <ReadinessRow label="DOB / 13+ check" value={identity.eligibility.ageGateStatus === 'confirmed' ? 'Confirmed' : 'Pending'} />
                   <ReadinessRow label="Terms accepted" value={identity.eligibility.termsAcceptedAt ? 'Captured' : 'Pending'} />
                   <ReadinessRow label="Privacy accepted" value={identity.eligibility.privacyPolicyAcceptedAt ? 'Captured' : 'Pending'} />
                   <ReadinessRow label="KYC placeholder" value={formatEligibilityStatus(identity.eligibility.kycStatus)} />
@@ -264,9 +265,19 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                     ))}
                   </select>
                 </label>
-                <label className="flex items-start gap-3 rounded-lg border border-slate-200 bg-white px-3 py-3 text-sm text-foreground">
-                  <input className="mt-1 h-4 w-4" type="checkbox" name="ageConfirmed" />
-                  <span>I confirm I meet the age requirement to enter beta contests.</span>
+                <label className="block space-y-2 text-sm font-medium text-foreground">
+                  <span>Date of birth</span>
+                  <input
+                    required
+                    type="date"
+                    name="dateOfBirth"
+                    max={todayDateInput}
+                    defaultValue={identity.eligibility.dateOfBirth || ''}
+                    className="w-full rounded-lg border bg-slate-50 px-3 py-3 text-base text-foreground outline-none ring-0 transition-[border-color] focus:border-slate-950 sm:text-sm"
+                  />
+                  <span className="block text-xs font-normal text-muted-foreground">
+                    PickRank uses this to confirm you are at least 13 before beta entry.
+                  </span>
                 </label>
                 <label className="flex items-start gap-3 rounded-lg border border-slate-200 bg-white px-3 py-3 text-sm text-foreground">
                   <input className="mt-1 h-4 w-4" type="checkbox" name="termsAccepted" />

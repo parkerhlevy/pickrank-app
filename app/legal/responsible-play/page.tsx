@@ -25,9 +25,17 @@ export default function ResponsiblePlayPage() {
           <p>PickRank avoids betting, wagering, odds, parlay, sportsbook, risk-free, and guaranteed-profit language.</p>
           <p>Users can request account help or contest-entry restriction if they do not want to participate.</p>
           <p>Future paid contests require legal, provider, payment, withdrawal, eligibility, and responsible-play review before launch.</p>
-          <Link href="/legal/beta-rules" className="inline-link">
-            Review Beta Contest Rules
-          </Link>
+          <div className="flex flex-wrap gap-x-4 gap-y-2">
+            <Link href="/legal/beta-rules" className="inline-link">
+              Review Beta Contest Rules
+            </Link>
+            <Link href="/legal/terms" className="inline-link">
+              Review Beta Terms
+            </Link>
+            <Link href="/legal/privacy" className="inline-link">
+              Review Privacy Policy
+            </Link>
+          </div>
         </CardContent>
       </Card>
     </div>

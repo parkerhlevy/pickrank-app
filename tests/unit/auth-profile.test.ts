@@ -7,6 +7,7 @@ import {
   getProfileIdentity,
   normalizeReturnPath,
   validateEligibilityAcknowledgements,
+  validateDateOfBirthForBeta,
   validateJurisdiction,
   normalizeUsername,
   validateUsername,
@@ -78,7 +79,7 @@ describe('auth profile helpers', () => {
     expect(validateJurisdiction('not-a-state')).toBe('Choose a supported U.S. state or jurisdiction.');
     expect(
       validateEligibilityAcknowledgements({
-        ageConfirmed: true,
+        dateOfBirth: '1990-01-01',
         termsAccepted: true,
         privacyPolicyAccepted: true,
         jurisdiction: 'ny',
@@ -86,12 +87,22 @@ describe('auth profile helpers', () => {
     ).toBeNull();
     expect(
       validateEligibilityAcknowledgements({
-        ageConfirmed: false,
+        dateOfBirth: '',
         termsAccepted: true,
         privacyPolicyAccepted: true,
         jurisdiction: 'CA',
       }),
-    ).toBe('Confirm you meet the age requirement to enter beta contests.');
+    ).toBe('Enter a valid date of birth.');
+  });
+
+  it('validates the 13+ beta date-of-birth gate', () => {
+    const asOf = new Date('2026-08-08T00:00:00.000Z');
+
+    expect(validateDateOfBirthForBeta('2013-08-08', asOf)).toBeNull();
+    expect(validateDateOfBirthForBeta('2013-08-09', asOf)).toBe(
+      'PickRank Early Access Beta is for users who are at least 13 years old.',
+    );
+    expect(validateDateOfBirthForBeta('not-a-date', asOf)).toBe('Enter a valid date of birth.');
   });
 
   it('reads profile identity from Supabase user metadata', () => {
@@ -101,6 +112,7 @@ describe('auth profile helpers', () => {
       user_metadata: {
         username: 'parkerhlevy1',
         display_name: 'parkerhlevy1',
+        date_of_birth: '1990-01-01',
         age_confirmed: true,
         jurisdiction: 'CA',
         terms_accepted_at: '2026-07-24T00:00:00.000Z',
@@ -123,6 +135,7 @@ describe('auth profile helpers', () => {
       isEmailVerified: true,
       eligibility: {
         ageConfirmed: true,
+        dateOfBirth: '1990-01-01',
         jurisdiction: 'CA',
         termsAcceptedAt: '2026-07-24T00:00:00.000Z',
         privacyPolicyAcceptedAt: '2026-07-24T00:00:00.000Z',

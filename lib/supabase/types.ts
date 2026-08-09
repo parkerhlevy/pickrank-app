@@ -593,6 +593,7 @@ export type Database = {
           age_confirmed: boolean;
           age_gate_status: string;
           created_at: string;
+          date_of_birth: string | null;
           display_name: string | null;
           eligibility_checked_at: string | null;
           eligibility_status: string;
@@ -612,6 +613,7 @@ export type Database = {
           age_confirmed?: boolean;
           age_gate_status?: string;
           created_at?: string;
+          date_of_birth?: string | null;
           display_name?: string | null;
           eligibility_checked_at?: string | null;
           eligibility_status?: string;
@@ -631,6 +633,7 @@ export type Database = {
           age_confirmed?: boolean;
           age_gate_status?: string;
           created_at?: string;
+          date_of_birth?: string | null;
           display_name?: string | null;
           eligibility_checked_at?: string | null;
           eligibility_status?: string;

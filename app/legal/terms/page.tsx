@@ -1,6 +1,18 @@
 import Link from 'next/link';
 import { ShieldCheck } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  enforcementReviewWindow,
+  legalEffectiveDate,
+  legalEntityDescription,
+  legalGoverningLaw,
+  legalLastUpdatedDate,
+  legalPostalAddress,
+  legalSupportEmail,
+  legalVenue,
+  officialDataProvider,
+  resultsFinalityWindow,
+} from '@/lib/legal';
 import { launchMode } from '@/lib/launch-mode';
 
 export default function BetaTermsPage() {
@@ -10,7 +22,7 @@ export default function BetaTermsPage() {
         <p className="eyebrow">Legal</p>
         <h1 className="text-3xl font-black leading-tight">Beta Terms</h1>
         <p className="text-muted-foreground">
-          These beta terms describe Early Access Beta participation. They are pending counsel review before broader public use.
+          Effective {legalEffectiveDate}. Last updated {legalLastUpdatedDate}.
         </p>
       </section>
 
@@ -22,16 +34,69 @@ export default function BetaTermsPage() {
           </div>
           <CardDescription>{launchMode.betaNoCashValueCopy}</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3 text-sm text-muted-foreground">
-          <p>Beta contests are free to play. Paid contests are planned for a later launch.</p>
-          <p>Users need an account, public username, age confirmation, state capture, Beta Terms acceptance, and Privacy Policy acceptance before beta entry.</p>
-          <p>Beta access can change, pause, or end while PickRank tests contest setup, board save, lock, scoring, and final results workflows.</p>
-          <p>These terms do not authorize real-money payments, deposits, withdrawals, payouts, or cash prizes.</p>
-          <Link href="/legal/privacy" className="inline-link">
-            Review Privacy Policy
-          </Link>
+        <CardContent className="space-y-5 text-sm text-muted-foreground">
+          <LegalSection title="Operator">
+            <p>PickRank is operated by {legalEntityDescription}.</p>
+            <p>Questions about beta participation can be sent to {legalSupportEmail}.</p>
+            <p>Mailing address: {legalPostalAddress}.</p>
+          </LegalSection>
+
+          <LegalSection title="Early Access Beta">
+            <p>PickRank Early Access Beta is free to play. A Beta Pass has no cash value.</p>
+            <p>No purchase, entry fee, deposit, payout, withdrawal, cash prize, or cash-balance movement is available during beta.</p>
+            <p>Paid contests are planned for a later launch and remain blocked until legal, provider, payment, withdrawal, and compliance review is complete.</p>
+          </LegalSection>
+
+          <LegalSection title="Account Requirements">
+            <p>Users need an account, public username, date of birth, state capture, Beta Terms acceptance, and Privacy Policy acceptance before beta entry.</p>
+            <p>PickRank Early Access Beta is for users who are at least 13 years old. Users under 13 may not create an account or enter beta contests.</p>
+            <p>Each person may use one account. PickRank may restrict, suspend, or close accounts that appear duplicate, false, abusive, automated, or harmful to beta integrity.</p>
+          </LegalSection>
+
+          <LegalSection title="Contest Rules">
+            <p>Beta contests use a 20-player pool. Users pick and rank 10 players before lock.</p>
+            <p>Contest results use PickRank&apos;s saved final stats from {officialDataProvider} and the scoring rules shown in the Beta Contest Rules.</p>
+            <p>PickRank aims to finalize beta results within {resultsFinalityWindow}.</p>
+            <p>PickRank can pause, cancel, correct, or rerun a beta contest if testing, data, integrity, or operational issues require it.</p>
+          </LegalSection>
+
+          <LegalSection title="Acceptable Use">
+            <p>Users may not misuse PickRank, submit false account details, misrepresent age, use automation, exploit bugs, interfere with security, or coordinate activity that harms contest integrity.</p>
+            <p>Users can ask PickRank to review an enforcement decision by contacting {legalSupportEmail}. PickRank aims to review beta enforcement requests within {enforcementReviewWindow}.</p>
+          </LegalSection>
+
+          <LegalSection title="Governing Law">
+            <p>These Beta Terms are governed by {legalGoverningLaw}. The venue for disputes is {legalVenue}.</p>
+          </LegalSection>
+
+          <LegalLinks />
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function LegalSection({ children, title }: { children: React.ReactNode; title: string }) {
+  return (
+    <section className="space-y-2">
+      <h2 className="text-base font-black text-foreground">{title}</h2>
+      <div className="space-y-2">{children}</div>
+    </section>
+  );
+}
+
+function LegalLinks() {
+  return (
+    <div className="flex flex-wrap gap-x-4 gap-y-2">
+      <Link href="/legal/privacy" className="inline-link">
+        Review Privacy Policy
+      </Link>
+      <Link href="/legal/beta-rules" className="inline-link">
+        Review Beta Contest Rules
+      </Link>
+      <Link href="/legal/responsible-play" className="inline-link">
+        Review Responsible Play
+      </Link>
     </div>
   );
 }

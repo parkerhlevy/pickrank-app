@@ -14,7 +14,7 @@ MVP account/auth requires a verified user account before paid contest entry, use
 ## Summary
 PickRank users need an account before entering paid contests.
 
-During Early Access Beta, PickRank users need an account before entering free beta contests. They must choose a public username, confirm age, supply state/jurisdiction, accept Beta Terms, and accept the Privacy Policy before beta entry. This does not approve public real-money paid entry.
+During Early Access Beta, PickRank users need an account before entering free beta contests. They must choose a public username, supply date of birth for the 13+ beta age check, supply state/jurisdiction, accept Beta Terms, and accept the Privacy Policy before beta entry. This does not approve public real-money paid entry.
 
 The account system supports:
 
@@ -76,7 +76,7 @@ Minimum required fields:
 - email address
 - password or passwordless credential
 - username / display name
-- date of birth confirmation or age confirmation
+- date of birth
 - terms acceptance
 - privacy policy acceptance
 
@@ -206,7 +206,7 @@ The current account foundation captures eligibility inputs; it does not independ
 
 Treat these as self-attested or account-captured fields until legal/provider systems are connected:
 
-- age confirmation
+- date of birth
 - state/jurisdiction
 - Terms acceptance
 - Privacy acceptance
@@ -228,7 +228,7 @@ An account may be marked eligible for controlled internal testing when:
 
 - the account belongs to a known founder, operator, QA user, or test identity
 - the email/auth identity is recognized by the internal team
-- age confirmation, jurisdiction, Terms, and Privacy are captured
+- date of birth, jurisdiction, Terms, and Privacy are captured
 - the account has no known restriction, suspension, self-exclusion, or compliance hold
 - the enabled flow is free/test entry only and does not move real money
 

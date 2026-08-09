@@ -75,7 +75,7 @@ export function validateEligibilityReviewInput(input: ReviewInput) {
   }
 
   if (input.decision === 'eligible_for_internal_testing' && !input.target.eligibility.isEligibilityComplete) {
-    return 'Capture age, jurisdiction, Terms, and Privacy before marking a test account eligible.';
+    return 'Capture DOB, jurisdiction, Terms, and Privacy before marking a test account eligible.';
   }
 
   if (input.decision === 'eligible_for_internal_testing' && input.target.eligibility.accountStatus !== 'active') {
@@ -315,6 +315,7 @@ function buildEligibilityReviewCandidate(
       ...metadata,
       username: metadata.username ?? profile?.username,
       display_name: metadata.display_name ?? profile?.display_name,
+      date_of_birth: metadata.date_of_birth ?? profile?.date_of_birth,
       age_confirmed: metadata.age_confirmed ?? profile?.age_confirmed,
       jurisdiction: metadata.jurisdiction ?? profile?.jurisdiction,
       terms_accepted_at: metadata.terms_accepted_at ?? profile?.terms_accepted_at,

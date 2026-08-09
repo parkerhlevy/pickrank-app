@@ -19,7 +19,7 @@ export function isControlledTestEntryMode(context: ContestEntryConfirmationConte
 
 export function getPaidContestEligibilityError(eligibility: ProfileEligibility | null | undefined) {
   if (!eligibility?.isEligibilityComplete) {
-    return 'Complete age, state, Beta Terms, and Privacy acknowledgements before contest entry.';
+    return 'Complete date of birth, state, Beta Terms, and Privacy acknowledgements before contest entry.';
   }
 
   if (eligibility.accountStatus !== 'active') {
@@ -51,7 +51,7 @@ export function getPaidContestEligibilityError(eligibility: ProfileEligibility |
 
 export function getControlledTestEntryEligibilityError(eligibility: ProfileEligibility | null | undefined) {
   if (!eligibility?.isEligibilityComplete) {
-    return 'Complete age, location, Terms, and Privacy acknowledgements before test entry.';
+    return 'Complete date of birth, location, Terms, and Privacy acknowledgements before test entry.';
   }
 
   if (eligibility.accountStatus !== 'active') {

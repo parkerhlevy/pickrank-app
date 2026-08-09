@@ -12,6 +12,7 @@ import {
 
 const completeEligibility: ProfileEligibility = {
   ageConfirmed: true,
+  dateOfBirth: '1990-01-01',
   jurisdiction: 'MA',
   termsAcceptedAt: '2026-07-24T00:00:00.000Z',
   privacyPolicyAcceptedAt: '2026-07-24T00:00:00.000Z',
@@ -88,11 +89,12 @@ describe('eligibility review policy', () => {
           eligibility: {
             ...completeEligibility,
             ageConfirmed: false,
+            dateOfBirth: null,
             isEligibilityComplete: false,
           },
         },
       }),
-    ).toContain('Capture age, jurisdiction, Terms, and Privacy');
+    ).toContain('Capture DOB, jurisdiction, Terms, and Privacy');
   });
 
   it('requires an auditable operator identity for every decision', () => {
@@ -156,6 +158,7 @@ describe('eligibility review policy', () => {
       email: candidate.email,
       email_confirmed_at: '2026-07-24T00:00:00.000Z',
       user_metadata: {
+        date_of_birth: '1990-01-01',
         age_confirmed: true,
         jurisdiction: 'MA',
         terms_accepted_at: '2026-07-24T00:00:00.000Z',

@@ -15,6 +15,12 @@ const eligibilityFoundationMigrationPath = path.join(
   'migrations',
   '0013_eligibility_foundation.sql',
 );
+const betaDobCollectionMigrationPath = path.join(
+  process.cwd(),
+  'db',
+  'migrations',
+  '0014_beta_dob_collection.sql',
+);
 const contestResultsPath = path.join(process.cwd(), 'lib', 'contest-results.ts');
 
 describe('Supabase RLS hardening migration', () => {
@@ -74,6 +80,15 @@ describe('Supabase RLS hardening migration', () => {
     expect(sql).toContain('create table if not exists public.compliance_eligibility_events');
     expect(sql).toContain('alter table if exists public.compliance_eligibility_events enable row level security;');
     expect(sql).toContain('create policy "users can read own eligibility events"');
+    expect(sql).not.toContain('for insert');
+    expect(sql).not.toContain('for delete');
+  });
+
+  it('adds DOB storage without broadening RLS policies', async () => {
+    const sql = await readFile(betaDobCollectionMigrationPath, 'utf8');
+
+    expect(sql).toContain('add column if not exists date_of_birth date');
+    expect(sql).not.toContain('create policy');
     expect(sql).not.toContain('for insert');
     expect(sql).not.toContain('for delete');
   });

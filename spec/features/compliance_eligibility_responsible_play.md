@@ -32,7 +32,7 @@ Beta contests use a Beta Pass model:
 
 Free beta launch is a risk-reduction product posture, not a legal bypass. Counsel should still review Beta Terms, Privacy Policy, Beta Contest Rules, no-cash-value language, age/state collection, and marketing claims before broad public use.
 
-During beta, completed age confirmation, state capture, Beta Terms acceptance, and Privacy acceptance may allow free beta entry. They must not be treated as public real-money paid-entry approval.
+During beta, completed date-of-birth capture, state capture, Beta Terms acceptance, and Privacy acceptance may allow free beta entry. They must not be treated as public real-money paid-entry approval.
 
 ## Current Verification Boundary
 
@@ -45,7 +45,7 @@ PickRank can currently verify only product-controlled facts and stored account s
 - the user is authenticated through the configured auth provider
 - the user has a saved profile record or auth metadata for the current foundation fields
 - the user has supplied a state/jurisdiction value
-- the user has checked the age-confirmation box
+- the user has supplied date of birth and passed the 13+ beta age check
 - the user has accepted Terms and Privacy Policy placeholders
 - the account has a stored eligibility status such as `pending_review`, `eligible`, or `blocked`
 - the server-side paid-entry flow blocks users whose stored eligibility status is not `eligible`
@@ -55,8 +55,7 @@ PickRank can currently verify only product-controlled facts and stored account s
 PickRank cannot currently prove:
 
 - the user's legal identity
-- the user's date of birth
-- that the age confirmation is truthful
+- that the supplied date of birth is truthful
 - that the user is physically located in the supplied jurisdiction
 - that the supplied jurisdiction is legally approved for public paid contests
 - that the user has passed KYC, sanctions, fraud, or payment-provider review
@@ -65,7 +64,7 @@ PickRank cannot currently prove:
 
 ### Self-attestation versus verification
 
-Self-attestation means the user supplies or confirms a value without independent proof. The current age confirmation, state/jurisdiction selection, Terms acceptance, and Privacy acceptance are self-attestations or captured acknowledgements.
+Self-attestation means the user supplies or confirms a value without independent proof. The current date-of-birth capture, state/jurisdiction selection, Terms acceptance, and Privacy acceptance are self-attestations or captured acknowledgements.
 
 Verification means PickRank or an approved provider has independently checked the relevant fact against a trusted source, such as legal review, payment-provider review, identity/KYC provider data, billing or payout provider records, geolocation provider evidence, or another approved compliance source.
 
@@ -83,7 +82,7 @@ An account may be marked eligible for internal testing only when all of the foll
 
 - the account is a known test, founder, operator, or approved QA account
 - the auth identity and email address are recognized by the internal team
-- age confirmation, jurisdiction, Terms acceptance, and Privacy acceptance are captured
+- date of birth, jurisdiction, Terms acceptance, and Privacy acceptance are captured
 - the account is not restricted, suspended, self-excluded, or on a known compliance hold
 - the test flow does not use public real-money payment, withdrawal, payout, or cash-balance movement
 - the reviewer records that the approval is for controlled internal testing, not public real-money eligibility
