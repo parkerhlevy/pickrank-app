@@ -53,7 +53,9 @@ No internal database IDs, secrets, raw provider errors, or unnecessary personal 
 
 Before creating or updating a Resend contact, the workflow checks the existing contact by email. If Resend says the contact is globally unsubscribed, the workflow does not set `unsubscribed: false`, does not add the segment again, and does not send a welcome email. Supabase records the status as `skipped_unsubscribed` with the retry category `contact_unsubscribed`.
 
-Future broadcasts should use Resend unsubscribe capabilities. Do not build a custom unsubscribe system unless Resend cannot satisfy a later requirement.
+One-off waitlist welcome emails include a visible mailto unsubscribe link plus a `List-Unsubscribe` email header that points to the configured `RESEND_REPLY_TO_EMAIL` address. Operators must mark manual unsubscribe requests as unsubscribed in Resend.
+
+Future broadcasts should use Resend unsubscribe capabilities. Resend Broadcasts and Automations automatically handle unsubscribe requests only when the email includes `{{{RESEND_UNSUBSCRIBE_URL}}}` or Resend's built-in unsubscribe footer. Do not build a custom unsubscribe system unless Resend cannot satisfy a later requirement.
 
 ## Resend Failure Handling
 
@@ -84,10 +86,10 @@ You’re on the PickRank waitlist
 Preview text:
 
 ```text
-You’re officially on the list. We’ll send launch updates as PickRank gets closer.
+You’re officially on the list. We’ll send Early Access Beta updates.
 ```
 
-The send path uses Resend's React email rendering support with a plain-text fallback. It includes PickRank branding, a link to `https://www.pickrankgames.com`, and no account-creation, sign-in, eligibility, or play-now language.
+The send path uses Resend's React email rendering support with a plain-text fallback. It includes PickRank branding, a link to `https://www.pickrankgames.com`, free Early Access Beta copy, no cash-prize language, a visible unsubscribe mailto link, the Playground Sports, LLC postal address, and the Privacy Policy link. The Resend Email API payload also includes a `List-Unsubscribe` header using the configured reply-to address. It avoids urgent claims, winnings promises, play-now language, account-creation pressure, and the Resend `{{{RESEND_UNSUBSCRIBE_URL}}}` token because that token is documented for Broadcasts and Automations, not this one-off Email API send.
 
 ## Viewing and Exporting Supabase Records
 
@@ -114,10 +116,11 @@ Do not change RLS or add public table policies to make exports easier.
 1. Open Resend.
 2. Create a broadcast.
 3. Select the PickRank waitlist segment.
-4. Preview the campaign on desktop and mobile.
-5. Send a test broadcast to a controlled internal address.
-6. Confirm links, unsubscribe behavior, sender identity, and reply-to address.
-7. Schedule or send the launch broadcast through Resend.
+4. Add a visible unsubscribe link or button with `{{{RESEND_UNSUBSCRIBE_URL}}}` as the link target, or include Resend's unsubscribe footer.
+5. Preview the campaign on desktop and mobile.
+6. Send a test broadcast to a controlled internal address.
+7. Confirm links, unsubscribe behavior, sender identity, reply-to address, and the live Resend preference page.
+8. Schedule or send the launch broadcast through Resend.
 
 ## Deliverability Polish
 
@@ -151,7 +154,7 @@ Welcome-email deliverability review:
 - Preview text matches the low-pressure launch-update purpose.
 - Body avoids urgent claims, winnings promises, play-now language, eligibility claims, account-creation prompts, and excessive links.
 - HTML has one homepage link plus a plain-text fallback.
-- Footer explains why the recipient is receiving the email and leaves future broadcast unsubscribe handling to Resend.
+- Footer explains why the recipient is receiving the email, includes a visible mailto unsubscribe path, and leaves future broadcast preference handling to Resend Broadcasts with `{{{RESEND_UNSUBSCRIBE_URL}}}`.
 - The linked logo asset is remote; if inbox image blocking becomes noisy in testing, consider a simpler text-first header before changing content tone.
 
 Cross-inbox test matrix:
@@ -174,14 +177,15 @@ For each test, submit one production waitlist signup with a fresh address or plu
 - Required Resend variables have been added to Vercel for Production and Preview
 - Migration `0012` has been applied to linked Supabase project `jmvzdspiobcjrewndhuf`
 - Production testing confirmed Supabase capture, Resend contact sync, and welcome-email send
+- 2026-08-09 Gmail plus-alias production test reached `parkerhlevy+pickrank-legalbeta-1786334718225@gmail.com` in Inbox as `PickRank <hello@pickrankgames.com>` with DKIM, SPF, and DMARC pass
 
 Remaining:
 
-- Confirm unsubscribe behavior
+- Confirm live Resend Broadcast unsubscribe/preference behavior before broader outreach
 - Verify Resend SPF/DKIM/DMARC status for the active sending domain
-- Confirm production sender-address and reply-to strategy
+- Change Production and Preview `RESEND_REPLY_TO_EMAIL` from `info@pickrankgames.com` to the monitored support/privacy address if Parker keeps `support@pickrankgames.com`
 - Run the cross-inbox deliverability test matrix
 
 ## Outstanding Production Steps
 
-Deliverability testing, sender-domain verification, and unsubscribe-behavior confirmation remain outstanding.
+The Gmail path is healthy for the current priority level. The remaining production steps are changing `RESEND_REPLY_TO_EMAIL` to the chosen monitored address, confirming the live Resend Broadcast unsubscribe/preference URL, and running deferred iCloud, Outlook/Hotmail, and work-email checks.

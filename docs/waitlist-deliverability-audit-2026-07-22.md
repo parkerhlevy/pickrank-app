@@ -136,10 +136,11 @@ Current low-risk points:
 Watch items:
 
 - The header logo is a remote image. If inboxes block or penalize it, test a simpler text-first header before changing the email message.
-- The footer says unsubscribe links are managed in Resend for future launch broadcasts. Confirm Resend unsubscribe behavior before the first broadcast.
+- The welcome email footer now includes a visible mailto unsubscribe link and the Email API send includes a `List-Unsubscribe` header. Confirm the configured mailto target is monitored.
+- Future Resend Broadcasts must still include `{{{RESEND_UNSUBSCRIBE_URL}}}` or Resend's unsubscribe footer so Resend can manage the live preference page and unsubscribe flow.
 - A new or lightly used sending domain can still land in Promotions/Junk even with correct content; DNS alignment and gradual sending matter more than copy changes at this stage.
 
-No email copy change is recommended from this audit.
+No additional email copy change is recommended from this audit.
 
 ## Cross-Inbox Test Matrix
 
@@ -179,6 +180,24 @@ The first submit immediately after redeploy failed because the browser still had
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Gmail | `parkerhlevy+pickrank-deliverability-20260723-002@gmail.com` | Production homepage form returned `You’re on the list.` Vercel runtime logs show `POST / 200` on `dpl_CJWc3epCEWjhxvCGH3UobkwC5JVv`. | Resend event `8212425d-cb61-4ea0-9127-4385d04d4fd8` shows `Sent` and `Delivered` at 2026-07-22 22:46 PDT. | Gmail labels: `INBOX`, `CATEGORY_UPDATES`, `IMPORTANT`, `UNREAD`; no `SPAM` label. | Gmail and raw headers show `PickRank <hello@pickrankgames.com>`. | Gmail raw headers show `dkim=pass` for `pickrankgames.com`, `dkim=pass` for `amazonses.com`, and `spf=pass` for the `send.pickrankgames.com` return-path. | Raw headers show `Reply-To: info@pickrankgames.com`, unchanged. |
 
+## Legal Beta Welcome Test - 2026-08-09
+
+After the legal beta site-readiness deployment, a fresh production homepage waitlist submission was sent to `parkerhlevy+pickrank-legalbeta-1786334718225@gmail.com`.
+
+| Provider | Submit status | Inbox placement | Sender display | Authentication indicators | Reply-to behavior | Copy review |
+| --- | --- | --- | --- | --- | --- | --- |
+| Gmail | Production homepage form returned `submitted` for the fresh plus alias. | Gmail labels: `INBOX`, `CATEGORY_PROMOTIONS`, `UNREAD`; no `SPAM` label. | Gmail and raw headers show `PickRank <hello@pickrankgames.com>`. | Gmail raw headers show `dkim=pass` for `pickrankgames.com`, `dkim=pass` for `amazonses.com`, `spf=pass` for `send.pickrankgames.com`, and `dmarc=pass` for `pickrankgames.com`. | Raw headers show `Reply-To: info@pickrankgames.com`, unchanged. | Current welcome email includes why the recipient received it, no-purchase/no-entry-fee/no-prizes language, Privacy Policy link, Playground Sports, LLC postal address, and NFL/no-endorsement language. The repo now adds visible mailto unsubscribe handling for the welcome email; a live Resend Broadcast unsubscribe/preference URL must still be confirmed before broader marketing broadcasts. |
+
+## Unsubscribe Readiness Update - 2026-08-09
+
+Repo-side changes now make the waitlist welcome email unsubscribe-ready without adding a custom unsubscribe database or route:
+
+- The visible HTML and plain-text footer include a mailto `Unsubscribe` path.
+- The Resend Email API send payload includes `List-Unsubscribe` using the configured `RESEND_REPLY_TO_EMAIL` address.
+- The one-off welcome email does not use `{{{RESEND_UNSUBSCRIBE_URL}}}`, because Resend documents that token for Broadcasts and Automations.
+- Future Resend Broadcasts must include `{{{RESEND_UNSUBSCRIBE_URL}}}` as the visible unsubscribe link/button target, or use Resend's built-in unsubscribe footer, before broader outreach.
+- Operators must mark manual mailto unsubscribe requests as unsubscribed in Resend.
+
 ## Later Polish
 
 Rainy-day follow-ups, not launch blockers:
@@ -187,11 +206,12 @@ Rainy-day follow-ups, not launch blockers:
 - Add a custom Resend tracking subdomain only if PickRank enables open/click tracking.
 - Move DMARC beyond `p=none` only after there is more sending history and no legitimate mail stream is failing authentication.
 - Decide whether `RESEND_REPLY_TO_EMAIL` should stay `info@pickrankgames.com` or move to `hello@pickrankgames.com`.
+- Confirm the exact live Resend Broadcast unsubscribe/preference URL before any broader marketing broadcast.
 
 ## Current Verdict
 
 The repo-side email content is low risk and does not need app-code changes before testing.
 
-Production waitlist mail is now using the verified root-domain sender: `PickRank <hello@pickrankgames.com>`, with `info@pickrankgames.com` as reply-to. Resend and Gmail both confirm the new sender, and Gmail confirms DKIM/SPF pass on the root-domain path.
+Production waitlist mail is now using the verified root-domain sender: `PickRank <hello@pickrankgames.com>`, with `info@pickrankgames.com` as reply-to. Resend and Gmail both confirm the new sender, and Gmail confirms DKIM, SPF, and DMARC pass on the root-domain path. The repo welcome-email path now includes visible mailto unsubscribe handling and a `List-Unsubscribe` header, but this still needs a post-deploy production email check.
 
 Next move: treat root-domain waitlist deliverability as good enough for the current priority level. Keep iCloud, Outlook/Hotmail, work-email retesting, tracking metrics, and a stricter DMARC policy as later polish rather than near-term blockers.

@@ -3,6 +3,7 @@ import { Resend } from 'resend';
 import { getServiceRoleSupabaseConfig } from '@/lib/env';
 import { createAdminClient } from '@/lib/supabase/admin';
 import {
+  createWaitlistListUnsubscribeHeader,
   renderWaitlistWelcomeEmailReact,
   renderWaitlistWelcomeEmailText,
   waitlistWelcomeEmailSubject,
@@ -293,8 +294,11 @@ async function syncResendAfterSignup(
         to: record.email,
         replyTo: config.replyToEmail,
         subject: waitlistWelcomeEmailSubject,
-        react: renderWaitlistWelcomeEmailReact(),
-        text: renderWaitlistWelcomeEmailText(),
+        react: renderWaitlistWelcomeEmailReact({ unsubscribeEmail: config.replyToEmail }),
+        text: renderWaitlistWelcomeEmailText({ unsubscribeEmail: config.replyToEmail }),
+        headers: {
+          'List-Unsubscribe': createWaitlistListUnsubscribeHeader(config.replyToEmail),
+        },
         tags: [{ name: 'source', value: 'waitlist' }],
       });
 

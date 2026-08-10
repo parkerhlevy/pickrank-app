@@ -4,7 +4,6 @@ import {
   renderWaitlistWelcomeEmailHtml,
   renderWaitlistWelcomeEmailText,
   waitlistHomepageUrl,
-  waitlistPostalAddress,
   waitlistWelcomeEmailSubject,
 } from '../../lib/waitlist-email';
 
@@ -217,6 +216,13 @@ describe('waitlist signup workflow', () => {
       }),
     );
     expect(resend.emails.send).toHaveBeenCalledTimes(1);
+    expect(resend.emails.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        headers: {
+          'List-Unsubscribe': '<mailto:support@pickrankgames.com?subject=Unsubscribe%20from%20PickRank%20emails>',
+        },
+      }),
+    );
     expect(supabase.updates.at(-1)).toMatchObject({
       resend_contact_sync_status: 'synced',
       welcome_email_status: 'sent',
@@ -375,16 +381,26 @@ describe('waitlist welcome email template', () => {
     expect(waitlistWelcomeEmailSubject).toBe('You’re on the PickRank waitlist');
     expect(html).toContain('You’re on the list.');
     expect(html).toContain('Thanks for joining the PickRank waitlist.');
-    expect(html).toContain('proper signup and eligibility flow');
+    expect(html).toContain('free Early Access Beta');
     expect(html).toContain(waitlistHomepageUrl);
     expect(html).toContain('alt="PickRank"');
     expect(html).toContain('No purchase, no entry fee, no prizes');
-    expect(html).toContain(waitlistPostalAddress);
+    expect(html).toContain('Unsubscribe');
+    expect(html).toContain('mailto:support@pickrankgames.com?subject=Unsubscribe%20from%20PickRank%20emails');
+    expect(html).toContain('Playground Sports, LLC');
+    expect(html).toContain('5014 42nd Ave SW, Unit C');
+    expect(html).toContain('Seattle, WA 98136');
     expect(html).toContain('/legal/privacy');
-    expect(html).toContain('Future launch emails will include an unsubscribe link');
+    expect(html).not.toContain('Future launch emails will include');
+    expect(html).not.toContain('{{{RESEND_UNSUBSCRIBE_URL}}}');
     expect(html).toContain('not affiliated with or endorsed by the NFL');
     expect(text).toContain('The PickRank Team');
     expect(text).toContain(waitlistHomepageUrl);
-    expect(text).toContain(waitlistPostalAddress);
+    expect(text).toContain('Unsubscribe: mailto:support@pickrankgames.com?subject=Unsubscribe%20from%20PickRank%20emails');
+    expect(text).toContain('Playground Sports, LLC');
+    expect(text).toContain('5014 42nd Ave SW, Unit C');
+    expect(text).toContain('Seattle, WA 98136');
+    expect(text).not.toContain('Future launch emails will include');
+    expect(text).not.toContain('{{{RESEND_UNSUBSCRIBE_URL}}}');
   });
 });
