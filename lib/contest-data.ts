@@ -215,6 +215,10 @@ type FreeTestContestLockOptions = TimestampOptions & {
   lockedByAdminId?: string | null;
 };
 
+type BetaContestCleanupOptions = TimestampOptions & {
+  persistedEntryCount?: number;
+};
+
 export async function listPublicContests(options?: ContestDataOptions) {
   const store = await readContestStore(options);
 
@@ -741,6 +745,114 @@ export async function lockFreeTestContestForProof(
     contest: toContestSummary({
       ...currentContest.record,
       status: 'locked',
+      updatedAt: now,
+    }),
+    event,
+  };
+}
+
+export async function retireFakePublicContestForBetaCleanup(
+  contestId: string,
+  retiredByAdminId: string | null,
+  {
+    now = new Date().toISOString(),
+    persistedEntryCount,
+    ...options
+  }: BetaContestCleanupOptions = {},
+) {
+  if (shouldUseFileStore(options)) {
+    const store = await readContestStoreFromFile(options.dataFilePath);
+    const contestIndex = store.contests.findIndex((contest) => contest.id === contestId);
+
+    if (contestIndex === -1) {
+      throw new Error('Contest not found.');
+    }
+
+    const currentContest = store.contests[contestIndex];
+    const actualEntryCount = persistedEntryCount ?? 0;
+    assertCanRetireFakePublicContestForBetaCleanup(currentContest, actualEntryCount);
+
+    const nextContest = contestRecordSchema.parse({
+      ...currentContest,
+      status: 'canceled',
+      visibilityStatus: 'hidden',
+      isFeatured: false,
+      displayOrder: null,
+      entryCount: 0,
+      paidEntryCount: 0,
+      updatedAt: now,
+    });
+    const event = createBetaCleanupRetirementEvent({
+      contest: currentContest,
+      actualEntryCount,
+      retiredByAdminId,
+      now,
+    });
+
+    await writeContestStoreToFile(
+      {
+        ...store,
+        contests: replaceContest(store.contests, contestIndex, nextContest),
+        contestStateEvents: [...store.contestStateEvents, event],
+      },
+      options.dataFilePath,
+    );
+
+    return {
+      contest: toContestSummary(nextContest),
+      event,
+    };
+  }
+
+  const supabase: any = await createSupabaseClient();
+  const currentContest = await getDatabaseContestBySlug(contestId);
+  const actualEntryCount = persistedEntryCount ?? (await countPersistedEntriesForContestRow(currentContest.row.id));
+  assertCanRetireFakePublicContestForBetaCleanup(currentContest.record, actualEntryCount);
+
+  const { error: updateContestError } = await supabase
+    .from('contests')
+    .update({
+      status: 'canceled',
+      visibility_status: 'hidden',
+      is_featured: false,
+      display_order: null,
+      entry_count: 0,
+      paid_entries_count: 0,
+      updated_at: now,
+    } satisfies ContestDbUpdate)
+    .eq('id', currentContest.row.id);
+
+  if (updateContestError) {
+    throw new Error(`Unable to retire fake public contest: ${updateContestError.message}`);
+  }
+
+  const event = createBetaCleanupRetirementEvent({
+    contest: currentContest.record,
+    actualEntryCount,
+    retiredByAdminId,
+    now,
+  });
+
+  await insertContestStateEventRow(
+    toContestStateEventDbInsert({
+      contestId: currentContest.row.id,
+      createdAt: event.createdAt,
+      fromStatus: event.fromStatus,
+      toStatus: event.toStatus,
+      trigger: event.trigger,
+      metadata: event.metadata,
+    }),
+  );
+
+  return {
+    contest: toContestSummary({
+      ...currentContest.record,
+      status: 'canceled',
+      visibilityStatus: 'hidden',
+      isFeatured: false,
+      displayOrder: null,
+      entryCount: 0,
+      paidEntryCount: 0,
       updatedAt: now,
     }),
     event,
@@ -1301,6 +1413,73 @@ function assertCanLockFreeTestContest(contest: ContestRecord) {
   if (contest.entryCount < 1) {
     throw new Error('Add at least one free/test entry before locking this proof contest.');
   }
+}
+
+function assertCanRetireFakePublicContestForBetaCleanup(contest: ContestRecord, actualEntryCount: number) {
+  if (contest.visibilityStatus !== 'visible') {
+    throw new Error('Hidden contests cannot use the public contest beta cleanup control.');
+  }
+
+  if (contest.id.includes('validation')) {
+    throw new Error('Internal validation contests cannot use the public contest beta cleanup control.');
+  }
+
+  if (contest.status !== 'scheduled' && contest.status !== 'open') {
+    throw new Error('Only scheduled or open public contests can use the beta cleanup retire control.');
+  }
+
+  if (actualEntryCount > 0) {
+    throw new Error('This contest has saved entries. Review entries before retiring it.');
+  }
+
+  if (contest.entryFeeCents === 0 && contest.slateSize === contestPlayerPoolSize && contest.paidEntryCount === 0) {
+    throw new Error('This contest already matches the free-beta public contest posture.');
+  }
+}
+
+async function countPersistedEntriesForContestRow(contestRowId: string) {
+  const supabase: any = createSupabaseAdminClient();
+  const { count, error } = await supabase
+    .from('entries')
+    .select('id', { count: 'exact', head: true })
+    .eq('contest_id', contestRowId);
+
+  if (error) {
+    throw new Error(`Unable to verify saved entries before beta cleanup: ${error.message}`);
+  }
+
+  return count ?? 0;
+}
+
+function createBetaCleanupRetirementEvent({
+  contest,
+  actualEntryCount,
+  retiredByAdminId,
+  now,
+}: {
+  contest: ContestRecord;
+  actualEntryCount: number;
+  retiredByAdminId: string | null;
+  now: string;
+}) {
+  return createContestStateEvent({
+    contestId: contest.id,
+    createdAt: now,
+    fromStatus: contest.status,
+    toStatus: 'canceled',
+    trigger: 'admin',
+    metadata: {
+      cleanup_type: 'free_beta_public_contest_retirement',
+      no_money: 'true',
+      previous_visibility_status: contest.visibilityStatus,
+      previous_entry_fee_cents: String(contest.entryFeeCents),
+      previous_slate_size: String(contest.slateSize),
+      previous_entry_count: String(contest.entryCount),
+      previous_paid_entry_count: String(contest.paidEntryCount),
+      persisted_entry_count: String(actualEntryCount),
+      retired_by_admin_id: retiredByAdminId ?? '',
+    },
+  });
 }
 
 function resolvePublishedContestStatus(contest: ContestRecord, now: string) {

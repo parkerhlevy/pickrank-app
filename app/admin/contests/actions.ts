@@ -9,6 +9,7 @@ import {
   getContestById,
   lockFreeTestContestForProof,
   publishContest,
+  retireFakePublicContestForBetaCleanup,
   saveContestSlate,
   validateDraftContest,
   type ContestSlatePlayer,
@@ -54,8 +55,22 @@ const lockFreeTestContestSchema = z.object({
   confirmationText: z.string().trim().min(1, 'Type LOCK TEST to confirm this proof lock.'),
 });
 
+const retireFakePublicContestSchema = z.object({
+  contestId: z.string().trim().min(1, 'Contest not found.'),
+  confirmationText: z.string().trim().min(1, 'Type RETIRE BETA to confirm this public contest cleanup.'),
+});
+
 function buildAdminContestsRedirect(
-  status: 'created' | 'saved' | 'validated' | 'published' | 'locked' | 'fetched' | 'finalized' | 'error',
+  status:
+    | 'created'
+    | 'saved'
+    | 'validated'
+    | 'published'
+    | 'locked'
+    | 'retired'
+    | 'fetched'
+    | 'finalized'
+    | 'error',
   message?: string,
 ) {
   const params = new URLSearchParams({ status });
@@ -232,6 +247,46 @@ export async function lockFreeTestContestAction(formData: FormData) {
     }
 
     const message = error instanceof Error ? error.message : 'Unable to lock this proof contest right now.';
+
+    redirect(buildAdminContestsRedirect('error', message));
+  }
+}
+
+export async function retireFakePublicContestForBetaCleanupAction(formData: FormData) {
+  const access = await requireContestOperator('/admin/contests');
+  const parsed = retireFakePublicContestSchema.safeParse({
+    contestId: String(formData.get('contestId') || ''),
+    confirmationText: String(formData.get('confirmationText') || ''),
+  });
+
+  if (!parsed.success) {
+    redirect(buildAdminContestsRedirect('error', parsed.error.issues[0]?.message || 'Unable to retire this public contest.'));
+  }
+
+  if (parsed.data.confirmationText !== 'RETIRE BETA') {
+    redirect(buildAdminContestsRedirect('error', 'Type RETIRE BETA to confirm this public contest cleanup.'));
+  }
+
+  try {
+    const result = await retireFakePublicContestForBetaCleanup(
+      parsed.data.contestId,
+      access.user?.id ?? null,
+    );
+
+    revalidateAdminContestPaths(result.contest.id);
+
+    redirect(
+      buildAdminContestsRedirect(
+        'retired',
+        `${result.contest.title} is now hidden and canceled for free-beta public contest cleanup.`,
+      ),
+    );
+  } catch (error) {
+    if (isRedirectError(error)) {
+      throw error;
+    }
+
+    const message = error instanceof Error ? error.message : 'Unable to retire this public contest right now.';
 
     redirect(buildAdminContestsRedirect('error', message));
   }

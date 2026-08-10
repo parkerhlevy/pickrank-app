@@ -6,6 +6,7 @@ import {
   createDraftContest,
   lockFreeTestContestForProof,
   publishContest,
+  retireFakePublicContestForBetaCleanup,
   runContestLifecycleTransitions,
   saveContestSlate,
   validateDraftContest,
@@ -304,6 +305,90 @@ describe('admin contest draft creation', () => {
     await expect(lockFreeTestContestForProof(noEntryContest.id, { dataFilePath })).rejects.toThrow(
       'Add at least one free/test entry before locking this proof contest.',
     );
+  });
+
+  it('retires a fake active public contest without deleting the contest record', async () => {
+    const tempDirectory = await mkdtemp(path.join(os.tmpdir(), 'pickrank-contests-'));
+    const dataFilePath = path.join(tempDirectory, 'contests.json');
+
+    await writeFile(dataFilePath, JSON.stringify({ version: 1, contests: [], contestStateEvents: [] }, null, 2));
+
+    const contest = await createAndPublishContest({
+      dataFilePath,
+      title: 'Week 8 QB Passing Yards Paid Seed',
+      entryFeeCents: 500,
+      entryCount: 600,
+      now: '2026-10-22T13:00:00.000Z',
+    });
+
+    const result = await retireFakePublicContestForBetaCleanup(contest.id, 'operator-5', {
+      dataFilePath,
+      persistedEntryCount: 0,
+      now: '2026-10-22T14:00:00.000Z',
+    });
+
+    expect(result.contest.contestStatus).toBe('canceled');
+    expect(result.contest.visibilityStatus).toBe('hidden');
+    expect(result.contest.entryCount).toBe(0);
+    expect(result.contest.paidEntryCount).toBe(0);
+    expect(result.event.metadata).toMatchObject({
+      cleanup_type: 'free_beta_public_contest_retirement',
+      previous_entry_fee_cents: '500',
+      previous_entry_count: '600',
+      previous_paid_entry_count: '600',
+      persisted_entry_count: '0',
+      retired_by_admin_id: 'operator-5',
+    });
+
+    const savedStore = JSON.parse(await readFile(dataFilePath, 'utf8')) as {
+      contests: Array<{ id: string; status: string; visibilityStatus: string; entryCount: number; paidEntryCount: number }>;
+      contestStateEvents: Array<{ toStatus: string; metadata: Record<string, string> }>;
+    };
+
+    expect(savedStore.contests.find((savedContest) => savedContest.id === contest.id)).toMatchObject({
+      status: 'canceled',
+      visibilityStatus: 'hidden',
+      entryCount: 0,
+      paidEntryCount: 0,
+    });
+    expect(savedStore.contestStateEvents.at(-1)).toMatchObject({
+      toStatus: 'canceled',
+      metadata: expect.objectContaining({ cleanup_type: 'free_beta_public_contest_retirement' }),
+    });
+  });
+
+  it('rejects public beta cleanup when saved entries or hidden validation contests are present', async () => {
+    const tempDirectory = await mkdtemp(path.join(os.tmpdir(), 'pickrank-contests-'));
+    const dataFilePath = path.join(tempDirectory, 'contests.json');
+
+    await writeFile(dataFilePath, JSON.stringify({ version: 1, contests: [], contestStateEvents: [] }, null, 2));
+
+    const publicContest = await createAndPublishContest({
+      dataFilePath,
+      title: 'Week 9 QB Passing Yards Paid Seed',
+      entryFeeCents: 500,
+      entryCount: 0,
+      now: '2026-10-29T13:00:00.000Z',
+    });
+
+    await expect(
+      retireFakePublicContestForBetaCleanup(publicContest.id, 'operator-5', {
+        dataFilePath,
+        persistedEntryCount: 1,
+      }),
+    ).rejects.toThrow('This contest has saved entries. Review entries before retiring it.');
+
+    await updateStoredContest(dataFilePath, publicContest.id, {
+      id: 'week-9-qb-passing-yards-live-validation-2026',
+      visibilityStatus: 'hidden',
+    });
+
+    await expect(
+      retireFakePublicContestForBetaCleanup('week-9-qb-passing-yards-live-validation-2026', 'operator-5', {
+        dataFilePath,
+        persistedEntryCount: 0,
+      }),
+    ).rejects.toThrow('Hidden contests cannot use the public contest beta cleanup control.');
   });
 
   it('moves contests through scheduled to open and open to locked without double transitions', async () => {

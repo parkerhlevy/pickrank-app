@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from 'react';
-import { AlertCircle, CheckCircle2, EyeOff, FileText, ListChecks, ShieldCheck } from 'lucide-react';
+import { AlertCircle, ArchiveX, CheckCircle2, EyeOff, FileText, ListChecks, ShieldCheck } from 'lucide-react';
 import {
   createDraftContestAction,
   fetchContestStatSnapshotAction,
@@ -8,6 +8,7 @@ import {
   lockFreeTestContestAction,
   publishContestAction,
   refreshReplayValidationContestSnapshotAction,
+  retireFakePublicContestForBetaCleanupAction,
   saveContestSlateAction,
   validateDraftContestAction,
 } from '@/app/admin/contests/actions';
@@ -70,20 +71,20 @@ export default async function AdminContestsPage({
       {message ? (
         <Card
           className={
-            status === 'created' || status === 'saved' || status === 'validated' || status === 'published' || status === 'locked' || status === 'fetched' || status === 'finalized'
+            isAdminSuccessStatus(status)
               ? 'border-emerald-200 bg-emerald-50'
               : 'border-amber-200 bg-amber-50'
           }
         >
           <CardContent className="flex items-start gap-3 pt-6 text-sm">
-            {status === 'created' || status === 'saved' || status === 'validated' || status === 'published' || status === 'locked' || status === 'fetched' || status === 'finalized' ? (
+            {isAdminSuccessStatus(status) ? (
               <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-700" aria-hidden="true" />
             ) : (
               <AlertCircle className="mt-0.5 h-4 w-4 text-amber-700" aria-hidden="true" />
             )}
             <p
               className={
-                status === 'created' || status === 'saved' || status === 'validated' || status === 'published' || status === 'locked' || status === 'fetched' || status === 'finalized'
+                isAdminSuccessStatus(status)
                   ? 'text-emerald-900'
                   : 'text-amber-900'
               }
@@ -368,6 +369,37 @@ export default async function AdminContestsPage({
                       </Button>
                     </form>
                   ) : null}
+                  {canShowBetaCleanupRetireControl(contest) ? (
+                    <form
+                      action={retireFakePublicContestForBetaCleanupAction}
+                      className="mt-3 space-y-3 rounded-lg border border-red-200 bg-red-50 p-3"
+                    >
+                      <input type="hidden" name="contestId" value={contest.id} />
+                      <div className="flex items-start gap-2">
+                        <ArchiveX className="mt-0.5 h-4 w-4 text-red-800" aria-hidden="true" />
+                        <div>
+                          <p className="text-sm font-semibold text-red-950">Retire Public Beta Data Blocker</p>
+                          <p className="mt-1 text-xs leading-5 text-red-900">
+                            Operator-only cleanup for a visible scheduled/open contest that does not match the free-beta
+                            public posture. This hides and cancels the contest, resets fake entry counts to zero, records
+                            an audit event, and refuses contests with saved entry rows.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor={`retireConfirmationText-${contest.id}`}>Type RETIRE BETA to confirm</Label>
+                        <TextInput
+                          id={`retireConfirmationText-${contest.id}`}
+                          name="confirmationText"
+                          placeholder="RETIRE BETA"
+                          required
+                        />
+                      </div>
+                      <Button type="submit" variant="secondary" className="w-full border-red-200 bg-white text-red-950 hover:bg-red-100">
+                        Retire Public Contest
+                      </Button>
+                    </form>
+                  ) : null}
                   {canFinalizeContestStatus(contest.contestStatus) ? (
                     <form action={finalizeContestAction} className="mt-3 space-y-3 rounded-lg border bg-slate-50 p-3">
                       <input type="hidden" name="contestId" value={contest.id} />
@@ -446,6 +478,27 @@ export default async function AdminContestsPage({
 
 function canShowFreeTestLockControl(contest: ContestSummary) {
   return contest.visibilityStatus === 'visible' && contest.contestStatus === 'open' && contest.entryFeeCents === 0;
+}
+
+function canShowBetaCleanupRetireControl(contest: ContestSummary) {
+  return (
+    contest.visibilityStatus === 'visible' &&
+    (contest.contestStatus === 'scheduled' || contest.contestStatus === 'open') &&
+    (contest.entryFeeCents !== 0 || contest.slateSize !== contestPlayerPoolSize || contest.paidEntryCount > 0)
+  );
+}
+
+function isAdminSuccessStatus(status: string | undefined) {
+  return (
+    status === 'created' ||
+    status === 'saved' ||
+    status === 'validated' ||
+    status === 'published' ||
+    status === 'locked' ||
+    status === 'retired' ||
+    status === 'fetched' ||
+    status === 'finalized'
+  );
 }
 
 function TestEntryReadinessCard({ readiness }: { readiness: AdminTestEntryContestReadiness[] }) {
