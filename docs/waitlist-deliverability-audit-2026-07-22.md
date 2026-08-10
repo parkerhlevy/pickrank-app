@@ -209,6 +209,28 @@ The repo now supports a preferred hosted-unsubscribe welcome-email path without 
 
 Do not set `RESEND_WAITLIST_WELCOME_EVENT_NAME` in Vercel until the Resend Automation is enabled and tested with a fresh inbox alias. The first hosted-unsubscribe test must record inbox placement, sender, reply-to, DKIM, SPF, DMARC, the visible Resend unsubscribe link, and whether the Resend preference page marks the contact unsubscribed globally.
 
+## Resend Automation Hosted-Unsubscribe Test - 2026-08-10
+
+After Parker created and enabled the Resend Automation, Vercel Production and Preview were configured with:
+
+```text
+RESEND_WAITLIST_WELCOME_EVENT_NAME=waitlist.joined
+```
+
+Production was redeployed from the latest pushed `main` source so the new env var took effect.
+
+| Deployment | Source | Status | Notes |
+| --- | --- | --- | --- |
+| `dpl_7z8RMBd5PbDH7d9cSXr4NEd8Xyrn` | `main` commit `5c9698b` | Ready | Production alias `https://www.pickrankgames.com` points at the redeployment. |
+
+Fresh production testing used `parkerhlevy+pickrank-resend-auto-20260810-001027@gmail.com`.
+
+| Provider | Submit status | Inbox placement | Sender display | Authentication indicators | Reply-to behavior | Unsubscribe behavior |
+| --- | --- | --- | --- | --- | --- | --- |
+| Gmail | Production homepage form returned `You’re on the list.` | Gmail labels: `INBOX`, `CATEGORY_PROMOTIONS`, `IMPORTANT`, `UNREAD`; no `SPAM` label. | Gmail and raw headers show `PickRank <hello@pickrankgames.com>`. | Gmail raw headers show `dkim=pass` for `pickrankgames.com`, `dkim=pass` for `amazonses.com`, `spf=pass` for `send.pickrankgames.com`, and `dmarc=pass` for `pickrankgames.com`. | Raw headers show `Reply-To: info@pickrankgames.com`. | The visible footer link points to Resend's hosted unsubscribe URL. Raw headers include `List-Unsubscribe` with the same hosted URL plus `List-Unsubscribe-Post: List-Unsubscribe=One-Click`. |
+
+The final uploaded Resend template source is preserved at `docs/marketing/pickrank-waitlist-welcome-resend-template.html`. The full footer sentence `Unsubscribe from PickRank waitlist and product update emails.` is linked so Resend's generated plain-text part does not run the link label into adjacent copy.
+
 ## Later Polish
 
 Rainy-day follow-ups, not launch blockers:
@@ -217,12 +239,12 @@ Rainy-day follow-ups, not launch blockers:
 - Add a custom Resend tracking subdomain only if PickRank enables open/click tracking.
 - Move DMARC beyond `p=none` only after there is more sending history and no legitimate mail stream is failing authentication.
 - Decide whether `RESEND_REPLY_TO_EMAIL` should stay `info@pickrankgames.com` or move to `hello@pickrankgames.com`.
-- Confirm the exact live Resend Broadcast or Automation unsubscribe/preference URL before any broader marketing broadcast.
+- Confirm the exact live Resend Broadcast unsubscribe/preference URL before any broader marketing broadcast.
 
 ## Current Verdict
 
 The repo-side email content is low risk and does not need app-code changes before testing.
 
-Production waitlist mail is now using the verified root-domain sender: `PickRank <hello@pickrankgames.com>`, with `info@pickrankgames.com` as reply-to. Resend and Gmail both confirm the new sender, and Gmail confirms DKIM, SPF, and DMARC pass on the root-domain path. The repo welcome-email fallback path includes visible mailto unsubscribe handling and a `List-Unsubscribe` header. The preferred hosted-unsubscribe path now requires a Resend Automation template plus the `RESEND_WAITLIST_WELCOME_EVENT_NAME` Vercel switch.
+Production waitlist mail is now using the verified root-domain sender: `PickRank <hello@pickrankgames.com>`, with `info@pickrankgames.com` as reply-to. Resend and Gmail both confirm the new sender, and Gmail confirms DKIM, SPF, and DMARC pass on the root-domain path. The preferred hosted-unsubscribe welcome-email path is live through Resend Automations, and Gmail confirms both visible hosted unsubscribe and one-click unsubscribe headers.
 
 Next move: treat root-domain waitlist deliverability as good enough for the current priority level. Keep iCloud, Outlook/Hotmail, work-email retesting, tracking metrics, and a stricter DMARC policy as later polish rather than near-term blockers.
