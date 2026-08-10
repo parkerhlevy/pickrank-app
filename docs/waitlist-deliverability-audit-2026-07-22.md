@@ -137,7 +137,7 @@ Watch items:
 
 - The header logo is a remote image. If inboxes block or penalize it, test a simpler text-first header before changing the email message.
 - The welcome email footer now includes a visible mailto unsubscribe link and the Email API send includes a `List-Unsubscribe` header. Confirm the configured mailto target is monitored.
-- Future Resend Broadcasts must still include `{{{RESEND_UNSUBSCRIBE_URL}}}` or Resend's unsubscribe footer so Resend can manage the live preference page and unsubscribe flow.
+- Future Resend Broadcasts and the preferred Resend Automation welcome-email path must include `{{{RESEND_UNSUBSCRIBE_URL}}}` or Resend's unsubscribe footer so Resend can manage the live preference page and unsubscribe flow.
 - A new or lightly used sending domain can still land in Promotions/Junk even with correct content; DNS alignment and gradual sending matter more than copy changes at this stage.
 
 No additional email copy change is recommended from this audit.
@@ -198,6 +198,17 @@ Repo-side changes now make the waitlist welcome email unsubscribe-ready without 
 - Future Resend Broadcasts must include `{{{RESEND_UNSUBSCRIBE_URL}}}` as the visible unsubscribe link/button target, or use Resend's built-in unsubscribe footer, before broader outreach.
 - Operators must mark manual mailto unsubscribe requests as unsubscribed in Resend.
 
+## Resend Automation Readiness Update - 2026-08-09
+
+The repo now supports a preferred hosted-unsubscribe welcome-email path without changing the current fallback:
+
+- If `RESEND_WAITLIST_WELCOME_EVENT_NAME` is not set, the app keeps the current Email API welcome email with visible mailto unsubscribe plus `List-Unsubscribe`.
+- If `RESEND_WAITLIST_WELCOME_EVENT_NAME` is set, the app syncs the Resend contact and triggers `resend.events.send` with the Resend contact ID instead of sending the raw Email API welcome email.
+- The Resend Automation template must include a visible unsubscribe link or button using `{{{RESEND_UNSUBSCRIBE_URL}}}`, or Resend's built-in unsubscribe footer.
+- Supabase remains the waitlist source of truth and still skips globally unsubscribed Resend contacts before any welcome send or Automation trigger.
+
+Do not set `RESEND_WAITLIST_WELCOME_EVENT_NAME` in Vercel until the Resend Automation is enabled and tested with a fresh inbox alias. The first hosted-unsubscribe test must record inbox placement, sender, reply-to, DKIM, SPF, DMARC, the visible Resend unsubscribe link, and whether the Resend preference page marks the contact unsubscribed globally.
+
 ## Later Polish
 
 Rainy-day follow-ups, not launch blockers:
@@ -206,12 +217,12 @@ Rainy-day follow-ups, not launch blockers:
 - Add a custom Resend tracking subdomain only if PickRank enables open/click tracking.
 - Move DMARC beyond `p=none` only after there is more sending history and no legitimate mail stream is failing authentication.
 - Decide whether `RESEND_REPLY_TO_EMAIL` should stay `info@pickrankgames.com` or move to `hello@pickrankgames.com`.
-- Confirm the exact live Resend Broadcast unsubscribe/preference URL before any broader marketing broadcast.
+- Confirm the exact live Resend Broadcast or Automation unsubscribe/preference URL before any broader marketing broadcast.
 
 ## Current Verdict
 
 The repo-side email content is low risk and does not need app-code changes before testing.
 
-Production waitlist mail is now using the verified root-domain sender: `PickRank <hello@pickrankgames.com>`, with `info@pickrankgames.com` as reply-to. Resend and Gmail both confirm the new sender, and Gmail confirms DKIM, SPF, and DMARC pass on the root-domain path. The repo welcome-email path now includes visible mailto unsubscribe handling and a `List-Unsubscribe` header, but this still needs a post-deploy production email check.
+Production waitlist mail is now using the verified root-domain sender: `PickRank <hello@pickrankgames.com>`, with `info@pickrankgames.com` as reply-to. Resend and Gmail both confirm the new sender, and Gmail confirms DKIM, SPF, and DMARC pass on the root-domain path. The repo welcome-email fallback path includes visible mailto unsubscribe handling and a `List-Unsubscribe` header. The preferred hosted-unsubscribe path now requires a Resend Automation template plus the `RESEND_WAITLIST_WELCOME_EVENT_NAME` Vercel switch.
 
 Next move: treat root-domain waitlist deliverability as good enough for the current priority level. Keep iCloud, Outlook/Hotmail, work-email retesting, tracking metrics, and a stricter DMARC policy as later polish rather than near-term blockers.

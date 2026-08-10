@@ -94,7 +94,13 @@ function createSupabaseMock() {
 }
 
 function createResendMock(
-  options: { contactFails?: boolean; lookupFails?: boolean; emailFails?: boolean; unsubscribed?: boolean } = {},
+  options: {
+    contactFails?: boolean;
+    lookupFails?: boolean;
+    emailFails?: boolean;
+    eventFails?: boolean;
+    unsubscribed?: boolean;
+  } = {},
 ) {
   return {
     contacts: {
@@ -120,6 +126,12 @@ function createResendMock(
         error: options.emailFails ? { message: 'failed' } : null,
       })),
     },
+    events: {
+      send: vi.fn(async () => ({
+        data: options.eventFails ? null : { object: 'event', event: 'waitlist.joined' },
+        error: options.eventFails ? { message: 'failed' } : null,
+      })),
+    },
   };
 }
 
@@ -128,6 +140,11 @@ const resendEnv = {
   RESEND_FROM_EMAIL: 'PickRank <hello@pickrankgames.com>',
   RESEND_REPLY_TO_EMAIL: 'support@pickrankgames.com',
   RESEND_WAITLIST_SEGMENT_ID: 'segment-id',
+};
+
+const resendAutomationEnv = {
+  ...resendEnv,
+  RESEND_WAITLIST_WELCOME_EVENT_NAME: 'waitlist.joined',
 };
 
 describe('waitlist signup validation', () => {
@@ -223,6 +240,48 @@ describe('waitlist signup workflow', () => {
         },
       }),
     );
+    expect(resend.events.send).not.toHaveBeenCalled();
+    expect(supabase.updates.at(-1)).toMatchObject({
+      resend_contact_sync_status: 'synced',
+      welcome_email_status: 'sent',
+    });
+  });
+
+  it('can trigger the Resend Automation welcome email instead of the Email API welcome send', async () => {
+    const supabase = createSupabaseMock();
+    const resend = createResendMock();
+
+    const result = await joinWaitlist(
+      {
+        email: 'fan@example.com',
+        consent: 'on',
+        sourcePath: '/',
+        utm_source: 'codex',
+        utm_medium: 'test',
+        utm_campaign: 'launch',
+      },
+      {
+        createSupabaseClient: () => supabase.client,
+        createResendClient: () => resend,
+        env: resendAutomationEnv,
+      },
+    );
+
+    expect(result.status).toBe('success');
+    expect(resend.events.send).toHaveBeenCalledTimes(1);
+    expect(resend.events.send).toHaveBeenCalledWith({
+      event: 'waitlist.joined',
+      contactId: 'contact-created',
+      payload: {
+        source: 'waitlist',
+        sourcePath: '/',
+        signedUpAt: '2026-07-14T12:00:00.000Z',
+        utmSource: 'codex',
+        utmMedium: 'test',
+        utmCampaign: 'launch',
+      },
+    });
+    expect(resend.emails.send).not.toHaveBeenCalled();
     expect(supabase.updates.at(-1)).toMatchObject({
       resend_contact_sync_status: 'synced',
       welcome_email_status: 'sent',
@@ -267,6 +326,7 @@ describe('waitlist signup workflow', () => {
     expect(first).toEqual(duplicate);
     expect(supabase.rows).toHaveLength(1);
     expect(resend.emails.send).toHaveBeenCalledTimes(1);
+    expect(resend.events.send).not.toHaveBeenCalled();
     expect(supabase.insertAttempts).toBe(2);
   });
 
@@ -282,6 +342,7 @@ describe('waitlist signup workflow', () => {
     expect(result.status).toBe('success');
     expect(supabase.rows).toHaveLength(0);
     expect(resend.emails.send).not.toHaveBeenCalled();
+    expect(resend.events.send).not.toHaveBeenCalled();
   });
 
   it('records missing Resend configuration without exposing provider details', async () => {
@@ -335,6 +396,24 @@ describe('waitlist signup workflow', () => {
     });
   });
 
+  it('records a retryable welcome email failure when the Resend Automation trigger fails', async () => {
+    const supabase = createSupabaseMock();
+    const resend = createResendMock({ eventFails: true });
+
+    await joinWaitlist(
+      { email: 'fan@example.com', consent: 'on', sourcePath: '/' },
+      { createSupabaseClient: () => supabase.client, createResendClient: () => resend, env: resendAutomationEnv },
+    );
+
+    expect(resend.events.send).toHaveBeenCalledTimes(1);
+    expect(resend.emails.send).not.toHaveBeenCalled();
+    expect(supabase.updates.at(-1)).toMatchObject({
+      resend_contact_sync_status: 'synced',
+      welcome_email_status: 'failed_retryable',
+      provider_retry_reason: 'welcome_email_failed',
+    });
+  });
+
   it('does not silently re-opt an unsubscribed Resend contact into marketing', async () => {
     const supabase = createSupabaseMock();
     const resend = createResendMock({ unsubscribed: true });
@@ -347,6 +426,7 @@ describe('waitlist signup workflow', () => {
     expect(resend.contacts.create).not.toHaveBeenCalled();
     expect(resend.contacts.update).not.toHaveBeenCalled();
     expect(resend.emails.send).not.toHaveBeenCalled();
+    expect(resend.events.send).not.toHaveBeenCalled();
     expect(supabase.updates.at(-1)).toMatchObject({
       resend_contact_sync_status: 'skipped_unsubscribed',
       welcome_email_status: 'skipped_unsubscribed',

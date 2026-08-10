@@ -80,6 +80,13 @@ type ResendClientLike = {
   emails: {
     send: (payload: Record<string, unknown>) => Promise<{ data: { id: string } | null; error: unknown | null }>;
   };
+  events: {
+    send: (payload: {
+      event: string;
+      contactId: string;
+      payload?: Record<string, unknown>;
+    }) => Promise<{ data: unknown | null; error: unknown | null }>;
+  };
 };
 
 type WaitlistDependencies = {
@@ -289,20 +296,26 @@ async function syncResendAfterSignup(
     let welcomeSentAt: string | null = created && record.welcome_email_status !== 'sent' ? nowIso(dependencies) : null;
 
     if (created && record.welcome_email_status !== 'sent') {
-      const emailResult = await resend.emails.send({
-        from: config.fromEmail,
-        to: record.email,
-        replyTo: config.replyToEmail,
-        subject: waitlistWelcomeEmailSubject,
-        react: renderWaitlistWelcomeEmailReact({ unsubscribeEmail: config.replyToEmail }),
-        text: renderWaitlistWelcomeEmailText({ unsubscribeEmail: config.replyToEmail }),
-        headers: {
-          'List-Unsubscribe': createWaitlistListUnsubscribeHeader(config.replyToEmail),
-        },
-        tags: [{ name: 'source', value: 'waitlist' }],
-      });
+      const welcomeResult = config.waitlistWelcomeEventName
+        ? await resend.events.send({
+            event: config.waitlistWelcomeEventName,
+            contactId: contactResult.data.id,
+            payload: createWaitlistWelcomeEventPayload(record),
+          })
+        : await resend.emails.send({
+            from: config.fromEmail,
+            to: record.email,
+            replyTo: config.replyToEmail,
+            subject: waitlistWelcomeEmailSubject,
+            react: renderWaitlistWelcomeEmailReact({ unsubscribeEmail: config.replyToEmail }),
+            text: renderWaitlistWelcomeEmailText({ unsubscribeEmail: config.replyToEmail }),
+            headers: {
+              'List-Unsubscribe': createWaitlistListUnsubscribeHeader(config.replyToEmail),
+            },
+            tags: [{ name: 'source', value: 'waitlist' }],
+          });
 
-      if (emailResult.error || !emailResult.data) {
+      if (welcomeResult.error || !welcomeResult.data) {
         welcomeStatus = 'failed_retryable';
         welcomeSentAt = null;
       }
@@ -340,7 +353,30 @@ function getResendConfig(env: Record<string, string | undefined>) {
     fromEmail: env.RESEND_FROM_EMAIL,
     replyToEmail: env.RESEND_REPLY_TO_EMAIL,
     waitlistSegmentId: env.RESEND_WAITLIST_SEGMENT_ID,
+    waitlistWelcomeEventName: env.RESEND_WAITLIST_WELCOME_EVENT_NAME?.trim() || undefined,
   };
+}
+
+function createWaitlistWelcomeEventPayload(record: WaitlistRecord) {
+  const payload: Record<string, string> = {
+    source: 'waitlist',
+    sourcePath: record.source_path,
+    signedUpAt: record.signed_up_at,
+  };
+
+  if (record.utm_source) {
+    payload.utmSource = record.utm_source;
+  }
+
+  if (record.utm_medium) {
+    payload.utmMedium = record.utm_medium;
+  }
+
+  if (record.utm_campaign) {
+    payload.utmCampaign = record.utm_campaign;
+  }
+
+  return payload;
 }
 
 function isResendNotFound(error: unknown) {

@@ -43,6 +43,12 @@ RESEND_REPLY_TO_EMAIL
 RESEND_WAITLIST_SEGMENT_ID
 ```
 
+Optional server-side variable:
+
+```text
+RESEND_WAITLIST_WELCOME_EVENT_NAME
+```
+
 The implementation uses the official Resend Node.js SDK, Resend contacts, and the current segment model. Resend audiences are deprecated in the current API, so the waitlist uses a dedicated segment ID.
 
 Attribution stays in Supabase. Do not send UTM/source values to Resend as custom contact properties unless the matching properties are created and maintained in Resend first.
@@ -51,7 +57,7 @@ No internal database IDs, secrets, raw provider errors, or unnecessary personal 
 
 ## Unsubscribed Contacts
 
-Before creating or updating a Resend contact, the workflow checks the existing contact by email. If Resend says the contact is globally unsubscribed, the workflow does not set `unsubscribed: false`, does not add the segment again, and does not send a welcome email. Supabase records the status as `skipped_unsubscribed` with the retry category `contact_unsubscribed`.
+Before creating or updating a Resend contact, the workflow checks the existing contact by email. If Resend says the contact is globally unsubscribed, the workflow does not set `unsubscribed: false`, does not add the segment again, and does not send or trigger a welcome email. Supabase records the status as `skipped_unsubscribed` with the retry category `contact_unsubscribed`.
 
 One-off waitlist welcome emails include a visible mailto unsubscribe link plus a `List-Unsubscribe` email header that points to the configured `RESEND_REPLY_TO_EMAIL` address. Operators must mark manual unsubscribe requests as unsubscribed in Resend.
 
@@ -89,7 +95,45 @@ Preview text:
 You’re officially on the list. We’ll send Early Access Beta updates.
 ```
 
-The send path uses Resend's React email rendering support with a plain-text fallback. It includes PickRank branding, a link to `https://www.pickrankgames.com`, free Early Access Beta copy, no cash-prize language, a visible unsubscribe mailto link, the Playground Sports, LLC postal address, and the Privacy Policy link. The Resend Email API payload also includes a `List-Unsubscribe` header using the configured reply-to address. It avoids urgent claims, winnings promises, play-now language, account-creation pressure, and the Resend `{{{RESEND_UNSUBSCRIBE_URL}}}` token because that token is documented for Broadcasts and Automations, not this one-off Email API send.
+Default fallback path:
+
+- The app sends the welcome email through Resend's Email API.
+- The repo template uses React email rendering with a plain-text fallback.
+- The email includes PickRank branding, a link to `https://www.pickrankgames.com`, free Early Access Beta copy, no cash-prize language, a visible unsubscribe mailto link, the Playground Sports, LLC postal address, and the Privacy Policy link.
+- The Email API payload includes a `List-Unsubscribe` header using the configured reply-to address.
+- The Email API template does not use `{{{RESEND_UNSUBSCRIBE_URL}}}`, because Resend documents that token for Broadcasts and Automations.
+
+Preferred hosted-unsubscribe path:
+
+- Create a Resend Automation triggered by a custom event such as `waitlist.joined`.
+- Configure the Automation Send Email step with a published Resend template that matches the repo welcome email copy.
+- Add a visible unsubscribe link or button in the Resend template with `{{{RESEND_UNSUBSCRIBE_URL}}}` as the target, or include Resend's built-in unsubscribe footer.
+- Confirm the live Resend preference page in a test inbox.
+- Set `RESEND_WAITLIST_WELCOME_EVENT_NAME` in Vercel Production and Preview only after the Automation is enabled and tested.
+
+When `RESEND_WAITLIST_WELCOME_EVENT_NAME` is configured, the app syncs the Resend contact and then calls `resend.events.send` with the Resend contact ID instead of sending the raw Email API welcome email. Supabase still records `welcome_email_status = sent` only after Resend accepts the Automation event. If the event call fails, Supabase records `welcome_email_status = failed_retryable` and `provider_retry_reason = welcome_email_failed`.
+
+Both paths avoid urgent claims, winnings promises, play-now language, eligibility claims, and account-creation pressure.
+
+## Creating the Resend Welcome Automation
+
+Use this setup before adding `RESEND_WAITLIST_WELCOME_EVENT_NAME` in Vercel:
+
+1. Open Resend.
+2. Create or publish a template named `PickRank Waitlist Welcome`.
+3. Match the repo welcome-email copy from `lib/waitlist-email.tsx`.
+4. Use a visible `Unsubscribe` link or button with `{{{RESEND_UNSUBSCRIBE_URL}}}` as the link target.
+5. Keep the free Early Access Beta, no purchase, no entry fee, no prizes, postal-address, Privacy Policy, and NFL non-affiliation footer language.
+6. Create an Automation named `PickRank Waitlist Welcome`.
+7. Add a custom-event trigger named `waitlist.joined`.
+8. Add one Send Email step using the published template.
+9. Use `PickRank <hello@pickrankgames.com>` as the sender and the monitored PickRank reply-to address.
+10. Enable the Automation.
+11. Add `RESEND_WAITLIST_WELCOME_EVENT_NAME=waitlist.joined` to Vercel Production and Preview.
+12. Redeploy Production from `main`.
+13. Submit a fresh production waitlist alias and inspect the received email.
+
+Do not add the Vercel env var before the Automation is enabled. If the env var points to a missing or disabled event path, new waitlist rows stay saved in Supabase, but the welcome email records a retryable provider failure.
 
 ## Viewing and Exporting Supabase Records
 
