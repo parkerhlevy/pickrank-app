@@ -1438,7 +1438,7 @@ function assertCanRetireFakePublicContestForBetaCleanup(contest: ContestRecord, 
 }
 
 async function countPersistedEntriesForContestRow(contestRowId: string) {
-  const supabase: any = createSupabaseAdminClient();
+  const supabase = await createSupabaseAdminClient();
   const { count, error } = await supabase
     .from('entries')
     .select('id', { count: 'exact', head: true })
