@@ -7,15 +7,21 @@ import { bob, entrance, popIn, rise } from "../lib/motion";
 import { theme } from "../lib/theme";
 
 type NationalSceneProps = {
+  eyebrow: string;
   headline: string;
-  supportingLine: string;
+  supportingLine?: string;
+  boardTitle: string;
+  boardChip: string;
   leaderboardRows: Array<{name: string; region: string; valueLabel?: string}>;
   highlightedUser: string;
 };
 
 export const NationalScene = ({
+  eyebrow,
   headline,
   supportingLine,
+  boardTitle,
+  boardChip,
   leaderboardRows,
   highlightedUser,
 }: NationalSceneProps) => {
@@ -44,7 +50,7 @@ export const NationalScene = ({
           transform: `translateY(${rise(intro, 24)}px)`,
         }}
       >
-        <SectionEyebrow label="Compete to win" />
+        <SectionEyebrow label={eyebrow} />
         <KineticHeadline
           lines={[headline]}
           accentColor={theme.colors.accent}
@@ -52,16 +58,18 @@ export const NationalScene = ({
           gap={0}
           maxWidth={520}
         />
-        <div
-          style={{
-            color: theme.colors.mutedText,
-            fontSize: 28,
-            fontWeight: 600,
-            transform: `translateY(${bob(frame, 2, 20)}px)`,
-          }}
-        >
-          {supportingLine}
-        </div>
+        {supportingLine ? (
+          <div
+            style={{
+              color: theme.colors.mutedText,
+              fontSize: 28,
+              fontWeight: 600,
+              transform: `translateY(${bob(frame, 2, 20)}px)`,
+            }}
+          >
+            {supportingLine}
+          </div>
+        ) : null}
       </div>
       <div
         style={{
@@ -71,7 +79,12 @@ export const NationalScene = ({
           opacity: board,
         }}
       >
-        <LeaderboardCard rows={leaderboardRows} highlightedUser={highlightedUser} />
+        <LeaderboardCard
+          title={boardTitle}
+          chip={boardChip}
+          rows={leaderboardRows}
+          highlightedUser={highlightedUser}
+        />
       </div>
     </AbsoluteFill>
   );

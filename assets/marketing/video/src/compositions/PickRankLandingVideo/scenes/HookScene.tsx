@@ -7,14 +7,17 @@ import { bob, entrance, popIn, rise, shimmer } from "../lib/motion";
 import { theme } from "../lib/theme";
 
 type HookSceneProps = {
+  eyebrow: string;
   lines: string[];
+  supportLine: string;
+  cards: Array<{title: string; value: string}>;
   accentColor: string;
 };
 
-export const HookScene = ({ lines, accentColor }: HookSceneProps) => {
+export const HookScene = ({ eyebrow, lines, supportLine, cards, accentColor }: HookSceneProps) => {
   const frame = useCurrentFrame();
   const intro = entrance(frame, 18);
-  const cards = entrance(Math.max(frame - 12, 0), 20);
+  const cardsProgress = entrance(Math.max(frame - 12, 0), 20);
 
   return (
     <AbsoluteFill
@@ -35,13 +38,13 @@ export const HookScene = ({ lines, accentColor }: HookSceneProps) => {
           transform: `translateY(${rise(intro, 30)}px)`,
         }}
       >
-        <SectionEyebrow label="Your new favorite fantasy game" />
+        <SectionEyebrow label={eyebrow} />
         <KineticHeadline
           lines={lines}
           accentColor={accentColor}
-          accentLineIndices={[2]}
-          fontSize={118}
-          gap={6}
+          accentLineIndices={[3]}
+          fontSize={82}
+          gap={4}
           maxWidth={1180}
         />
         <div
@@ -53,7 +56,7 @@ export const HookScene = ({ lines, accentColor }: HookSceneProps) => {
             opacity: shimmer(frame, 0.74, 1, 24),
           }}
         >
-          Simple fantasy. Real cash winnings.
+          {supportLine}
         </div>
       </div>
       <div
@@ -62,14 +65,10 @@ export const HookScene = ({ lines, accentColor }: HookSceneProps) => {
           display: "grid",
           gridTemplateColumns: "repeat(3, 1fr)",
           gap: 20,
-          opacity: cards,
+          opacity: cardsProgress,
         }}
       >
-        {[
-          ["Slate", "15 players"],
-          ["Skill", "Pick 10"],
-          ["Prize", "Cash"],
-        ].map(([title, value], index) => {
+        {cards.map(({ title, value }, index) => {
           const progress = entrance(Math.max(frame - 18 - index * 6, 0), 18);
           return (
             <div

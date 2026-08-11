@@ -7,6 +7,7 @@ import { theme } from "../lib/theme";
 type ScoringSceneProps = {
   headline: string;
   supportingLine: string;
+  rulePills: [string, string];
   examples: Array<{
     player: string;
     pickedRank: number;
@@ -32,6 +33,7 @@ const getPointsColor = (points: number) => {
 export const ScoringScene = ({
   headline,
   supportingLine,
+  rulePills,
   examples,
   totalPoints,
   accentColor,
@@ -111,7 +113,7 @@ export const ScoringScene = ({
               whiteSpace: "nowrap",
             }}
           >
-            Exact pick = 0 points
+            {rulePills[0]}
           </div>
           <div
             style={{
@@ -131,7 +133,7 @@ export const ScoringScene = ({
               whiteSpace: "nowrap",
             }}
           >
-            Bigger miss = more points
+            {rulePills[1]}
           </div>
         </div>
       </div>

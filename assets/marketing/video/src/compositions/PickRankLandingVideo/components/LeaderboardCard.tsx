@@ -9,11 +9,15 @@ type LeaderboardRow = {
 };
 
 type LeaderboardCardProps = {
+  title: string;
+  chip: string;
   rows: LeaderboardRow[];
   highlightedUser: string;
 };
 
 export const LeaderboardCard = ({
+  title,
+  chip,
   rows,
   highlightedUser,
 }: LeaderboardCardProps) => {
@@ -50,15 +54,15 @@ export const LeaderboardCard = ({
           marginBottom: 4,
         }}
       >
-      <div
-        style={{
-          color: "#0f172a",
-          fontSize: 30,
-          fontWeight: 900,
-        }}
-      >
-        Weekly Board
-      </div>
+        <div
+          style={{
+            color: "#0f172a",
+            fontSize: 30,
+            fontWeight: 900,
+          }}
+        >
+          {title}
+        </div>
         <div
           style={{
             padding: "8px 14px",
@@ -69,7 +73,7 @@ export const LeaderboardCard = ({
             fontWeight: 800,
           }}
         >
-          National Week
+          {chip}
         </div>
       </div>
       {rows.map((row, index) => {

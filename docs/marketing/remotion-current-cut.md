@@ -21,7 +21,7 @@ If this note and the source data diverge, update both together.
 - Format: `16:9`
 - Resolution target: `1920x1080`
 - FPS: `30`
-- Current duration: `34.5s`
+- Current duration: `38.5s`
 - Current render path: `assets/marketing/video/out/pickrank-landing-video.mp4`
 - Current default audio bed: `assets/marketing/video/public/audio/locked-in-final.wav`
 
@@ -38,48 +38,52 @@ When editing the video:
 
 ### Scene 1: Hook
 
-- Eyebrow: `Your new favorite fantasy game`
+- Eyebrow: `Early Access Beta`
 - Headline lines:
-  - `15 NFL Players.`
+  - `Same 20-player pool.`
   - `Pick 10.`
-  - `Rank them.`
-- Support line: `Simple fantasy. Real cash winnings.`
+  - `Rank the final order.`
+  - `Closest board wins.`
+- Support line: `Free to play during beta.`
 - Bottom cards:
-  - `Slate / 15 players`
-  - `Skill / Pick 10`
-  - `Prize / Cash`
+  - `Pool / Same 20`
+  - `Board / Pick 10`
+  - `Goal / Closest wins`
 - Top-right domain chip: `pickrankgames.com`
+- Teaching rationale: open with the current beta posture and contest objective before the action mechanics, so a cold viewer understands what they are trying to do before the cut shows how to do it.
 
 Do not revert:
 
-- `15 NFL Players` back to `15 NFL QBs`
-- `Skill` back to `Entry`
-- `Cash` back to `Real money`
+- `Same 20-player pool.` back to older pool-size or action-only opening copy
+- `Board` back to `Entry`
 - the eyebrow back to `New fantasy format`
+- beta framing back to paid-launch framing
+- `Closest board wins.` into early `Lowest score wins.`; keep `Lowest total wins.` in the scoring scene after miss-distance points are explained
 
 ### Scene 2: Intro
 
-- Headline: `15-player slate.`
-- Subhead: `One stat. One board.`
+- Headline: `Now build it.`
+- Subhead: `Choose 10 from the weekly pool, then rank who finishes highest.`
 - Feature cards:
+  - `20-player pool`
   - `Pick 10`
-  - `Drag to rank`
-  - `Beat the field`
+  - `Rank order`
 
 ### Scene 3: Selection
 
 - Step label: `Step 1`
 - Header:
-  - `Get 15 players.`
-  - `Pick your 10.`
-- `Pick your 10.` should use the accent color
+  - `Get 20 players.`
+  - `Build your board.`
+- `Build your board.` should use the accent color
 - Stat line: `This week: QB Passing Yards`
-- Left panel label: `Slate`
+- Left panel label: `Player Pool`
 - Right panel label: `Your Board`
+- Phone UI may render a compact pool preview plus a count chip, but the source data must include all 20 players.
 
 Do not revert:
 
-- `Slate` back to `Slate of 15`
+- `Player Pool` back to `Slate` or `Slate of 15`
 - `Your Board` back to `Your 10`
 
 ### Scene 4: Ranking
@@ -88,7 +92,7 @@ Do not revert:
 - Header:
   - `Drag & drop`
   - `your order.`
-- Subhead: `Put your players where you think they will finish each week.`
+- Subhead: `Rank the 10 you picked by the final stat.`
 - Animation state:
   - Patrick Mahomes starts at `#4`
   - Patrick Mahomes moves into `#1`
@@ -105,12 +109,12 @@ Do not revert:
 
 - Step label: `Step 3`
 - Header: `Lowest total wins.`
-- Subhead: `Every spot away adds points.`
+- Subhead: `Actual rank uses the full 20-player pool.`
 - Rule pills:
   - green pill:
     - `Exact pick = 0 points`
   - red pill:
-    - `Bigger miss = more points`
+    - `Every spot away adds points`
 - Example cards:
   - `Patrick Mahomes`
     - `Your rank / #1`
@@ -136,13 +140,13 @@ Do not revert:
 
 - Eyebrow: `How it's unique`
 - Headline lines:
-  - `No full roster.`
-  - `No long season.`
-  - `A new game every week.`
+  - `No draft room.`
+  - `No roster grind.`
+  - `A new board every week.`
 - Third line should carry the accent treatment
 - Support boxes:
-  - `One slate.`
-  - `One ranking.`
+  - `One pool.`
+  - `One board.`
   - `One weekly result.`
 
 Do not revert:
@@ -150,12 +154,12 @@ Do not revert:
 - the single wrapped headline line
 - the older eyebrow `Why it lands`
 
-### Scene 7: National Board
+### Scene 7: Leaderboard
 
-- Eyebrow: `Compete to win`
+- Eyebrow: `Leaderboard`
 - Headline: `Beat the field.`
-- Subhead: `More entries = bigger prize pool.`
-- Board title: `Weekly Board`
+- Subhead: none
+- Board title: `Leaderboard`
 - Top chip: `National Week`
 - Rows:
   - `1 Texas Tate TX 4 pts`
@@ -165,6 +169,8 @@ Do not revert:
 
 Do not revert:
 
+- `Leaderboard` back to `Beta leaderboard` or `Beta Board`
+- the removed no-cash subhead; keep the leaderboard scene focused on point totals
 - descriptive labels like `Top finish`, `Right behind`, `Climbing`
 - any version without actual point totals
 
@@ -174,9 +180,9 @@ Do not revert:
 - Use the interim logo image `brand/pickrank-wordmark-white-pick.png` in the Remotion public folder
 - That asset currently uses a baked black background, so keep the CTA logo on `mixBlendMode: screen` until a clean transparent RGBA export replaces it
 - Support lines:
-  - `Rank the slate.`
+  - `Rank the pool.`
   - `Beat the field.`
-  - `Win cash.`
+  - `Free beta access.`
 - Button only:
   - `Join the waitlist`
 - Footer domain: `pickrankgames.com`

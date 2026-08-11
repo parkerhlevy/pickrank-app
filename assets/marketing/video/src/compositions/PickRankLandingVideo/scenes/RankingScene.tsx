@@ -6,6 +6,7 @@ import { entrance, rise, scaleIn } from "../lib/motion";
 import { theme } from "../lib/theme";
 
 type RankingSceneProps = {
+  supportingLine: string;
   rankedPlayers: string[];
   draggedPlayer: string;
   draggedFrom: number;
@@ -14,6 +15,7 @@ type RankingSceneProps = {
 };
 
 export const RankingScene = ({
+  supportingLine,
   rankedPlayers,
   draggedPlayer,
   draggedFrom,
@@ -74,7 +76,7 @@ export const RankingScene = ({
           your order.
         </div>
         <div style={{ color: theme.colors.mutedText, fontSize: 28, fontWeight: 600 }}>
-          Put your players where you think they will finish each week.
+          {supportingLine}
         </div>
       </div>
       <div
