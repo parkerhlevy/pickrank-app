@@ -18,32 +18,47 @@ export const pickRankLaunchVideoData: PickRankLaunchVideoProps = {
   },
   scenes: {
     hook: {
-      lines: ["15 NFL Players.", "Pick 10.", "Rank them."],
+      eyebrow: "Early Access Beta",
+      lines: ["Same 20-player pool.", "Pick 10.", "Rank the final order.", "Closest board wins."],
+      supportLine: "Free to play during beta.",
+      cards: [
+        { title: "Pool", value: "Same 20" },
+        { title: "Board", value: "Pick 10" },
+        { title: "Goal", value: "Closest wins" },
+      ],
       backgroundVariant: "texture-grid",
     },
     intro: {
-      headline: "15-player slate.",
-      subhead: "One stat. One board.",
-      featureCards: ["Pick 10", "Drag to rank", "Beat the field"],
+      headline: "Now build it.",
+      subhead: "Choose 10 from the weekly pool, then rank who finishes highest.",
+      featureCards: ["20-player pool", "Pick 10", "Rank order"],
     },
     selection: {
+      headlineLines: ["Get 20 players.", "Build your board."],
+      poolLabel: "Player Pool",
+      boardLabel: "Your Board",
       statCategory: "QB Passing Yards",
       allPlayers: [
         "Josh Allen",
         "Joe Burrow",
-        "Derek Carr",
-        "Sam Darnold",
-        "Justin Fields",
-        "Jared Goff",
-        "Geno Smith",
         "Jalen Hurts",
-        "Justin Herbert",
-        "Jordan Love",
+        "Lamar Jackson",
         "Patrick Mahomes",
+        "Justin Herbert",
+        "Dak Prescott",
         "Brock Purdy",
+        "Jordan Love",
+        "Kirk Cousins",
         "C.J. Stroud",
         "Tua Tagovailoa",
+        "Trevor Lawrence",
+        "Matthew Stafford",
+        "Geno Smith",
+        "Baker Mayfield",
+        "Kyler Murray",
+        "Jared Goff",
         "Caleb Williams",
+        "Jayden Daniels",
       ],
       selectedPlayers: [
         "Patrick Mahomes",
@@ -59,6 +74,7 @@ export const pickRankLaunchVideoData: PickRankLaunchVideoProps = {
       ],
     },
     ranking: {
+      supportingLine: "Rank the 10 you picked by the final stat.",
       rankedPlayers: [
         "Jalen Hurts",
         "Justin Herbert",
@@ -77,7 +93,8 @@ export const pickRankLaunchVideoData: PickRankLaunchVideoProps = {
     },
     scoring: {
       headline: "Lowest total wins.",
-      supportingLine: "Every spot away adds points.",
+      supportingLine: "Actual rank uses the full 20-player pool.",
+      rulePills: ["Exact pick = 0 points", "Every spot away adds points"],
       examples: [
         {
           player: "Patrick Mahomes",
@@ -95,12 +112,14 @@ export const pickRankLaunchVideoData: PickRankLaunchVideoProps = {
       totalPoints: 6,
     },
     differentiator: {
-      headline: "No full roster.|No long season.|A new game every week.",
-      lines: ["One slate.", "One ranking.", "One weekly result."],
+      headline: "No draft room.|No roster grind.|A new board every week.",
+      lines: ["One pool.", "One board.", "One weekly result."],
     },
     national: {
+      eyebrow: "Leaderboard",
       headline: "Beat the field.",
-      supportingLine: "More entries = bigger prize pool.",
+      boardTitle: "Leaderboard",
+      boardChip: "National Week",
       leaderboardRows: [
         { name: "Texas Tate", region: "TX", valueLabel: "4 pts" },
         { name: "Philly Phil", region: "PA", valueLabel: "6 pts" },
@@ -111,7 +130,7 @@ export const pickRankLaunchVideoData: PickRankLaunchVideoProps = {
     },
     cta: {
       headline: "PickRank",
-      supportingLines: ["Rank the slate.", "Beat the field.", "Win cash."],
+      supportingLines: ["Rank the pool.", "Beat the field.", "Free beta access."],
       ctaLabel: "Join the waitlist",
       ctaUrlLabel: "pickrankgames.com",
     },

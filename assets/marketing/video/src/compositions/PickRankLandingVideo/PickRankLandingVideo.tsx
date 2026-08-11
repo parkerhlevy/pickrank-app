@@ -40,7 +40,10 @@ export const PickRankLandingVideo = (props: PickRankLaunchVideoProps) => {
         premountFor={30}
       >
         <HookScene
+          eyebrow={props.scenes.hook.eyebrow}
           lines={props.scenes.hook.lines}
+          supportLine={props.scenes.hook.supportLine}
+          cards={props.scenes.hook.cards}
           accentColor={props.brand.accentColor}
         />
       </Sequence>
@@ -61,6 +64,9 @@ export const PickRankLandingVideo = (props: PickRankLaunchVideoProps) => {
         premountFor={30}
       >
         <SelectionScene
+          headlineLines={props.scenes.selection.headlineLines}
+          poolLabel={props.scenes.selection.poolLabel}
+          boardLabel={props.scenes.selection.boardLabel}
           statCategory={props.scenes.selection.statCategory}
           allPlayers={props.scenes.selection.allPlayers}
           selectedPlayers={props.scenes.selection.selectedPlayers}
@@ -73,6 +79,7 @@ export const PickRankLandingVideo = (props: PickRankLaunchVideoProps) => {
         premountFor={30}
       >
         <RankingScene
+          supportingLine={props.scenes.ranking.supportingLine}
           rankedPlayers={props.scenes.ranking.rankedPlayers}
           draggedPlayer={props.scenes.ranking.draggedPlayer}
           draggedFrom={props.scenes.ranking.draggedFrom}
@@ -88,6 +95,7 @@ export const PickRankLandingVideo = (props: PickRankLaunchVideoProps) => {
         <ScoringScene
           headline={props.scenes.scoring.headline}
           supportingLine={props.scenes.scoring.supportingLine}
+          rulePills={props.scenes.scoring.rulePills}
           examples={props.scenes.scoring.examples}
           totalPoints={props.scenes.scoring.totalPoints}
           accentColor={props.brand.accentColor}
@@ -109,8 +117,11 @@ export const PickRankLandingVideo = (props: PickRankLaunchVideoProps) => {
         premountFor={30}
       >
         <NationalScene
+          eyebrow={props.scenes.national.eyebrow}
           headline={props.scenes.national.headline}
           supportingLine={props.scenes.national.supportingLine}
+          boardTitle={props.scenes.national.boardTitle}
+          boardChip={props.scenes.national.boardChip}
           leaderboardRows={props.scenes.national.leaderboardRows}
           highlightedUser={props.scenes.national.highlightedUser}
         />

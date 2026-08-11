@@ -15,7 +15,10 @@ export type PickRankLaunchVideoProps = {
   };
   scenes: {
     hook: {
+      eyebrow: string;
       lines: string[];
+      supportLine: string;
+      cards: Array<{title: string; value: string}>;
       backgroundVariant: "texture-grid" | "soft-glow";
     };
     intro: {
@@ -24,11 +27,15 @@ export type PickRankLaunchVideoProps = {
       featureCards: string[];
     };
     selection: {
+      headlineLines: [string, string];
+      poolLabel: string;
+      boardLabel: string;
       statCategory: string;
       allPlayers: string[];
       selectedPlayers: string[];
     };
     ranking: {
+      supportingLine: string;
       rankedPlayers: string[];
       draggedPlayer: string;
       draggedFrom: number;
@@ -37,6 +44,7 @@ export type PickRankLaunchVideoProps = {
     scoring: {
       headline: string;
       supportingLine: string;
+      rulePills: [string, string];
       examples: Array<{
         player: string;
         pickedRank: number;
@@ -50,8 +58,11 @@ export type PickRankLaunchVideoProps = {
       lines: string[];
     };
     national: {
+      eyebrow: string;
       headline: string;
-      supportingLine: string;
+      supportingLine?: string;
+      boardTitle: string;
+      boardChip: string;
       leaderboardRows: Array<{name: string; region: string; valueLabel?: string}>;
       highlightedUser: string;
     };

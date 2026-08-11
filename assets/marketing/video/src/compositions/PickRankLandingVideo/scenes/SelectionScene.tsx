@@ -6,6 +6,9 @@ import { entrance, rise, scaleIn } from "../lib/motion";
 import { theme } from "../lib/theme";
 
 type SelectionSceneProps = {
+  headlineLines: [string, string];
+  poolLabel: string;
+  boardLabel: string;
   statCategory: string;
   allPlayers: string[];
   selectedPlayers: string[];
@@ -13,6 +16,9 @@ type SelectionSceneProps = {
 };
 
 export const SelectionScene = ({
+  headlineLines,
+  poolLabel,
+  boardLabel,
   statCategory,
   allPlayers,
   selectedPlayers,
@@ -22,6 +28,8 @@ export const SelectionScene = ({
   const intro = entrance(frame, 20);
   const listProgress = entrance(Math.max(frame - 10, 0), 24);
   const selectedCount = Math.min(selectedPlayers.length, Math.max(0, Math.floor((frame - 18) / 8)));
+  const visiblePoolPlayers = allPlayers.slice(0, 12);
+  const remainingPoolCount = Math.max(0, allPlayers.length - visiblePoolPlayers.length);
 
   return (
     <AbsoluteFill
@@ -55,8 +63,8 @@ export const SelectionScene = ({
             flexDirection: "column",
           }}
         >
-          <div style={{ color: theme.colors.text }}>Get 15 players.</div>
-          <div style={{ color: accentColor }}>Pick your 10.</div>
+          <div style={{ color: theme.colors.text }}>{headlineLines[0]}</div>
+          <div style={{ color: accentColor }}>{headlineLines[1]}</div>
         </div>
         <div
           style={{
@@ -97,8 +105,22 @@ export const SelectionScene = ({
                 background: "rgba(255,255,255,0.88)",
               }}
             >
-              <div style={{ color: "#334155", fontSize: 18, fontWeight: 900 }}>Slate</div>
-              {allPlayers.map((player) => {
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div style={{ color: "#334155", fontSize: 18, fontWeight: 900 }}>{poolLabel}</div>
+                <div
+                  style={{
+                    padding: "4px 8px",
+                    borderRadius: 999,
+                    background: "rgba(37,99,235,0.08)",
+                    color: accentColor,
+                    fontSize: 12,
+                    fontWeight: 900,
+                  }}
+                >
+                  {allPlayers.length} total
+                </div>
+              </div>
+              {visiblePoolPlayers.map((player) => {
                 const selected = selectedPlayers.includes(player) && selectedPlayers.indexOf(player) < selectedCount;
                 return (
                   <div
@@ -133,6 +155,22 @@ export const SelectionScene = ({
                   </div>
                 );
               })}
+              {remainingPoolCount > 0 ? (
+                <div
+                  style={{
+                    padding: "7px 10px",
+                    borderRadius: 16,
+                    background: "rgba(37,99,235,0.08)",
+                    border: "1px solid rgba(37,99,235,0.14)",
+                    color: accentColor,
+                    fontSize: 14,
+                    fontWeight: 900,
+                    textAlign: "center",
+                  }}
+                >
+                  +{remainingPoolCount} more in pool
+                </div>
+              ) : null}
             </div>
             <div
               style={{
@@ -144,7 +182,7 @@ export const SelectionScene = ({
                 background: "rgba(15,23,42,0.94)",
               }}
             >
-              <div style={{ color: "#fff", fontSize: 18, fontWeight: 900 }}>Your Board</div>
+              <div style={{ color: "#fff", fontSize: 18, fontWeight: 900 }}>{boardLabel}</div>
               {selectedPlayers.slice(0, Math.max(1, selectedCount)).map((player, index) => (
                 <div
                   key={player}
