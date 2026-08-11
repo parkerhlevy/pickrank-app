@@ -10,8 +10,8 @@ test('homepage loads as a landing page with waitlist forms and no bottom nav', a
   await expect(page.getByRole('link', { name: 'Join the waitlist' })).toHaveCount(0);
   await expect(page.locator('a[href="/auth"]')).toHaveCount(0);
   await expect(page.getByLabel('Email address')).toHaveCount(2);
-  await expect(page.getByText('Enter your email and we’ll send launch updates before account signup opens.')).toHaveCount(2);
-  await expect(page.getByLabel('I agree to receive PickRank launch and product update emails. I can unsubscribe anytime.')).toHaveCount(2);
+  await expect(page.getByText('Enter your email and we’ll send Early Access Beta updates.')).toHaveCount(2);
+  await expect(page.getByLabel('I agree to receive PickRank Early Access Beta and product update emails. I can unsubscribe anytime.')).toHaveCount(2);
   await expect(page.getByText('By joining, you agree to receive PickRank launch emails. Unsubscribe anytime.')).toHaveCount(0);
   await expect(page.getByText('Weekly Board Snapshot')).toBeVisible();
   await expect(page.getByText('Skill contest')).toBeVisible();
@@ -71,7 +71,7 @@ test('waitlist form requires consent without routing visitors to auth', async ({
 
   const emailInput = page.getByLabel('Email address').first();
   const consentCheckbox = page
-    .getByLabel('I agree to receive PickRank launch and product update emails. I can unsubscribe anytime.')
+    .getByLabel('I agree to receive PickRank Early Access Beta and product update emails. I can unsubscribe anytime.')
     .first();
 
   await emailInput.fill('fan@example.com');

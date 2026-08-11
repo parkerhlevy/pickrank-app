@@ -82,7 +82,7 @@ export function WaitlistForm({ sourcePath = '/', utm = {}, variant = 'section' }
         <input name="company" tabIndex={-1} autoComplete="off" />
       </label>
       <p id={statusId} className={variant === 'hero' ? 'text-sm leading-6 text-slate-200' : 'text-sm leading-6 text-muted-foreground'}>
-        Enter your email and we’ll send launch updates before account signup opens.
+        Enter your email and we’ll send Early Access Beta updates.
       </p>
       <label
         htmlFor={consentId}
@@ -101,7 +101,7 @@ export function WaitlistForm({ sourcePath = '/', utm = {}, variant = 'section' }
           aria-describedby={state.fieldErrors?.consent ? consentErrorId : undefined}
           className="mt-1 h-4 w-4 shrink-0 rounded border-slate-300 text-blue-600 focus-visible:ring-2 focus-visible:ring-blue-500/20"
         />
-        <span>I agree to receive PickRank launch and product update emails. I can unsubscribe anytime.</span>
+        <span>I agree to receive PickRank Early Access Beta and product update emails. I can unsubscribe anytime.</span>
       </label>
       {state.fieldErrors?.email ? (
         <p id={errorId} className="text-sm font-medium text-red-600" role="alert">
