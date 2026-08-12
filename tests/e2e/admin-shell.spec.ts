@@ -26,7 +26,7 @@ test('contest operators get a wide admin-only workspace with actionable navigati
     },
   ]);
 
-  await page.goto('/admin');
+  await page.goto('/admin/contests');
   await expect(page).toHaveURL('/admin/contests');
 
   const adminShell = page.locator('[data-admin-shell]');
@@ -44,6 +44,12 @@ test('contest operators get a wide admin-only workspace with actionable navigati
   await expect(page.getByRole('heading', { name: 'Test Entry Readiness' })).toBeVisible();
   await expect(page.getByText('Read-only operator visibility for free/test entries')).toBeVisible();
   await expect(page.getByText('Saved records').first()).toBeVisible();
+  const removeContestControl = page.getByTestId('remove-contest-week-1-qb-passing-yards');
+  await expect(removeContestControl.getByText('Remove contest', { exact: true })).toBeVisible();
+  await expect(page.getByText('RETIRE BETA')).toHaveCount(0);
+  await removeContestControl.locator('summary').click();
+  await expect(removeContestControl.getByText('Remove Week 1 QB Passing Yards?')).toBeVisible();
+  await expect(removeContestControl.getByRole('button', { name: 'Yes, remove contest' })).toBeVisible();
   await expect(page.getByRole('navigation').filter({ has: page.getByRole('link', { name: 'Home' }) })).toHaveCount(0);
 
   const desktopBox = await adminShell.boundingBox();

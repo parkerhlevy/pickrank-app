@@ -1,7 +1,11 @@
 import { readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { expect, test, type Browser } from '@playwright/test';
-import { defaultE2eViewerUserId, e2eAuthCookieName } from '@/lib/viewer-identity';
+import {
+  defaultE2eViewerUserId,
+  e2eAuthCookieName,
+  encodeE2eAuthCookie,
+} from '@/lib/viewer-identity';
 
 const appUrl = 'http://127.0.0.1:3000';
 const contestStorePath = path.join(process.cwd(), 'data', 'contests.json');
@@ -785,7 +789,7 @@ function buildAuthCookieValue({
   userId: string;
   roleSlugs?: string[];
 }) {
-  return JSON.stringify({
+  return encodeE2eAuthCookie({
     email,
     username,
     displayName,

@@ -8,7 +8,7 @@ import {
   lockFreeTestContestAction,
   publishContestAction,
   refreshReplayValidationContestSnapshotAction,
-  retireFakePublicContestForBetaCleanupAction,
+  removePublicContestAction,
   saveContestSlateAction,
   validateDraftContestAction,
 } from '@/app/admin/contests/actions';
@@ -47,6 +47,8 @@ export default async function AdminContestsPage({
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const status = resolvedSearchParams?.status;
   const message = resolvedSearchParams?.message;
+  const activeContestPreviews = contestsWithStatPreview.filter(({ contest }) => !isRemovedContest(contest));
+  const removedContestPreviews = contestsWithStatPreview.filter(({ contest }) => isRemovedContest(contest));
 
   return (
     <div className="space-y-6 pb-28">
@@ -185,13 +187,13 @@ export default async function AdminContestsPage({
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Current Contest Records</CardTitle>
+              <CardTitle>Active contests</CardTitle>
               <CardDescription>
-                Public pages now read from these records instead of the old demo constants.
+                Create, review, publish, and manage contests that still need operator attention.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              {contestsWithStatPreview.map(({ contest, finalStatPreview, provisionalPreview }) => (
+              {activeContestPreviews.map(({ contest, finalStatPreview, provisionalPreview }) => (
                 <div key={contest.id} className="rounded-lg border bg-white p-3">
                   <div className="flex items-start justify-between gap-3">
                     <div>
@@ -369,36 +371,40 @@ export default async function AdminContestsPage({
                       </Button>
                     </form>
                   ) : null}
-                  {canShowBetaCleanupRetireControl(contest) ? (
-                    <form
-                      action={retireFakePublicContestForBetaCleanupAction}
-                      className="mt-3 space-y-3 rounded-lg border border-red-200 bg-red-50 p-3"
+                  {canShowContestRemovalControl(contest) ? (
+                    <details
+                      className="mt-3 rounded-lg border border-red-200 bg-red-50"
+                      data-testid={`remove-contest-${contest.id}`}
                     >
-                      <input type="hidden" name="contestId" value={contest.id} />
-                      <div className="flex items-start gap-2">
-                        <ArchiveX className="mt-0.5 h-4 w-4 text-red-800" aria-hidden="true" />
+                      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-3 text-sm font-semibold text-red-950">
+                        <span className="inline-flex items-center gap-2">
+                          <ArchiveX className="h-4 w-4 text-red-800" aria-hidden="true" />
+                          Remove contest
+                        </span>
+                        <span className="text-xs font-medium text-red-800">Review first</span>
+                      </summary>
+                      <form action={removePublicContestAction} className="space-y-3 border-t border-red-200 p-3">
+                        <input type="hidden" name="contestId" value={contest.id} />
+                        <input type="hidden" name="confirmationIntent" value="remove_contest" />
                         <div>
-                          <p className="text-sm font-semibold text-red-950">Retire Public Beta Data Blocker</p>
+                          <p className="text-sm font-semibold text-red-950">Remove {contest.title}?</p>
                           <p className="mt-1 text-xs leading-5 text-red-900">
-                            Operator-only cleanup for a visible scheduled/open contest that does not match the free-beta
-                            public posture. This hides and cancels the contest, resets fake entry counts to zero, records
-                            an audit event, and refuses contests with saved entry rows.
+                            This hides the contest from public pages, changes its status to Canceled, and moves it out of
+                            Active contests. The contest record and audit history stay saved. Contests with saved entries
+                            cannot be removed.
                           </p>
                         </div>
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label htmlFor={`retireConfirmationText-${contest.id}`}>Type RETIRE BETA to confirm</Label>
-                        <TextInput
-                          id={`retireConfirmationText-${contest.id}`}
-                          name="confirmationText"
-                          placeholder="RETIRE BETA"
-                          required
-                        />
-                      </div>
-                      <Button type="submit" variant="secondary" className="w-full border-red-200 bg-white text-red-950 hover:bg-red-100">
-                        Retire Public Contest
-                      </Button>
-                    </form>
+                        <div className="flex justify-end">
+                          <Button
+                            type="submit"
+                            variant="secondary"
+                            className="border-red-300 bg-red-700 text-white hover:bg-red-800 sm:w-auto"
+                          >
+                            Yes, remove contest
+                          </Button>
+                        </div>
+                      </form>
+                    </details>
                   ) : null}
                   {canFinalizeContestStatus(contest.contestStatus) ? (
                     <form action={finalizeContestAction} className="mt-3 space-y-3 rounded-lg border bg-slate-50 p-3">
@@ -441,6 +447,25 @@ export default async function AdminContestsPage({
                   ) : null}
                 </div>
               ))}
+              {removedContestPreviews.length > 0 ? (
+                <details className="rounded-lg border bg-slate-50" data-testid="removed-contests">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-3 text-sm font-semibold">
+                    <span>Removed contests</span>
+                    <span className="numeric text-xs text-muted-foreground">{removedContestPreviews.length}</span>
+                  </summary>
+                  <div className="space-y-2 border-t px-3 py-3">
+                    {removedContestPreviews.map(({ contest }) => (
+                      <div key={contest.id} className="flex items-start justify-between gap-3 rounded-lg border bg-white px-3 py-3">
+                        <div>
+                          <p className="text-sm font-semibold text-foreground">{contest.title}</p>
+                          <p className="mt-1 text-xs text-muted-foreground">Hidden from public pages. Record preserved.</p>
+                        </div>
+                        <span className="status-pill shrink-0">Canceled</span>
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              ) : null}
             </CardContent>
           </Card>
 
@@ -480,11 +505,14 @@ function canShowFreeTestLockControl(contest: ContestSummary) {
   return contest.visibilityStatus === 'visible' && contest.contestStatus === 'open' && contest.entryFeeCents === 0;
 }
 
-function canShowBetaCleanupRetireControl(contest: ContestSummary) {
+function isRemovedContest(contest: ContestSummary) {
+  return contest.contestStatus === 'canceled' && contest.visibilityStatus === 'hidden';
+}
+
+function canShowContestRemovalControl(contest: ContestSummary) {
   return (
     contest.visibilityStatus === 'visible' &&
-    (contest.contestStatus === 'scheduled' || contest.contestStatus === 'open') &&
-    (contest.entryFeeCents !== 0 || contest.slateSize !== contestPlayerPoolSize || contest.paidEntryCount > 0)
+    (contest.contestStatus === 'scheduled' || contest.contestStatus === 'open')
   );
 }
 
@@ -495,7 +523,7 @@ function isAdminSuccessStatus(status: string | undefined) {
     status === 'validated' ||
     status === 'published' ||
     status === 'locked' ||
-    status === 'retired' ||
+    status === 'removed' ||
     status === 'fetched' ||
     status === 'finalized'
   );
