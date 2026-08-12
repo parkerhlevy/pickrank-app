@@ -63,16 +63,18 @@ The repo is past bare Phase 0 and currently includes:
 - Vitest wired
 - Basic route smoke tests
 
-Current branch reality on `main` as of 2026-08-08:
+Current repository and recovery reality as of 2026-08-11:
 
-- this machine is currently on `main`; live Git shows `main` is synced with `origin/main` at `ea81c10 Refresh handoff for synced board baseline`
-- the local worktree now contains the first approved 20-player pool implementation slice: specs, public copy, admin validation, local contest fixtures/seeds, scoring result schema, simulator defaults, QA runbook wording, and tests now treat the MVP QB contest as a 20-player pool where users still save one ranked 10-player board
-- the local worktree also contains the second operator data/provider-readiness slice: `npm run prepare:live-validation-contest:dry-run` now reads the local 20-player fixture and fetches SportsDataIO schedule/depth-chart/team data without writing Supabase; `docs/provider-readiness-20-player-pool-2026-08-05.md` records the selected five added QB rows and the provider-derived replacements
-- a read-only SportsDataIO dry-run on 2026-08-05 succeeded outside the sandbox and prepared `20` hidden validation rows; for the five added local teams it returned Baker Mayfield `19790` / ScoreID `19459`, Trevor Lawrence `22490` / `19463`, Jacoby Brissett replacing Kyler Murray for ARI `18018` / `19466`, Sam Darnold `19812` / `19457`, and Jaxson Dart replacing Russell Wilson for NYG `26082` / `19455`
-- no live Supabase rows were mutated in the provider-readiness slice; `npm run validate:live-provisional` was attempted and stopped before any provider fetch or snapshot write because this local shell is missing `SUPABASE_SERVICE_ROLE_KEY`
-- repo verification for the local 20-player pool slice passes `npm run typecheck`, `npm run test` (`36` files, `197` tests), `git diff --check`, focused `npx playwright test tests/e2e/homepage.spec.ts tests/e2e/lineup-builder.spec.ts --workers=1` (`14` passed after the expected sandbox `listen EPERM` rerun outside the sandbox), and focused `npx playwright test tests/e2e/final-results.spec.ts --workers=1` (`4` passed after the expected sandbox `listen EPERM` rerun outside the sandbox)
-- the latest pushed product baseline includes one presentation-only player-pool/board terminology slice, one gameplay-page usability cleanup across public routes and entry surfaces, the follow-on mobile Build Your Board parity cleanup, and the synced docs baseline; the 20-player pool slice is local until Parker approves staging/commit/push
-- the current live worktree is now a mixed local lane, not only parked marketing dirt: in addition to the parked Remotion/video files and generated `next-env.d.ts`, the tracked changes span public copy, admin screens, contest data, seeds, migration/setup docs, provider-prep helpers, specs, and tests, with new local files `docs/provider-readiness-20-player-pool-2026-08-05.md` and `lib/contest-rules.ts`; keep that lane preserved and do not treat `main` as a no-op hygiene baseline
+- `origin/main` is at `055dc79 Refresh admin removal handoff`; the clean local `main` worktree can fast-forward to that commit
+- the Remotion update commit `3ffa9e6` is already merged through `97e8a48`; no active Remotion files were part of the mixed recovery set
+- local-only commit `e210b56 Preserve mixed work before branch recovery` preserves the exact 18-file mixed state on `codex/recovery-mixed-work-2026-08-11`; never push or merge that safety branch
+- `codex/repo-lane-reconciliation` contains only repo authorization guidance and this factual recovery map
+- `codex/provider-mysportsfeeds-read-only` contains the read-only MySportsFeeds evaluation seam and does not write Supabase rows or change official typed-`FINAL` finalization
+- `codex/provider-sportsdataio-parked-draft` preserves the preseason season-type and provider-prep draft locally; SportsDataIO is not the approved near-term provider and this branch must not be pushed, deployed, or used for provider or Supabase writes
+- `codex/legal-comment-synthesis` contains only the consultant-comment synthesis artifact; it is analysis and not approved legal copy
+- `codex/beta-public-ui-cleanup` contains the public Early Access Beta presentation cleanup and preserves the paid-preview guard already on `main`
+- `codex/beta-age-gate-18` remains a separate pushed branch with one unique commit and is unchanged by this recovery
+- all pre-existing stashes and worktrees remain preserved; no branch, stash, or worktree was deleted during recovery
 - every remaining local `codex/*` branch still has unique commits relative to `origin/main`, so none qualify for low-risk deletion in this pass: `codex/waitlist-deliverability-todo` `30/4`, `codex/waitlist-reconciliation` `34/2`, `codex/waitlist-resend-diagnostics` `33/1`, `codex/waitlist-resend-properties-hotfix` `32/1`, and `codex/waitlist-workflow` `43/1` left/right counts
 - the broken `/private/tmp/pickrank-waitlist` worktree metadata was pruned on 2026-08-08; this machine now shows only the main worktree, while branch `codex/waitlist-workflow` remains preserved as its own unique-commit lane
 - `git remote prune origin --dry-run` could not be re-verified on 2026-08-08 because GitHub DNS failed with `Could not resolve host: github.com`; leave remote-tracking cleanup deferred until network access is available again
@@ -83,7 +85,7 @@ Current branch reality on `main` as of 2026-08-08:
 - the 2026-08-10 contest-data cleanup code slice adds an operator-only `/admin/contests` retire control for visible scheduled/open public contests that do not match the free-beta posture; it requires `RETIRE BETA`, checks for saved `entries` rows with the service-role client, refuses hidden/internal validation contests, hides and cancels the contest, resets fake entry counters to `0`, and records a `free_beta_public_contest_retirement` state event; `db/seed/contest_repository_baseline.sql` now seeds public Week 1 at `$0.00` with `0` paid entries so future seed runs do not recreate the old paid-looking row
 - the 2026-08-11 admin retirement hotfix awaits the asynchronous service-role Supabase client before checking saved `entries`; this fixes the production `b.from is not a function` failure without changing the retirement guardrails or contest data
 - the 2026-08-11 contest removal usability follow-up is deployed from commit `51a8648` through production deployment `dpl_Fs1ooUvvw75auheC1BuY9Z9PqiEL`: the admin now uses a collapsed `Remove contest` review step and a `Yes, remove contest` button instead of the typed `RETIRE BETA` phrase; saved entries still block removal, removed contests retain their records, and no production contest data changed during verification
-- focused browser verification passed `tests/e2e/admin-shell.spec.ts` (`2` tests) with signed-out protection, operator access, desktop and mobile layout, the new removal confirmation, and the absence of `RETIRE BETA`; commit `51a8648` is pushed on `origin/codex/admin-contest-removal-ux` but still needs integration into `main` so a later main deployment cannot regress the production change
+- focused browser verification passed `tests/e2e/admin-shell.spec.ts` (`2` tests) with signed-out protection, operator access, desktop and mobile layout, the new removal confirmation, and the absence of `RETIRE BETA`; the equivalent admin removal patch is integrated into `origin/main` through `2933112`, followed by handoff commit `055dc79`
 - no production contest data was changed in the 2026-08-10 cleanup code slice because live mutation still requires Parker's explicit approval of the intended admin action or SQL path
 - open follow-up: after fake active production contests are removed, hidden, or reconciled, rerun the eligible DOB smoke test through free-beta `Entry Review`; do not close the production contest-data cleanup slice until that retest either passes or is recorded with a fresh blocker
 - repo verification for the Early Access Beta pivot passed `npm run typecheck`, `npm run test` (`36` files, `196` tests), focused `npx playwright test tests/e2e/homepage.spec.ts tests/e2e/lineup-builder.spec.ts --workers=1` (`14` passed), focused `npx playwright test tests/e2e/final-results.spec.ts --workers=1` (`4` passed), and `git diff --check`
@@ -405,41 +407,27 @@ Deferred Phase 2 items:
 Current beta-launch checklist:
 
 ```text
-Legal beta publishing readiness
+Review recovered local branches before publication
 ```
 
-Use the beta posture as the launch source of truth: free-to-play contests, Beta Pass, no cash value, no payouts, no cash prizes, and paid contests deferred behind legal/provider/payment/withdrawal/compliance gates. The repo and Vercel production deployment now carry that posture. The immediate website work is legal-copy readiness, visible legal-route linking, waitlist/email consent language, and age-posture alignment. The existing preseason free/test runbook and provider/data path still matter, but they are separate from the legal beta publishing lane.
+Use the beta posture as the launch source of truth: free-to-play contests, Beta Pass, no cash value, no payouts, no cash prizes, and paid contests deferred behind legal, provider, payment, withdrawal, and compliance gates. The August 11 recovery preserved the mixed work and split it into local branches. Review one branch at a time. Do not push the safety branch or the parked SportsDataIO draft.
 
 Next recommended slice:
 
 ```text
-Continue PickRank using the repo as source of truth. Work on legal beta publishing readiness only. Start from `docs/agent-handoff.md`, `spec/product_spec.md`, `spec/features/compliance_eligibility_responsible_play.md`, `spec/features/payment_wallet_ux.md`, the current `app/legal/*` routes, waitlist copy, and the August 6 Ross call action list. Keep Phase 1 strictly free-to-play Early Access Beta: Beta Pass, no cash value, no payouts, no cash prizes, and no paid-entry behavior. Preserve Parker's current `13+` Early Access Beta posture and the first-party DOB collection / under-13 blocking path. Finish legal-route discovery links and broadcast-email compliance gaps, especially the live unsubscribe/preference URL. Replace placeholder legal-page copy only after Parker approves the corrected core beta docs. Keep provider/data, Remotion/video, scoring, auth, payment, wallet, KYC, geolocation, and public paid eligibility changes out of this lane.
+Continue PickRank using the repo as source of truth. Review the August 11 recovered local branches one at a time. Start with `codex/repo-lane-reconciliation`, then `codex/beta-public-ui-cleanup`, `codex/provider-mysportsfeeds-read-only`, and `codex/legal-comment-synthesis`. Keep `codex/recovery-mixed-work-2026-08-11` as a local safety snapshot. Keep `codex/provider-sportsdataio-parked-draft` local and parked. Do not push, merge, deploy, call a sports-data provider, or write production data until Parker approves that exact action for the selected branch.
 ```
 
 Definition of done:
 
-- Start from `docs/agent-handoff.md`, `spec/product_spec.md`, `spec/features/compliance_eligibility_responsible_play.md`, `spec/features/payment_wallet_ux.md`, `app/legal/*`, waitlist copy, and email copy
-- Preserve the verified production eligibility foundation, paid-entry block, beta free-entry boundary, 20-player pool, and ranked 10-player board rule
-- Confirm public copy does not imply paid launch, cash prizes, payouts, deposits, withdrawals, cash balance movement, or legal eligibility approval
-- Confirm Terms, Privacy Policy, Beta Contest Rules, and Responsible Play are discoverable from the relevant public and account surfaces
-- Confirm waitlist and email copy include consent and unsubscribe language before broader outreach
-- Record the beta age posture and do not support under-13 beta use
-- Keep `next-env.d.ts` out
-- Confirm any issue found is logged as a separate narrow follow-up before code changes begin
-- Confirm payment providers, withdrawals, payouts, cash-balance and wallet-ledger movement, KYC vendor integration, geolocation, and public paid entry remain out of scope
-- Update this handoff note again if repo reality or the next recommended move changes
-
-Queued separate provider/data slice:
-
-```text
-Continue PickRank using the repo as source of truth. Start from the current mixed local 20-player/provider-ready lane on `main` and keep that lane narrow. Use `docs/provider-readiness-20-player-pool-2026-08-05.md` as the data review artifact. Decide whether ARI/NYG should follow SportsDataIO current QB1 replacements (`Jacoby Brissett`, `Jaxson Dart`) or keep the local placeholder names pending separate confirmation. After explicit approval, load `SUPABASE_SERVICE_ROLE_KEY`, run `npm run prepare:live-validation-contest`, then run `npm run validate:live-provisional`. Do not change scoring rules, payments, wallet, eligibility, auth gates, routes, legal/compliance logic, or official finalization. Keep the parked Remotion/video/generated lane separate from the provider/data approval lane.
-```
-
-Queued separate paid-preview UI slice:
-
-```text
-Continue PickRank using the repo as source of truth. Work only on future paid-mode UI in the paid-preview lane. Start from branch `codex/paid-mode-preview-setup`, `docs/agent-handoff.md`, `docs/deployment.md`, `spec/product_spec.md`, `spec/features/frontend_navigation.md`, `spec/features/payment_wallet_ux.md`, `spec/features/compliance_eligibility_responsible_play.md`, `lib/launch-mode.ts`, and the page/component files for the surfaces being changed. Use `PICKRANK_EXPERIENCE_MODE=paid_preview` only in local development or Vercel Preview. Keep Vercel Production forced to free-to-play Early Access Beta. Do not enable real-money entry, deposits, withdrawals, payouts, cash prizes, cash-balance movement, KYC, geolocation, wallet-ledger behavior, production Supabase writes, or paid eligibility approval. Make page-by-page UI changes behind the paid-preview mode, keep beta public UI safe, update focused tests, and verify both beta and paid-preview behavior before closing.
-```
+- Confirm each recovered branch starts from `origin/main` at `055dc79` and contains only its intended lane
+- Confirm the safety snapshot still contains all 18 original files and remains local only
+- Confirm every recovery worktree is clean after its local commit
+- Preserve the production free-beta boundary and the existing paid-preview guard
+- Keep the legal synthesis classified as analysis, not approved legal copy
+- Keep SportsDataIO parked with no provider calls, Supabase writes, push, merge, or deployment
+- Keep all existing stashes and unrelated branches unchanged
+- Update this handoff again when Parker approves a branch for publication or integration
 
 ## Starter Prompt For Future Chats
 

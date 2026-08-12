@@ -36,9 +36,22 @@ This is not a claim of formal ASD-STE100 compliance. It is the working communica
 - Focus on the next concrete milestone.
 - Keep changes small and reviewable.
 - Prefer cloud-app progress over local setup polish.
-- Do not implement real-money payments, withdrawals, scoring rules, wallet ledger rules, eligibility rules, or compliance-sensitive behavior without explicit human review.
+- Follow the authorization policy below for implementation and delivery actions.
 - Run the relevant checks after meaningful repo changes and report results plainly.
 - At the start of each new PickRank task or new chat, first provide Parker with the recommended kickoff prompt for that next slice before doing the work.
+
+## Authorization Policy
+
+For PickRank, this section controls file edits, commits, pushes, merges, publishing, and deployments. It replaces inherited or vault-level blanket approval rules when they conflict with this section.
+
+- A request to diagnose, review, or report is read-only unless Parker also asks for a change.
+- A request to fix, implement, build, or change authorizes scoped file edits and proportionate verification.
+- A request to commit, push, merge, publish, or deploy authorizes that named delivery action. A request to ship authorizes the normal scoped delivery sequence through the established PickRank path.
+- When Parker reports a production bug and asks Codex to "fix it for me," Codex may inspect, edit, test, isolate the change from unrelated work, commit, push, deploy through the established PickRank path, and run non-mutating production verification.
+- Preserve unrelated worktree changes. When the worktree is mixed, isolate a narrow hotfix.
+- Request explicit approval before destructive production-data changes, contest retirement, deleting real entries, database migrations with material risk, sending external messages, spending money, merging unrelated work, or changing legal, payment, wallet, scoring, eligibility, payout, or compliance-sensitive behavior.
+- Verification does not authorize form submission or any other action that mutates production data unless Parker explicitly requests that production mutation.
+- Report the commit, push, deployment, verification results, production-data impact, remaining user action, and any blocked delivery step.
 
 ## Starter Prompt For Future Chats
 
