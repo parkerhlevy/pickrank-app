@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   defaultE2eViewerUserId,
+  encodeE2eAuthCookie,
   getE2eAuthFixture,
   getE2eViewerIdentity,
 } from '../../lib/viewer-identity';
@@ -79,6 +80,24 @@ describe('viewer identity', () => {
       termsAcceptedAt: '',
       privacyPolicyAcceptedAt: '',
       eligibilityStatus: 'unknown',
+    });
+  });
+
+  it('reads a browser-safe encoded e2e auth cookie', () => {
+    process.env.PICKRANK_E2E_AUTH = '1';
+
+    expect(
+      getE2eAuthFixture(
+        encodeE2eAuthCookie({
+          email: 'operator@pickrank.test',
+          username: 'operator_user',
+          roleSlugs: ['contest_operator'],
+        }),
+      ),
+    ).toMatchObject({
+      email: 'operator@pickrank.test',
+      username: 'operator_user',
+      roleSlugs: ['contest_operator'],
     });
   });
 

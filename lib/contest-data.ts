@@ -215,7 +215,7 @@ type FreeTestContestLockOptions = TimestampOptions & {
   lockedByAdminId?: string | null;
 };
 
-type BetaContestCleanupOptions = TimestampOptions & {
+type ContestRemovalOptions = TimestampOptions & {
   persistedEntryCount?: number;
 };
 
@@ -751,14 +751,14 @@ export async function lockFreeTestContestForProof(
   };
 }
 
-export async function retireFakePublicContestForBetaCleanup(
+export async function removePublicContest(
   contestId: string,
-  retiredByAdminId: string | null,
+  removedByAdminId: string | null,
   {
     now = new Date().toISOString(),
     persistedEntryCount,
     ...options
-  }: BetaContestCleanupOptions = {},
+  }: ContestRemovalOptions = {},
 ) {
   if (shouldUseFileStore(options)) {
     const store = await readContestStoreFromFile(options.dataFilePath);
@@ -770,7 +770,7 @@ export async function retireFakePublicContestForBetaCleanup(
 
     const currentContest = store.contests[contestIndex];
     const actualEntryCount = persistedEntryCount ?? 0;
-    assertCanRetireFakePublicContestForBetaCleanup(currentContest, actualEntryCount);
+    assertCanRemovePublicContest(currentContest, actualEntryCount);
 
     const nextContest = contestRecordSchema.parse({
       ...currentContest,
@@ -782,10 +782,10 @@ export async function retireFakePublicContestForBetaCleanup(
       paidEntryCount: 0,
       updatedAt: now,
     });
-    const event = createBetaCleanupRetirementEvent({
+    const event = createContestRemovalEvent({
       contest: currentContest,
       actualEntryCount,
-      retiredByAdminId,
+      removedByAdminId,
       now,
     });
 
@@ -807,7 +807,7 @@ export async function retireFakePublicContestForBetaCleanup(
   const supabase: any = await createSupabaseClient();
   const currentContest = await getDatabaseContestBySlug(contestId);
   const actualEntryCount = persistedEntryCount ?? (await countPersistedEntriesForContestRow(currentContest.row.id));
-  assertCanRetireFakePublicContestForBetaCleanup(currentContest.record, actualEntryCount);
+  assertCanRemovePublicContest(currentContest.record, actualEntryCount);
 
   const { error: updateContestError } = await supabase
     .from('contests')
@@ -823,13 +823,13 @@ export async function retireFakePublicContestForBetaCleanup(
     .eq('id', currentContest.row.id);
 
   if (updateContestError) {
-    throw new Error(`Unable to retire fake public contest: ${updateContestError.message}`);
+    throw new Error(`Unable to remove public contest: ${updateContestError.message}`);
   }
 
-  const event = createBetaCleanupRetirementEvent({
+  const event = createContestRemovalEvent({
     contest: currentContest.record,
     actualEntryCount,
-    retiredByAdminId,
+    removedByAdminId,
     now,
   });
 
@@ -1415,25 +1415,21 @@ function assertCanLockFreeTestContest(contest: ContestRecord) {
   }
 }
 
-function assertCanRetireFakePublicContestForBetaCleanup(contest: ContestRecord, actualEntryCount: number) {
+function assertCanRemovePublicContest(contest: ContestRecord, actualEntryCount: number) {
   if (contest.visibilityStatus !== 'visible') {
-    throw new Error('Hidden contests cannot use the public contest beta cleanup control.');
+    throw new Error('Hidden contests cannot be removed from Active contests.');
   }
 
   if (contest.id.includes('validation')) {
-    throw new Error('Internal validation contests cannot use the public contest beta cleanup control.');
+    throw new Error('Internal validation contests cannot be removed with this control.');
   }
 
   if (contest.status !== 'scheduled' && contest.status !== 'open') {
-    throw new Error('Only scheduled or open public contests can use the beta cleanup retire control.');
+    throw new Error('Only scheduled or open public contests can be removed with this control.');
   }
 
   if (actualEntryCount > 0) {
-    throw new Error('This contest has saved entries. Review entries before retiring it.');
-  }
-
-  if (contest.entryFeeCents === 0 && contest.slateSize === contestPlayerPoolSize && contest.paidEntryCount === 0) {
-    throw new Error('This contest already matches the free-beta public contest posture.');
+    throw new Error('This contest has saved entries. Review entries before removing it.');
   }
 }
 
@@ -1445,21 +1441,21 @@ async function countPersistedEntriesForContestRow(contestRowId: string) {
     .eq('contest_id', contestRowId);
 
   if (error) {
-    throw new Error(`Unable to verify saved entries before beta cleanup: ${error.message}`);
+    throw new Error(`Unable to verify saved entries before contest removal: ${error.message}`);
   }
 
   return count ?? 0;
 }
 
-function createBetaCleanupRetirementEvent({
+function createContestRemovalEvent({
   contest,
   actualEntryCount,
-  retiredByAdminId,
+  removedByAdminId,
   now,
 }: {
   contest: ContestRecord;
   actualEntryCount: number;
-  retiredByAdminId: string | null;
+  removedByAdminId: string | null;
   now: string;
 }) {
   return createContestStateEvent({
@@ -1469,15 +1465,14 @@ function createBetaCleanupRetirementEvent({
     toStatus: 'canceled',
     trigger: 'admin',
     metadata: {
-      cleanup_type: 'free_beta_public_contest_retirement',
-      no_money: 'true',
+      cleanup_type: 'admin_contest_removal',
       previous_visibility_status: contest.visibilityStatus,
       previous_entry_fee_cents: String(contest.entryFeeCents),
       previous_slate_size: String(contest.slateSize),
       previous_entry_count: String(contest.entryCount),
       previous_paid_entry_count: String(contest.paidEntryCount),
       persisted_entry_count: String(actualEntryCount),
-      retired_by_admin_id: retiredByAdminId ?? '',
+      removed_by_admin_id: removedByAdminId ?? '',
     },
   });
 }

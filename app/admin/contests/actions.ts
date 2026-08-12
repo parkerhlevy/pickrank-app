@@ -9,7 +9,7 @@ import {
   getContestById,
   lockFreeTestContestForProof,
   publishContest,
-  retireFakePublicContestForBetaCleanup,
+  removePublicContest,
   saveContestSlate,
   validateDraftContest,
   type ContestSlatePlayer,
@@ -55,9 +55,9 @@ const lockFreeTestContestSchema = z.object({
   confirmationText: z.string().trim().min(1, 'Type LOCK TEST to confirm this proof lock.'),
 });
 
-const retireFakePublicContestSchema = z.object({
+const removePublicContestSchema = z.object({
   contestId: z.string().trim().min(1, 'Contest not found.'),
-  confirmationText: z.string().trim().min(1, 'Type RETIRE BETA to confirm this public contest cleanup.'),
+  confirmationIntent: z.literal('remove_contest'),
 });
 
 function buildAdminContestsRedirect(
@@ -67,7 +67,7 @@ function buildAdminContestsRedirect(
     | 'validated'
     | 'published'
     | 'locked'
-    | 'retired'
+    | 'removed'
     | 'fetched'
     | 'finalized'
     | 'error',
@@ -252,23 +252,19 @@ export async function lockFreeTestContestAction(formData: FormData) {
   }
 }
 
-export async function retireFakePublicContestForBetaCleanupAction(formData: FormData) {
+export async function removePublicContestAction(formData: FormData) {
   const access = await requireContestOperator('/admin/contests');
-  const parsed = retireFakePublicContestSchema.safeParse({
+  const parsed = removePublicContestSchema.safeParse({
     contestId: String(formData.get('contestId') || ''),
-    confirmationText: String(formData.get('confirmationText') || ''),
+    confirmationIntent: String(formData.get('confirmationIntent') || ''),
   });
 
   if (!parsed.success) {
-    redirect(buildAdminContestsRedirect('error', parsed.error.issues[0]?.message || 'Unable to retire this public contest.'));
-  }
-
-  if (parsed.data.confirmationText !== 'RETIRE BETA') {
-    redirect(buildAdminContestsRedirect('error', 'Type RETIRE BETA to confirm this public contest cleanup.'));
+    redirect(buildAdminContestsRedirect('error', 'Confirm the contest removal before continuing.'));
   }
 
   try {
-    const result = await retireFakePublicContestForBetaCleanup(
+    const result = await removePublicContest(
       parsed.data.contestId,
       access.user?.id ?? null,
     );
@@ -277,8 +273,8 @@ export async function retireFakePublicContestForBetaCleanupAction(formData: Form
 
     redirect(
       buildAdminContestsRedirect(
-        'retired',
-        `${result.contest.title} is now hidden and canceled for free-beta public contest cleanup.`,
+        'removed',
+        `${result.contest.title} was removed from active contests. Its record and audit history are preserved.`,
       ),
     );
   } catch (error) {
@@ -286,7 +282,7 @@ export async function retireFakePublicContestForBetaCleanupAction(formData: Form
       throw error;
     }
 
-    const message = error instanceof Error ? error.message : 'Unable to retire this public contest right now.';
+    const message = error instanceof Error ? error.message : 'Unable to remove this public contest right now.';
 
     redirect(buildAdminContestsRedirect('error', message));
   }

@@ -1,7 +1,11 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
-import { defaultE2eViewerUserId, e2eAuthCookieName } from '@/lib/viewer-identity';
+import {
+  defaultE2eViewerUserId,
+  e2eAuthCookieName,
+  encodeE2eAuthCookie,
+} from '@/lib/viewer-identity';
 import { test as signedInTest } from './fixtures/protected-entry-auth';
 
 const appUrl = 'http://127.0.0.1:3000';
@@ -22,7 +26,7 @@ const demoSavedLineup = [
 
 test.describe.configure({ mode: 'serial' });
 
-const internalTestEligibilityCookie = JSON.stringify({
+const internalTestEligibilityCookie = encodeE2eAuthCookie({
   email: 'playwright@pickrank.test',
   username: 'playwright_user',
   displayName: 'playwright_user',
@@ -36,7 +40,7 @@ const internalTestEligibilityCookie = JSON.stringify({
   eligibilityStatus: 'eligible_for_internal_testing',
 });
 
-const secondInternalTestEligibilityCookie = JSON.stringify({
+const secondInternalTestEligibilityCookie = encodeE2eAuthCookie({
   email: 'second-playwright@pickrank.test',
   username: 'second_playwright_user',
   displayName: 'second_playwright_user',
@@ -147,7 +151,7 @@ test('signed-in users with pending paid eligibility can review free beta entry',
   await page.context().addCookies([
     {
       name: e2eAuthCookieName,
-      value: JSON.stringify({
+      value: encodeE2eAuthCookie({
         email: 'pending-eligibility@pickrank.test',
         username: 'pending_user',
         displayName: 'pending_user',

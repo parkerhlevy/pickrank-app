@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import { cookies } from 'next/headers';
 import { getProfileIdentity, type EligibilityStatus, type ProfileIdentity } from '@/lib/auth-profile';
 import { hasBrowserSupabaseConfig } from '@/lib/env';
@@ -33,6 +34,10 @@ type E2eAuthCookiePayload = {
   eligibilityStatus?: EligibilityStatus;
 };
 
+export function encodeE2eAuthCookie(payload: E2eAuthCookiePayload) {
+  return `v1.${Buffer.from(JSON.stringify(payload), 'utf8').toString('base64url')}`;
+}
+
 export const defaultE2eViewerUserId = '00000000-0000-4000-8000-000000000001';
 
 export type E2eAuthFixture = {
@@ -56,7 +61,10 @@ export function getE2eAuthFixture(cookieValue: string | undefined): E2eAuthFixtu
   }
 
   try {
-    const parsed = JSON.parse(cookieValue) as E2eAuthCookiePayload;
+    const serializedPayload = cookieValue.startsWith('v1.')
+      ? Buffer.from(cookieValue.slice(3), 'base64url').toString('utf8')
+      : cookieValue;
+    const parsed = JSON.parse(serializedPayload) as E2eAuthCookiePayload;
 
     if (typeof parsed.email !== 'string' || typeof parsed.username !== 'string') {
       return null;

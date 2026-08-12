@@ -1,7 +1,11 @@
 import { test as base } from '@playwright/test';
-import { defaultE2eViewerUserId, e2eAuthCookieName } from '@/lib/viewer-identity';
+import {
+  defaultE2eViewerUserId,
+  e2eAuthCookieName,
+  encodeE2eAuthCookie,
+} from '@/lib/viewer-identity';
 
-const readyAccountCookieValue = JSON.stringify({
+const readyAccountCookieValue = encodeE2eAuthCookie({
   email: 'playwright@pickrank.test',
   username: 'playwright_user',
   displayName: 'playwright_user',
