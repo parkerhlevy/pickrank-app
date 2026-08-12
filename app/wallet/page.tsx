@@ -6,20 +6,23 @@ import { Notice } from '@/components/ui/notice';
 import { launchMode } from '@/lib/launch-mode';
 
 export default function WalletPage() {
+  const isPaidPreview = launchMode.paidPreviewVisible;
+
   return (
     <div className="space-y-6">
       <section className="screen-header space-y-2">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="eyebrow">Wallet</p>
-            <h1 className="text-3xl font-black leading-tight">PickRank Wallet</h1>
+            <p className="eyebrow">{isPaidPreview ? 'Wallet' : 'Beta Pass'}</p>
+            <h1 className="text-3xl font-black leading-tight">{isPaidPreview ? 'PickRank Wallet' : 'Beta Pass Status'}</h1>
           </div>
           <span className="status-pill shrink-0">{launchMode.displayName}</span>
         </div>
         <div className="flex flex-col gap-3">
           <p className="text-muted-foreground">
-            Beta Pass status for free beta contests. Paid balances, deposits, withdrawals, payouts, and wallet actions
-            remain disabled until provider and compliance review is complete.
+            {isPaidPreview
+              ? 'Beta Pass status for free beta contests. Paid balances, deposits, withdrawals, payouts, and wallet actions remain disabled until provider and compliance review is complete.'
+              : 'Beta Pass gives you free entry access during Early Access Beta. It has no cash value, cannot be withdrawn, and does not create payouts or cash prizes.'}
           </p>
           <Link href="/how-it-works" className="inline-link shrink-0">
             How It Works
@@ -31,23 +34,25 @@ export default function WalletPage() {
         <CardHeader className="section-card-header">
           <div className="flex items-center gap-2">
             <WalletCards className="h-5 w-5 text-blue-300" aria-hidden="true" />
-            <CardTitle>Balance Overview</CardTitle>
+            <CardTitle>{isPaidPreview ? 'Balance Overview' : 'Beta Pass Overview'}</CardTitle>
           </div>
           <CardDescription className="text-slate-300">
             Early Access Beta uses a Beta Pass instead of cash-like credits.
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-3 pt-5 sm:grid-cols-2">
+        <CardContent className={isPaidPreview ? 'grid gap-3 pt-5 sm:grid-cols-2' : 'grid gap-3 pt-5'}>
           <div className="metric-tile">
             <p className="text-sm text-muted-foreground">{launchMode.betaPassLabel}</p>
             <p className="numeric text-2xl font-bold">Active</p>
             <p className="mt-1 text-xs text-muted-foreground">Covers free beta entries. No cash value.</p>
           </div>
-          <div className="metric-tile">
-            <p className="text-sm text-muted-foreground">Future Paid Balances</p>
-            <p className="numeric text-2xl font-bold">$0.00</p>
-            <p className="mt-1 text-xs text-muted-foreground">Not live during beta.</p>
-          </div>
+          {isPaidPreview ? (
+            <div className="metric-tile">
+              <p className="text-sm text-muted-foreground">Future Paid Balances</p>
+              <p className="numeric text-2xl font-bold">$0.00</p>
+              <p className="mt-1 text-xs text-muted-foreground">Not live during beta.</p>
+            </div>
+          ) : null}
         </CardContent>
       </Card>
 
@@ -58,7 +63,9 @@ export default function WalletPage() {
           <CardTitle>Beta Entry Access</CardTitle>
           </div>
           <CardDescription>
-            Beta entries are free to play. Future paid contest entries will use a separate provider-backed funding path.
+            {isPaidPreview
+              ? 'Beta entries are free to play. Future paid contest entries will use a separate provider-backed funding path.'
+              : 'Beta entries are free to play with Beta Pass access.'}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
@@ -70,10 +77,12 @@ export default function WalletPage() {
             <span>No payouts</span>
             <span className="text-muted-foreground">No cash prizes</span>
           </div>
-          <div className="detail-row">
-            <span>Amount Due Today</span>
-            <span className="text-muted-foreground">$0.00 during beta</span>
-          </div>
+          {isPaidPreview ? (
+            <div className="detail-row">
+              <span>Amount Due Today</span>
+              <span className="text-muted-foreground">$0.00 during beta</span>
+            </div>
+          ) : null}
         </CardContent>
       </Card>
 
@@ -88,15 +97,19 @@ export default function WalletPage() {
           <Notice
             variant="muted"
             icon={Info}
-            title="Wallet actions are not live yet"
-            description="Payment providers, external deposits, cash withdrawals, payouts, and wallet ledger history are not live in the current product."
+            title={isPaidPreview ? 'Wallet actions are not live yet' : 'Future wallet is parked'}
+            description={
+              isPaidPreview
+                ? 'Payment providers, external deposits, cash withdrawals, payouts, and wallet ledger history are not live in the current product.'
+                : 'The public beta uses Beta Pass only. Payment providers, deposits, withdrawals, payouts, and wallet history are not active beta UI.'
+            }
           />
           <Notice
             variant="warning"
             icon={ShieldCheck}
-            title="Compliance and provider review still required"
-            description="Beta Pass cannot be withdrawn or redeemed for cash. Public real-money launch still requires legal, provider, and compliance review."
-            badge="Not live"
+            title="No cash value"
+            description="Beta Pass cannot be withdrawn or redeemed for cash. No payouts or cash prizes are available during beta."
+            badge="Beta"
           />
         </CardContent>
       </Card>
@@ -108,15 +121,19 @@ export default function WalletPage() {
             <CardTitle>Account Controls</CardTitle>
           </div>
           <CardDescription>
-            Profile remains the main account surface. Wallet stays available here as the secondary balance route.
+            Profile remains the main account surface during Early Access Beta.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <Notice
             variant="muted"
             icon={WalletCards}
-            title="Wallet belongs to your PickRank account"
-            description="Use Profile for account identity and beta readiness. Use Wallet for Beta Pass status while paid actions are not live."
+            title={isPaidPreview ? 'Wallet belongs to your PickRank account' : 'Beta Pass belongs to your PickRank account'}
+            description={
+              isPaidPreview
+                ? 'Use Profile for account identity and beta readiness. Use Wallet for Beta Pass status while paid actions are not live.'
+                : 'Use Profile for account identity and beta readiness. Use this page only to confirm Beta Pass status.'
+            }
           />
           <div className="grid gap-3 sm:grid-cols-2">
             <Button asChild variant="secondary" className="w-full">
@@ -125,8 +142,8 @@ export default function WalletPage() {
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </Button>
-            <Button className="w-full" disabled>
-              Wallet Actions Not Available
+            <Button asChild className="w-full">
+              <Link href="/contests">View Contests</Link>
             </Button>
           </div>
         </CardContent>

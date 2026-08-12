@@ -180,8 +180,15 @@ test('signed-in users with pending paid eligibility can review free beta entry',
 
   await page.goto('/contests/week-1-qb-passing-yards/payment');
 
+  await expect(page.getByRole('heading', { name: 'Beta Pass Summary' })).toBeVisible();
+  await expect(page.getByText('Entry access')).toBeVisible();
+  await expect(page.getByText('Payment required', { exact: true })).toBeVisible();
+  await expect(page.getByText('Entry Cost', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('Cash Value', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('Amount Due Today', { exact: true })).toHaveCount(0);
   await expect(page.getByText('Free beta entry', { exact: true })).toBeVisible();
   await expect(page.getByText('This contest is free to play during Early Access Beta.')).toBeVisible();
+  await expect(page.getByText('No payment required')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Confirm Entry' })).toBeEnabled();
 });
 
@@ -223,7 +230,7 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
     const confirmEntryButton = page.getByRole('button', { name: 'Confirm Entry' });
     await expect(confirmEntryButton).toBeVisible();
     await confirmEntryButton.click();
-    await expect(page).toHaveURL(/\/contests\/week-1-qb-passing-yards\/progress\?stage=entered$/);
+    await expect(page).toHaveURL(/\/contests\/week-1-qb-passing-yards\/success$/);
     await expect(page.getByText('Step 3 of 4')).toBeVisible();
     await expect(page.getByRole('link', { name: 'Continue to Build Your Board' })).toBeVisible();
 
@@ -262,7 +269,7 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
     await page.goto('/contests/week-1-qb-passing-yards/payment');
     await page.getByRole('button', { name: 'Confirm Entry' }).click();
 
-    await expect(page).toHaveURL(/\/contests\/week-1-qb-passing-yards\/progress\?stage=entered$/);
+    await expect(page).toHaveURL(/\/contests\/week-1-qb-passing-yards\/success$/);
     await page.getByRole('link', { name: 'Continue to Build Your Board' }).click();
     await expect(page).toHaveURL(/\/contests\/week-1-qb-passing-yards\/lineup$/);
     await expect(page.locator('h1').filter({ hasText: 'Build Your Board' })).toBeVisible();
@@ -288,7 +295,7 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
     expect(afterCounts.paidEntryCount).toBe(0);
 
     await page.goto('/contests/week-1-qb-passing-yards/payment');
-    await expect(page).toHaveURL(/\/contests\/week-1-qb-passing-yards\/lineup$/);
+    await expect(page).toHaveURL(/\/contests\/week-1-qb-passing-yards\/success$/);
     const reusedCounts = await readContestCounts('week-1-qb-passing-yards');
 
     expect(reusedCounts.entryCount).toBe(afterCounts.entryCount);

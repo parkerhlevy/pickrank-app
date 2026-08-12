@@ -11,7 +11,7 @@ import {
   getContestSelectablePlayers,
   isContestOpenForEntry,
 } from '@/lib/contest-data';
-import { getNoPayoutLabel, isBetaFreeEntryContest, launchMode } from '@/lib/launch-mode';
+import { isBetaFreeEntryContest, launchMode } from '@/lib/launch-mode';
 import { getPersistedContestEntry } from '@/lib/persisted-contest-entry';
 import { getViewerIdentity } from '@/lib/viewer-identity';
 
@@ -110,12 +110,12 @@ export default async function ContestDetailPage({
         <CardContent className="grid grid-cols-2 gap-2 pt-4 text-sm">
           <DetailStat icon={Users} label="Player Pool" value={formatPlayerPoolLabel(contest.slate)} />
           <DetailStat icon={Clock} label="Stat Category" value={contest.statCategory} />
-          <DetailStat icon={Ticket} label="Beta Pass" value={launchMode.betaEntryLabel} />
+          <DetailStat icon={Ticket} label={isBetaContest ? 'Beta Pass' : 'Entry Type'} value={launchMode.betaEntryLabel} />
           <DetailStat icon={Users} label="Entries" value={contest.entries} />
-          <DetailStat icon={Ticket} label="Entry Cost" value={isBetaContest ? '$0.00' : contest.entryFee} />
+          <DetailStat icon={Ticket} label={isBetaContest ? 'Beta Access' : 'Entry Cost'} value={isBetaContest ? 'No cash value' : contest.entryFee} />
           <DetailStat icon={Clock} label="Lock Time" value={contest.lockTime.replace('Locks ', '')} />
           <p className="col-span-2 border-t border-slate-200 pt-2 text-xs text-muted-foreground">
-            * {isBetaContest ? 'This beta contest uses total entries for operator proof and has no paid-entry minimum.' : contest.minimum}.
+            * {isBetaContest ? 'This beta contest has no cash prizes, no payouts, and no paid-entry minimum.' : contest.minimum}.
           </p>
         </CardContent>
       </Card>
@@ -175,19 +175,22 @@ export default async function ContestDetailPage({
 
       <Card className="section-card">
         <CardHeader>
-          <CardTitle>Beta Results</CardTitle>
+          <CardTitle>Beta Result Status</CardTitle>
           <CardDescription>
-            Early Access Beta contests show final rank, score, and standings after saved scoring is confirmed. No payouts
-            or cash prizes are available during beta.
+            Early Access Beta contests show final rank, score, and standings after saved scoring is confirmed.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-2">
-          {['1st', '2nd', '3rd'].map((place) => (
-            <div key={place} className="detail-row bg-white">
-              <span className="font-medium">{place}</span>
-              <span className="numeric font-semibold">{getNoPayoutLabel(contest.entryFeeCents)}</span>
-            </div>
-          ))}
+        <CardContent className="space-y-3 text-sm">
+          <div className="section-card-muted px-3 py-3">
+            <p className="font-semibold">Rank, score, and standings only</p>
+            <p className="mt-1 text-muted-foreground">
+              Beta standings do not create payouts, cash prizes, or withdrawable balances.
+            </p>
+          </div>
+          <div className="detail-row bg-white">
+            <span>{launchMode.betaPassLabel}</span>
+            <span className="font-medium text-foreground">No cash value</span>
+          </div>
         </CardContent>
       </Card>
 

@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
 
+const isPaidPreview = process.env.PICKRANK_EXPERIENCE_MODE === 'paid_preview';
+
 test('homepage loads as a landing page with waitlist forms and no bottom nav', async ({ page }) => {
   await page.goto('/');
 
@@ -46,14 +48,78 @@ test('public conversion routes explain the contest mechanics before entry', asyn
   await expect(page.getByText('What you do')).toBeVisible();
   await expect(page.getByText('How you score')).toBeVisible();
   await expect(page.getByText('When results count')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Beta Result Status' })).toBeVisible();
+  await expect(page.getByText('Beta contest - no payout')).toHaveCount(0);
+  await expect(page.getByText('operator proof')).toHaveCount(0);
 
   await page.goto('/how-it-works');
 
   await expect(page.getByRole('heading', { name: 'Skill-based ranking contests' })).toBeVisible();
+  await expect(page.getByText('Beta Pass entry access')).toBeVisible();
+  await expect(page.getByText('Beta Pass entry cost')).toHaveCount(0);
   const basics = page.getByLabel('PickRank basics');
   await expect(basics.getByText('Pick 10 from 20')).toBeVisible();
   await expect(basics.getByText('Lower score wins')).toBeVisible();
   await expect(page.getByRole('table')).toBeVisible();
+
+  await page.goto('/wallet');
+
+  await expect(page.getByRole('heading', { name: 'Beta Pass Status' })).toBeVisible();
+  await expect(page.getByText('Beta Pass gives you free entry access')).toBeVisible();
+  await expect(page.getByText('Future Paid Balances')).toHaveCount(0);
+  await expect(page.getByText('Amount Due Today')).toHaveCount(0);
+  await expect(page.getByText('Wallet Actions Not Available')).toHaveCount(0);
+});
+
+test('logged-out profile hides public paid-review and wallet clutter', async ({ page }) => {
+  await page.goto('/profile');
+
+  await expect(page.getByRole('heading', { name: 'Create Your PickRank Account' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Entry Readiness' })).toBeVisible();
+  await expect(page.getByText('Paid-entry status')).toHaveCount(0);
+  await expect(page.getByText('KYC placeholder')).toHaveCount(0);
+  await expect(page.getByText('Withdrawal verification')).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Account Wallet' })).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'View Wallet Details' })).toHaveCount(0);
+});
+
+test('mobile beta public cleanup pages stay readable without paid clutter', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+
+  await page.goto('/contests/week-1-qb-passing-yards');
+
+  await expect(page.getByRole('heading', { name: 'Beta Result Status' })).toBeVisible();
+  await expect(page.getByText('Beta standings do not create payouts')).toBeVisible();
+  await expect(page.getByText('Beta contest - no payout')).toHaveCount(0);
+
+  await page.goto('/wallet');
+
+  await expect(page.getByRole('heading', { name: 'Beta Pass Status' })).toBeVisible();
+  await expect(page.getByText('Future Paid Balances')).toHaveCount(0);
+  await expect(page.getByText('Amount Due Today')).toHaveCount(0);
+
+  await page.goto('/profile');
+
+  await expect(page.getByRole('heading', { name: 'Create Your PickRank Account' })).toBeVisible();
+  await expect(page.getByText('Paid-entry status')).toHaveCount(0);
+  await expect(page.getByText('KYC placeholder')).toHaveCount(0);
+  await expect(page.getByText('Withdrawal verification')).toHaveCount(0);
+});
+
+test('paid preview keeps future wallet surfaces available outside production', async ({ page }) => {
+  test.skip(!isPaidPreview, 'Paid-preview verification runs with PICKRANK_EXPERIENCE_MODE=paid_preview.');
+
+  await page.goto('/wallet');
+
+  await expect(page.getByRole('heading', { name: 'PickRank Wallet' })).toBeVisible();
+  await expect(page.getByText('Future Paid Balances')).toBeVisible();
+  await expect(page.getByText('Amount Due Today')).toBeVisible();
+  await expect(page.getByText('Wallet actions are not live yet')).toBeVisible();
+
+  await page.goto('/profile');
+
+  await expect(page.getByRole('heading', { name: 'Account Wallet' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'View Wallet Details' })).toBeVisible();
 });
 
 test('bottom nav still renders on core app routes', async ({ page }) => {
