@@ -6,6 +6,7 @@ import {
   getReturnStepCopy,
   getProfileIdentity,
   normalizeReturnPath,
+  under18AgeGateRestrictionReason,
   validateEligibilityAcknowledgements,
   validateDateOfBirthForBeta,
   validateJurisdiction,
@@ -93,16 +94,25 @@ describe('auth profile helpers', () => {
         jurisdiction: 'CA',
       }),
     ).toBe('Enter a valid date of birth.');
+    expect(
+      validateEligibilityAcknowledgements({
+        dateOfBirth: '2010-01-01',
+        termsAccepted: true,
+        privacyPolicyAccepted: true,
+        jurisdiction: 'CA',
+      }),
+    ).toBe('PickRank Early Access Beta is for users who are at least 18 years old.');
   });
 
-  it('validates the 13+ beta date-of-birth gate', () => {
-    const asOf = new Date('2026-08-08T00:00:00.000Z');
+  it('validates the 18+ beta date-of-birth gate', () => {
+    const asOf = new Date('2026-08-11T00:00:00.000Z');
 
-    expect(validateDateOfBirthForBeta('2013-08-08', asOf)).toBeNull();
-    expect(validateDateOfBirthForBeta('2013-08-09', asOf)).toBe(
-      'PickRank Early Access Beta is for users who are at least 13 years old.',
+    expect(validateDateOfBirthForBeta('2008-08-11', asOf)).toBeNull();
+    expect(validateDateOfBirthForBeta('2008-08-12', asOf)).toBe(
+      'PickRank Early Access Beta is for users who are at least 18 years old.',
     );
     expect(validateDateOfBirthForBeta('not-a-date', asOf)).toBe('Enter a valid date of birth.');
+    expect(validateDateOfBirthForBeta('2027-01-01', asOf)).toBe('Enter a valid date of birth.');
   });
 
   it('reads profile identity from Supabase user metadata', () => {
@@ -146,9 +156,105 @@ describe('auth profile helpers', () => {
         kycStatus: 'not_required',
         selfExclusionStatus: 'none',
         restrictionReason: null,
+        isAgeOnlyRestriction: false,
         isEligibilityComplete: true,
         isEligibleForPaidEntry: true,
       },
+    });
+  });
+
+  it('blocks stale age metadata when saved date of birth is under 18', () => {
+    const identity = getProfileIdentity({
+      email: 'qa-under-18@example.com',
+      email_confirmed_at: '2026-08-11T00:00:00.000Z',
+      user_metadata: {
+        username: 'qa_under18',
+        display_name: 'qa_under18',
+        date_of_birth: '2010-01-01',
+        age_confirmed: true,
+        jurisdiction: 'WA',
+        terms_accepted_at: '2026-08-09T00:00:00.000Z',
+        privacy_policy_accepted_at: '2026-08-09T00:00:00.000Z',
+        account_status: 'active',
+        eligibility_status: 'pending_review',
+        eligibility_checked_at: '2026-08-09T00:00:00.000Z',
+        age_gate_status: 'confirmed',
+        kyc_status: 'not_required',
+        self_exclusion_status: 'none',
+      },
+    } as never);
+
+    expect(identity.eligibility).toMatchObject({
+      ageConfirmed: false,
+      dateOfBirth: '2010-01-01',
+      ageGateStatus: 'blocked',
+      isAgeOnlyRestriction: false,
+      isEligibilityComplete: false,
+      isEligibleForPaidEntry: false,
+    });
+  });
+
+  it('auto-lifts an age-only restriction when stored DOB reaches 18', () => {
+    const identity = getProfileIdentity({
+      email: 'qa-age-resolved@example.com',
+      email_confirmed_at: '2026-08-11T00:00:00.000Z',
+      user_metadata: {
+        username: 'qa_age_resolved',
+        display_name: 'qa_age_resolved',
+        date_of_birth: '2008-08-11',
+        jurisdiction: 'WA',
+        terms_accepted_at: '2026-08-09T00:00:00.000Z',
+        privacy_policy_accepted_at: '2026-08-09T00:00:00.000Z',
+        account_status: 'restricted',
+        eligibility_status: 'blocked',
+        age_gate_status: 'blocked',
+        kyc_status: 'not_required',
+        self_exclusion_status: 'none',
+        restriction_reason: under18AgeGateRestrictionReason,
+      },
+    } as never);
+
+    expect(identity.eligibility).toMatchObject({
+      ageConfirmed: true,
+      accountStatus: 'active',
+      eligibilityStatus: 'pending_review',
+      ageGateStatus: 'confirmed',
+      restrictionReason: under18AgeGateRestrictionReason,
+      isAgeOnlyRestriction: true,
+      isEligibilityComplete: true,
+      isEligibleForPaidEntry: false,
+    });
+  });
+
+  it('does not auto-lift non-age restrictions when stored DOB is 18+', () => {
+    const identity = getProfileIdentity({
+      email: 'qa-manual-hold@example.com',
+      email_confirmed_at: '2026-08-11T00:00:00.000Z',
+      user_metadata: {
+        username: 'qa_manual_hold',
+        display_name: 'qa_manual_hold',
+        date_of_birth: '2008-08-11',
+        jurisdiction: 'WA',
+        terms_accepted_at: '2026-08-09T00:00:00.000Z',
+        privacy_policy_accepted_at: '2026-08-09T00:00:00.000Z',
+        account_status: 'restricted',
+        eligibility_status: 'blocked',
+        age_gate_status: 'confirmed',
+        kyc_status: 'not_required',
+        self_exclusion_status: 'none',
+        restriction_reason: 'manual compliance hold',
+      },
+    } as never);
+
+    expect(identity.eligibility).toMatchObject({
+      ageConfirmed: true,
+      accountStatus: 'restricted',
+      eligibilityStatus: 'blocked',
+      ageGateStatus: 'confirmed',
+      restrictionReason: 'manual compliance hold',
+      isAgeOnlyRestriction: false,
+      isEligibilityComplete: false,
+      isEligibleForPaidEntry: false,
     });
   });
 });

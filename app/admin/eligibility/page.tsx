@@ -65,7 +65,8 @@ export default async function AdminEligibilityPage({
               <CardTitle>Known Test Accounts</CardTitle>
               <CardDescription className="text-slate-300">
                 Internal-test eligibility is stored separately from public paid-entry eligibility and is logged as an
-                audit event.
+                audit event. Age gate is computed from DOB; only the age-only restriction reason can resolve through
+                DOB aging.
               </CardDescription>
             </div>
             <span className="status-pill shrink-0 bg-white/10 text-white border-white/15">
@@ -100,8 +101,11 @@ export default async function AdminEligibilityPage({
                 </div>
               </div>
 
-              <div className="mt-4 grid gap-2 text-xs text-muted-foreground sm:grid-cols-3 lg:grid-cols-6">
-                <ReviewFact label="DOB / age" value={candidate.eligibility.ageConfirmed ? 'Captured' : 'Missing'} />
+              <div className="mt-4 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2 lg:grid-cols-4">
+                <ReviewFact label="Account status" value={formatStatus(candidate.eligibility.accountStatus)} />
+                <ReviewFact label="Eligibility" value={formatStatus(candidate.eligibility.eligibilityStatus)} />
+                <ReviewFact label="DOB / 18+ check" value={candidate.eligibility.ageConfirmed ? 'Confirmed' : 'Missing'} />
+                <ReviewFact label="Age gate" value={formatStatus(candidate.eligibility.ageGateStatus)} />
                 <ReviewFact label="Terms" value={candidate.eligibility.termsAcceptedAt ? 'Captured' : 'Missing'} />
                 <ReviewFact label="Privacy" value={candidate.eligibility.privacyPolicyAcceptedAt ? 'Captured' : 'Missing'} />
                 <ReviewFact label="KYC" value={formatStatus(candidate.eligibility.kycStatus)} />
@@ -110,6 +114,20 @@ export default async function AdminEligibilityPage({
                   value={formatStatus(candidate.eligibility.selfExclusionStatus)}
                 />
                 <ReviewFact label="Entry restriction" value={formatStatus(candidate.entryRestrictionStatus)} />
+                <ReviewFact
+                  label="Restriction type"
+                  value={
+                    candidate.eligibility.restrictionReason
+                      ? candidate.eligibility.isAgeOnlyRestriction
+                        ? 'Age-only'
+                        : 'Admin / compliance'
+                      : 'None'
+                  }
+                />
+                <ReviewFact
+                  label="Restriction reason"
+                  value={candidate.eligibility.restrictionReason || 'None'}
+                />
               </div>
 
               {candidate.eligibility.restrictionReason ? (

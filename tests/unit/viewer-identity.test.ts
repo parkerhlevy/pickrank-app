@@ -101,6 +101,32 @@ describe('viewer identity', () => {
     });
   });
 
+  it('blocks an under-18 e2e fixture even when age metadata is confirmed', () => {
+    process.env.PICKRANK_E2E_AUTH = '1';
+
+    expect(
+      getE2eViewerIdentity(
+        JSON.stringify({
+          email: 'underage@pickrank.test',
+          username: 'underage_user',
+          ageConfirmed: true,
+          dateOfBirth: '2010-01-01',
+          jurisdiction: 'WA',
+          termsAcceptedAt: '2026-08-09T00:00:00.000Z',
+          privacyPolicyAcceptedAt: '2026-08-09T00:00:00.000Z',
+          eligibilityStatus: 'pending_review',
+        }),
+      ),
+    ).toMatchObject({
+      eligibility: {
+        ageConfirmed: false,
+        ageGateStatus: 'blocked',
+        isEligibilityComplete: false,
+        isEligibleForPaidEntry: false,
+      },
+    });
+  });
+
   it('ignores the e2e auth cookie when the dedicated flag is off', () => {
     expect(
       getE2eViewerIdentity(

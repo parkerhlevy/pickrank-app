@@ -1,4 +1,4 @@
--- First-party DOB capture for the 13+ Early Access Beta gate.
+-- First-party DOB capture for the 18+ Early Access Beta gate.
 -- This stores the captured date only; it does not add KYC, geolocation,
 -- paid-entry approval, payments, withdrawals, or broader compliance behavior.
 

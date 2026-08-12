@@ -45,7 +45,7 @@ PickRank can currently verify only product-controlled facts and stored account s
 - the user is authenticated through the configured auth provider
 - the user has a saved profile record or auth metadata for the current foundation fields
 - the user has supplied a state/jurisdiction value
-- the user has supplied date of birth and passed the 13+ beta age check
+- the user has supplied date of birth and passed the 18+ beta age check
 - the user has accepted Terms and Privacy Policy placeholders
 - the account has a stored eligibility status such as `pending_review`, `eligible`, or `blocked`
 - the server-side paid-entry flow blocks users whose stored eligibility status is not `eligible`
@@ -227,6 +227,8 @@ But some states or providers may require:
 ```
 
 The app should support configurable age thresholds by jurisdiction.
+
+For Early Access Beta, the age gate is computed from stored DOB. An age-only account hold must use `restriction_reason='under_18_age_gate'`. That reason means the hold can resolve when the stored DOB reaches the beta threshold. Any other `restriction_reason`, responsible-play hold, account restriction, or compliance block requires review and must not auto-resolve because DOB later reaches 18.
 
 ---
 

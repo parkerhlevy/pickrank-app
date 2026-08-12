@@ -8,6 +8,10 @@ Track the changes needed before the August 6 free-to-play beta legal docs can be
 
 This is a founder/product review artifact. It is not legal advice and does not publish or approve the documents.
 
+## Supersession Note
+
+Superseded on 2026-08-11 for age-gate purposes. PickRank Early Access Beta now uses an `18+` DOB gate. Do not follow the older lower-age recommendation in this note.
+
 ## Source Documents
 
 - `00-Memo.docx`
@@ -20,7 +24,7 @@ This is a founder/product review artifact. It is not legal advice and does not p
 
 Use the free-to-play beta document set, but revise it before publication.
 
-Use `13+` for Early Access Beta.
+Use `18+` for Early Access Beta.
 
 Do not change repo mechanics to match the legal drafts. Change the legal drafts to match the repo.
 
@@ -81,31 +85,31 @@ The updated docs use `[13]` and assume:
 - support instructions for underage reports
 - no ad tracking before age confirmation
 
-The current app now captures date of birth after sign-in and uses it for the 13+ beta age check.
+The current app now captures date of birth after sign-in and uses it for the 18+ beta age check.
 
 Beta decision:
 
 ```text
-Early Access Beta is 13+.
+Early Access Beta is 18+.
 ```
 
-Current local worktree status: app and site placeholder copy now follows the `13+` path. The current app collects first-party DOB in account/profile setup and blocks under-13 users before beta entry.
+Current local worktree status: app and site placeholder copy now follows the `18+` path. The current app collects first-party DOB in account/profile setup and blocks under-18 users before account use or beta entry.
 
 Product decision: collect DOB directly in PickRank's account/profile setup instead of depending on Google SSO. Normal Google sign-in does not reliably return date of birth. Google's People API can request birthday data through `user.birthday.read`, but that creates extra OAuth consent, API-verification, and reliability work that is disproportionate for Early Access Beta.
 
-Completed local action: add first-party DOB collection to PickRank account/profile setup for the `13+` beta posture.
+Completed local action: add first-party DOB collection to PickRank account/profile setup for the `18+` beta posture.
 
 Current local app copy now:
 
 - collects date of birth in account/profile setup
-- uses the DOB field for the 13+ beta age check
-- blocks under-13 users before beta entry
+- uses the DOB field for the 18+ beta age check
+- blocks under-18 users before account use or beta entry
 
 Completed implementation slice:
 
 - collect DOB directly in PickRank account/profile setup
 - calculate and store the beta age check without depending on Google SSO
-- block under-13 users before beta entry
+- block under-18 users before account use or beta entry
 - update Privacy and Terms copy
 - update stored profile metadata/types, validation, and tests
 

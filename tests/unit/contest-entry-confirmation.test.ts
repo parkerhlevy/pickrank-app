@@ -23,6 +23,7 @@ const eligibleProfile: ProfileEligibility = {
   kycStatus: 'not_required',
   selfExclusionStatus: 'none',
   restrictionReason: null,
+  isAgeOnlyRestriction: false,
   isEligibilityComplete: true,
   isEligibleForPaidEntry: true,
 };

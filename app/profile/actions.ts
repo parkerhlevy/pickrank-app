@@ -100,6 +100,18 @@ export async function completeEligibilityProfile(formData: FormData) {
     redirect(buildAuthHref(next));
   }
 
+  const identity = getProfileIdentity(user);
+
+  if (identity.eligibility.accountStatus !== 'active' || identity.eligibility.eligibilityStatus === 'blocked') {
+    redirect(
+      buildProfileRedirect(
+        next,
+        'error',
+        'Your account is restricted from beta entry. Contact support if you think this is a mistake.',
+      ),
+    );
+  }
+
   const now = new Date().toISOString();
   const jurisdiction = normalizeJurisdiction(jurisdictionInput);
   const dateOfBirth = normalizeDateOfBirth(dateOfBirthInput);
