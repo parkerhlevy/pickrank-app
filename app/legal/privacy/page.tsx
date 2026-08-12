@@ -6,7 +6,6 @@ import {
   legalEffectiveDate,
   legalEntityDescription,
   legalLastUpdatedDate,
-  legalParentReportEmail,
   legalPostalAddress,
   legalPrivacyEmail,
   legalSupportEmail,
@@ -49,8 +48,8 @@ export default function PrivacyPolicyPage() {
           </LegalSection>
 
           <LegalSection title="Age And Children">
-            <p>PickRank Early Access Beta is for users who are at least 13 years old. PickRank uses date of birth to confirm beta age eligibility.</p>
-            <p>If a parent or guardian believes a child under 13 submitted information to PickRank, they can contact {legalParentReportEmail}. PickRank will review the report and delete or disable the under-13 account data when appropriate.</p>
+            <p>PickRank Early Access Beta is for users who are at least 18 years old. PickRank uses date of birth to confirm beta age eligibility.</p>
+            <p>If PickRank learns that an under-18 user submitted account information, PickRank may restrict the account and delete or de-identify account data when appropriate. Age-related privacy questions can be sent to {legalPrivacyEmail}.</p>
           </LegalSection>
 
           <LegalSection title="Sharing">

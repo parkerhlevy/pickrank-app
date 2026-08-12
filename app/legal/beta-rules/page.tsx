@@ -24,6 +24,7 @@ export default function BetaRulesPage() {
           <CardDescription>{launchMode.betaNoCashValueCopy}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
+          <p>Participation requires a PickRank account that has confirmed 18+ beta eligibility.</p>
           <p>Each MVP beta contest uses a 20-quarterback player pool and asks users to pick and rank 10 quarterbacks by passing yards.</p>
           <p>Actual rank is measured against the full 20-player pool, not only against the 10 quarterbacks on your board.</p>
           <p>If quarterbacks tie in the final stat, they share an actual rank range. PickRank does not break player-stat ties with completions, attempts, interceptions, touchdowns, alphabetical order, or manual judgment.</p>

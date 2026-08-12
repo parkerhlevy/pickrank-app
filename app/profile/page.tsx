@@ -2,6 +2,7 @@ import { ArrowRight, CheckCircle2, MapPin, ShieldCheck, UserCircle, WalletCards 
 import Link from 'next/link';
 import { signOut } from '@/app/auth/actions';
 import {
+  betaMinimumAgeRequirementMessage,
   buildAuthHref,
   defaultReturnPath,
   getProfileIdentity,
@@ -10,6 +11,7 @@ import {
   normalizeReturnPath,
 } from '@/lib/auth-profile';
 import { getMissingBrowserSupabaseKeys, hasBrowserSupabaseConfig } from '@/lib/env';
+import { legalSupportEmail } from '@/lib/legal';
 import { launchMode } from '@/lib/launch-mode';
 import { createClient } from '@/lib/supabase/server';
 import { Button } from '@/components/ui/button';
@@ -47,8 +49,15 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
   }
 
   const identity = getProfileIdentity(user);
-  const needsUsername = Boolean(user && !identity.isProfileComplete);
-  const needsEligibility = Boolean(user && !identity.eligibility.isEligibilityComplete);
+  const isAgeBlocked = Boolean(user && identity.eligibility.ageGateStatus === 'blocked');
+  const isAccountRestricted = Boolean(
+    user &&
+      !isAgeBlocked &&
+      (identity.eligibility.accountStatus !== 'active' || identity.eligibility.eligibilityStatus === 'blocked'),
+  );
+  const isAccountUnavailable = isAgeBlocked || isAccountRestricted;
+  const needsUsername = Boolean(user && !isAccountUnavailable && !identity.isProfileComplete);
+  const needsEligibility = Boolean(user && !isAccountUnavailable && !identity.eligibility.isEligibilityComplete);
   const needsAccountSetup = needsUsername || needsEligibility;
   const todayDateInput = new Date().toISOString().slice(0, 10);
 
@@ -69,6 +78,36 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
             : 'Browse contests without signing in. Create an account to enter free beta contests, save your board, and keep your place in the flow.'}
         </p>
       </section>
+
+      {isAccountUnavailable ? (
+        <Card className="section-card border-amber-200 bg-amber-50">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-amber-700" aria-hidden="true" />
+              <CardTitle>Account Unavailable</CardTitle>
+            </div>
+            <CardDescription className="text-amber-900">
+              {isAgeBlocked
+                ? betaMinimumAgeRequirementMessage
+                : 'This account is restricted from PickRank account use or beta entry.'}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm text-amber-950">
+            <p>
+              This account cannot use PickRank or enter beta contests. If this is incorrect, contact{' '}
+              <a className="inline-link" href={`mailto:${legalSupportEmail}`}>
+                {legalSupportEmail}
+              </a>
+              .
+            </p>
+            <form action={signOut}>
+              <Button className="w-full" type="submit" variant="secondary">
+                Sign Out
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      ) : null}
 
       {user && needsAccountSetup ? (
         <Card className="section-card overflow-hidden">
@@ -111,7 +150,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         </Card>
       ) : null}
 
-      {next !== defaultReturnPath ? (
+      {next !== defaultReturnPath && !isAccountUnavailable ? (
         <Card className="section-card">
           <CardHeader>
             <CardTitle>One Quick Step Left</CardTitle>
@@ -146,11 +185,13 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
             <UserCircle className="h-5 w-5 text-blue-300" aria-hidden="true" />
             <CardTitle>{user ? 'Account Session' : 'Account Access'}</CardTitle>
           </div>
-            <CardDescription className="text-slate-300">
-              {user
-              ? 'Your PickRank session is active for profile, board, and wallet surfaces.'
+          <CardDescription className="text-slate-300">
+            {user
+              ? isAccountUnavailable
+                ? 'Your PickRank session is limited to account support and sign-out.'
+                : 'Your PickRank session is active for profile, board, and wallet surfaces.'
               : 'Create an account or log in to move from contest browsing into entry, board, and wallet views.'}
-            </CardDescription>
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 pt-5">
           {status === 'profile-saved' ? (
@@ -194,7 +235,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
             <div className="soft-panel space-y-3 text-sm">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="font-medium text-foreground">Signed in as {identity.email}</p>
-                <span className="status-pill-muted">Active</span>
+                <span className="status-pill-muted">{isAccountUnavailable ? 'Unavailable' : 'Active'}</span>
               </div>
               <form action={signOut}>
                 <Button className="w-full" type="submit" variant="secondary">
@@ -206,7 +247,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         </CardContent>
       </Card>
 
-      {user ? (
+      {user && !isAccountUnavailable ? (
         <Card id="eligibility-details" className="section-card scroll-mt-6">
           <CardHeader>
             <div className="flex items-center gap-2">
@@ -231,7 +272,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                   </div>
                 </div>
                 <div className="grid gap-2">
-                  <ReadinessRow label="DOB / 13+ check" value={identity.eligibility.ageGateStatus === 'confirmed' ? 'Confirmed' : 'Pending'} />
+                  <ReadinessRow label="DOB / 18+ check" value={identity.eligibility.ageGateStatus === 'confirmed' ? 'Confirmed' : 'Pending'} />
                   <ReadinessRow label="Terms accepted" value={identity.eligibility.termsAcceptedAt ? 'Captured' : 'Pending'} />
                   <ReadinessRow label="Privacy accepted" value={identity.eligibility.privacyPolicyAcceptedAt ? 'Captured' : 'Pending'} />
                   <ReadinessRow label="KYC placeholder" value={formatEligibilityStatus(identity.eligibility.kycStatus)} />
@@ -276,7 +317,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                     className="w-full rounded-lg border bg-slate-50 px-3 py-3 text-base text-foreground outline-none ring-0 transition-[border-color] focus:border-slate-950 sm:text-sm"
                   />
                   <span className="block text-xs font-normal text-muted-foreground">
-                    PickRank uses this to confirm you are at least 13 before beta entry.
+                    PickRank uses this to confirm you are at least 18 before beta entry.
                   </span>
                 </label>
                 <label className="flex items-start gap-3 rounded-lg border border-slate-200 bg-white px-3 py-3 text-sm text-foreground">
@@ -309,7 +350,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         </Card>
       ) : null}
 
-      {user ? (
+      {user && !isAccountUnavailable ? (
         identity.isProfileComplete ? (
           <Card className="section-card">
             <CardHeader>
@@ -383,72 +424,76 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         )
       ) : null}
 
-      <Card className="section-card">
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <WalletCards className="h-5 w-5 text-primary" aria-hidden="true" />
-            <CardTitle>Account Wallet</CardTitle>
-          </div>
-          <CardDescription>
-            Profile keeps the wallet one tap away while {launchMode.betaPassLabel} and future paid balances stay separated.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="metric-tile">
-              <p className="text-sm text-muted-foreground">{launchMode.betaPassLabel}</p>
-              <p className="numeric text-xl font-bold">Active</p>
-              <p className="mt-1 text-xs text-muted-foreground">Free beta entries. No cash value.</p>
-            </div>
-            <div className="metric-tile">
-              <p className="text-sm text-muted-foreground">Future Paid Balances</p>
-              <p className="numeric text-xl font-bold">$0.00</p>
-              <p className="mt-1 text-xs text-muted-foreground">Not live during beta.</p>
-            </div>
-          </div>
-          <div className="detail-row">
-            <span>Wallet route</span>
-            <span className="font-medium text-foreground">Available from Profile</span>
-          </div>
-          <Button asChild variant="secondary" className="w-full">
-            <Link href="/wallet" className="gap-2">
-              View Wallet Details
-              <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
-          </Button>
-        </CardContent>
-      </Card>
+      {!isAccountUnavailable ? (
+        <>
+          <Card className="section-card">
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <WalletCards className="h-5 w-5 text-primary" aria-hidden="true" />
+                <CardTitle>Account Wallet</CardTitle>
+              </div>
+              <CardDescription>
+                Profile keeps the wallet one tap away while {launchMode.betaPassLabel} and future paid balances stay separated.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="metric-tile">
+                  <p className="text-sm text-muted-foreground">{launchMode.betaPassLabel}</p>
+                  <p className="numeric text-xl font-bold">Active</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Free beta entries. No cash value.</p>
+                </div>
+                <div className="metric-tile">
+                  <p className="text-sm text-muted-foreground">Future Paid Balances</p>
+                  <p className="numeric text-xl font-bold">$0.00</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Not live during beta.</p>
+                </div>
+              </div>
+              <div className="detail-row">
+                <span>Wallet route</span>
+                <span className="font-medium text-foreground">Available from Profile</span>
+              </div>
+              <Button asChild variant="secondary" className="w-full">
+                <Link href="/wallet" className="gap-2">
+                  View Wallet Details
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
 
-      <Card className="section-card">
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="h-5 w-5 text-primary" aria-hidden="true" />
-            <CardTitle>Entry Readiness</CardTitle>
-          </div>
-          <CardDescription>
-            These checks show what PickRank needs before beta entry and future paid wallet actions.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-2 text-sm">
-          <div className="detail-row">
-            <span>Email verification</span>
-            <span className="text-muted-foreground">{identity.isEmailVerified ? 'Verified' : 'Pending'}</span>
-          </div>
-          <ReadinessRow
-            label="Age and location capture"
-            value={identity.eligibility.isEligibilityComplete ? 'Captured' : 'Needed before beta entry'}
-          />
-          <ReadinessRow
-            label="Eligibility status"
-            value={formatEligibilityStatus(identity.eligibility.eligibilityStatus)}
-          />
-          <ReadinessRow
-            label="Responsible play controls"
-            value={formatEligibilityStatus(identity.eligibility.selfExclusionStatus)}
-          />
-          <ReadinessRow label="Withdrawal verification" value="Provider review needed" />
-        </CardContent>
-      </Card>
+          <Card className="section-card">
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="h-5 w-5 text-primary" aria-hidden="true" />
+                <CardTitle>Entry Readiness</CardTitle>
+              </div>
+              <CardDescription>
+                These checks show what PickRank needs before beta entry and future paid wallet actions.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm">
+              <div className="detail-row">
+                <span>Email verification</span>
+                <span className="text-muted-foreground">{identity.isEmailVerified ? 'Verified' : 'Pending'}</span>
+              </div>
+              <ReadinessRow
+                label="Age and location capture"
+                value={identity.eligibility.isEligibilityComplete ? 'Captured' : 'Needed before beta entry'}
+              />
+              <ReadinessRow
+                label="Eligibility status"
+                value={formatEligibilityStatus(identity.eligibility.eligibilityStatus)}
+              />
+              <ReadinessRow
+                label="Responsible play controls"
+                value={formatEligibilityStatus(identity.eligibility.selfExclusionStatus)}
+              />
+              <ReadinessRow label="Withdrawal verification" value="Provider review needed" />
+            </CardContent>
+          </Card>
+        </>
+      ) : null}
     </div>
   );
 }

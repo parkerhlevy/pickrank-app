@@ -22,6 +22,7 @@ export default function ResponsiblePlayPage() {
           <CardDescription>No payouts, no cash prizes, no deposits, and no withdrawals during beta.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
+          <p>PickRank Early Access Beta participation is limited to users who are at least 18 years old.</p>
           <p>PickRank avoids betting, wagering, odds, parlay, sportsbook, risk-free, and guaranteed-profit language.</p>
           <p>Users can request account help or contest-entry restriction if they do not want to participate.</p>
           <p>Future paid contests require legal, provider, payment, withdrawal, eligibility, and responsible-play review before launch.</p>

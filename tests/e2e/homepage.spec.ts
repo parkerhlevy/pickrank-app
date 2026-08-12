@@ -91,29 +91,37 @@ test('auth remains available as a separate protected-flow route', async ({ page 
 });
 
 test('legal terms and privacy pages are available with beta-ready details', async ({ page }) => {
+  const staleAgeCopyPattern = new RegExp(String.raw`1${3}\+|under ${13}`, 'i');
+
   await page.goto('/legal/terms');
 
   await expect(page.getByRole('heading', { name: 'Beta Terms' })).toBeVisible();
-  await expect(page.getByText('Effective August 9, 2026. Last updated August 9, 2026.')).toBeVisible();
+  await expect(page.getByText('Effective August 9, 2026. Last updated August 11, 2026.')).toBeVisible();
   await expect(page.getByText('PickRank is operated by Playground Sports, LLC')).toBeVisible();
   await expect(page.getByText('support@pickrankgames.com')).toHaveCount(2);
   await expect(page.getByText('No purchase, entry fee, deposit, payout, withdrawal, cash prize')).toBeVisible();
+  await expect(page.getByText('at least 18 years old')).toBeVisible();
+  await expect(page.getByText(staleAgeCopyPattern)).toHaveCount(0);
   await expect(page.getByText('These Beta Terms are governed by Washington law')).toBeVisible();
   await expect(page.getByText('finalize beta results within 24 hours after the last slate game ends')).toBeVisible();
 
   await page.goto('/legal/beta-rules');
 
   await expect(page.getByRole('heading', { name: 'Beta Contest Rules', exact: true })).toBeVisible();
+  await expect(page.getByText('confirmed 18+ beta eligibility')).toBeVisible();
   await expect(page.getByText('finalize beta results within 24 hours after the last slate game ends')).toBeVisible();
   await expect(page.getByText('There is no cash-prize cancellation threshold during free beta')).toBeVisible();
+  await expect(page.getByText(staleAgeCopyPattern)).toHaveCount(0);
 
   await page.goto('/legal/privacy');
 
   await expect(page.getByRole('heading', { name: 'Privacy Policy' })).toBeVisible();
-  await expect(page.getByText('Effective August 9, 2026. Last updated August 9, 2026.')).toBeVisible();
+  await expect(page.getByText('Effective August 9, 2026. Last updated August 11, 2026.')).toBeVisible();
   await expect(page.getByText('date of birth, state, Beta Terms acceptance')).toBeVisible();
+  await expect(page.getByText('at least 18 years old')).toBeVisible();
   await expect(page.getByText('Users can request account deletion')).toBeVisible();
   await expect(page.getByText('within 30 days')).toBeVisible();
+  await expect(page.getByText(staleAgeCopyPattern)).toHaveCount(0);
 });
 
 test('logged-out leaderboard contest route stays public and final-only', async ({ page }) => {

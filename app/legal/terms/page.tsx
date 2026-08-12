@@ -49,7 +49,7 @@ export default function BetaTermsPage() {
 
           <LegalSection title="Account Requirements">
             <p>Users need an account, public username, date of birth, state capture, Beta Terms acceptance, and Privacy Policy acceptance before beta entry.</p>
-            <p>PickRank Early Access Beta is for users who are at least 13 years old. Users under 13 may not create an account or enter beta contests.</p>
+            <p>PickRank Early Access Beta is for users who are at least 18 years old. Users under 18 may not create or use an account or enter beta contests.</p>
             <p>Each person may use one account. PickRank may restrict, suspend, or close accounts that appear duplicate, false, abusive, automated, or harmful to beta integrity.</p>
           </LegalSection>
 
