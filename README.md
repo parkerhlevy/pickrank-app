@@ -112,6 +112,12 @@ Required for normal app auth and Supabase-backed app behavior:
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
+Launch-mode control:
+
+- `PICKRANK_EXPERIENCE_MODE`
+
+The default is `early_access_beta`. Vercel Production is forced to `early_access_beta` in code, even if the environment variable is misconfigured. Use `paid_preview` only in local development or Vercel Preview deployments when working on future paid-contest UI. The paid-preview mode can expose future paid-mode surfaces, but it does not enable deposits, withdrawals, payouts, cash prizes, wallet-ledger movement, or real-money entry.
+
 Required for trusted internal scripts and server-only writes after RLS hardening:
 
 - `SUPABASE_SERVICE_ROLE_KEY`

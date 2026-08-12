@@ -1,4 +1,24 @@
-export const launchMode = {
+export type LaunchModeName = 'early_access_beta' | 'paid_preview';
+
+type LaunchModeEnv = {
+  [key: string]: string | undefined;
+  PICKRANK_EXPERIENCE_MODE?: string;
+  VERCEL_ENV?: string;
+};
+
+export type LaunchModeConfig = {
+  mode: LaunchModeName;
+  displayName: string;
+  betaPassLabel: string;
+  betaEntryLabel: string;
+  betaNoCashValueCopy: string;
+  paidEntryEnabled: boolean;
+  realMoneyEnabled: boolean;
+  isBetaFreeEntryEnabled: boolean;
+  paidPreviewVisible: boolean;
+};
+
+const earlyAccessBetaLaunchMode = {
   mode: 'early_access_beta',
   displayName: 'Early Access Beta',
   betaPassLabel: 'Beta Pass',
@@ -7,22 +27,50 @@ export const launchMode = {
   paidEntryEnabled: false,
   realMoneyEnabled: false,
   isBetaFreeEntryEnabled: true,
-} as const;
+  paidPreviewVisible: false,
+} as const satisfies LaunchModeConfig;
 
-export type LaunchMode = typeof launchMode.mode | 'paid_launch';
+const paidPreviewLaunchMode = {
+  mode: 'paid_preview',
+  displayName: 'Paid Contest Preview',
+  betaPassLabel: 'Beta Pass',
+  betaEntryLabel: 'Paid-mode preview',
+  betaNoCashValueCopy:
+    'Paid-mode preview is not a live paid contest environment. Do not use it for deposits, withdrawals, payouts, or cash prizes.',
+  paidEntryEnabled: false,
+  realMoneyEnabled: false,
+  isBetaFreeEntryEnabled: false,
+  paidPreviewVisible: true,
+} as const satisfies LaunchModeConfig;
 
-export function isEarlyAccessBeta() {
-  return launchMode.mode === 'early_access_beta';
+export type LaunchMode = LaunchModeName;
+
+export function resolveLaunchMode(env: LaunchModeEnv = process.env): LaunchModeConfig {
+  if (env.VERCEL_ENV === 'production') {
+    return earlyAccessBetaLaunchMode;
+  }
+
+  if (env.PICKRANK_EXPERIENCE_MODE === 'paid_preview') {
+    return paidPreviewLaunchMode;
+  }
+
+  return earlyAccessBetaLaunchMode;
 }
 
-export function isBetaFreeEntryContest(entryFeeCents: number) {
-  return launchMode.isBetaFreeEntryEnabled && entryFeeCents === 0;
+export const launchMode = resolveLaunchMode();
+
+export function isEarlyAccessBeta(mode = launchMode) {
+  return mode.mode === 'early_access_beta';
 }
 
-export function getEntryReviewLabel(entryFeeCents?: number) {
-  return entryFeeCents === 0 || isEarlyAccessBeta() ? 'Entry Review' : 'Payment Review';
+export function isBetaFreeEntryContest(entryFeeCents: number, mode = launchMode) {
+  return mode.isBetaFreeEntryEnabled && entryFeeCents === 0;
 }
 
-export function getNoPayoutLabel(entryFeeCents?: number) {
-  return entryFeeCents === 0 || isEarlyAccessBeta() ? 'Beta contest - no payout' : 'No payout';
+export function getEntryReviewLabel(entryFeeCents?: number, mode = launchMode) {
+  return entryFeeCents === 0 || isEarlyAccessBeta(mode) ? 'Entry Review' : 'Payment Review';
+}
+
+export function getNoPayoutLabel(entryFeeCents?: number, mode = launchMode) {
+  return entryFeeCents === 0 || isEarlyAccessBeta(mode) ? 'Beta contest - no payout' : 'No payout';
 }

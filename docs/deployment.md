@@ -46,6 +46,7 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 NEXT_PUBLIC_APP_URL=
+PICKRANK_EXPERIENCE_MODE=early_access_beta
 ```
 
 Add the real values in Vercel under:
@@ -55,6 +56,40 @@ Project Settings -> Environment Variables
 ```
 
 Do not commit real secrets to the repo.
+
+## Paid-Mode Preview Setup
+
+Use one codebase with environment-scoped behavior. Do not copy the site into a second app.
+
+Production must stay on free-to-play Early Access Beta:
+
+```text
+PICKRANK_EXPERIENCE_MODE=early_access_beta
+```
+
+Future paid-mode UI work should happen on a separate Git branch and Vercel Preview deployment:
+
+```text
+codex/paid-mode-preview-setup
+```
+
+For that branch only, set this Vercel Preview environment variable:
+
+```text
+PICKRANK_EXPERIENCE_MODE=paid_preview
+```
+
+Vercel Dashboard path:
+
+```text
+Project Settings -> Environment Variables -> Add New
+```
+
+Set the environment to `Preview`. If the dashboard offers a Git branch filter, scope it to the paid-preview branch.
+
+The app also forces `early_access_beta` when `VERCEL_ENV=production`. This protects production if the paid-preview flag is added to the wrong environment.
+
+Paid-preview mode is for UI development only. It does not enable real-money entry, deposits, withdrawals, payouts, cash prizes, cash-balance movement, KYC, geolocation, or wallet-ledger behavior.
 
 ## Supabase Hosted Auth Setup
 
