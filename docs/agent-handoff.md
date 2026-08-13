@@ -63,12 +63,13 @@ The repo is past bare Phase 0 and currently includes:
 - Vitest wired
 - Basic route smoke tests
 
-Current repository and recovery reality as of 2026-08-11:
+Current local repository and recovery reality rechecked on 2026-08-13:
 
-- `origin/main` is at `055dc79 Refresh admin removal handoff`; the clean local `main` worktree can fast-forward to that commit
+- `git fetch --prune origin` succeeded on 2026-08-13; `origin/main` and the clean local `main` worktree are both at `055dc79 Refresh admin removal handoff`
 - the Remotion update commit `3ffa9e6` is already merged through `97e8a48`; no active Remotion files were part of the mixed recovery set
 - local-only commit `e210b56 Preserve mixed work before branch recovery` preserves the exact 18-file mixed state on `codex/recovery-mixed-work-2026-08-11`; never push or merge that safety branch
 - `codex/repo-lane-reconciliation` contains only repo authorization guidance and this factual recovery map
+- `codex/admin-contest-removal-ux` is clean at `cead326`, four commits behind and two commits ahead of `origin/main`; its product patch is already integrated into `main` through `2933112`, followed by handoff commit `055dc79`, so do not use the older branch as an integration base
 - `codex/provider-mysportsfeeds-read-only` contains the read-only MySportsFeeds evaluation seam and does not write Supabase rows or change official typed-`FINAL` finalization
 - `codex/provider-sportsdataio-parked-draft` preserves the preseason season-type and provider-prep draft locally; SportsDataIO is not the approved near-term provider and this branch must not be pushed, deployed, or used for provider or Supabase writes
 - `codex/legal-comment-synthesis` contains only the consultant-comment synthesis artifact; it is analysis and not approved legal copy
@@ -420,7 +421,7 @@ Continue PickRank using the repo as source of truth. Review the August 11 recove
 
 Definition of done:
 
-- Confirm each recovered branch starts from `origin/main` at `055dc79` and contains only its intended lane
+- Compare each recovered branch to `origin/main` at `055dc79`; preserve its actual divergence and confirm that it contains only its intended lane
 - Confirm the safety snapshot still contains all 18 original files and remains local only
 - Confirm every recovery worktree is clean after its local commit
 - Preserve the production free-beta boundary and the existing paid-preview guard
