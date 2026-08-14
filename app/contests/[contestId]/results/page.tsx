@@ -78,7 +78,7 @@ export default async function ContestResultsPage({
             </div>
             <span className="status-pill shrink-0 bg-white/10 text-white border-white/15">
               <span className="numeric">
-                {result.entry.payoutAmountCents > 0 ? result.entry.payoutAmount : getNoPayoutLabel(contest.entryFeeCents)}
+                {result.entry.payoutAmountCents > 0 ? result.entry.payoutAmount : getLeaderboardLabel(contest.entryFeeCents)}
               </span>
             </span>
           </div>
@@ -90,8 +90,8 @@ export default async function ContestResultsPage({
           </div>
           <div className="grid gap-2 sm:grid-cols-3">
             <ResultStat
-              label="Final Result"
-              value={result.entry.payoutAmountCents > 0 ? result.entry.payoutAmount : getNoPayoutLabel(contest.entryFeeCents)}
+              label={contest.entryFeeCents === 0 ? 'Leaderboard' : 'Final Result'}
+              value={result.entry.payoutAmountCents > 0 ? result.entry.payoutAmount : getLeaderboardLabel(contest.entryFeeCents)}
             />
             <ResultStat label="Exact Picks" value={String(result.entry.exactPicks)} />
             <ResultStat label="One-Off-Or-Better" value={String(result.entry.oneOffOrBetterPicks)} />
@@ -124,8 +124,8 @@ export default async function ContestResultsPage({
             <span className="numeric text-muted-foreground">{result.entry.finalRankDisplay}</span>
           </div>
           <div className="detail-row">
-            <span className="font-medium">Beta result status</span>
-            <span className="text-muted-foreground">No payout during beta</span>
+            <span className="font-medium">Leaderboard status</span>
+            <span className="text-muted-foreground">Saved final standings</span>
           </div>
           <div className="detail-row">
             <span className="font-medium">Leaderboard path</span>
@@ -228,6 +228,10 @@ function ResultStat({ label, value, emphasis = false }: { label: string; value: 
       </p>
     </div>
   );
+}
+
+function getLeaderboardLabel(entryFeeCents: number) {
+  return entryFeeCents === 0 ? 'Leaderboard' : getNoPayoutLabel(entryFeeCents);
 }
 
 function ResultTone({ distance }: { distance: number }) {
