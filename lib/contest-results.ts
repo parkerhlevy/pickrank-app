@@ -2,7 +2,8 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { z } from 'zod';
-import { formatCents, getContestById, updateContestStatus, type ContestSlatePlayer } from '@/lib/contest-data';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { formatCents, getContestById, updateContestStatus } from '@/lib/contest-data';
 import { contestRankedPlayerCount } from '@/lib/contest-rules';
 import {
   buildContestPlayerResults,
@@ -12,7 +13,6 @@ import {
   type ContestPlayerFinalStat,
   type ContestPlayerStatInput,
   type EntryPlayerScore,
-  type ScoredEntry,
 } from '@/lib/contest-scoring';
 import { listPersistedContestEntriesForContest } from '@/lib/persisted-contest-entry';
 import { hasBrowserSupabaseConfig } from '@/lib/env';
@@ -392,7 +392,7 @@ async function loadDisplayNamesByUserId(userIds: string[], options?: ContestResu
     return new Map<string, string>();
   }
 
-  const supabase: any = await createSupabaseClient();
+  const supabase: SupabaseClient = await createSupabaseClient();
   const { data, error } = await supabase.from('profiles').select(publicProfileDisplayColumns).in('id', uniqueUserIds);
 
   if (error) {
@@ -445,7 +445,7 @@ async function readFinalizedContestResultFromFile(contestId: string, dataFilePat
 }
 
 async function writeContestResultsToDatabase(finalizedResult: FinalizedContestResult) {
-  const supabase: any = await createSupabaseClient();
+  const supabase: SupabaseClient = await createSupabaseClient();
   const { data: contestRow, error: contestError } = await supabase.from('contests').select('*').eq('slug', finalizedResult.contestId).maybeSingle();
 
   if (contestError) {
@@ -514,7 +514,7 @@ async function readFinalizedContestResultFromDatabase(contestSlug: string) {
     throw new Error('Finalized contest results require Supabase configuration.');
   }
 
-  const supabase: any = await createSupabaseClient();
+  const supabase: SupabaseClient = await createSupabaseClient();
   const { data: contestRow, error: contestError } = await supabase.from('contests').select('*').eq('slug', contestSlug).maybeSingle();
 
   if (contestError) {

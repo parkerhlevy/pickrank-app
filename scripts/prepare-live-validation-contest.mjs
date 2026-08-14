@@ -1,10 +1,7 @@
 import path from 'node:path';
 import { readFile } from 'node:fs/promises';
 import { createClient } from '@supabase/supabase-js';
-import {
-  buildInSeasonLiveValidationContest,
-  inSeasonLiveValidationContestId,
-} from '../lib/in-season-live-validation-prep.ts';
+import { buildInSeasonLiveValidationContest } from '../lib/in-season-live-validation-prep.ts';
 
 main().catch((error) => {
   console.error(error instanceof Error ? error.message : error);

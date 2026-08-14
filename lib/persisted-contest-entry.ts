@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { z } from 'zod';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { updateContestEntryCounts } from '@/lib/contest-data';
 import { contestRankedPlayerCount } from '@/lib/contest-rules';
 import type { Database } from '@/lib/supabase/types';
@@ -188,7 +189,7 @@ export async function listPersistedContestEntriesForContest({
   }
 
   const contestRow = await getDatabaseContestRow(contestId);
-  const supabase: any = await createSupabaseClient();
+  const supabase: SupabaseClient = await createSupabaseClient();
   const [
     { data: entryRows, error: entryError },
     { data: lineupRows, error: lineupError },
@@ -347,7 +348,7 @@ export async function removePersistedContestEntry({
     return;
   }
 
-  const supabase: any = await createSupabaseClient();
+  const supabase: SupabaseClient = await createSupabaseClient();
   const contestRow = await getDatabaseContestRow(contestId);
   const { data: existingEntry, error: entryError } = await supabase
     .from('entries')
@@ -444,7 +445,7 @@ async function readPersistedContestEntryFromDatabase({
   players: string[];
   defaultSelectedOrder: string[];
 }) {
-  const supabase: any = await createSupabaseClient();
+  const supabase: SupabaseClient = await createSupabaseClient();
   const contestRow = await getDatabaseContestRow(contestId);
   const { data: entryRow, error: entryError } = await supabase
     .from('entries')
@@ -501,7 +502,7 @@ async function createPersistedContestEntryInDatabase({
   players: string[];
   defaultSelectedOrder: string[];
 }) {
-  const supabase: any = await createSupabaseClient();
+  const supabase: SupabaseClient = await createSupabaseClient();
   const contestRow = await getDatabaseContestRow(contestId);
   const { data: slateRows, error: slateError } = await supabase
     .from('contest_slate_players')
@@ -562,7 +563,7 @@ async function updatePersistedContestEntryLineupInDatabase({
   order: string[];
   now: string;
 }) {
-  const supabase: any = await createSupabaseClient();
+  const supabase: SupabaseClient = await createSupabaseClient();
   const contestRow = await getDatabaseContestRow(contestId);
   const { data: entryRow, error: entryError } = await supabase
     .from('entries')
@@ -708,7 +709,7 @@ async function createSupabaseClient() {
 }
 
 async function getDatabaseContestRow(contestId: string) {
-  const supabase: any = await createSupabaseClient();
+  const supabase: SupabaseClient = await createSupabaseClient();
   const { data: row, error } = await supabase.from('contests').select('*').eq('slug', contestId).maybeSingle();
 
   if (error) {

@@ -4,7 +4,7 @@
 Define how PickRank sources NFL player stats, determines final player rankings, handles tied player stats, applies stat corrections, and decides when contest scoring becomes official.
 
 ## Status
-Locked for MVP direction. The repo currently implements a SportsDataIO-based validation seam for provisional stats, while exact production launch entitlements and final provider operations still require operator confirmation before public live use.
+Locked for MVP stat-finalization rules. Provider choice is open after SportsDataIO pricing became a near-term blocker. The repo keeps the existing SportsDataIO Replay/live validation seams and now adds a private MySportsFeeds read-only validation lane. Exact production launch entitlements and final provider operations still require operator confirmation before public live use.
 
 ## Anchor
 MVP stat finalization requires a trusted external NFL stats provider, uses official final passing yards to rank slate quarterbacks, allows tied player stat ranks without additional QB stat tie-breakers, waits until all slate games are final before scoring, applies a defined stat correction window before payouts, and does not show live scoring during games.
@@ -41,13 +41,14 @@ PickRank should use a trusted external sports data provider for NFL stats.
 
 Do not manually enter stats for real contests unless operating in a controlled test environment.
 
-The current repo seam is SportsDataIO-based:
+The current repo has provider validation seams, but no approved production sports-data provider:
 
 - SportsDataIO Replay is used for internal recorded-game provisional validation
-- SportsDataIO live endpoints are the intended in-season provisional path
+- SportsDataIO live endpoints remain parked technical validation context after the quoted commercial package became a near-term blocker
+- MySportsFeeds is the leading candidate under active trial, using an internal read-only validation lane first
 - the official saved-results publish path remains separate and still requires the typed `FINAL` confirmation step
 
-That means the implementation direction is no longer provider-agnostic, even though the exact live entitlement package, operator account setup, and public-launch readiness still need confirmation before production dependence.
+That means the implementation direction should preserve provider seams and provisional snapshot boundaries while the vendor decision remains open. Do not treat any trial, personal-use, Discovery Lab, or unofficial endpoint access as production-ready provider access.
 
 The selected provider must support:
 
@@ -70,15 +71,15 @@ Do not treat provisional live data as sufficient to publish official contest res
 
 For current development, SportsDataIO Replay may be used to validate provisional snapshot ingestion against recorded games. That Replay path is a validation mode, not the default documented plan for true in-season live operation.
 
-Before any in-season live provisional surface is treated as production-ready, PickRank must separately confirm the real live SportsDataIO product/license, host, auth pattern, and endpoint coverage needed for current-season data.
+Before any in-season live provisional surface is treated as production-ready, PickRank must separately confirm the provider product/license, host, auth pattern, endpoint coverage, display rights, storage rights, and paid-contest rights needed for current-season data.
 
-Current documented expectation:
+Current documented expectations:
 
 - Replay validation uses `https://replay.sportsdata.io/api/v3/nfl/...?...key=...`
-- true in-season live mode should move to the standard SportsDataIO live NFL API host `https://api.sportsdata.io/v3/nfl`
-- the live path should use the standard SportsDataIO API key contract and prefer the `Ocp-Apim-Subscription-Key` header in app requests
-- the first live internal refresh should be limited to the live equivalents of `ScoresByWeek` and `PlayerGameStatsByWeek`
-- exact account-level live entitlement names remain an operator confirmation step in the SportsDataIO portal before production wiring
+- parked SportsDataIO live validation uses the standard NFL API host `https://api.sportsdata.io/v3/nfl`
+- private MySportsFeeds read-only validation uses `https://api.mysportsfeeds.com/v2.1/pull/nfl`
+- the first MySportsFeeds path must remain read-only until Parker explicitly approves any Supabase provisional snapshot persistence
+- exact account-level entitlement names remain an operator confirmation step before production wiring
 
 ---
 

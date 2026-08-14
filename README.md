@@ -131,8 +131,15 @@ Current provisional-stats seam in `.env.example`:
 - `PICKRANK_SPORTSDATAIO_LIVE_BASE_URL`
 - `PICKRANK_SPORTSDATAIO_LIVE_AUTH_MODE`
 - `PICKRANK_IN_SEASON_LIVE_CONTEST_SLUG`
+- `PICKRANK_MYSPORTSFEEDS_API_KEY`
+- `PICKRANK_MYSPORTSFEEDS_PASSWORD`
+- `PICKRANK_MYSPORTSFEEDS_BASE_URL`
+- `PICKRANK_MYSPORTSFEEDS_SEASON`
+- `PICKRANK_MYSPORTSFEEDS_WEEK`
+- `PICKRANK_MYSPORTSFEEDS_ACCESS_LEVEL`
 
 The active documented defaults are Replay validation on `https://replay.sportsdata.io/api/v3/nfl` and a future in-season live path on `https://api.sportsdata.io/v3/nfl`.
+The MySportsFeeds variables are for read-only provider evaluation only. They do not write Supabase rows and do not change the official typed-`FINAL` finalization path.
 
 ## Useful Commands
 
@@ -153,6 +160,7 @@ npm run simulate:nfl-scoring
 npm run validate:replay-provisional
 npm run prepare:live-validation-contest
 npm run validate:live-provisional
+npm run validate:mysportsfeeds:read-only
 ```
 
 ## Repo Layout

@@ -70,7 +70,7 @@ export async function loadInSeasonLiveValidationContestInput(
     title: readRequiredString(contestRow.title, 'Contest title'),
     season: readRequiredNumber(contestRow.season, 'Contest season'),
     week: readRequiredNumber(contestRow.week, 'Contest week'),
-    slatePlayers: normalizedSlateRows.map(({ sortOrderInternal, ...player }) => player),
+    slatePlayers: normalizedSlateRows.map(toLiveValidationSlatePlayer),
   };
 }
 
@@ -123,6 +123,18 @@ function normalizeSlatePlayerRow(row: Record<string, unknown>): LiveValidationSl
     opponentAbbreviation: readRequiredString(row.opponent_abbreviation, 'Slate player opponent_abbreviation'),
     homeAway,
     sortOrderInternal: readRequiredNumber(row.sort_order_internal, 'Slate player sort_order_internal'),
+  };
+}
+
+function toLiveValidationSlatePlayer(row: LiveValidationSlatePlayerRow): LiveValidationSlatePlayer {
+  return {
+    playerId: row.playerId,
+    providerPlayerId: row.providerPlayerId,
+    providerGameId: row.providerGameId,
+    displayName: row.displayName,
+    teamAbbreviation: row.teamAbbreviation,
+    opponentAbbreviation: row.opponentAbbreviation,
+    homeAway: row.homeAway,
   };
 }
 

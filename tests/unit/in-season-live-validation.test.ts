@@ -10,8 +10,8 @@ describe('in-season live validation helper', () => {
     const supabase = {
       from(table: string) {
         return {
-          select: (_columns: string) => ({
-            eq: (_column: string, _value: string) => {
+          select: () => ({
+            eq: () => {
               if (table === 'contests') {
                 return {
                   single: async () => ({
@@ -84,8 +84,8 @@ describe('in-season live validation helper', () => {
     const supabase = {
       from(table: string) {
         return {
-          select: (_columns: string) => ({
-            eq: (_column: string, _value: string) => {
+          select: () => ({
+            eq: () => {
               if (table === 'contests') {
                 return {
                   single: async () => ({

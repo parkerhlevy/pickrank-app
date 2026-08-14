@@ -37,13 +37,13 @@ describe('replay provisional validation helper', () => {
             calls.push({ table, kind: 'upsert', payload });
             return { error: null };
           },
-          select: (_columns: string) => ({
-            eq: (_column: string, _value: string) => ({
+          select: () => ({
+            eq: () => ({
               single: async () => ({ data: { id: 'contest-row-id' }, error: null }),
             }),
           }),
           delete: () => ({
-            eq: async (_column: string, _value: string) => {
+            eq: async () => {
               calls.push({ table, kind: 'delete' });
               return { error: null };
             },
