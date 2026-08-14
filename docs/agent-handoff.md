@@ -67,6 +67,7 @@ Current branch reality on `main` as of 2026-08-13:
 
 - `origin/main` is at `f3de0b2 Merge beta public UI cleanup`; it includes the production 18+ DOB gate/legal alignment and the Early Access Beta public UI cleanup
 - `codex/mysportsfeeds-lint-integration` is the clean delivery lane based on current `origin/main`; it adds the private MySportsFeeds read-only validation probe without Supabase writes or changes to the official typed-`FINAL` finalization path
+- the repo-wide lint cleanup removes the remaining ESLint errors and warnings without changing product behavior; `npm run lint`, `npm run typecheck`, and `npm run test` (`37` files, `216` tests) pass
 - the primary local `main` checkout under `/Users/parkerlevy/Documents/PickRank` still has an older uncommitted copy of the MySportsFeeds/stat-finalization work plus the lint cleanup; preserve it until this clean delivery lane is verified and Parker chooses whether to reconcile it
 - earlier mixed local recovery work is now separated into sibling worktrees for admin removal UX, beta age gate, beta public UI cleanup, legal comment synthesis, MySportsFeeds read-only probing, repo-lane reconciliation, and SportsDataIO parked draft work; preserve those lanes until Parker chooses what to integrate or retire
 - the latest pushed product baseline includes the paid-preview launch-mode guard, the admin contest removal flow, the production 18+ DOB gate/legal alignment, and the Early Access Beta public UI cleanup; `origin/main` is the source baseline for delivery

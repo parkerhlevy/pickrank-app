@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { z } from 'zod';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import {
   getSportsDataIoLiveApiKey,
   getSportsDataIoLiveAuthMode,
@@ -138,7 +139,7 @@ type ProvisionalStatsProviderFetchOptions = {
   baseUrl?: string;
   persistedSnapshotFilePath?: string;
   now?: string;
-  createSupabaseClient?: () => Promise<any>;
+  createSupabaseClient?: () => Promise<SupabaseClient>;
 };
 
 type SportsDataIoLiveProvisionalStatsProviderFetchOptions = ProvisionalStatsProviderFetchOptions & {
@@ -592,7 +593,7 @@ export async function getLatestProvisionalContestStatSnapshot(
 }
 
 class DisabledStatsProviderAdapter implements StatsProviderAdapter {
-  async getContestStatSnapshot(_contest: ContestStatsProviderInput): Promise<ContestStatSnapshot> {
+  async getContestStatSnapshot(): Promise<ContestStatSnapshot> {
     throw new Error('Provider-backed stat prefill is not configured yet.');
   }
 }
@@ -750,7 +751,7 @@ async function writePersistedSnapshotStore(
 async function persistProvisionalContestStatSnapshot(
   snapshot: PersistedProvisionalContestSnapshot,
   persistedSnapshotFilePath = getProvisionalStatsSnapshotFilePath(),
-  createSupabaseClientOverride?: () => Promise<any>,
+  createSupabaseClientOverride?: () => Promise<SupabaseClient>,
 ) {
   if (shouldUsePersistedSnapshotFileStore(persistedSnapshotFilePath)) {
     const store = await readProvisionalSnapshotStoreOrEmpty(persistedSnapshotFilePath);
@@ -885,7 +886,7 @@ function compareSnapshotTimes(
 }
 
 async function readPersistedSnapshotFromDatabase(contestSlug: string): Promise<PersistedContestSnapshot> {
-  const supabase: any = await createSupabaseClient();
+  const supabase: SupabaseClient = await createSupabaseClient();
   const { data: contestRow, error: contestError } = await supabase
     .from('contests')
     .select('id')
@@ -948,7 +949,7 @@ async function readPersistedSnapshotFromDatabase(contestSlug: string): Promise<P
 }
 
 async function writePersistedSnapshotToDatabase(snapshot: PersistedContestSnapshot) {
-  const supabase: any = await createSupabaseClient();
+  const supabase: SupabaseClient = await createSupabaseClient();
   const { data: contestRow, error: contestError } = await supabase
     .from('contests')
     .select('id')
@@ -999,7 +1000,7 @@ async function writePersistedSnapshotToDatabase(snapshot: PersistedContestSnapsh
 }
 
 async function readProvisionalSnapshotFromDatabase(contestSlug: string): Promise<ProvisionalContestStatSnapshot> {
-  const supabase: any = await createSupabaseClient();
+  const supabase: SupabaseClient = await createSupabaseClient();
   const { data: contestRow, error: contestError } = await supabase
     .from('contests')
     .select('id')
@@ -1081,9 +1082,9 @@ async function readProvisionalSnapshotFromDatabase(contestSlug: string): Promise
 
 async function writeProvisionalSnapshotToDatabase(
   snapshot: PersistedProvisionalContestSnapshot,
-  createSupabaseClientOverride?: () => Promise<any>,
+  createSupabaseClientOverride?: () => Promise<SupabaseClient>,
 ) {
-  const supabase: any = await (createSupabaseClientOverride ?? createSupabaseClient)();
+  const supabase: SupabaseClient = await (createSupabaseClientOverride ?? createSupabaseClient)();
   const { data: contestRow, error: contestError } = await supabase
     .from('contests')
     .select('id')
