@@ -196,7 +196,7 @@ async function renderLeaderboardPage(requestedContestId?: string) {
                 <div className="flex items-end justify-between gap-2 border-t border-slate-200 pt-2 text-sm">
                   <span className="numeric font-semibold text-slate-950">{row.totalScore} pts</span>
                   <span className="numeric max-w-[8rem] truncate text-right text-xs font-medium text-primary">
-                    {row.payoutAmountCents > 0 ? row.payoutAmount : getNoPayoutLabel(contest.entryFeeCents)}
+                    {row.payoutAmountCents > 0 ? row.payoutAmount : getLeaderboardLabel(contest.entryFeeCents)}
                   </span>
                 </div>
               </div>
@@ -236,7 +236,7 @@ async function renderLeaderboardPage(requestedContestId?: string) {
                           row.payoutAmountCents > 0 ? 'block max-w-[7rem] truncate text-xs text-primary' : 'block text-xs'
                         }
                       >
-                        {row.payoutAmountCents > 0 ? row.payoutAmount : getNoPayoutLabel(contest.entryFeeCents)}
+                        {row.payoutAmountCents > 0 ? row.payoutAmount : getLeaderboardLabel(contest.entryFeeCents)}
                       </span>
                     </span>
                   </div>
@@ -271,4 +271,8 @@ async function renderLeaderboardPage(requestedContestId?: string) {
 
 function buildLeaderboardReturnPath(contestId?: string) {
   return contestId ? `/leaderboard?${new URLSearchParams({ contest: contestId }).toString()}` : '/leaderboard';
+}
+
+function getLeaderboardLabel(entryFeeCents: number) {
+  return entryFeeCents === 0 ? 'Leaderboard' : getNoPayoutLabel(entryFeeCents);
 }

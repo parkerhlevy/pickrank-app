@@ -75,6 +75,8 @@ Current branch reality on `main` as of 2026-08-13:
 - Early Access Beta is now the pushed and deployed production posture: public launch contests are free to play, visible launch contest seed data uses `$0.00` entry cost and `0` paid entries, public copy uses Beta Pass/no-cash-value/no-payout language, `/contests/:contest_id/payment` remains the route but is labeled `Entry Review`, and paid contests remain the future product direction behind legal, provider, payment, withdrawal, and compliance gates
 - paid-mode UI work now has a safe preview setup path: `lib/launch-mode.ts` reads `PICKRANK_EXPERIENCE_MODE=early_access_beta|paid_preview`, Vercel Production is forced to `early_access_beta` even if the flag is misconfigured, and `paid_preview` keeps `paidEntryEnabled = false` plus `realMoneyEnabled = false` so it can expose future UI without enabling deposits, withdrawals, payouts, cash prizes, cash-balance movement, KYC, geolocation, wallet-ledger behavior, or real-money entry
 - use branch `codex/paid-mode-preview-setup` and Vercel Preview branch-scoped `PICKRANK_EXPERIENCE_MODE=paid_preview` for future paid-mode UI development; do not copy the site into a second app, and keep production `www.pickrankgames.com` on the free-to-play Early Access Beta posture
+- active Early Access Beta public UI cleanup work is isolated in worktree `/private/tmp/pickrank-beta-public-ui-cleanup` on branch `codex/beta-public-ui-cleanup`, based on current `origin/main`; this keeps the dirty Remotion/provider/MySportsFeeds checkout at `/Users/parkerlevy/Documents/PickRank` untouched
+- the beta public UI cleanup slice now removes active public paid-review/wallet clutter from beta mode while preserving future paid-preview surfaces behind `launchMode.paidPreviewVisible`: Contest Detail replaces payout-style beta result rows with beta result status copy, Entry Review replaces money-sheet labels with Beta Pass summary labels for free beta contests, Profile hides public paid-entry/KYC/withdrawal rows plus the active wallet card in beta mode, `/wallet` reads as a Beta Pass status page in beta mode, How It Works says Beta Pass entry access instead of entry cost, and Results/Leaderboard beta rows now use a simple `Leaderboard` label instead of repeating no-payout copy in result-value slots
 - Vercel production deployment `dpl_2KU3hFwby5MS5PsoMqJ7WHYoEf89` is `READY` for commit `55b2bfcd71b74a44c9d0fd62f3aed8262287a20f` with deployment URL `https://pickrank-lqyzb25u3-parker-levys-projects.vercel.app`
 - the 2026-08-10 contest-data cleanup code slice adds an operator-only `/admin/contests` retire control for visible scheduled/open public contests that do not match the free-beta posture; it requires `RETIRE BETA`, checks for saved `entries` rows with the service-role client, refuses hidden/internal validation contests, hides and cancels the contest, resets fake entry counters to `0`, and records a `free_beta_public_contest_retirement` state event; `db/seed/contest_repository_baseline.sql` now seeds public Week 1 at `$0.00` with `0` paid entries so future seed runs do not recreate the old paid-looking row
 - the 2026-08-11 admin retirement hotfix awaits the asynchronous service-role Supabase client before checking saved `entries`; this fixes the production `b.from is not a function` failure without changing the retirement guardrails or contest data
@@ -403,10 +405,10 @@ Deferred Phase 2 items:
 Current beta-launch checklist:
 
 ```text
-Production 18+ account smoke and under-18 remediation audit
+Merge Early Access Beta public UI cleanup, then run production 18+ account smoke and under-18 remediation audit
 ```
 
-Use the beta posture as the launch source of truth: 18+ account use, free-to-play contests, Beta Pass, no cash value, no payouts, no cash prizes, and paid contests deferred behind legal/provider/payment/withdrawal/compliance gates. The 18+ DOB gate is now on `main` and deployed. The immediate next move is a narrow signed-in production account smoke plus a read-only under-18 account audit. Any production account remediation remains separate and approval-gated.
+Use the beta posture as the launch source of truth: 18+ account use, free-to-play contests, Beta Pass, no cash value, no payouts, no cash prizes, and paid contests deferred behind legal/provider/payment/withdrawal/compliance gates. The 18+ DOB gate is now on `main` and deployed. The beta public UI cleanup branch is being merged into `main`: Contest Detail, Entry Review, Profile, Wallet, How It Works, Results, and Leaderboard hide active paid-review/wallet/payout-shaped public beta clutter while preserving paid-preview surfaces behind `launchMode.paidPreviewVisible`. After merge and deployment, the immediate next move remains a narrow signed-in production account smoke plus a read-only under-18 account audit. Any production account remediation remains separate and approval-gated.
 
 Next recommended slice:
 
@@ -422,8 +424,10 @@ Definition of done:
 - Confirm Terms, Privacy Policy, Beta Contest Rules, and Responsible Play are discoverable from the relevant public and account surfaces
 - Confirm waitlist and email copy include consent and unsubscribe language before broader outreach
 - Record the beta age posture and do not support under-18 account use or beta entry
+- Confirm public beta pages do not show active paid-review labels, wallet actions, payout-style beta result rows, money-sheet Entry Review labels, or public KYC/withdrawal labels
+- Confirm future paid-preview labels remain parked behind `launchMode.paidPreviewVisible`
 - Keep `next-env.d.ts` out
-- Confirm any issue found is logged as a separate narrow follow-up before code changes begin
+- Run `npm run typecheck`, `npm run test`, focused lint on touched files, and focused Playwright desktop plus mobile-viewport checks before delivery
 - Confirm payment providers, withdrawals, payouts, cash-balance and wallet-ledger movement, KYC vendor integration, geolocation, and public paid entry remain out of scope
 - Update this handoff note again if repo reality or the next recommended move changes
 

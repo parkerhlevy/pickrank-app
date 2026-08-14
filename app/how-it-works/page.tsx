@@ -9,7 +9,7 @@ export default function HowItWorksPage() {
     {
       icon: ListOrdered,
       title: 'Choose a contest',
-      description: 'Open Contests show the stat category, lock time, Beta Pass entry cost, and current entry count.',
+      description: 'Open Contests show the stat category, lock time, Beta Pass entry access, and current entry count.',
     },
     {
       icon: CheckCircle2,

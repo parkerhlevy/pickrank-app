@@ -74,7 +74,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         </div>
         <p className="text-muted-foreground">
           {user
-            ? 'Your profile connects public contest identity, beta entry readiness, and wallet access in one account surface.'
+            ? 'Your profile connects public contest identity and beta entry readiness in one account surface.'
             : 'Browse contests without signing in. Create an account to enter free beta contests, save your board, and keep your place in the flow.'}
         </p>
       </section>
@@ -189,8 +189,12 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
             {user
               ? isAccountUnavailable
                 ? 'Your PickRank session is limited to account support and sign-out.'
-                : 'Your PickRank session is active for profile, board, and wallet surfaces.'
-              : 'Create an account or log in to move from contest browsing into entry, board, and wallet views.'}
+                : launchMode.paidPreviewVisible
+                  ? 'Your PickRank session is active for profile, entry, board, and wallet surfaces.'
+                  : 'Your PickRank session is active for profile, entry, and board surfaces.'
+              : launchMode.paidPreviewVisible
+                ? 'Create an account or log in to move from contest browsing into entry, board, and wallet views.'
+                : 'Create an account or log in to move from contest browsing into entry and board views.'}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 pt-5">
@@ -267,24 +271,29 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                     <p className="font-bold">{identity.eligibility.jurisdiction}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">Paid-entry status</p>
-                    <p className="font-bold">{formatEligibilityStatus(identity.eligibility.eligibilityStatus)}</p>
+                    <p className="text-muted-foreground">Beta acknowledgements</p>
+                    <p className="font-bold">Captured</p>
                   </div>
                 </div>
                 <div className="grid gap-2">
                   <ReadinessRow label="DOB / 18+ check" value={identity.eligibility.ageGateStatus === 'confirmed' ? 'Confirmed' : 'Pending'} />
                   <ReadinessRow label="Terms accepted" value={identity.eligibility.termsAcceptedAt ? 'Captured' : 'Pending'} />
                   <ReadinessRow label="Privacy accepted" value={identity.eligibility.privacyPolicyAcceptedAt ? 'Captured' : 'Pending'} />
-                  <ReadinessRow label="KYC placeholder" value={formatEligibilityStatus(identity.eligibility.kycStatus)} />
-                  <ReadinessRow label="Responsible play status" value={formatEligibilityStatus(identity.eligibility.selfExclusionStatus)} />
+                  <ReadinessRow label="Account standing" value={formatEligibilityStatus(identity.eligibility.selfExclusionStatus)} />
+                  {launchMode.paidPreviewVisible ? (
+                    <>
+                      <ReadinessRow label="Paid-entry status" value={formatEligibilityStatus(identity.eligibility.eligibilityStatus)} />
+                      <ReadinessRow label="KYC placeholder" value={formatEligibilityStatus(identity.eligibility.kycStatus)} />
+                    </>
+                  ) : null}
                 </div>
                 {identity.eligibility.eligibilityStatus !== 'eligible' ? (
                   <Notice
                     variant="warning"
                     icon={ShieldCheck}
-                    title="Beta entry ready. Paid entry still pending."
-                    description="Your beta acknowledgements are saved. Paid contests stay blocked until legal, provider, payment, withdrawal, and compliance gates are complete."
-                    badge="Pending"
+                    title="Beta entry ready"
+                    description="Your beta acknowledgements are saved. Beta Pass has no cash value, no payouts, and no cash prizes."
+                    badge="Ready"
                   />
                 ) : null}
               </div>
@@ -426,41 +435,43 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
 
       {!isAccountUnavailable ? (
         <>
-          <Card className="section-card">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <WalletCards className="h-5 w-5 text-primary" aria-hidden="true" />
-                <CardTitle>Account Wallet</CardTitle>
-              </div>
-              <CardDescription>
-                Profile keeps the wallet one tap away while {launchMode.betaPassLabel} and future paid balances stay separated.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="metric-tile">
-                  <p className="text-sm text-muted-foreground">{launchMode.betaPassLabel}</p>
-                  <p className="numeric text-xl font-bold">Active</p>
-                  <p className="mt-1 text-xs text-muted-foreground">Free beta entries. No cash value.</p>
+          {launchMode.paidPreviewVisible ? (
+            <Card className="section-card">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <WalletCards className="h-5 w-5 text-primary" aria-hidden="true" />
+                  <CardTitle>Account Wallet</CardTitle>
                 </div>
-                <div className="metric-tile">
-                  <p className="text-sm text-muted-foreground">Future Paid Balances</p>
-                  <p className="numeric text-xl font-bold">$0.00</p>
-                  <p className="mt-1 text-xs text-muted-foreground">Not live during beta.</p>
+                <CardDescription>
+                  Profile keeps the wallet one tap away while {launchMode.betaPassLabel} and future paid balances stay separated.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="metric-tile">
+                    <p className="text-sm text-muted-foreground">{launchMode.betaPassLabel}</p>
+                    <p className="numeric text-xl font-bold">Active</p>
+                    <p className="mt-1 text-xs text-muted-foreground">Free beta entries. No cash value.</p>
+                  </div>
+                  <div className="metric-tile">
+                    <p className="text-sm text-muted-foreground">Future Paid Balances</p>
+                    <p className="numeric text-xl font-bold">$0.00</p>
+                    <p className="mt-1 text-xs text-muted-foreground">Not live during beta.</p>
+                  </div>
                 </div>
-              </div>
-              <div className="detail-row">
-                <span>Wallet route</span>
-                <span className="font-medium text-foreground">Available from Profile</span>
-              </div>
-              <Button asChild variant="secondary" className="w-full">
-                <Link href="/wallet" className="gap-2">
-                  View Wallet Details
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
+                <div className="detail-row">
+                  <span>Wallet route</span>
+                  <span className="font-medium text-foreground">Available from Profile</span>
+                </div>
+                <Button asChild variant="secondary" className="w-full">
+                  <Link href="/wallet" className="gap-2">
+                    View Wallet Details
+                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          ) : null}
 
           <Card className="section-card">
             <CardHeader>
@@ -469,7 +480,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                 <CardTitle>Entry Readiness</CardTitle>
               </div>
               <CardDescription>
-                These checks show what PickRank needs before beta entry and future paid wallet actions.
+                These checks show what PickRank needs before beta entry.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
@@ -481,15 +492,17 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                 label="Age and location capture"
                 value={identity.eligibility.isEligibilityComplete ? 'Captured' : 'Needed before beta entry'}
               />
+              {launchMode.paidPreviewVisible ? (
+                <ReadinessRow
+                  label="Eligibility status"
+                  value={formatEligibilityStatus(identity.eligibility.eligibilityStatus)}
+                />
+              ) : null}
               <ReadinessRow
-                label="Eligibility status"
-                value={formatEligibilityStatus(identity.eligibility.eligibilityStatus)}
-              />
-              <ReadinessRow
-                label="Responsible play controls"
+                label="Account standing"
                 value={formatEligibilityStatus(identity.eligibility.selfExclusionStatus)}
               />
-              <ReadinessRow label="Withdrawal verification" value="Provider review needed" />
+              {launchMode.paidPreviewVisible ? <ReadinessRow label="Withdrawal verification" value="Provider review needed" /> : null}
             </CardContent>
           </Card>
         </>

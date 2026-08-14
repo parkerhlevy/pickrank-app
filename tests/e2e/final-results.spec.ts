@@ -585,13 +585,15 @@ test('locks and finalizes the same zero-fee proof contest without paid count or 
 
   await entrantPage.goto(`/leaderboard?contest=${freeProofContestId}`);
   await expect(entrantPage.getByRole('heading', { name: 'Final Leaderboard' })).toBeVisible();
-  await expect(entrantPage.getByText('Beta contest - no payout').first()).toBeVisible();
+  await expect(entrantPage.getByText('Beta contest - no payout')).toHaveCount(0);
+  await expect(entrantPage.getByText('Leaderboard', { exact: true }).first()).toBeVisible();
 
   await entrantPage.goto(`/contests/${freeProofContestId}/results`);
   await expect(entrantPage.getByText(`You finished ${entrantFinalResult!.finalRankDisplay}`)).toBeVisible();
   await expect(entrantPage.getByText(`${entrantFinalResult!.totalScore} pts`)).toBeVisible();
-  await expect(entrantPage.getByText('Final Result', { exact: true })).toBeVisible();
-  await expect(entrantPage.getByText('Beta contest - no payout').first()).toBeVisible();
+  await expect(entrantPage.getByText('Final Result', { exact: true })).toHaveCount(0);
+  await expect(entrantPage.getByText('Beta contest - no payout')).toHaveCount(0);
+  await expect(entrantPage.getByText('Leaderboard status')).toBeVisible();
 
   await operatorContext.close();
   await entrantContext.close();

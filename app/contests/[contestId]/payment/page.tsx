@@ -115,20 +115,33 @@ export default async function PaymentReviewPage({
 
       <Card className="section-card overflow-hidden">
         <CardHeader className="section-card-header">
-          <CardTitle>Beta Entry Summary</CardTitle>
+          <CardTitle>{isFreeEntryContest ? 'Beta Pass Summary' : 'Payment Summary'}</CardTitle>
           <CardDescription className="text-slate-300">
             {launchMode.betaNoCashValueCopy}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 pt-5 text-sm">
-          <ReviewRow label="Entry Cost" value={formatCents(breakdown.entryFeeCents)} strong />
-          <div className="border-t border-slate-200 pt-3">
-            <ReviewRow label={launchMode.betaPassLabel} value="Active" />
-            <ReviewRow label="Cash Value" value="$0.00" />
-          </div>
-          <div className="section-card-muted p-3">
-            <ReviewRow label="Amount Due Today" value={formatCents(breakdown.amountDueTodayCents)} strong />
-          </div>
+          {isFreeEntryContest ? (
+            <>
+              <ReviewRow label={launchMode.betaPassLabel} value="Active" strong />
+              <ReviewRow label="Entry access" value="Free during beta" />
+              <ReviewRow label="Cash prizes" value="None during beta" />
+              <div className="section-card-muted p-3">
+                <ReviewRow label="Payment required" value="None" strong />
+              </div>
+            </>
+          ) : (
+            <>
+              <ReviewRow label="Entry Cost" value={formatCents(breakdown.entryFeeCents)} strong />
+              <div className="border-t border-slate-200 pt-3">
+                <ReviewRow label={launchMode.betaPassLabel} value="Active" />
+                <ReviewRow label="Cash Value" value="$0.00" />
+              </div>
+              <div className="section-card-muted p-3">
+                <ReviewRow label="Amount Due Today" value={formatCents(breakdown.amountDueTodayCents)} strong />
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
 
@@ -165,7 +178,7 @@ export default async function PaymentReviewPage({
           <Notice
             variant={isFreeEntryContest ? 'success' : 'warning'}
             icon={CreditCard}
-            title="Amount Due Today"
+            title={isFreeEntryContest ? 'No payment required' : 'Amount Due Today'}
             description={
               isFreeEntryContest
                 ? 'No payment, wallet balance, payout, or cash movement is used for this beta entry.'
