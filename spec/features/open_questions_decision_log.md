@@ -213,13 +213,13 @@ Public real-money launch.
 
 | Field | Value |
 |---|---|
-| Status | recommended |
+| Status | open |
 | Launch classification | pre_beta or pre_real_money_launch depending on beta mode |
 | Owner | TBD |
 | Related specs | stat_finalization.md, backend_data_architecture.md |
 
 ### Question
-What exactly still needs to be confirmed before the current SportsDataIO-based stats path is safe to treat as the production-ready provider path?
+Which licensed sports data provider should PickRank use for external-stat beta testing and, later, paid-contest launch?
 
 ### Requirements
 Provider must support:
@@ -234,13 +234,45 @@ Provider must support:
 - reliable API availability
 
 ### Current recommendation
-The repo is no longer fully provider-agnostic:
+Do not treat SportsDataIO as the active near-term provider path unless its price changes materially.
 
-- SportsDataIO Replay is the current internal validation path for recorded-game provisional testing
-- SportsDataIO live endpoints are the intended in-season provisional path
-- the official saved-results path still stays behind the separate typed `FINAL` confirmation flow
+The current provider search priority is:
 
-The remaining open decision is not "pick any provider from scratch." It is confirming the exact live entitlement package, operator account setup, endpoint coverage, and launch-readiness details needed before realistic external-stat beta use or public paid contests.
+- MySportsFeeds is the leading candidate if it confirms commercial free-to-play beta use, future paid-contest permission, affordable NFL CORE + STATS pricing, preseason/postseason coverage, and internal snapshot rights.
+- Rolling Insights DataFeeds is the backup candidate, especially if the Breakaway Accelerator can support PickRank's current stage and budget.
+- SportsDataIO remains technically validated in private lanes, but its quoted commercial package is a near-term launch blocker.
+- ESPN endpoints remain human audit and research only unless ESPN/Disney grants written production permission.
+
+The repo's existing provider seams should be reused only after the new provider choice is clear. The official saved-results path still stays behind the separate typed `FINAL` confirmation flow.
+
+### Active follow-up
+Parker contacted SportsDataIO sales/licensing in August 2026 while still on the free API trial. SportsDataIO responded with a `$10k` per-season licensing fee, which is not affordable for the current launch path unless they offer a lower startup, developer, or beta package.
+
+Parker contacted MySportsFeeds in August 2026 to confirm:
+
+- whether public free-to-play Early Access Beta use is allowed
+- whether future paid-contest use is allowed
+- the price for NFL CORE + STATS, and optionally DETAILED, at Non-Live and near-realtime/live access levels
+- preseason, regular-season, and postseason access
+- game-state, player-ID, team-ID, and player-level QB passing-stat coverage
+- rate limits and production usage terms
+- display, caching, storage, and redistribution limits
+- whether internal provisional snapshot persistence is allowed for validation
+- whether PickRank is considered competitive or otherwise restricted under their terms
+
+Parker started a 14-day MySportsFeeds trial in August 2026 with NFL CORE + STATS and live access with a 10-minute delay. Trial pricing observed in the account flow was `$158 CAD/month` for live with 10-minute delay and `$88 CAD/month` for Non-Live for the same package.
+
+The 2026-08-13 read-only MySportsFeeds preseason test against DET at CIN, `2026-preseason/week/1/game/163796`, proved auth, schedule access, `LIVE` game state, `COMPLETED_PENDING_REVIEW` post-game state, non-zero QB passing yards, provider player IDs, provider game IDs, and the private provisional snapshot row shape. The repo still needs one plain `COMPLETED` final-state check and a repeatability check on another preseason game before MySportsFeeds can be treated as technically preferred.
+
+Parker also contacted Rolling Insights about the Breakaway Accelerator in August 2026. Keep that item open until Rolling Insights confirms:
+
+- whether the accelerator is available to PickRank
+- whether free-to-play public beta and future paid-contest use are allowed
+- whether NFL preseason, regular-season, and postseason player game stats are included
+- whether post-game QB passing yards and future skill-position stats are available at the accelerator price
+- whether internal validation, audit, provisional-results, and final-review snapshots may be stored
+
+Do not treat any free-trial, personal-use, Discovery Lab, or unofficial endpoint access as production-ready provider access.
 
 ### Decision needed before
 External-stat beta or real-money launch.
