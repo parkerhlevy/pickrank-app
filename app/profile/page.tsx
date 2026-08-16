@@ -77,6 +77,10 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
             ? 'Your profile connects public contest identity and beta entry readiness in one account surface.'
             : 'Browse contests without signing in. Create an account to enter free beta contests, save your board, and keep your place in the flow.'}
         </p>
+        <Link href="/how-it-works" className="inline-link inline-flex items-center gap-1">
+          How It Works
+          <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+        </Link>
       </section>
 
       {isAccountUnavailable ? (

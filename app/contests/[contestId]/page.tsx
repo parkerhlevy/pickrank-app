@@ -98,7 +98,7 @@ export default async function ContestDetailPage({
           <QuickReadItem
             icon={ShieldCheck}
             title="When results count"
-            description="Leaderboards appear only after final stats are reviewed, confirmed, and saved."
+            description="Results appear only after final stats are reviewed, confirmed, and saved."
           />
         </CardContent>
       </Card>

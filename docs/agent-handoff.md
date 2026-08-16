@@ -63,25 +63,30 @@ The repo is past bare Phase 0 and currently includes:
 - Vitest wired
 - Basic route smoke tests
 
-Current branch reality on `main` as of 2026-08-13:
+Current branch reality on `main` as of 2026-08-15:
 
-- `origin/main` is at `f3de0b2 Merge beta public UI cleanup`; it includes the production 18+ DOB gate/legal alignment and the Early Access Beta public UI cleanup
-- `codex/mysportsfeeds-lint-integration` is the clean delivery lane based on current `origin/main`; it adds the private MySportsFeeds read-only validation probe without Supabase writes or changes to the official typed-`FINAL` finalization path
+- `main` remains synced with `origin/main` at `4fbdb12 Merge MySportsFeeds validation and lint cleanup (#19)` (`0` ahead, `0` behind), but the primary worktree is not clean
+- the primary worktree contains the preserved pre-existing MySportsFeeds handoff refresh plus the uncommitted Slice 1 Shared shell + static public pages implementation; keep these handoff changes merged and do not overwrite them
+- Slice 1 widens non-admin public pages at desktop breakpoints while preserving the tight mobile shell and unchanged admin width classes; removes the homepage hero signal boxes and Weekly Board Snapshot; aligns the requested homepage and How It Works copy; adds the Profile How It Works link; and changes public navigation/page framing from Leaderboard to Results while keeping `/leaderboard`, helper names, and result-state behavior unchanged
+- Slice 1 verification passes `npm run typecheck`, `npm run lint`, `npm run test` (`37` files, `216` tests), focused leaderboard/entry-flow unit tests (`2` files, `22` tests), and `git diff --check`; Playwright desktop/mobile verification remains open because both the sandboxed and approved unsandboxed local server attempts failed to bind port `3000` with `listen EPERM`
+- the private MySportsFeeds read-only validation probe is integrated on `main`; it adds no Supabase writes and does not change the official typed-`FINAL` finalization path
 - the repo-wide lint cleanup removes the remaining ESLint errors and warnings without changing product behavior; `npm run lint`, `npm run typecheck`, and `npm run test` (`37` files, `216` tests) pass
-- the primary local `main` checkout under `/Users/parkerlevy/Documents/PickRank` still has an older uncommitted copy of the MySportsFeeds/stat-finalization work plus the lint cleanup; preserve it until this clean delivery lane is verified and Parker chooses whether to reconcile it
-- earlier mixed local recovery work is now separated into sibling worktrees for admin removal UX, beta age gate, beta public UI cleanup, legal comment synthesis, MySportsFeeds read-only probing, repo-lane reconciliation, and SportsDataIO parked draft work; preserve those lanes until Parker chooses what to integrate or retire
+- the primary local `main` checkout under `/Users/parkerlevy/Documents/PickRank` is the active worktree for the current uncommitted Slice 1 UI changes
+- earlier mixed local recovery work remains separated into sibling worktrees; preserve those lanes until Parker chooses whether to integrate or retire them
 - the latest pushed product baseline includes the paid-preview launch-mode guard, the admin contest removal flow, the production 18+ DOB gate/legal alignment, and the Early Access Beta public UI cleanup; `origin/main` is the source baseline for delivery
 - current sibling worktrees are intentional preservation or delivery lanes, not main-worktree dirt: `codex/admin-contest-removal-ux`, `codex/beta-age-gate-18`, `codex/beta-public-ui-cleanup`, `codex/legal-comment-synthesis`, `codex/main-age-gate-18`, `codex/mysportsfeeds-main-integration`, `codex/mysportsfeeds-lint-integration`, `codex/provider-mysportsfeeds-read-only`, `codex/repo-lane-reconciliation`, and `codex/provider-sportsdataio-parked-draft`
-- `codex/provider-mysportsfeeds-read-only` is the source preservation branch for the clean integration; keep it untouched until the integrated commit is verified and Parker decides whether to retire it
+- `codex/provider-mysportsfeeds-read-only` remains a source preservation branch; the integrated `main` slice is verified, but branch retirement is still Parker's decision
 - `git fetch --prune origin` and `git remote prune origin --dry-run` both completed on 2026-08-13; no stale remote-tracking refs were reported in this run
 - Early Access Beta is now the pushed and deployed production posture: public launch contests are free to play, visible launch contest seed data uses `$0.00` entry cost and `0` paid entries, public copy uses Beta Pass/no-cash-value/no-payout language, `/contests/:contest_id/payment` remains the route but is labeled `Entry Review`, and paid contests remain the future product direction behind legal, provider, payment, withdrawal, and compliance gates
 - SportsDataIO remains parked as historical/private technical validation context because the quoted `$10k` per-season commercial license is not viable for the near-term launch path unless pricing changes materially; do not add SportsDataIO public provider wording or production dependency without new approval
 - MySportsFeeds is now the leading provider candidate pending written licensing/use confirmation; the repo includes `npm run validate:mysportsfeeds:read-only` as an internal no-Supabase probe for auth, schedule access, game-state mapping, QB `passYards`, provider IDs, and provisional snapshot shape
-- the 2026-08-13 read-only MySportsFeeds preseason test against DET at CIN, `2026-preseason/week/1/game/163796`, proved auth, schedule access, `LIVE` game state, `COMPLETED_PENDING_REVIEW` post-game state, non-zero QB passing yards, provider player IDs, provider game IDs, and the private provisional snapshot row shape
-- `COMPLETED_PENDING_REVIEW` is intentionally mapped as provisional `in_progress`, not `final`; remaining technical proof is one plain `COMPLETED` state and one repeatability check on another preseason game
+- the read-only MySportsFeeds preseason test against DET at CIN, `2026-preseason/week/1/game/163796`, first proved auth, schedule access, `LIVE` game state, `COMPLETED_PENDING_REVIEW` post-game state, non-zero QB passing yards, provider player IDs, provider game IDs, and the private provisional snapshot row shape; a later read-only check on 2026-08-14 also proved the same game reaches plain `COMPLETED`, maps to provisional `final`, and returns six non-zero QB passing-stat rows
+- a read-only live-slate check on 2026-08-14 proved repeatable `LIVE -> in_progress` handling and non-zero QB passing stats for three additional games: DEN at ATL (`163800`, 3 live rows), TB at NYJ (`163801`, 3 live rows), and MIA at WAS (`163802`, 4 live rows)
+- follow-up read-only checks after completion now prove all three games reach plain `COMPLETED`, map to provisional `final`, and retain QB rows: DEN at ATL (`163800`, 5 rows), TB at NYJ (`163801`, 5 rows), and MIA at WAS (`163802`, 6 rows)
+- `COMPLETED_PENDING_REVIEW` is intentionally mapped as provisional `in_progress`, not `final`; the preseason technical validation proof is complete, pending licensing/use approval
 - paid-mode UI work now has a safe preview setup path: `lib/launch-mode.ts` reads `PICKRANK_EXPERIENCE_MODE=early_access_beta|paid_preview`, Vercel Production is forced to `early_access_beta` even if the flag is misconfigured, and `paid_preview` keeps `paidEntryEnabled = false` plus `realMoneyEnabled = false` so it can expose future UI without enabling deposits, withdrawals, payouts, cash prizes, cash-balance movement, KYC, geolocation, wallet-ledger behavior, or real-money entry
 - use branch `codex/paid-mode-preview-setup` and Vercel Preview branch-scoped `PICKRANK_EXPERIENCE_MODE=paid_preview` for future paid-mode UI development; do not copy the site into a second app, and keep production `www.pickrankgames.com` on the free-to-play Early Access Beta posture
-- the merged beta public UI cleanup removes active public paid-review/wallet clutter from beta mode while preserving future paid-preview surfaces behind `launchMode.paidPreviewVisible`: Contest Detail replaces payout-style beta result rows with beta result status copy, Entry Review replaces money-sheet labels with Beta Pass summary labels for free beta contests, Profile hides public paid-entry/KYC/withdrawal rows plus the active wallet card in beta mode, `/wallet` reads as a Beta Pass status page in beta mode, How It Works says Beta Pass entry access instead of entry cost, and Results/Leaderboard beta rows use a simple `Leaderboard` label instead of repeating no-payout copy in result-value slots
+- the merged beta public UI cleanup removes active public paid-review/wallet clutter from beta mode while preserving future paid-preview surfaces behind `launchMode.paidPreviewVisible`: Contest Detail replaces payout-style beta result rows with beta result status copy, Entry Review replaces money-sheet labels with Beta Pass summary labels for free beta contests, Profile hides public paid-entry/KYC/withdrawal rows plus the active wallet card in beta mode, `/wallet` reads as a Beta Pass status page in beta mode, and the current Slice 1 copy uses Results for public navigation and result-value labels without changing paid-preview behavior
 - Vercel production deployment `dpl_2KU3hFwby5MS5PsoMqJ7WHYoEf89` is `READY` for commit `55b2bfcd71b74a44c9d0fd62f3aed8262287a20f` with deployment URL `https://pickrank-lqyzb25u3-parker-levys-projects.vercel.app`
 - the 2026-08-10 contest-data cleanup code slice adds an operator-only `/admin/contests` retire control for visible scheduled/open public contests that do not match the free-beta posture; it requires `RETIRE BETA`, checks for saved `entries` rows with the service-role client, refuses hidden/internal validation contests, hides and cancels the contest, resets fake entry counters to `0`, and records a `free_beta_public_contest_retirement` state event; `db/seed/contest_repository_baseline.sql` now seeds public Week 1 at `$0.00` with `0` paid entries so future seed runs do not recreate the old paid-looking row
 - the 2026-08-11 admin retirement hotfix awaits the asynchronous service-role Supabase client before checking saved `entries`; this fixes the production `b.from is not a function` failure without changing the retirement guardrails or contest data
@@ -407,32 +412,34 @@ Deferred Phase 2 items:
 
 ## Suggested Next Slice
 
-Current provider checklist:
+Current product checklist:
 
 ```text
-MySportsFeeds preseason validation repeatability and persistence decision
+1. Shared shell + static public pages: implemented locally; browser verification remains open because the environment cannot bind the local server port
+2. Contest discovery + Contest Detail: next recommended product slice
+3. Free beta entry flow
+4. Build your board
+5. Profile + Results
 ```
-
-MySportsFeeds is technically promising after the 2026-08-13 DET at CIN read-only test. It is not production-approved. The next move is to finish the technical repeatability checks and then decide whether to add a private MySportsFeeds provisional snapshot persistence path.
 
 Next recommended slice:
 
 ```text
-Continue PickRank using the repo as source of truth. Work only on the private MySportsFeeds preseason validation lane. Start from `docs/agent-handoff.md`, `spec/product_spec.md`, `spec/features/stat_finalization.md`, `spec/features/open_questions_decision_log.md`, `lib/mysportsfeeds-validation.ts`, `scripts/mysportsfeeds-validation-probe.mjs`, and `tests/unit/mysportsfeeds-validation.test.ts`. Keep the lane read-only unless Parker explicitly approves Supabase provisional snapshot persistence. Use `2026-preseason` as the season value. Re-run one preseason game after MySportsFeeds reports plain `COMPLETED`, and run one repeatability check on another preseason game. Preserve the 18+ Early Access Beta gate, public contests, public legal copy, public results, scoring rules, payments, wallet, eligibility, auth, and the official typed-`FINAL` finalization path.
+Continue PickRank using the repo as source of truth. This is an implementation thread for Slice 2: Contest discovery + Contest Detail. Before editing, read `docs/agent-handoff.md`, `AGENTS.md`, `spec/product_spec.md`, `spec/features/frontend_navigation.md`, the relevant contest feature specs, current Git status, `app/contests/page.tsx`, `app/contests/[contestId]/page.tsx`, shared contest components, and focused tests. Preserve the free-to-play Early Access Beta posture: Beta Pass, no cash value, no payouts, and no cash prizes. Keep `/leaderboard` as the Results route. Preserve Entry Review and Entry Success as parked/fallback paid-version surfaces. Do not change payments, wallet ledger behavior, scoring, provider writes, contest lifecycle, legal terms, Supabase production data, Remotion assets, admin controls, or unrelated local work. Keep the slice limited to contest discovery and Contest Detail presentation. Do not change entry behavior. Update focused tests, run typecheck, lint, the full unit suite, desktop/mobile browser verification, and `git diff --check`. Merge `docs/agent-handoff.md` carefully and stop after Slice 2.
 ```
 
 Definition of done:
 
-- Confirm `npm run validate:mysportsfeeds:read-only -- --season 2026-preseason --week 1 --game 163796` sees either `COMPLETED_PENDING_REVIEW` or plain `COMPLETED` without losing QB stat rows
-- Capture one plain `COMPLETED` MySportsFeeds state if available
-- Repeat one live or post-game QB passing-yard check on another preseason game
-- Keep `COMPLETED_PENDING_REVIEW` non-final in the provisional lane unless Parker explicitly approves a different internal interpretation
-- Do not write Supabase rows unless Parker explicitly approves the private persistence path and required credentials are present
-- If persistence is approved later, save only to `contest_provisional_stat_snapshots` and `contest_provisional_stat_snapshot_rows`, not official final-results tables
-- Preserve the 18+ gate, official typed-`FINAL` path, and public final-only leaderboard/results behavior
-- Keep `next-env.d.ts` out
-- Run focused MySportsFeeds unit tests, full lint, typecheck, and the full unit suite
-- Update this handoff note again if repo reality or the next recommended move changes
+- complete the approved Contest discovery + Contest Detail presentation changes without changing contest data, entry, scoring, or lifecycle behavior
+- preserve admin controls and the free-to-play Early Access Beta posture
+- keep the `/leaderboard` route and public Results label
+- update focused copy/layout tests
+- run `npm run typecheck`, `npm run lint`, `npm run test`, focused desktop/mobile Playwright, and `git diff --check`
+- update this handoff note again if repo reality or the next recommended move changes
+
+Queued separate provider decision:
+
+MySportsFeeds preseason technical validation is complete after the DET at CIN and three-game live/final read-only checks. MySportsFeeds is not production-approved. Resolve licensing/use terms before any private provisional snapshot persistence work. Keep `COMPLETED_PENDING_REVIEW` non-final, do not write Supabase rows without explicit approval, and preserve the official typed-`FINAL` path.
 
 Queued separate production-account slice:
 

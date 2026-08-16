@@ -10,7 +10,7 @@ export function getLeaderboardPlaceholderState(status: ContestStatus) {
     case 'open':
     case 'locked':
       return {
-        title: 'Leaderboard Opens After Final Scoring',
+        title: 'Results Open After Final Scoring',
         description:
           'This contest is not final yet. Final standings appear only after all games are complete and saved scoring is confirmed.',
       };
@@ -27,7 +27,7 @@ export function getLeaderboardPlaceholderState(status: ContestStatus) {
     case 'canceled':
       return {
         title: 'Contest Canceled',
-        description: 'This contest did not run, so leaderboard and results remain unavailable.',
+        description: 'This contest did not run, so results remain unavailable.',
       };
     case 'error_review':
       return {
@@ -36,8 +36,8 @@ export function getLeaderboardPlaceholderState(status: ContestStatus) {
       };
     default:
       return {
-        title: 'Leaderboard Unavailable',
-        description: 'This contest does not have a public final leaderboard yet.',
+        title: 'Results Unavailable',
+        description: 'This contest does not have public final results yet.',
       };
   }
 }

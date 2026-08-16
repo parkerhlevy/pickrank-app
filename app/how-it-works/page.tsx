@@ -1,35 +1,51 @@
 import Link from 'next/link';
 import { ArrowRight, BarChart3, CheckCircle2, ListOrdered, ShieldCheck, Trophy } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { launchMode } from '@/lib/launch-mode';
 
-export default function HowItWorksPage() {
-  const steps = [
-    {
-      icon: ListOrdered,
-      title: 'Choose a contest',
-      description: 'Open Contests show the stat category, lock time, Beta Pass entry access, and current entry count.',
-    },
-    {
-      icon: CheckCircle2,
-      title: 'Build Your Board',
-      description: 'For the MVP QB format, select and rank your top 10 from a 20-quarterback player pool.',
-    },
-    {
-      icon: BarChart3,
-      title: 'Compare final stats',
-      description:
-        'After final stats are reviewed, each saved board rank is compared with the official final rank. Add those differences across your board. Lower total wins.',
-      href: '#rank-differential-example',
-    },
-    {
-      icon: Trophy,
-      title: 'See final results',
-      description: 'Final leaderboard and results views appear after contest scoring is confirmed and saved.',
-    },
-  ];
+const howToEnterSteps = [
+  {
+    icon: ListOrdered,
+    title: 'Choose a contest',
+    description: 'Contests show the stat category that you will be ranking.',
+  },
+  {
+    icon: CheckCircle2,
+    title: 'Build your board',
+    description: 'Pick and rank your top 10 from the 20-player pool.',
+  },
+  {
+    icon: BarChart3,
+    title: 'Get your score',
+    description:
+      'Once all players from the player pool have played, your board will be compared to the official ranked results. The closer your selections were, the better your score. Lowest total wins.',
+  },
+  {
+    icon: Trophy,
+    title: 'See where you finished',
+    description:
+      'Final leaderboard of all contestants will appear after scoring is confirmed approximately 24 hours after the final game finishes. See where you placed in the Results tab.',
+  },
+];
 
+const scoringRules = [
+  ['Rank differential', 'Add the distance between each selected rank and the official final rank.'],
+  ['Lowest score wins', 'The best board has the lowest total differential across the 10 ranked picks.'],
+];
+
+const tiebreakers = [
+  ['Tiebreaker 1', 'Most exact picks.'],
+  ['Tiebreaker 2', 'Most 1 differential picks'],
+  ['Tiebreaker 3', 'Closest placement of the actual QB1.'],
+];
+
+const rankDifferentialExampleRows = [
+  ['Josh Allen', '1st', '2nd', '1'],
+  ['Joe Burrow', '2nd', '1st', '1'],
+  ['Patrick Mahomes', '3rd', '14th', '11'],
+];
+
+export default function HowItWorksPage() {
   return (
     <div className="space-y-6">
       <section className="screen-header space-y-3">
@@ -38,7 +54,7 @@ export default function HowItWorksPage() {
             <p className="eyebrow">How It Works</p>
             <h1 className="text-3xl font-black leading-tight">Skill-based ranking contests</h1>
             <p className="text-muted-foreground">
-              PickRank asks one question: can you rank your board closer to the final stat order than everyone else?
+              PickRank asks one question: how well do you know players and their matchups?
             </p>
           </div>
           <span className="status-pill shrink-0">Public Guide</span>
@@ -49,29 +65,26 @@ export default function HowItWorksPage() {
         <GuideTile
           icon={ListOrdered}
           title="Pick 10 from 20"
-          description="Start with the player pool. Save your board before the contest locks."
+          description="Start with the player pool. Pick and rank the top 10 by the contest stat category."
         />
         <GuideTile
           icon={BarChart3}
-          title="Lower score wins"
+          title="Lowest score wins"
           description="Each miss distance adds points. Exact ranks add zero."
         />
         <GuideTile
           icon={ShieldCheck}
           title={launchMode.displayName}
-          description="Free beta contests have no payouts or cash prizes."
+          description="Contests have no payouts or cash prizes during beta period"
         />
       </section>
 
       <Card className="section-card">
         <CardHeader>
-          <CardTitle>Contest Flow Overview</CardTitle>
-          <CardDescription>
-            Follow the same path from contest browsing to saved final results.
-          </CardDescription>
+          <CardTitle>How to enter</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {steps.map((step, index) => {
+          {howToEnterSteps.map((step, index) => {
             const Icon = step.icon;
 
             return (
@@ -84,33 +97,31 @@ export default function HowItWorksPage() {
                     <p className="text-xs font-bold uppercase tracking-[0.08em] text-muted-foreground">Step {index + 1}</p>
                     <p className="font-semibold">{step.title}</p>
                     <p className="text-sm text-muted-foreground">{step.description}</p>
-                    {step.href ? (
-                      <Link href={step.href} className="inline-link inline-flex items-center gap-1">
-                        View example
-                        <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-                      </Link>
-                    ) : null}
                   </div>
                 </div>
               </div>
             );
           })}
+          <Link href="#rank-differential-example" className="inline-link inline-flex items-center gap-1">
+            View Example
+            <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+          </Link>
         </CardContent>
       </Card>
 
       <Card className="section-card" id="rank-differential-example">
         <CardHeader>
-          <CardTitle>Scoring Snapshot</CardTitle>
-          <CardDescription>Current scoring direction for the live MVP contest flow.</CardDescription>
+          <CardTitle>How scoring works</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
-          {[
-            ['Rank differential', 'Add the distance between each saved rank and the official final rank.'],
-            ['Lower score wins', 'The best board has the lowest total differential across the 10 ranked picks.'],
-            ['Tiebreaker 1', 'Most exact picks.'],
-            ['Tiebreaker 2', 'Most one-off-or-better picks.'],
-            ['Tiebreaker 3', 'Closest placement of the actual QB1.'],
-          ].map(([label, description]) => (
+          {scoringRules.map(([label, description]) => (
+            <div key={label} className="section-card-muted px-3 py-3">
+              <p className="font-semibold">{label}</p>
+              <p className="text-muted-foreground">{description}</p>
+            </div>
+          ))}
+          <p className="pt-2 font-black">In case of a tie...</p>
+          {tiebreakers.map(([label, description]) => (
             <div key={label} className="section-card-muted px-3 py-3">
               <p className="font-semibold">{label}</p>
               <p className="text-muted-foreground">{description}</p>
@@ -130,6 +141,9 @@ export default function HowItWorksPage() {
               <thead className="bg-slate-50 text-xs font-bold uppercase text-muted-foreground">
                 <tr>
                   <th scope="col" className="px-3 py-2">
+                    Selected Player
+                  </th>
+                  <th scope="col" className="px-3 py-2">
                     Your Rank
                   </th>
                   <th scope="col" className="px-3 py-2">
@@ -141,12 +155,9 @@ export default function HowItWorksPage() {
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {[
-                  ['1st', '2nd', '1'],
-                  ['2nd', '2nd', '0'],
-                  ['3rd', '6th', '3'],
-                ].map(([yourRank, finalRank, difference]) => (
-                  <tr key={`${yourRank}-${finalRank}`}>
+                {rankDifferentialExampleRows.map(([player, yourRank, finalRank, difference]) => (
+                  <tr key={player}>
+                    <td className="px-3 py-2 font-medium">{player}</td>
                     <td className="numeric px-3 py-2 font-medium">{yourRank}</td>
                     <td className="numeric px-3 py-2">{finalRank}</td>
                     <td className="numeric px-3 py-2 font-black">{difference}</td>
@@ -156,29 +167,9 @@ export default function HowItWorksPage() {
             </table>
           </div>
           <p className="section-card-muted p-3 text-muted-foreground">
-            Add the differences across all 10 ranked picks. Lower total differential wins, with tiebreakers applied if
+            Add the differences across all 10 ranked picks. Lowest total differential wins, with tiebreakers applied if
             needed.
           </p>
-        </CardContent>
-      </Card>
-
-      <Card className="section-card">
-        <CardHeader>
-          <CardTitle>Where to Go Next</CardTitle>
-          <CardDescription>Keep How It Works easy to reach, then continue into the live contest shell.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="detail-row">
-            <span>Open Contests</span>
-            <span className="text-muted-foreground">Browse current contest details</span>
-          </div>
-          <div className="detail-row">
-            <span>Build Your Board</span>
-            <span className="text-muted-foreground">Available after entry confirmation</span>
-          </div>
-          <Button asChild className="w-full">
-            <Link href="/contests">View Open Contests</Link>
-          </Button>
         </CardContent>
       </Card>
     </div>

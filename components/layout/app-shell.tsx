@@ -18,7 +18,7 @@ export function AppShell({ children }: Readonly<{ children: React.ReactNode }>) 
           'mx-auto min-h-screen px-4 pt-6',
           isLandingPage && 'max-w-5xl pb-12',
           isAdmin && 'max-w-screen-2xl pb-12 sm:px-6 lg:px-8',
-          !isLandingPage && !isAdmin && 'max-w-md pb-24',
+          !isLandingPage && !isAdmin && 'max-w-md pb-24 md:max-w-4xl lg:max-w-5xl',
         )}
       >
         {children}
@@ -27,7 +27,7 @@ export function AppShell({ children }: Readonly<{ children: React.ReactNode }>) 
         <LegalFooter
           className={cn(
             isLandingPage && 'max-w-5xl pb-8',
-            !isLandingPage && 'max-w-md pb-28',
+            !isLandingPage && 'max-w-md pb-28 md:max-w-4xl lg:max-w-5xl',
           )}
         />
       ) : null}

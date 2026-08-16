@@ -43,13 +43,13 @@ async function renderLeaderboardPage(requestedContestId?: string) {
         <section className="screen-header space-y-2">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="eyebrow">Leaderboard</p>
-              <h1 className="text-3xl font-black leading-tight">Final Leaderboard</h1>
+              <p className="eyebrow">Results</p>
+              <h1 className="text-3xl font-black leading-tight">Final Results</h1>
             </div>
             <span className="status-pill shrink-0 status-pill-muted">Final only</span>
           </div>
           <p className="text-muted-foreground">
-            No public final contests are ready yet. Leaderboards appear only after saved final scoring is confirmed.
+            No public final contests are ready yet. Results appear only after saved final scoring is confirmed.
           </p>
         </section>
         <Card className="section-card">
@@ -77,7 +77,7 @@ async function renderLeaderboardPage(requestedContestId?: string) {
         <section className="screen-header space-y-2">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="eyebrow">Leaderboard</p>
+              <p className="eyebrow">Results</p>
               <h1 className="text-3xl font-black leading-tight">{placeholder.title}</h1>
             </div>
             <span className="status-pill shrink-0 status-pill-muted">{contest.status}</span>
@@ -91,7 +91,7 @@ async function renderLeaderboardPage(requestedContestId?: string) {
               <div className="space-y-1">
                 <CardTitle>{contest.title}</CardTitle>
                 <CardDescription className="text-slate-300">
-                  {contest.status}. Final leaderboard and results stay placeholder-only until saved final scoring is confirmed.
+                  {contest.status}. Final results stay placeholder-only until saved final scoring is confirmed.
                 </CardDescription>
               </div>
               <span className="status-pill shrink-0 bg-white/10 text-white border-white/15">Final only</span>
@@ -122,8 +122,8 @@ async function renderLeaderboardPage(requestedContestId?: string) {
       <section className="screen-header space-y-2">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="eyebrow">Leaderboard</p>
-            <h1 className="text-3xl font-black leading-tight">Final Leaderboard</h1>
+            <p className="eyebrow">Results</p>
+            <h1 className="text-3xl font-black leading-tight">Final Results</h1>
           </div>
         </div>
         <p className="text-muted-foreground">
@@ -274,5 +274,5 @@ function buildLeaderboardReturnPath(contestId?: string) {
 }
 
 function getLeaderboardLabel(entryFeeCents: number) {
-  return entryFeeCents === 0 ? 'Leaderboard' : getNoPayoutLabel(entryFeeCents);
+  return entryFeeCents === 0 ? 'Results' : getNoPayoutLabel(entryFeeCents);
 }

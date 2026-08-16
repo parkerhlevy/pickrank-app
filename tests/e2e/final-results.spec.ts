@@ -441,7 +441,7 @@ test('finalizes the locked contest from admin and keeps leaderboard/results surf
   await expect(entrantPage.getByRole('link', { name: 'View Results' })).toBeVisible();
 
   await entrantPage.goto(`/leaderboard?contest=${targetContestId}`);
-  await expect(entrantPage.getByRole('heading', { name: 'Final Leaderboard' })).toBeVisible();
+  await expect(entrantPage.getByRole('heading', { name: 'Final Results' })).toBeVisible();
   await expect(entrantPage.getByText(persistedContestResults!.entryResults[0]!.displayName)).toBeVisible();
   await expect(entrantPage.getByText(persistedContestResults!.entryResults[1]!.displayName)).toBeVisible();
   await expect(entrantPage.getByText(persistedContestResults!.entryResults[2]!.displayName)).toBeVisible();
@@ -467,7 +467,7 @@ test('finalizes the locked contest from admin and keeps leaderboard/results surf
   const nonEntrantPage = await nonEntrantContext.newPage();
 
   await nonEntrantPage.goto(`/contests/${targetContestId}`);
-  await expect(nonEntrantPage.getByRole('link', { name: 'View Leaderboard' })).toBeVisible();
+  await expect(nonEntrantPage.getByRole('link', { name: 'View Results' })).toBeVisible();
   await nonEntrantPage.goto(`/contests/${targetContestId}/results`);
   await expect(nonEntrantPage).toHaveURL(`/leaderboard?contest=${targetContestId}`);
 
@@ -584,16 +584,16 @@ test('locks and finalizes the same zero-fee proof contest without paid count or 
   await expect(entrantPage.getByRole('link', { name: 'View Results' })).toBeVisible();
 
   await entrantPage.goto(`/leaderboard?contest=${freeProofContestId}`);
-  await expect(entrantPage.getByRole('heading', { name: 'Final Leaderboard' })).toBeVisible();
+  await expect(entrantPage.getByRole('heading', { name: 'Final Results' })).toBeVisible();
   await expect(entrantPage.getByText('Beta contest - no payout')).toHaveCount(0);
-  await expect(entrantPage.getByText('Leaderboard', { exact: true }).first()).toBeVisible();
+  await expect(entrantPage.getByText('Results', { exact: true }).first()).toBeVisible();
 
   await entrantPage.goto(`/contests/${freeProofContestId}/results`);
   await expect(entrantPage.getByText(`You finished ${entrantFinalResult!.finalRankDisplay}`)).toBeVisible();
   await expect(entrantPage.getByText(`${entrantFinalResult!.totalScore} pts`)).toBeVisible();
   await expect(entrantPage.getByText('Final Result', { exact: true })).toHaveCount(0);
   await expect(entrantPage.getByText('Beta contest - no payout')).toHaveCount(0);
-  await expect(entrantPage.getByText('Leaderboard status')).toBeVisible();
+  await expect(entrantPage.getByText('Results status')).toBeVisible();
 
   await operatorContext.close();
   await entrantContext.close();
@@ -648,7 +648,7 @@ test('reruns finalization after a stat correction and replaces saved rows withou
   const entrantContext = await createSignedInContext(browser, entrantCookieValue);
   const entrantPage = await entrantContext.newPage();
   await entrantPage.goto(`/leaderboard?contest=${targetContestId}`);
-  await expect(entrantPage.getByRole('heading', { name: 'Final Leaderboard' })).toBeVisible();
+  await expect(entrantPage.getByRole('heading', { name: 'Final Results' })).toBeVisible();
   await expect(entrantPage.getByText(correctedSavedResults.entryResults[0]!.displayName)).toBeVisible();
   await expect(entrantPage.getByText(correctedSavedResults.entryResults[1]!.displayName)).toBeVisible();
   await expect(entrantPage.getByText(correctedSavedResults.entryResults[2]!.displayName)).toBeVisible();
