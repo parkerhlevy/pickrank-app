@@ -90,7 +90,7 @@ export default async function ContestResultsPage({
           </div>
           <div className="grid gap-2 sm:grid-cols-3">
             <ResultStat
-              label={contest.entryFeeCents === 0 ? 'Leaderboard' : 'Final Result'}
+              label={contest.entryFeeCents === 0 ? 'Results' : 'Final Result'}
               value={result.entry.payoutAmountCents > 0 ? result.entry.payoutAmount : getLeaderboardLabel(contest.entryFeeCents)}
             />
             <ResultStat label="Exact Picks" value={String(result.entry.exactPicks)} />
@@ -124,11 +124,11 @@ export default async function ContestResultsPage({
             <span className="numeric text-muted-foreground">{result.entry.finalRankDisplay}</span>
           </div>
           <div className="detail-row">
-            <span className="font-medium">Leaderboard status</span>
+            <span className="font-medium">Results status</span>
             <span className="text-muted-foreground">Saved final standings</span>
           </div>
           <div className="detail-row">
-            <span className="font-medium">Leaderboard path</span>
+            <span className="font-medium">Results page</span>
             <span className="text-muted-foreground">Saved final standings</span>
           </div>
         </CardContent>
@@ -203,7 +203,7 @@ export default async function ContestResultsPage({
         <Button asChild variant="secondary">
           <Link href={`/leaderboard?contest=${contest.id}`}>
             <ListOrdered className="mr-2 h-4 w-4" aria-hidden="true" />
-            View Final Leaderboard
+            View Final Results
           </Link>
         </Button>
         <Button asChild>
@@ -231,7 +231,7 @@ function ResultStat({ label, value, emphasis = false }: { label: string; value: 
 }
 
 function getLeaderboardLabel(entryFeeCents: number) {
-  return entryFeeCents === 0 ? 'Leaderboard' : getNoPayoutLabel(entryFeeCents);
+  return entryFeeCents === 0 ? 'Results' : getNoPayoutLabel(entryFeeCents);
 }
 
 function ResultTone({ distance }: { distance: number }) {

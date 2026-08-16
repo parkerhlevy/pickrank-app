@@ -15,10 +15,19 @@ test('homepage loads as a landing page with waitlist forms and no bottom nav', a
   await expect(page.getByText('Enter your email and we’ll send Early Access Beta updates.')).toHaveCount(2);
   await expect(page.getByLabel('I agree to receive PickRank Early Access Beta and product update emails. I can unsubscribe anytime.')).toHaveCount(2);
   await expect(page.getByText('By joining, you agree to receive PickRank launch emails. Unsubscribe anytime.')).toHaveCount(0);
-  await expect(page.getByText('Weekly Board Snapshot')).toBeVisible();
-  await expect(page.getByText('Skill contest')).toBeVisible();
-  await expect(page.getByText('Final-only scoring')).toBeVisible();
-  await expect(page.getByText('Early Access Beta').first()).toBeVisible();
+  await expect(page.getByText('Weekly Board Snapshot')).toHaveCount(0);
+  await expect(page.getByText('Skill contest')).toHaveCount(0);
+  await expect(page.getByText('Final-only scoring')).toHaveCount(0);
+  await expect(page.getByText('Free beta contests use a Beta Pass.')).toHaveCount(0);
+  await expect(page.getByText('No drafting.')).toBeVisible();
+  await expect(page.getByText('No season-long commitment.')).toBeVisible();
+  await expect(page.getByText('Easy to play.')).toBeVisible();
+  await expect(page.getByText('Harder to master.')).toBeVisible();
+  await expect(
+    page.getByText(
+      'PickRank is launching as an early access beta. Join the waitlist and be among the first to play our contests for free.',
+    ),
+  ).toBeVisible();
   await expect(page.getByRole('link', { name: 'Browse Open Contests' })).toHaveCount(0);
   await expect(page.getByText('See PickRank in action')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Learn the game in 34 seconds' })).toBeVisible();
@@ -55,12 +64,37 @@ test('public conversion routes explain the contest mechanics before entry', asyn
   await page.goto('/how-it-works');
 
   await expect(page.getByRole('heading', { name: 'Skill-based ranking contests' })).toBeVisible();
-  await expect(page.getByText('Beta Pass entry access')).toBeVisible();
-  await expect(page.getByText('Beta Pass entry cost')).toHaveCount(0);
+  await expect(page.getByText('PickRank asks one question: how well do you know players and their matchups?')).toBeVisible();
   const basics = page.getByLabel('PickRank basics');
   await expect(basics.getByText('Pick 10 from 20')).toBeVisible();
-  await expect(basics.getByText('Lower score wins')).toBeVisible();
-  await expect(page.getByRole('table')).toBeVisible();
+  await expect(
+    basics.getByText('Start with the player pool. Pick and rank the top 10 by the contest stat category.'),
+  ).toBeVisible();
+  await expect(basics.getByText('Lowest score wins')).toBeVisible();
+  await expect(basics.getByText('Contests have no payouts or cash prizes during beta period')).toBeVisible();
+  const howToEnter = page.getByRole('heading', { name: 'How to enter' }).locator('..').locator('..');
+  await expect(howToEnter.getByText('Follow the same path from contest browsing')).toHaveCount(0);
+  await expect(howToEnter.getByText('Contests show the stat category that you will be ranking.')).toBeVisible();
+  await expect(howToEnter.getByText('Build your board')).toBeVisible();
+  await expect(howToEnter.getByText('Pick and rank your top 10 from the 20-player pool.')).toBeVisible();
+  await expect(howToEnter.getByText('Get your score')).toBeVisible();
+  await expect(howToEnter.getByText('Once all players from the player pool have played')).toBeVisible();
+  await expect(howToEnter.getByText('See where you finished')).toBeVisible();
+  await expect(howToEnter.getByText('Final leaderboard of all contestants will appear')).toBeVisible();
+  await expect(howToEnter.getByRole('link', { name: 'View Example' })).toHaveAttribute(
+    'href',
+    '#rank-differential-example',
+  );
+  const scoring = page.getByRole('heading', { name: 'How scoring works' }).locator('..').locator('..');
+  await expect(scoring.getByText('Current scoring direction for the live MVP contest flow.')).toHaveCount(0);
+  await expect(scoring.getByText('Add the distance between each selected rank and the official final rank.')).toBeVisible();
+  await expect(scoring.getByText('In case of a tie...')).toBeVisible();
+  await expect(scoring.getByText('Most 1 differential picks')).toBeVisible();
+  const exampleTable = page.getByRole('table');
+  await expect(exampleTable).toBeVisible();
+  await expect(exampleTable.getByText('Patrick Mahomes')).toBeVisible();
+  await expect(exampleTable.getByText('14th')).toBeVisible();
+  await expect(page.getByText('Where to Go Next')).toHaveCount(0);
 
   await page.goto('/wallet');
 
@@ -76,6 +110,7 @@ test('logged-out profile hides public paid-review and wallet clutter', async ({ 
 
   await expect(page.getByRole('heading', { name: 'Create Your PickRank Account' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Entry Readiness' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'How It Works' })).toHaveAttribute('href', '/how-it-works');
   await expect(page.getByText('Paid-entry status')).toHaveCount(0);
   await expect(page.getByText('KYC placeholder')).toHaveCount(0);
   await expect(page.getByText('Withdrawal verification')).toHaveCount(0);
@@ -130,6 +165,36 @@ test('bottom nav still renders on core app routes', async ({ page }) => {
   await expect(navigation).toBeVisible();
   await expect(navigation.getByRole('link', { name: 'Home' })).toBeVisible();
   await expect(navigation.getByRole('link', { name: 'Contests' })).toBeVisible();
+  await expect(navigation.getByRole('link', { name: 'Results' })).toHaveAttribute('href', '/leaderboard');
+  await expect(navigation.getByRole('link', { name: 'Leaderboard' })).toHaveCount(0);
+});
+
+test('desktop and mobile static public pages use the responsive public shell', async ({ page }) => {
+  const routes = ['/', '/how-it-works', '/profile', '/leaderboard'];
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+
+  for (const route of routes) {
+    await page.goto(route);
+    const mainBox = await page.locator('main').boundingBox();
+    expect(mainBox?.width).toBeGreaterThan(800);
+  }
+
+  await page.setViewportSize({ width: 390, height: 844 });
+
+  for (const route of routes) {
+    await page.goto(route);
+    await expect(page.locator('html')).toHaveJSProperty('scrollWidth', 390);
+
+    if (route === '/') {
+      await expect(page.getByRole('navigation')).toHaveCount(0);
+    } else {
+      await expect(page.getByRole('navigation').getByRole('link', { name: 'Results' })).toHaveAttribute(
+        'href',
+        '/leaderboard',
+      );
+    }
+  }
 });
 
 test('waitlist form requires consent without routing visitors to auth', async ({ page }) => {
@@ -193,7 +258,7 @@ test('legal terms and privacy pages are available with beta-ready details', asyn
 test('logged-out leaderboard contest route stays public and final-only', async ({ page }) => {
   await page.goto('/leaderboard?contest=week-1-qb-passing-yards');
 
-  await expect(page.getByRole('heading', { name: 'Leaderboard Opens After Final Scoring' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Results Open After Final Scoring' })).toBeVisible();
   await expect(
     page.getByText('This contest is not final yet. Final standings appear only after all games are complete').first(),
   ).toBeVisible();

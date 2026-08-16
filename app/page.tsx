@@ -1,8 +1,7 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import Image from 'next/image';
-import { Brain, CalendarDays, CheckCircle2, MailCheck, PlayCircle, ShieldCheck, Trophy } from 'lucide-react';
-import { ContestBoardPreview } from '@/components/contests/contest-board-preview';
+import { Brain, CalendarDays, PlayCircle, Trophy } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { launchMode } from '@/lib/launch-mode';
 import { WaitlistForm } from '@/components/waitlist/waitlist-form';
@@ -13,17 +12,17 @@ const hasLandingVideo = existsSync(join(process.cwd(), 'public', landingVideoPat
 
 const whyPickRankCards = [
   {
-    title: 'No drafting. No season-long commitment.',
+    titleLines: ['No drafting.', 'No season-long commitment.'],
     description: 'One player pool. One board. One week at a time.',
     icon: CalendarDays,
   },
   {
-    title: 'Your sports knowledge actually matters.',
+    titleLines: ['Your sports knowledge actually matters.'],
     description: 'The closer your rankings are to the final results, the better you score.',
     icon: Brain,
   },
   {
-    title: 'Easy to play. Hard to master.',
+    titleLines: ['Easy to play.', 'Harder to master.'],
     description: 'Anyone can rank 10 players. Getting the order right is another story.',
     icon: Trophy,
   },
@@ -42,51 +41,6 @@ const steps = [
     title: 'Compare the final order',
     description: 'Your score comes from how close your board is to the final stat order. Lowest score wins.',
   },
-];
-
-const trustSignals = [
-  {
-    title: 'Skill contest',
-    description: 'No odds, spreads, parlays, or sportsbook mechanics. Your score comes from ranking accuracy.',
-    icon: ShieldCheck,
-  },
-  {
-    title: 'Final-only scoring',
-    description: 'Leaderboards appear after final stats are reviewed and saved.',
-    icon: CheckCircle2,
-  },
-  {
-    title: launchMode.displayName,
-    description: 'Free beta contests use a Beta Pass. No payouts or cash prizes are available during beta.',
-    icon: MailCheck,
-  },
-];
-
-const demoBoardPlayers = [
-  'Josh Allen',
-  'Joe Burrow',
-  'Jalen Hurts',
-  'Lamar Jackson',
-  'Patrick Mahomes',
-  'Justin Herbert',
-  'Dak Prescott',
-  'Brock Purdy',
-  'Jordan Love',
-  'Kirk Cousins',
-];
-
-const demoSlatePlayers = [
-  'C.J. Stroud',
-  'Tua Tagovailoa',
-  'Trevor Lawrence',
-  'Matthew Stafford',
-  'Geno Smith',
-  'Baker Mayfield',
-  'Kyler Murray',
-  'Jared Goff',
-  'Caleb Williams',
-  'Jayden Daniels',
-  ...demoBoardPlayers,
 ];
 
 type HomePageProps = {
@@ -138,17 +92,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             <div className="max-w-xl">
               <WaitlistForm sourcePath="/" utm={utm} variant="hero" />
             </div>
-            <div className="grid gap-2 pt-1 sm:grid-cols-3">
-              {trustSignals.map(({ title, description, icon: Icon }) => (
-                <div key={title} className="rounded-lg border border-white/10 bg-white/8 p-3 text-sm">
-                  <div className="mb-2 flex items-center gap-2 font-bold text-white">
-                    <Icon className="h-4 w-4 text-blue-200" aria-hidden="true" />
-                    {title}
-                  </div>
-                  <p className="text-xs leading-5 text-slate-300">{description}</p>
-                </div>
-              ))}
-            </div>
           </div>
 
           <Card className="border-white/10 bg-slate-950/40 text-white shadow-[0_20px_60px_rgba(15,23,42,0.35)]">
@@ -187,26 +130,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         </div>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
-        <div className="screen-header space-y-3">
-          <p className="eyebrow">Weekly Board Snapshot</p>
-          <h2 className="text-2xl font-black leading-tight">The game is the distance between your board and the final order.</h2>
-          <p className="text-sm leading-6 text-muted-foreground sm:text-base">
-            Open a contest, scan the player pool, pick 10 players, then rank your board before lock. Final scoring compares
-            your board to the official stat order. Lowest score wins.
-          </p>
-        </div>
-        <ContestBoardPreview
-          title="Week 1 QB Passing Yards"
-          slateLabel="20-QB player pool"
-          statCategory="Passing yards"
-          lockTimeLabel="Sun 1:00 PM ET"
-          rankedPlayers={demoBoardPlayers}
-          slatePlayers={demoSlatePlayers}
-          variant="compact"
-        />
-      </section>
-
       <section className="space-y-4">
         <div className="space-y-1">
           <h2 className="text-2xl font-black leading-tight">How PickRank works</h2>
@@ -232,13 +155,19 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       <section className="space-y-4">
         <h2 className="text-2xl font-black leading-tight">Why PickRank</h2>
         <div className="grid gap-4 lg:grid-cols-3">
-          {whyPickRankCards.map(({ title, description, icon: Icon }) => (
-            <Card key={title} className="section-card">
+          {whyPickRankCards.map(({ titleLines, description, icon: Icon }) => (
+            <Card key={titleLines.join(' ')} className="section-card">
               <CardHeader className="space-y-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-blue-600">
                   <Icon className="h-5 w-5" aria-hidden="true" />
                 </div>
-                <CardTitle className="text-lg">{title}</CardTitle>
+                <CardTitle className="text-lg">
+                  {titleLines.map((line) => (
+                    <span key={line} className="block">
+                      {line}
+                    </span>
+                  ))}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm leading-6 text-muted-foreground">{description}</p>
@@ -252,7 +181,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         <div className="mx-auto max-w-2xl space-y-3">
           <h2 className="text-2xl font-black leading-tight">Think you can rank them better?</h2>
           <p className="text-sm leading-6 text-muted-foreground sm:text-base">
-            PickRank is opening as Early Access Beta. Join the waitlist and be among the first to play free beta contests.
+            PickRank is launching as an early access beta. Join the waitlist and be among the first to play our contests
+            for free.
           </p>
         </div>
         <div className="mx-auto w-full max-w-xl">

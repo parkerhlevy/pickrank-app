@@ -195,7 +195,7 @@ export function getContestDetailPrimaryAction({
 
   if (contestStatus === 'final' || contestStatus === 'paid_out') {
     return {
-      label: hasEntry ? 'View Results' : 'View Leaderboard',
+      label: 'View Results',
       href: hasEntry ? `/contests/${contestId}/results` : `/leaderboard?contest=${contestId}`,
       disabled: false,
       tone: 'default' as const,

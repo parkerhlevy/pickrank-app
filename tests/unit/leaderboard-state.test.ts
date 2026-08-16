@@ -12,7 +12,7 @@ describe('leaderboard state helpers', () => {
 
   it('returns open-contest placeholder copy', () => {
     expect(getLeaderboardPlaceholderState('open')).toEqual({
-      title: 'Leaderboard Opens After Final Scoring',
+      title: 'Results Open After Final Scoring',
       description:
         'This contest is not final yet. Final standings appear only after all games are complete and saved scoring is confirmed.',
     });
