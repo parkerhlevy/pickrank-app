@@ -47,17 +47,28 @@ test('public conversion routes explain the contest mechanics before entry', asyn
   await page.goto('/contests');
 
   await expect(page.getByRole('heading', { name: 'Open Contests' })).toBeVisible();
-  await expect(page.getByText('Find a free beta contest, scan the 20-player pool')).toBeVisible();
-  await expect(page.getByText('Pick 10', { exact: true })).toBeVisible();
-  await expect(page.getByText('Accuracy wins')).toBeVisible();
+  await expect(page.getByText('Find and enter a contest, evaluate the 20-player pool, and build the most accurate board possible to beat the field.')).toBeVisible();
+  await expect(page.getByText('One stat', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('Pick 10', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('Accuracy wins')).toHaveCount(0);
+  await expect(page.getByText('Featured', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('Contest Board', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('Beta Pass', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('Entry Cost', { exact: true })).toHaveCount(0);
 
   await page.goto('/contests/week-1-qb-passing-yards');
 
-  await expect(page.getByRole('heading', { name: 'Quick Read' })).toBeVisible();
-  await expect(page.getByText('What you do')).toBeVisible();
-  await expect(page.getByText('How you score')).toBeVisible();
-  await expect(page.getByText('When results count')).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Beta Result Status' })).toBeVisible();
+  await expect(page.getByText('Open', { exact: true }).first()).toHaveClass(/bg-emerald-100/);
+  await expect(page.getByRole('heading', { name: 'Contest Details - Free to play during beta' })).toBeVisible();
+  await expect(page.getByText('Early access beta contests have no cash prizes, no payouts, no minimum participants, and no cost to enter.')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Scoring' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Quick Read' })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Beta Result Status' })).toHaveCount(0);
+  await expect(page.getByText('Your Board', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('Final order', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('Lower score wins', { exact: true })).toHaveCount(0);
+  const playerPool = page.getByText('Player Pool', { exact: true }).last().locator('../..');
+  await expect(playerPool.locator('div.rounded-md')).toHaveCount(20);
   await expect(page.getByText('Beta contest - no payout')).toHaveCount(0);
   await expect(page.getByText('operator proof')).toHaveCount(0);
 
@@ -121,10 +132,18 @@ test('logged-out profile hides public paid-review and wallet clutter', async ({ 
 test('mobile beta public cleanup pages stay readable without paid clutter', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
 
+  await page.goto('/contests');
+
+  await expect(page.getByRole('heading', { name: 'Open Contests' })).toBeVisible();
+  await expect(page.getByText('Contest Board', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('Featured', { exact: true })).toHaveCount(0);
+
   await page.goto('/contests/week-1-qb-passing-yards');
 
-  await expect(page.getByRole('heading', { name: 'Beta Result Status' })).toBeVisible();
-  await expect(page.getByText('Beta standings do not create payouts')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Contest Details - Free to play during beta' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Scoring' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Beta Result Status' })).toHaveCount(0);
+  await expect(page.getByText('Your Board', { exact: true })).toHaveCount(0);
   await expect(page.getByText('Beta contest - no payout')).toHaveCount(0);
 
   await page.goto('/wallet');

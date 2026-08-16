@@ -104,7 +104,7 @@ export function ContestBoardPreview({
 }: ContestBoardPreviewProps) {
   const rankLimit = previewLimits[variant];
   const rankedPreview = rankedPlayers.slice(0, rankLimit);
-  const slatePreview = getSlatePreview(slatePlayers, rankedPlayers, variant === 'detail' ? 5 : 3);
+  const slatePreview = variant === 'detail' ? slatePlayers : getSlatePreview(slatePlayers, rankedPlayers, 3);
   const isCompact = variant === 'compact';
   const playerPoolLabel = formatPlayerPoolLabel(slateLabel);
   const playerContextByName = new Map(
@@ -123,7 +123,15 @@ export function ContestBoardPreview({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 space-y-1">
             <p className="text-xs font-bold uppercase text-blue-200">Contest Board</p>
-            <h3 className={cn('font-black leading-tight', isCompact ? 'text-base' : 'text-xl')}>{title}</h3>
+            <h3
+              className={cn(
+                'font-black leading-tight',
+                isCompact ? 'text-base' : 'text-xl',
+                variant === 'detail' && 'sm:whitespace-nowrap',
+              )}
+            >
+              {title}
+            </h3>
           </div>
           {lockTimeLabel ? (
             <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-[11px] font-bold text-blue-100">
@@ -132,12 +140,14 @@ export function ContestBoardPreview({
             </span>
           ) : null}
         </div>
-        <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] font-bold uppercase text-slate-300 sm:grid-cols-4">
-          <span className="rounded-md bg-white/10 px-2 py-1">{playerPoolLabel}</span>
-          <span className="rounded-md bg-white/10 px-2 py-1">Your board</span>
-          <span className="rounded-md bg-white/10 px-2 py-1">Final order</span>
-          <span className="rounded-md bg-white/10 px-2 py-1">Lower score wins</span>
-        </div>
+        {variant !== 'detail' ? (
+          <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] font-bold uppercase text-slate-300 sm:grid-cols-4">
+            <span className="rounded-md bg-white/10 px-2 py-1">{playerPoolLabel}</span>
+            <span className="rounded-md bg-white/10 px-2 py-1">Your board</span>
+            <span className="rounded-md bg-white/10 px-2 py-1">Final order</span>
+            <span className="rounded-md bg-white/10 px-2 py-1">Lower score wins</span>
+          </div>
+        ) : null}
       </div>
 
       <div className={cn('grid gap-3 p-3', variant === 'feature' && 'sm:grid-cols-[0.9fr_1.1fr]')}>
@@ -149,7 +159,7 @@ export function ContestBoardPreview({
             </div>
             <span className="numeric text-xs font-bold text-slate-500">{statCategory}</span>
           </div>
-          <div className="space-y-2">
+          <div className={cn('space-y-2', variant === 'detail' && 'grid gap-2 space-y-0 sm:grid-cols-2')}>
             {slatePreview.map((player) => {
               const playerContext = playerContextByName.get(player);
 
@@ -161,7 +171,9 @@ export function ContestBoardPreview({
                   <span className="min-w-0">
                     <span className="block truncate font-semibold">{playerContext?.nameLabel ?? player}</span>
                     {playerContext ? (
-                      <span className="numeric block truncate text-xs text-slate-500">{playerContext.matchupLabel}</span>
+                      <span className="numeric block truncate text-xs text-slate-500">
+                        {playerContext.matchupLabel}
+                      </span>
                     ) : null}
                   </span>
                   <ArrowRight className="h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden="true" />
@@ -171,43 +183,47 @@ export function ContestBoardPreview({
           </div>
         </div>
 
-        <div className="rounded-lg border border-blue-100 bg-blue-50/70 p-3">
-          <div className="mb-3 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <ListOrdered className="h-4 w-4 text-blue-600" aria-hidden="true" />
-              <p className="text-sm font-black">Your Board</p>
+        {variant !== 'detail' ? (
+          <div className="rounded-lg border border-blue-100 bg-blue-50/70 p-3">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <ListOrdered className="h-4 w-4 text-blue-600" aria-hidden="true" />
+                <p className="text-sm font-black">Your Board</p>
+              </div>
+              <span className="numeric text-xs font-bold text-blue-700">{rankedPlayers.length}/10 ranked</span>
             </div>
-            <span className="numeric text-xs font-bold text-blue-700">{rankedPlayers.length}/10 ranked</span>
-          </div>
-          <div className="grid gap-2">
-            {rankedPreview.map((player, index) => {
-              const playerContext = playerContextByName.get(player);
+            <div className="grid gap-2">
+              {rankedPreview.map((player, index) => {
+                const playerContext = playerContextByName.get(player);
 
-              return (
-                <div
-                  key={`${player}-${index}`}
-                  className="flex items-center gap-2 rounded-md border border-blue-100 bg-white px-3 py-2 text-sm shadow-sm"
-                >
-                  <span className="numeric flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-slate-950 text-xs font-black text-white">
-                    {index + 1}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate font-semibold">{playerContext?.nameLabel ?? player}</span>
-                    {playerContext ? (
-                      <span className="numeric block truncate text-xs text-slate-500">{playerContext.matchupLabel}</span>
-                    ) : null}
-                  </span>
-                  <GripVertical className="h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden="true" />
-                </div>
-              );
-            })}
+                return (
+                  <div
+                    key={`${player}-${index}`}
+                    className="flex items-center gap-2 rounded-md border border-blue-100 bg-white px-3 py-2 text-sm shadow-sm"
+                  >
+                    <span className="numeric flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-slate-950 text-xs font-black text-white">
+                      {index + 1}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate font-semibold">{playerContext?.nameLabel ?? player}</span>
+                      {playerContext ? (
+                        <span className="numeric block truncate text-xs text-slate-500">
+                          {playerContext.matchupLabel}
+                        </span>
+                      ) : null}
+                    </span>
+                    <GripVertical className="h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden="true" />
+                  </div>
+                );
+              })}
+            </div>
+            {variant !== 'compact' ? (
+              <p className="mt-3 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold leading-5 text-emerald-900">
+                Scoring compares your board with the final {statCategory.toLowerCase()} order. Lowest total miss wins.
+              </p>
+            ) : null}
           </div>
-          {variant !== 'compact' ? (
-            <p className="mt-3 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold leading-5 text-emerald-900">
-              Scoring compares your board with the final {statCategory.toLowerCase()} order. Lowest total miss wins.
-            </p>
-          ) : null}
-        </div>
+        ) : null}
       </div>
     </div>
   );
@@ -296,7 +312,12 @@ export function ContestBoardStagePanel({
       </div>
 
       <div className="grid gap-2 p-3 sm:grid-cols-2">
-        <BoardStageTile icon={Target} label="Player Pool" value={formatPlayerPoolLabel(slateLabel)} detail={statCategory} />
+        <BoardStageTile
+          icon={Target}
+          label="Player Pool"
+          value={formatPlayerPoolLabel(slateLabel)}
+          detail={statCategory}
+        />
         <BoardStageTile icon={ListOrdered} label={rankedLabel} value={rankedCountLabel} detail={rankedDetail} />
         <BoardStageTile icon={Clock} label={timingLabel} value={lockTimeLabel} detail={timingDetail} />
       </div>
