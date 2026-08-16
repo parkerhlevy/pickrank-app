@@ -63,15 +63,14 @@ The repo is past bare Phase 0 and currently includes:
 - Vitest wired
 - Basic route smoke tests
 
-Current branch reality on `main` as of 2026-08-15:
+Current branch reality on `work` as of 2026-08-16:
 
-- `main` remains synced with `origin/main` at `4fbdb12 Merge MySportsFeeds validation and lint cleanup (#19)` (`0` ahead, `0` behind), but the primary worktree is not clean
-- the primary worktree contains the preserved pre-existing MySportsFeeds handoff refresh plus the uncommitted Slice 1 Shared shell + static public pages implementation; keep these handoff changes merged and do not overwrite them
-- Slice 1 widens non-admin public pages at desktop breakpoints while preserving the tight mobile shell and unchanged admin width classes; removes the homepage hero signal boxes and Weekly Board Snapshot; aligns the requested homepage and How It Works copy; adds the Profile How It Works link; and changes public navigation/page framing from Leaderboard to Results while keeping `/leaderboard`, helper names, and result-state behavior unchanged
-- Slice 1 verification passes `npm run typecheck`, `npm run lint`, `npm run test` (`37` files, `216` tests), focused leaderboard/entry-flow unit tests (`2` files, `22` tests), and `git diff --check`; Playwright desktop/mobile verification remains open because both the sandboxed and approved unsandboxed local server attempts failed to bind port `3000` with `listen EPERM`
+- Slice 1 is merged on the current `work` branch through merge commit `68500ba`; the worktree was clean before Slice 2 started
+- Slice 2 simplifies Contest discovery into responsive contest cards with only status, entries, lock time, and stat category; removes Featured framing and lobby board previews; and makes Contest Detail a concise free-beta overview with a green Open state, compact scoring, and the full 20-QB player pool without a fake user board
+- Slice 2 preserves future paid-contest detail fields for non-beta contests and does not change contest data, entry behavior, scoring, payments, wallet behavior, provider writes, lifecycle, legal terms, or production data
+- Slice 2 verification passes `npm run typecheck`, `npm run lint`, and `npm run test` (`37` files, `216` tests); focused desktop/mobile Playwright is blocked because the installed Playwright browser is absent and the browser download endpoint returns `403 Forbidden`
 - the private MySportsFeeds read-only validation probe is integrated on `main`; it adds no Supabase writes and does not change the official typed-`FINAL` finalization path
 - the repo-wide lint cleanup removes the remaining ESLint errors and warnings without changing product behavior; `npm run lint`, `npm run typecheck`, and `npm run test` (`37` files, `216` tests) pass
-- the primary local `main` checkout under `/Users/parkerlevy/Documents/PickRank` is the active worktree for the current uncommitted Slice 1 UI changes
 - earlier mixed local recovery work remains separated into sibling worktrees; preserve those lanes until Parker chooses whether to integrate or retire them
 - the latest pushed product baseline includes the paid-preview launch-mode guard, the admin contest removal flow, the production 18+ DOB gate/legal alignment, and the Early Access Beta public UI cleanup; `origin/main` is the source baseline for delivery
 - current sibling worktrees are intentional preservation or delivery lanes, not main-worktree dirt: `codex/admin-contest-removal-ux`, `codex/beta-age-gate-18`, `codex/beta-public-ui-cleanup`, `codex/legal-comment-synthesis`, `codex/main-age-gate-18`, `codex/mysportsfeeds-main-integration`, `codex/mysportsfeeds-lint-integration`, `codex/provider-mysportsfeeds-read-only`, `codex/repo-lane-reconciliation`, and `codex/provider-sportsdataio-parked-draft`
@@ -415,9 +414,9 @@ Deferred Phase 2 items:
 Current product checklist:
 
 ```text
-1. Shared shell + static public pages: implemented locally; browser verification remains open because the environment cannot bind the local server port
-2. Contest discovery + Contest Detail: next recommended product slice
-3. Free beta entry flow
+1. Shared shell + static public pages: merged
+2. Contest discovery + Contest Detail: implemented in Slice 2
+3. Free beta entry flow: next recommended product slice
 4. Build your board
 5. Profile + Results
 ```
@@ -425,14 +424,14 @@ Current product checklist:
 Next recommended slice:
 
 ```text
-Continue PickRank using the repo as source of truth. This is an implementation thread for Slice 2: Contest discovery + Contest Detail. Before editing, read `docs/agent-handoff.md`, `AGENTS.md`, `spec/product_spec.md`, `spec/features/frontend_navigation.md`, the relevant contest feature specs, current Git status, `app/contests/page.tsx`, `app/contests/[contestId]/page.tsx`, shared contest components, and focused tests. Preserve the free-to-play Early Access Beta posture: Beta Pass, no cash value, no payouts, and no cash prizes. Keep `/leaderboard` as the Results route. Preserve Entry Review and Entry Success as parked/fallback paid-version surfaces. Do not change payments, wallet ledger behavior, scoring, provider writes, contest lifecycle, legal terms, Supabase production data, Remotion assets, admin controls, or unrelated local work. Keep the slice limited to contest discovery and Contest Detail presentation. Do not change entry behavior. Update focused tests, run typecheck, lint, the full unit suite, desktop/mobile browser verification, and `git diff --check`. Merge `docs/agent-handoff.md` carefully and stop after Slice 2.
+Continue PickRank using the repo as source of truth. Implement Slice 3 of the Early Access Beta UI cleanup for the free beta entry flow. Before editing, read `docs/agent-handoff.md`, `AGENTS.md`, `spec/product_spec.md`, `spec/features/frontend_navigation.md`, the relevant entry and payment-review specs, current Git status, the Entry Review and Entry Success routes, shared entry components, and focused tests. Preserve Beta Pass, no cash value, no payouts, no cash prizes, and the current free-entry guardrails. Preserve future paid-contest logic behind its existing boundaries. Do not change payments, wallet ledger behavior, scoring, provider writes, contest lifecycle, eligibility or legal rules, Supabase production data, Remotion assets, admin controls, or unrelated local work. Keep the slice presentation-only. Update focused tests, run typecheck, lint, the full unit suite, desktop/mobile browser verification, and `git diff --check`. Refresh this handoff and stop after Slice 3.
 ```
 
 Definition of done:
 
-- complete the approved Contest discovery + Contest Detail presentation changes without changing contest data, entry, scoring, or lifecycle behavior
-- preserve admin controls and the free-to-play Early Access Beta posture
-- keep the `/leaderboard` route and public Results label
+- simplify Entry Review and Entry Success without changing entry creation, access, payment, eligibility, scoring, or lifecycle behavior
+- preserve future paid-contest surfaces and the free-to-play Early Access Beta posture
+- keep the existing contest routes and entry guards
 - update focused copy/layout tests
 - run `npm run typecheck`, `npm run lint`, `npm run test`, focused desktop/mobile Playwright, and `git diff --check`
 - update this handoff note again if repo reality or the next recommended move changes
