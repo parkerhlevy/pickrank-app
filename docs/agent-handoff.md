@@ -63,7 +63,7 @@ The repo is past bare Phase 0 and currently includes:
 - Vitest wired
 - Basic route smoke tests
 
-Current branch reality on `main` as of 2026-08-16:
+Current branch and production reality as of 2026-08-16:
 
 - the current worktree started Slice 3 clean and aligned with `origin/main` at `57da074`
 - Slice 1 is merged through merge commit `68500ba`
@@ -75,6 +75,7 @@ Current branch reality on `main` as of 2026-08-16:
 - `/contests/:contest_id/payment` and `/contests/:contest_id/success` remain intact as parked future paid-version surfaces; direct free beta visits return to Contest Detail before entry or Build Your Board after a persisted entry exists, while non-beta paid-review and success behavior remains preserved
 - the active free beta board now reads `Step 2 of 2` and no longer expects `Entry Review`, `Entry Success`, or `Continue to Build Your Board`; the free path still has no cash value, payouts, cash prizes, wallet movement, or paid-entry count movement
 - Slice 3 verification passes `npm run typecheck`, `npm run lint`, `npm run test` (`37` files, `219` tests), `npm run build`, focused desktop/mobile `npx playwright test tests/e2e/lineup-builder.spec.ts --workers=1` (`9` passed), and `git diff --check`; Playwright required the expected outside-sandbox Chromium and dev-server run because sandboxed Chromium failed macOS Mach port setup and sandboxed Next.js dev mode exhausted file watchers
+- Slice 3 is committed and pushed on `codex/early-access-beta-slice-3`, is open as draft pull request `#22`, and is deployed to Vercel Production; `main` remains at the Slice 2 merge until pull request `#22` is reviewed and merged, so merge that pull request before starting Slice 4 or triggering another `main` deployment
 - the private MySportsFeeds read-only validation probe is integrated on `main`; it adds no Supabase writes and does not change the official typed-`FINAL` finalization path
 - the repo-wide lint cleanup removes the remaining ESLint errors and warnings without changing product behavior; `npm run lint`, `npm run typecheck`, and `npm run test` (`37` files, `216` tests) pass
 - earlier mixed local recovery work remains separated into sibling worktrees; preserve those lanes until Parker chooses whether to integrate or retire them
@@ -82,7 +83,7 @@ Current branch reality on `main` as of 2026-08-16:
 - current sibling worktrees are intentional preservation or delivery lanes, not main-worktree dirt: `codex/admin-contest-removal-ux`, `codex/beta-age-gate-18`, `codex/beta-public-ui-cleanup`, `codex/legal-comment-synthesis`, `codex/main-age-gate-18`, `codex/mysportsfeeds-main-integration`, `codex/mysportsfeeds-lint-integration`, `codex/provider-mysportsfeeds-read-only`, `codex/repo-lane-reconciliation`, and `codex/provider-sportsdataio-parked-draft`
 - `codex/provider-mysportsfeeds-read-only` remains a source preservation branch; the integrated `main` slice is verified, but branch retirement is still Parker's decision
 - `git fetch --prune origin` and `git remote prune origin --dry-run` both completed on 2026-08-13; no stale remote-tracking refs were reported in this run
-- Early Access Beta is now the pushed and deployed production posture: public launch contests are free to play, visible launch contest seed data uses `$0.00` entry cost and `0` paid entries, public copy uses Beta Pass/no-cash-value/no-payout language, `/contests/:contest_id/payment` remains the route but is labeled `Entry Review`, and paid contests remain the future product direction behind legal, provider, payment, withdrawal, and compliance gates
+- Early Access Beta is now the pushed and deployed production posture: public launch contests are free to play, visible launch contest seed data uses `$0.00` entry cost and `0` paid entries, public copy uses Beta Pass/no-cash-value/no-payout language, the active free entry path skips `/payment` and `/success`, those routes remain parked for future paid contests, and paid contests remain the future product direction behind legal, provider, payment, withdrawal, and compliance gates
 - SportsDataIO remains parked as historical/private technical validation context because the quoted `$10k` per-season commercial license is not viable for the near-term launch path unless pricing changes materially; do not add SportsDataIO public provider wording or production dependency without new approval
 - MySportsFeeds is now the leading provider candidate pending written licensing/use confirmation; the repo includes `npm run validate:mysportsfeeds:read-only` as an internal no-Supabase probe for auth, schedule access, game-state mapping, QB `passYards`, provider IDs, and provisional snapshot shape
 - the read-only MySportsFeeds preseason test against DET at CIN, `2026-preseason/week/1/game/163796`, first proved auth, schedule access, `LIVE` game state, `COMPLETED_PENDING_REVIEW` post-game state, non-zero QB passing yards, provider player IDs, provider game IDs, and the private provisional snapshot row shape; a later read-only check on 2026-08-14 also proved the same game reaches plain `COMPLETED`, maps to provisional `final`, and returns six non-zero QB passing-stat rows
@@ -428,6 +429,8 @@ Current product checklist:
 ```
 
 Next recommended slice:
+
+Before starting Slice 4, review and merge draft pull request `#22` so `origin/main` matches the verified Slice 3 production deployment.
 
 ```text
 Continue PickRank using the repo as source of truth. Implement Slice 4 of the Early Access Beta UI cleanup for Build Your Board. Before editing, read `docs/agent-handoff.md`, `AGENTS.md`, `spec/product_spec.md`, `spec/features/frontend_navigation.md`, the lineup-builder specs and state helpers, current Git status, `app/contests/[contestId]/lineup/page.tsx`, `components/contests/lineup-builder-client.tsx`, the lineup API route, and focused unit and Playwright tests. Keep the active free beta journey as Contest Detail -> Enter Free Beta Contest -> Build Your Board. Preserve the full 20-player pool, ranked 10-player board, existing selection and reorder behavior, keyboard and pointer controls, saved-entry and lineup persistence, save feedback, lock-state read-only behavior, auth and entry gates, and parked paid-version surfaces. Do not change payments, wallet behavior, scoring, provider writes, contest lifecycle, legal terms, Supabase production data, Remotion assets, or unrelated local work. Keep Slice 4 presentation-only. Update focused tests, run typecheck, lint, the full unit suite, desktop/mobile Playwright, and `git diff --check`. Refresh this handoff and stop after Slice 4.
