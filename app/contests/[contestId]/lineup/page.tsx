@@ -20,6 +20,7 @@ import {
   isContestLineupEditable,
 } from '@/lib/contest-data';
 import { getViewerIdentity } from '@/lib/viewer-identity';
+import { isBetaFreeEntryContest } from '@/lib/launch-mode';
 
 export default async function LineupBuilderPage({
   params,
@@ -54,13 +55,16 @@ export default async function LineupBuilderPage({
     persistedStage,
     route: 'lineup',
     hasPersistedEntry: Boolean(persistedEntry),
+    usesDirectEntryFlow: isBetaFreeEntryContest(contest.entryFeeCents),
   });
 
   if (routeState.shouldRedirect && routeState.redirectHref) {
     redirect(routeState.redirectHref);
   }
 
-  const stateCopy = getContestEntryStateCopy(routeState.stage);
+  const stateCopy = getContestEntryStateCopy(routeState.stage, {
+    usesDirectEntryFlow: isBetaFreeEntryContest(contest.entryFeeCents),
+  });
   const isEditable = isContestLineupEditable(contest);
 
   if (!persistedEntry) {

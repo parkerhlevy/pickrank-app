@@ -17,6 +17,7 @@ import {
   isContestOpenForEntry,
 } from '@/lib/contest-data';
 import { getViewerIdentity } from '@/lib/viewer-identity';
+import { isBetaFreeEntryContest } from '@/lib/launch-mode';
 
 export async function GET(
   request: Request,
@@ -44,6 +45,14 @@ export async function GET(
     selectablePlayers,
     defaultSelectedOrder,
   );
+
+  if (isBetaFreeEntryContest(contest.entryFeeCents) && requestedEntryFlow) {
+    const directEntryHref = existingEntry
+      ? getContestEntryHref(contestId, 'lineup')
+      : getContestEntryHref(contestId, 'not-entered');
+
+    return NextResponse.redirect(new URL(directEntryHref, request.url));
+  }
 
   if (requestedProtectedFlow) {
     const next = getContestEntryProgressHref(contestId, stage);

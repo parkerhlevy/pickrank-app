@@ -198,6 +198,9 @@ Post Entry State
 Primary button becomes: Edit Lineup
 Payment UX:
 Users see a payment review step before entry confirmation. Site credit and cash balance are applied before external payment. Entries are created only after payment succeeds.
+
+Early Access Beta exception:
+Free beta users enter from Contest Detail through the same server-authoritative entry creation path, then route directly to Build Your Board. They do not visit Entry Review or Entry Success. The payment and success routes remain parked for future paid contests.
 Detailed design:
 See /spec/features/payment_wallet_ux.md
 ---

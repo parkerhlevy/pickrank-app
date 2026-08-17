@@ -10,6 +10,7 @@ import { getProtectedContestEntryRedirect } from '@/lib/contest-entry-access';
 import { buildProfileHref } from '@/lib/auth-profile';
 import {
   contestEntryCookieName,
+  getContestEntryHref,
   getContestEntryRouteState,
   getContestEntryStateCopy,
   getContestEntrySteps,
@@ -41,6 +42,22 @@ export default async function PaymentReviewPage({
   const { contestId } = await params;
   const resolvedSearchParams = (await searchParams) || {};
   const contest = await getContestById(contestId);
+  const isFreeEntryContest = isBetaFreeEntryContest(contest.entryFeeCents);
+
+  if (isFreeEntryContest) {
+    const viewerIdentity = await getViewerIdentity();
+    const persistedEntry = await getPersistedContestEntry(
+      contest.id,
+      viewerIdentity.userId,
+      getContestSelectablePlayers(contest),
+      getContestDefaultLineupOrder(contest),
+    );
+
+    redirect(
+      getContestEntryHref(contest.id, persistedEntry ? 'lineup' : 'not-entered'),
+    );
+  }
+
   const next = `/contests/${contest.id}/payment`;
   const protectedRedirect = await getProtectedContestEntryRedirect(next);
 
@@ -76,7 +93,6 @@ export default async function PaymentReviewPage({
   const stateCopy = getContestEntryStateCopy(routeState.stage);
   const flowSteps = getContestEntrySteps(routeState.stage);
   const breakdown = getPaymentReviewBreakdown(contest.entryFeeCents);
-  const isFreeEntryContest = isBetaFreeEntryContest(contest.entryFeeCents);
   const entryReviewLabel = getEntryReviewLabel(contest.entryFeeCents);
   const confirmationError = getContestEntryConfirmationError(contest.entryFeeCents, {
     eligibility: viewerIdentity.eligibility,

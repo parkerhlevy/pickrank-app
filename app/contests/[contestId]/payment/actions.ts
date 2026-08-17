@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { getProtectedContestEntryRedirect } from '@/lib/contest-entry-access';
 import { getContestEntryConfirmationError } from '@/lib/contest-entry-confirmation';
-import { getContestEntryProgressHref } from '@/lib/contest-entry-flow';
+import { getContestEntryHref, getContestEntryProgressHref } from '@/lib/contest-entry-flow';
 import {
   getContestById,
   getContestDefaultLineupOrder,
@@ -12,6 +12,7 @@ import {
   isContestOpenForEntry,
 } from '@/lib/contest-data';
 import { ensurePersistedContestEntry } from '@/lib/persisted-contest-entry';
+import { isBetaFreeEntryContest } from '@/lib/launch-mode';
 import { getViewerIdentity } from '@/lib/viewer-identity';
 
 const confirmationSchema = z.object({
@@ -28,7 +29,8 @@ export async function confirmContestEntryAction(formData: FormData) {
   }
 
   const contest = await getContestById(parsed.data.contestId);
-  const next = `/contests/${contest.id}/payment`;
+  const isFreeBetaEntry = isBetaFreeEntryContest(contest.entryFeeCents);
+  const next = isFreeBetaEntry ? `/contests/${contest.id}` : `/contests/${contest.id}/payment`;
   const protectedRedirect = await getProtectedContestEntryRedirect(next);
 
   if (protectedRedirect) {
@@ -46,7 +48,8 @@ export async function confirmContestEntryAction(formData: FormData) {
   });
 
   if (confirmationError) {
-    redirect(`/contests/${contest.id}/payment?status=error&message=${encodeURIComponent(confirmationError)}`);
+    const errorPath = isFreeBetaEntry ? `/contests/${contest.id}` : `/contests/${contest.id}/payment`;
+    redirect(`${errorPath}?status=error&message=${encodeURIComponent(confirmationError)}`);
   }
 
   await ensurePersistedContestEntry({
@@ -56,5 +59,9 @@ export async function confirmContestEntryAction(formData: FormData) {
     defaultSelectedOrder: getContestDefaultLineupOrder(contest),
   });
 
-  redirect(getContestEntryProgressHref(contest.id, 'entered'));
+  redirect(
+    isFreeBetaEntry
+      ? getContestEntryHref(contest.id, 'lineup')
+      : getContestEntryProgressHref(contest.id, 'entered'),
+  );
 }

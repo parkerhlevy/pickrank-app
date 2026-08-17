@@ -1,8 +1,9 @@
 import Link from 'next/link';
-import { ArrowLeft, Clock, Ticket, Users } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Clock, Ticket, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { ContestBoardPreview } from '@/components/contests/contest-board-preview';
 import { Button } from '@/components/ui/button';
+import { Notice } from '@/components/ui/notice';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getContestDetailPrimaryAction } from '@/lib/contest-entry-flow';
 import {
@@ -14,9 +15,17 @@ import {
 import { isBetaFreeEntryContest, launchMode } from '@/lib/launch-mode';
 import { getPersistedContestEntry } from '@/lib/persisted-contest-entry';
 import { getViewerIdentity } from '@/lib/viewer-identity';
+import { confirmContestEntryAction } from './payment/actions';
 
-export default async function ContestDetailPage({ params }: { params: Promise<{ contestId: string }> }) {
+export default async function ContestDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ contestId: string }>;
+  searchParams?: Promise<{ message?: string; status?: string }>;
+}) {
   const { contestId } = await params;
+  const resolvedSearchParams = (await searchParams) || {};
   const contest = await getContestById(contestId);
   const viewerIdentity = await getViewerIdentity();
   const selectablePlayers = getContestSelectablePlayers(contest);
@@ -137,15 +146,30 @@ export default async function ContestDetailPage({ params }: { params: Promise<{ 
           <CardContent className="space-y-3 text-sm text-muted-foreground">
             <p>You can review the format, lock time, and scoring on this page right now.</p>
             <p>
-              After you sign in, PickRank will take you into Entry Review and keep your next step pointed at this
-              contest.
+              After you sign in and finish the required Profile setup, PickRank will return you to this contest so
+              you can enter and start building your board.
             </p>
           </CardContent>
         </Card>
       ) : null}
 
       <div className="action-panel">
-        {primaryAction.href ? (
+        {resolvedSearchParams.status === 'error' && resolvedSearchParams.message ? (
+          <Notice
+            variant="warning"
+            icon={AlertTriangle}
+            title="Contest entry needs attention"
+            description={resolvedSearchParams.message}
+          />
+        ) : null}
+        {'submitsEntry' in primaryAction && primaryAction.submitsEntry ? (
+          <form action={confirmContestEntryAction}>
+            <input type="hidden" name="contestId" value={contest.id} />
+            <Button type="submit" className="w-full">
+              {primaryAction.label}
+            </Button>
+          </form>
+        ) : primaryAction.href ? (
           <Button asChild className="w-full">
             <Link href={primaryAction.href}>{primaryAction.label}</Link>
           </Button>
