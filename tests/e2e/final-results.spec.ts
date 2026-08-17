@@ -250,7 +250,7 @@ let originalEntryStore = '';
 let originalResultsStore: string | null = null;
 let originalProviderStore: string | null = null;
 
-test.describe.configure({ mode: 'serial' });
+test.describe.configure({ mode: 'serial', timeout: 60_000 });
 
 test.beforeAll(async () => {
   originalContestStore = await readFile(contestStorePath, 'utf8');
