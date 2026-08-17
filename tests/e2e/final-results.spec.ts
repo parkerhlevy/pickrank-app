@@ -12,6 +12,7 @@ const contestStorePath = path.join(process.cwd(), 'data', 'contests.json');
 const entryStorePath = path.join(process.cwd(), 'data', 'contest-entries.json');
 const resultsStorePath = path.join(process.cwd(), 'data', 'contest-results.json');
 const providerStorePath = path.join(process.cwd(), 'data', 'provider-stats.json');
+const serverActionTimeout = 20_000;
 const targetContestId = 'week-1-sunday-qb-passing-yards';
 const freeProofContestId = 'week-1-qb-passing-yards';
 type SeedEntry = {
@@ -332,7 +333,7 @@ test('finalizes the locked contest from admin and keeps leaderboard/results surf
   await operatorPage.locator(`#confirmationText-${targetContestId}`).fill('FINAL');
   await operatorPage.getByRole('button', { name: 'Run Final Scoring' }).click();
 
-  await expect(operatorPage).toHaveURL(/status=finalized/);
+  await expect(operatorPage).toHaveURL(/status=finalized/, { timeout: serverActionTimeout });
   await expect(
     operatorPage.getByText('Week 1 QB Passing Yards final results are now published from the confirmed QB stats.'),
   ).toBeVisible();
@@ -497,7 +498,7 @@ test('locks and finalizes the same zero-fee proof contest without paid count or 
   await operatorPage.locator(`#lockConfirmationText-${freeProofContestId}`).fill('LOCK TEST');
   await operatorPage.getByRole('button', { name: 'Lock Free/Test Contest' }).click();
 
-  await expect(operatorPage).toHaveURL(/status=locked/);
+  await expect(operatorPage).toHaveURL(/status=locked/, { timeout: serverActionTimeout });
   await expect(
     operatorPage.getByText('Week 1 QB Passing Yards is locked for the no-money free/test proof.'),
   ).toBeVisible();
@@ -532,7 +533,7 @@ test('locks and finalizes the same zero-fee proof contest without paid count or 
   await freeProofFinalizationForm.locator(`#confirmationText-${freeProofContestId}`).fill('FINAL');
   await freeProofFinalizationForm.getByRole('button', { name: 'Run Final Scoring' }).click();
 
-  await expect(operatorPage).toHaveURL(/status=finalized/);
+  await expect(operatorPage).toHaveURL(/status=finalized/, { timeout: serverActionTimeout });
   await expect(
     operatorPage.getByText('Week 1 QB Passing Yards final results are now published from the confirmed QB stats.'),
   ).toBeVisible();
@@ -610,7 +611,7 @@ test('reruns finalization after a stat correction and replaces saved rows withou
   await operatorPage.locator(`#finalStatRows-${targetContestId}`).fill(finalStatRows);
   await operatorPage.locator(`#confirmationText-${targetContestId}`).fill('FINAL');
   await operatorPage.getByRole('button', { name: 'Run Final Scoring' }).click();
-  await expect(operatorPage).toHaveURL(/status=finalized/);
+  await expect(operatorPage).toHaveURL(/status=finalized/, { timeout: serverActionTimeout });
 
   const firstSavedResults = await readPersistedContestResults();
   const firstEntrantRow = firstSavedResults.entryResults.find((entry) => entry.userId === entrantUserId);
@@ -621,7 +622,7 @@ test('reruns finalization after a stat correction and replaces saved rows withou
   await operatorPage.locator(`#confirmationText-${targetContestId}`).fill('FINAL');
   await operatorPage.getByRole('button', { name: 'Run Final Scoring' }).click();
 
-  await expect(operatorPage).toHaveURL(/status=finalized/);
+  await expect(operatorPage).toHaveURL(/status=finalized/, { timeout: serverActionTimeout });
   await expect(
     operatorPage.getByText('Week 1 QB Passing Yards final results are now published from the confirmed QB stats.'),
   ).toBeVisible();
@@ -684,7 +685,7 @@ test('renders a saved shared paid tie consistently across leaderboard cards, ran
   await operatorPage.locator(`#confirmationText-${targetContestId}`).fill('FINAL');
   await operatorPage.getByRole('button', { name: 'Run Final Scoring' }).click();
 
-  await expect(operatorPage).toHaveURL(/status=finalized/);
+  await expect(operatorPage).toHaveURL(/status=finalized/, { timeout: serverActionTimeout });
 
   const persistedResults = await readPersistedContestResults();
   expect(

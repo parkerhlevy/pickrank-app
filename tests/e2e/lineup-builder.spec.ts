@@ -448,7 +448,7 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
     const rankedLineupCardHeader = rankedLineupCard.getByRole('heading', { name: 'Your board' }).locator('../..');
 
     await expect(rankedLineupCardHeader.locator('.status-pill')).toHaveCount(0);
-    await expect(page.getByText('Available quarterbacks').locator('..').getByText('10/10 Ranked')).toBeVisible();
+    await expect(page.getByText('Available quarterbacks').locator('../..').getByText('10/10 Ranked')).toBeVisible();
     await expect(page.getByText('C.J. Stroud (HOU)')).toBeVisible();
     await expect(page.getByText('vs. IND')).toBeVisible();
     await expect(page.getByText('Patrick Mahomes')).toBeVisible();
