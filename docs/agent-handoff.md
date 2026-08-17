@@ -63,7 +63,7 @@ The repo is past bare Phase 0 and currently includes:
 - Vitest wired
 - Basic route smoke tests
 
-Current branch and production reality as of 2026-08-16:
+Current branch and production reality as of 2026-08-17:
 
 - the current worktree started Slice 3 clean and aligned with `origin/main` at `57da074`
 - Slice 1 is merged through merge commit `68500ba`
@@ -168,7 +168,7 @@ Current branch and production reality as of 2026-08-16:
 - repo verification for the cross-route stage/scroll progression pass passes `npm run typecheck`, focused `npx eslint 'app/contests/[contestId]/page.tsx' 'app/contests/[contestId]/payment/page.tsx' 'app/contests/[contestId]/success/page.tsx' 'app/contests/[contestId]/lineup/page.tsx' 'app/contests/[contestId]/results/page.tsx' app/leaderboard/page.tsx components/contests/contest-board-preview.tsx components/contests/lineup-builder-client.tsx`, `npm run test` (`27` files, `126` tests passed), isolated `npx playwright test tests/e2e/lineup-builder.spec.ts` (`5` passed), isolated `npx playwright test tests/e2e/final-results.spec.ts` (`3` passed), `git diff --check`, and a temporary restored screenshot pass covering the six touched screens under `/Users/parkerlevy/.codex/visualizations/2026/07/19/019f7939-0ecd-7bc1-9424-99c2e7122393/pickrank-stage-progression/`
 - the 2026-07-08 brand follow-up now approves `public/brand/pickrank-wordmark-football-transparent-light.png` as a secondary dark-surface homepage and marketing variant, keeps `public/brand/source/pickrank-wordmark-football-transparent-light-preview-dark.png` as a reference preview only, and points the homepage hero at the transparent asset instead of the earlier white-`Pick` fallback
 - repo verification for the latest homepage CTA lane passes `npm run typecheck`, `npm run test` (`27` files, `124` tests passed), focused `npx eslint app/page.tsx tests/e2e/homepage.spec.ts`, `git diff --check`, and `npx playwright test tests/e2e/homepage.spec.ts` when the local dev server is allowed to bind outside the sandbox
-- GitHub auth on this machine has now been restored through `gh auth login`, and `gh auth setup-git` is configured in `~/.gitconfig` so future HTTPS pushes use GitHub CLI's credential helper instead of failing on missing local credentials
+- GitHub access was re-verified from Codex on 2026-08-17: `gh auth status` and `gh api user` authenticate as `parkerhlevy`, `git fetch --dry-run origin`, `git ls-remote --heads origin main`, and `git push --dry-run origin HEAD` pass, and this checkout uses `https://github.com/parkerhlevy/pickrank-app.git` with the existing GitHub CLI credential helper; a dedicated `Codex PickRank` SSH key is registered as a fallback, but raw SSH DNS remains unavailable through the managed Codex network profile, so keep HTTPS as the Codex Git transport unless that network behavior changes
 - the latest local provider/admin baseline now includes the repeatable Replay validation harness, the hidden 2026 in-season live validation contest prep and fetch helpers, and the `/admin/contests` provisional preview plus refresh surface
 - the current Remotion source baseline is a motion-polished `38.5s` waitlist-focused cut under `assets/marketing/video/`, aligned to the Early Access Beta posture, the 20-player pool / pick-10 product framing, and the `pickrankgames.com` brand
 - the latest rendered review asset is `assets/marketing/video/out/pickrank-landing-video.mp4`
