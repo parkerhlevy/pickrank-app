@@ -12,10 +12,10 @@ The workflow:
 
 1. Installs locked npm dependencies with `npm ci`.
 2. Installs the Playwright Chromium version and its Linux system dependencies.
-3. Runs `npm run test:e2e:ci`, with each spec isolated in its own Playwright process and one worker.
+3. Runs `npm run test:e2e:ci`, with each suite isolated in its own Playwright process and one worker. Stateful final-results cases each receive a separate process.
 4. Uploads the Playwright HTML report for passed and failed runs.
 
-Isolate specs because several PickRank browser tests temporarily update shared file-backed fixtures. Use one worker inside each spec for the same reason.
+Isolate suites because several PickRank browser tests temporarily update shared file-backed fixtures. Isolate final-results cases because Next.js server state can otherwise outlive the fixture reset between cases. Use one worker inside each process for the same reason.
 
 ## Local Command
 

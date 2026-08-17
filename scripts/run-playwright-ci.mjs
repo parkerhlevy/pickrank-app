@@ -8,7 +8,22 @@ const suites = explicitArguments.length
       { name: 'admin-shell', arguments: ['tests/e2e/admin-shell.spec.ts'] },
       { name: 'homepage', arguments: ['tests/e2e/homepage.spec.ts'] },
       { name: 'lineup-builder', arguments: ['tests/e2e/lineup-builder.spec.ts'] },
-      { name: 'final-results', arguments: ['tests/e2e/final-results.spec.ts'] },
+      {
+        name: 'final-results-publish',
+        arguments: ['tests/e2e/final-results.spec.ts', '--grep', 'finalizes the locked contest'],
+      },
+      {
+        name: 'final-results-free-proof',
+        arguments: ['tests/e2e/final-results.spec.ts', '--grep', 'locks and finalizes the same zero-fee proof contest'],
+      },
+      {
+        name: 'final-results-correction',
+        arguments: ['tests/e2e/final-results.spec.ts', '--grep', 'reruns finalization after a stat correction'],
+      },
+      {
+        name: 'final-results-tie',
+        arguments: ['tests/e2e/final-results.spec.ts', '--grep', 'renders a saved shared paid tie'],
+      },
     ];
 const executable = path.join(
   process.cwd(),
