@@ -614,6 +614,7 @@ test('reruns finalization after a stat correction and replaces saved rows withou
   const targetFinalizationForm = operatorPage.locator('form').filter({
     has: operatorPage.locator(`#finalStatRows-${targetContestId}`),
   });
+  await expect(targetFinalizationForm.locator(`#finalStatRows-${targetContestId}`)).toHaveValue(finalStatRows);
   await targetFinalizationForm.locator(`#finalStatRows-${targetContestId}`).fill(finalStatRows);
   await targetFinalizationForm.locator(`#confirmationText-${targetContestId}`).fill('FINAL');
   await targetFinalizationForm.getByRole('button', { name: 'Run Final Scoring' }).click();
@@ -624,6 +625,7 @@ test('reruns finalization after a stat correction and replaces saved rows withou
   expect(firstEntrantRow).toBeTruthy();
 
   await operatorPage.goto('/admin/contests');
+  await expect(targetFinalizationForm.locator(`#finalStatRows-${targetContestId}`)).toHaveValue(finalStatRows);
   await targetFinalizationForm.locator(`#finalStatRows-${targetContestId}`).fill(correctedFinalStatRows);
   await targetFinalizationForm.locator(`#confirmationText-${targetContestId}`).fill('FINAL');
   await targetFinalizationForm.getByRole('button', { name: 'Run Final Scoring' }).click();
@@ -690,6 +692,7 @@ test('renders a saved shared paid tie consistently across leaderboard cards, ran
   const targetFinalizationForm = operatorPage.locator('form').filter({
     has: operatorPage.locator(`#finalStatRows-${targetContestId}`),
   });
+  await expect(targetFinalizationForm.locator(`#finalStatRows-${targetContestId}`)).toHaveValue(finalStatRows);
   await targetFinalizationForm.locator(`#finalStatRows-${targetContestId}`).fill(finalStatRows);
   await targetFinalizationForm.locator(`#confirmationText-${targetContestId}`).fill('FINAL');
   await targetFinalizationForm.getByRole('button', { name: 'Run Final Scoring' }).click();
