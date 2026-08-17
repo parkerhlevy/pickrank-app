@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test';
-import { e2eAuthCookieName } from '@/lib/viewer-identity';
+import { e2eAuthCookieName, encodeE2eAuthCookie } from '@/lib/viewer-identity';
 
 const appUrl = 'http://127.0.0.1:3000';
-const operatorCookieValue = JSON.stringify({
+const operatorCookieValue = encodeE2eAuthCookie({
   email: 'operator@pickrank.test',
   username: 'operator_user',
   displayName: 'Operator User',

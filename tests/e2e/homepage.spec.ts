@@ -67,7 +67,7 @@ test('public conversion routes explain the contest mechanics before entry', asyn
   await expect(page.getByText('Your Board', { exact: true })).toHaveCount(0);
   await expect(page.getByText('Final order', { exact: true })).toHaveCount(0);
   await expect(page.getByText('Lower score wins', { exact: true })).toHaveCount(0);
-  const playerPool = page.getByText('Player Pool', { exact: true }).last().locator('../..');
+  const playerPool = page.getByText('Player Pool', { exact: true }).last().locator('../../..');
   await expect(playerPool.locator('div.rounded-md')).toHaveCount(20);
   await expect(page.getByText('Beta contest - no payout')).toHaveCount(0);
   await expect(page.getByText('operator proof')).toHaveCount(0);

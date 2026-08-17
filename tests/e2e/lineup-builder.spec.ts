@@ -301,8 +301,9 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
 
     await expect(page.locator('h1').filter({ hasText: 'Build Your Board' })).toBeVisible();
     const rankedLineupCard = page.locator('.section-card').filter({ has: page.getByRole('heading', { name: 'Your board' }) });
+    const rankedLineupCardHeader = rankedLineupCard.getByRole('heading', { name: 'Your board' }).locator('../..');
 
-    await expect(rankedLineupCard.locator('.status-pill')).toHaveCount(1);
+    await expect(rankedLineupCardHeader.locator('.status-pill')).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'Save board' })).toBeDisabled();
     await expect(page.locator('[data-lineup-player]').first()).toContainText('#1');
     await expect(page.locator('[data-lineup-player]').first()).toContainText('Josh Allen (BUF)');
@@ -444,8 +445,9 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
     await page.goto('/contests/week-1-qb-passing-yards/lineup');
     await expect(page.locator('[data-lineup-player]')).toHaveCount(10);
     const rankedLineupCard = page.locator('.section-card').filter({ has: page.getByRole('heading', { name: 'Your board' }) });
+    const rankedLineupCardHeader = rankedLineupCard.getByRole('heading', { name: 'Your board' }).locator('../..');
 
-    await expect(rankedLineupCard.locator('.status-pill')).toHaveCount(1);
+    await expect(rankedLineupCardHeader.locator('.status-pill')).toHaveCount(0);
     await expect(page.getByText('Available quarterbacks').locator('..').getByText('10/10 Ranked')).toBeVisible();
     await expect(page.getByText('C.J. Stroud (HOU)')).toBeVisible();
     await expect(page.getByText('vs. IND')).toBeVisible();
