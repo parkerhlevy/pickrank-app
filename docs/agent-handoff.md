@@ -63,12 +63,18 @@ The repo is past bare Phase 0 and currently includes:
 - Vitest wired
 - Basic route smoke tests
 
-Current branch reality on `work` as of 2026-08-16:
+Current branch reality on `main` as of 2026-08-16:
 
-- Slice 1 is merged on the current `work` branch through merge commit `68500ba`; the worktree was clean before Slice 2 started
+- the current worktree started Slice 3 clean and aligned with `origin/main` at `57da074`
+- Slice 1 is merged through merge commit `68500ba`
 - Slice 2 simplifies Contest discovery into responsive contest cards with only status, entries, lock time, and stat category; removes Featured framing and lobby board previews; and makes Contest Detail a concise free-beta overview with a green Open state, compact scoring, and the full 20-QB player pool without a fake user board
 - Slice 2 preserves future paid-contest detail fields for non-beta contests and does not change contest data, entry behavior, scoring, payments, wallet behavior, provider writes, lifecycle, legal terms, or production data
 - Slice 2 verification passes `npm run typecheck`, `npm run lint`, and `npm run test` (`37` files, `216` tests); focused desktop/mobile Playwright is blocked because the installed Playwright browser is absent and the browser download endpoint returns `403 Forbidden`
+- Slice 3 changes the active free beta entry path to Contest Detail -> Enter Free Beta Contest -> Build Your Board; the ready-state Contest Detail action submits the existing server action, reuses `ensurePersistedContestEntry`, and redirects a successful free entry directly to `/contests/:contest_id/lineup`
+- Slice 3 keeps the auth, Profile, verified-email, beta-acknowledgement, contest-open, confirmation-policy, and single-entry persistence checks before entry creation; auth and Profile completion now return free beta users to Contest Detail instead of Entry Review
+- `/contests/:contest_id/payment` and `/contests/:contest_id/success` remain intact as parked future paid-version surfaces; direct free beta visits return to Contest Detail before entry or Build Your Board after a persisted entry exists, while non-beta paid-review and success behavior remains preserved
+- the active free beta board now reads `Step 2 of 2` and no longer expects `Entry Review`, `Entry Success`, or `Continue to Build Your Board`; the free path still has no cash value, payouts, cash prizes, wallet movement, or paid-entry count movement
+- Slice 3 verification passes `npm run typecheck`, `npm run lint`, `npm run test` (`37` files, `219` tests), `npm run build`, focused desktop/mobile `npx playwright test tests/e2e/lineup-builder.spec.ts --workers=1` (`9` passed), and `git diff --check`; Playwright required the expected outside-sandbox Chromium and dev-server run because sandboxed Chromium failed macOS Mach port setup and sandboxed Next.js dev mode exhausted file watchers
 - the private MySportsFeeds read-only validation probe is integrated on `main`; it adds no Supabase writes and does not change the official typed-`FINAL` finalization path
 - the repo-wide lint cleanup removes the remaining ESLint errors and warnings without changing product behavior; `npm run lint`, `npm run typecheck`, and `npm run test` (`37` files, `216` tests) pass
 - earlier mixed local recovery work remains separated into sibling worktrees; preserve those lanes until Parker chooses whether to integrate or retire them
@@ -416,23 +422,23 @@ Current product checklist:
 ```text
 1. Shared shell + static public pages: merged
 2. Contest discovery + Contest Detail: implemented in Slice 2
-3. Free beta entry flow: next recommended product slice
-4. Build your board
+3. Free beta entry flow: implemented in Slice 3
+4. Build your board: next recommended product slice
 5. Profile + Results
 ```
 
 Next recommended slice:
 
 ```text
-Continue PickRank using the repo as source of truth. Implement Slice 3 of the Early Access Beta UI cleanup for the free beta entry flow. Before editing, read `docs/agent-handoff.md`, `AGENTS.md`, `spec/product_spec.md`, `spec/features/frontend_navigation.md`, the relevant entry and payment-review specs, current Git status, the Entry Review and Entry Success routes, shared entry components, and focused tests. Preserve Beta Pass, no cash value, no payouts, no cash prizes, and the current free-entry guardrails. Preserve future paid-contest logic behind its existing boundaries. Do not change payments, wallet ledger behavior, scoring, provider writes, contest lifecycle, eligibility or legal rules, Supabase production data, Remotion assets, admin controls, or unrelated local work. Keep the slice presentation-only. Update focused tests, run typecheck, lint, the full unit suite, desktop/mobile browser verification, and `git diff --check`. Refresh this handoff and stop after Slice 3.
+Continue PickRank using the repo as source of truth. Implement Slice 4 of the Early Access Beta UI cleanup for Build Your Board. Before editing, read `docs/agent-handoff.md`, `AGENTS.md`, `spec/product_spec.md`, `spec/features/frontend_navigation.md`, the lineup-builder specs and state helpers, current Git status, `app/contests/[contestId]/lineup/page.tsx`, `components/contests/lineup-builder-client.tsx`, the lineup API route, and focused unit and Playwright tests. Keep the active free beta journey as Contest Detail -> Enter Free Beta Contest -> Build Your Board. Preserve the full 20-player pool, ranked 10-player board, existing selection and reorder behavior, keyboard and pointer controls, saved-entry and lineup persistence, save feedback, lock-state read-only behavior, auth and entry gates, and parked paid-version surfaces. Do not change payments, wallet behavior, scoring, provider writes, contest lifecycle, legal terms, Supabase production data, Remotion assets, or unrelated local work. Keep Slice 4 presentation-only. Update focused tests, run typecheck, lint, the full unit suite, desktop/mobile Playwright, and `git diff --check`. Refresh this handoff and stop after Slice 4.
 ```
 
 Definition of done:
 
-- simplify Entry Review and Entry Success without changing entry creation, access, payment, eligibility, scoring, or lifecycle behavior
-- preserve future paid-contest surfaces and the free-to-play Early Access Beta posture
-- keep the existing contest routes and entry guards
-- update focused copy/layout tests
+- simplify Build Your Board without changing selection, reorder, save, persistence, lock, scoring, or lifecycle behavior
+- preserve the two-step free beta entry path, future paid-contest surfaces, and the free-to-play Early Access Beta posture
+- keep the full 20-player pool and ranked 10-player board clear on desktop and mobile
+- update focused lineup copy/layout tests
 - run `npm run typecheck`, `npm run lint`, `npm run test`, focused desktop/mobile Playwright, and `git diff --check`
 - update this handoff note again if repo reality or the next recommended move changes
 

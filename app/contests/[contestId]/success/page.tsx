@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { getProtectedContestEntryRedirect } from '@/lib/contest-entry-access';
 import {
   contestEntryCookieName,
+  getContestEntryHref,
   getContestEntryProgressHref,
   getContestEntryRouteState,
   getContestEntryStateCopy,
@@ -21,6 +22,7 @@ import {
 } from '@/lib/contest-data';
 import { getPersistedContestEntry } from '@/lib/persisted-contest-entry';
 import { getViewerIdentity } from '@/lib/viewer-identity';
+import { isBetaFreeEntryContest } from '@/lib/launch-mode';
 
 export default async function EntrySuccessPage({
   params,
@@ -29,6 +31,21 @@ export default async function EntrySuccessPage({
 }) {
   const { contestId } = await params;
   const contest = await getContestById(contestId);
+
+  if (isBetaFreeEntryContest(contest.entryFeeCents)) {
+    const viewerIdentity = await getViewerIdentity();
+    const persistedEntry = await getPersistedContestEntry(
+      contest.id,
+      viewerIdentity.userId,
+      getContestSelectablePlayers(contest),
+      getContestDefaultLineupOrder(contest),
+    );
+
+    redirect(
+      getContestEntryHref(contest.id, persistedEntry ? 'lineup' : 'not-entered'),
+    );
+  }
+
   const next = `/contests/${contest.id}/success`;
   const protectedRedirect = await getProtectedContestEntryRedirect(next);
 

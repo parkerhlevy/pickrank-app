@@ -43,6 +43,7 @@ type LineupBuilderClientProps = {
   isEditable: boolean;
   stateCopy: {
     badge: string;
+    stepLabel: string;
     title: string;
     description: string;
   };
@@ -491,7 +492,7 @@ export function LineupBuilderClient({
           </div>
           <div className="section-card-muted flex flex-col gap-2 px-3 py-2.5 text-sm sm:flex-row sm:items-center sm:justify-between sm:py-3">
             <div>
-              <p className="font-semibold">Step 4: Build Your Board</p>
+              <p className="font-semibold">{stateCopy.stepLabel}</p>
               <p className="text-muted-foreground">{stateCopy.description}</p>
             </div>
             <span className="status-pill status-pill-muted shrink-0">{stateCopy.badge}</span>

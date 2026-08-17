@@ -133,21 +133,26 @@ async function seedEntryStore(entries: Array<{
   );
 }
 
-test('signed-out users are redirected to auth from protected entry routes and keep their saved destination', async ({ page }) => {
+test('signed-out users keep the lineup auth gate while parked free beta entry routes return to Contest Detail', async ({ page }) => {
+  await page.goto('/contests/week-1-qb-passing-yards/lineup');
+
+  await expect(page).toHaveURL(
+    `http://127.0.0.1:3000/auth?next=${encodeURIComponent('/contests/week-1-qb-passing-yards/lineup')}`,
+  );
+  await expect(page.getByRole('heading', { name: 'Account Access' })).toBeVisible();
+  await expect(page.getByText('Before You Enter')).toBeVisible();
+
   for (const route of [
     '/contests/week-1-qb-passing-yards/payment',
     '/contests/week-1-qb-passing-yards/success',
-    '/contests/week-1-qb-passing-yards/lineup',
   ]) {
     await page.goto(route);
-
-    await expect(page).toHaveURL(`http://127.0.0.1:3000/auth?next=${encodeURIComponent(route)}`);
-    await expect(page.getByRole('heading', { name: 'Account Access' })).toBeVisible();
-    await expect(page.getByText('Before You Enter')).toBeVisible();
+    await expect(page).toHaveURL('http://127.0.0.1:3000/contests/week-1-qb-passing-yards');
+    await expect(page.getByRole('link', { name: 'Sign Up / Log In to Enter' })).toBeVisible();
   }
 });
 
-test('signed-in users with pending paid eligibility can review free beta entry', async ({ page }) => {
+test('signed-in users with pending paid eligibility can start free beta entry without a paid review screen', async ({ page }) => {
   await page.context().addCookies([
     {
       name: e2eAuthCookieName,
@@ -174,22 +179,14 @@ test('signed-in users with pending paid eligibility can review free beta entry',
   ]);
 
   await page.goto('/contests/week-1-qb-passing-yards');
-  await expect(page.getByRole('link', { name: 'Enter Free Beta Contest' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Enter Free Beta Contest' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Eligibility Pending Review' })).toHaveCount(0);
   await expect(page.getByRole('link', { name: 'Enter Contest - $5' })).toHaveCount(0);
 
   await page.goto('/contests/week-1-qb-passing-yards/payment');
-
-  await expect(page.getByRole('heading', { name: 'Beta Pass Summary' })).toBeVisible();
-  await expect(page.getByText('Entry access')).toBeVisible();
-  await expect(page.getByText('Payment required', { exact: true })).toBeVisible();
-  await expect(page.getByText('Entry Cost', { exact: true })).toHaveCount(0);
-  await expect(page.getByText('Cash Value', { exact: true })).toHaveCount(0);
-  await expect(page.getByText('Amount Due Today', { exact: true })).toHaveCount(0);
-  await expect(page.getByText('Free beta entry', { exact: true })).toBeVisible();
-  await expect(page.getByText('This contest is free to play during Early Access Beta.')).toBeVisible();
-  await expect(page.getByText('No payment required')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Confirm Entry' })).toBeEnabled();
+  await expect(page).toHaveURL('http://127.0.0.1:3000/contests/week-1-qb-passing-yards');
+  await expect(page.getByRole('button', { name: 'Enter Free Beta Contest' })).toBeEnabled();
+  await expect(page.getByText('Entry Review', { exact: true })).toHaveCount(0);
 });
 
 signedInTest.describe('protected entry flow with signed-in auth fixture', () => {
@@ -212,95 +209,73 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
     await writeFile(entryStorePath, originalEntryStore, 'utf8');
   });
 
-  signedInTest('entry screens reinforce the four-step handoff into the board builder', async ({ page }) => {
+  signedInTest('parked Entry Review and Entry Success routes are skipped in the free beta flow', async ({ page }) => {
     await allowControlledTestEntry(page);
-    await page.context().addCookies([
-      {
-        name: 'pickrank_demo_entry_state',
-        value: JSON.stringify({ 'week-1-qb-passing-yards': 'payment-review' }),
-        url: appUrl,
-      },
-    ]);
 
     await page.goto('/contests/week-1-qb-passing-yards/payment');
-    await expect(page.getByText('Step 2 of 4')).toBeVisible();
-    await expect(
-      page.getByText('Review your free beta entry and confirm your Beta Pass'),
-    ).toBeVisible();
-    const confirmEntryButton = page.getByRole('button', { name: 'Confirm Entry' });
-    await expect(confirmEntryButton).toBeVisible();
-    await confirmEntryButton.click();
-    await expect(page).toHaveURL(/\/contests\/week-1-qb-passing-yards\/progress\?stage=entered$/);
-    await expect(page.getByText('Step 3 of 4')).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Continue to Build Your Board' })).toBeVisible();
+    await expect(page).toHaveURL('http://127.0.0.1:3000/contests/week-1-qb-passing-yards');
+    await expect(page.getByText('Entry Review', { exact: true })).toHaveCount(0);
 
-    await page.context().addCookies([
-      {
-        name: 'pickrank_demo_entry_state',
-        value: JSON.stringify({ 'week-1-qb-passing-yards': 'lineup' }),
-        url: appUrl,
-      },
-    ]);
-
-    await page.goto('/contests/week-1-qb-passing-yards/lineup');
-    await expect(page.getByText('Step 4 of 4')).toBeVisible();
-    await expect(page.getByText('Step 4: Build Your Board')).toBeVisible();
+    await page.goto('/contests/week-1-qb-passing-yards/success');
+    await expect(page).toHaveURL('http://127.0.0.1:3000/contests/week-1-qb-passing-yards');
+    await expect(page.getByText('Entry Success', { exact: true })).toHaveCount(0);
   });
 
-  signedInTest('controlled test entry creates one default board and routes to Build Your Board without paid count movement', async ({ page }) => {
-    await allowControlledTestEntry(page);
-    await updateContestFixture('week-1-qb-passing-yards', {
-      entryFeeCents: 0,
-      entryCount: 0,
-      paidEntryCount: 0,
-      status: 'open',
-      visibilityStatus: 'visible',
+  for (const { viewportName, viewport } of [
+    { viewportName: 'desktop', viewport: { width: 1280, height: 900 } },
+    { viewportName: 'mobile', viewport: { width: 390, height: 844 } },
+  ]) {
+    signedInTest(`free beta entry creates one default board and routes directly to Build Your Board on ${viewportName}`, async ({ page }) => {
+      await page.setViewportSize(viewport);
+      await allowControlledTestEntry(page);
+      await updateContestFixture('week-1-qb-passing-yards', {
+        entryFeeCents: 0,
+        entryCount: 0,
+        paidEntryCount: 0,
+        status: 'open',
+        visibilityStatus: 'visible',
+      });
+      const beforeCounts = await readContestCounts('week-1-qb-passing-yards');
+
+      await page.goto('/contests/week-1-qb-passing-yards');
+      await expect(page.getByText('Entry Review', { exact: true })).toHaveCount(0);
+      await expect(page.getByText('Entry Success', { exact: true })).toHaveCount(0);
+      await expect(page.getByRole('link', { name: 'Continue to Build Your Board' })).toHaveCount(0);
+      await page.getByRole('button', { name: 'Enter Free Beta Contest' }).click();
+
+      await expect(page).toHaveURL('http://127.0.0.1:3000/contests/week-1-qb-passing-yards/lineup');
+      await expect(page.locator('h1').filter({ hasText: 'Build Your Board' })).toBeVisible();
+      await expect(page.getByText('Step 2 of 2')).toBeVisible();
+      await expect(page.getByText('Step 2: Build Your Board')).toBeVisible();
+      await expect(page.locator('[data-lineup-player]')).toHaveCount(10);
+
+      const savedStore = JSON.parse(await readFile(entryStorePath, 'utf8')) as {
+        entries: Array<{
+          contestId: string;
+          userId: string;
+          lineupOrder: string[];
+          source: string;
+        }>;
+      };
+      const savedEntries = savedStore.entries.filter(
+        (entry) => entry.contestId === 'week-1-qb-passing-yards' && entry.userId === defaultE2eViewerUserId,
+      );
+      const afterCounts = await readContestCounts('week-1-qb-passing-yards');
+
+      expect(savedEntries).toHaveLength(1);
+      expect(savedEntries[0]?.lineupOrder).toEqual(demoSavedLineup);
+      expect(savedEntries[0]?.source).toBe('default_assigned');
+      expect(afterCounts.entryCount).toBe(beforeCounts.entryCount + 1);
+      expect(afterCounts.paidEntryCount).toBe(0);
+
+      await page.goto('/contests/week-1-qb-passing-yards/success');
+      await expect(page).toHaveURL('http://127.0.0.1:3000/contests/week-1-qb-passing-yards/lineup');
+      const reusedCounts = await readContestCounts('week-1-qb-passing-yards');
+
+      expect(reusedCounts.entryCount).toBe(afterCounts.entryCount);
+      expect(reusedCounts.paidEntryCount).toBe(0);
     });
-    const beforeCounts = await readContestCounts('week-1-qb-passing-yards');
-
-    await page.context().addCookies([
-      {
-        name: 'pickrank_demo_entry_state',
-        value: JSON.stringify({ 'week-1-qb-passing-yards': 'payment-review' }),
-        url: appUrl,
-      },
-    ]);
-
-    await page.goto('/contests/week-1-qb-passing-yards/payment');
-    await page.getByRole('button', { name: 'Confirm Entry' }).click();
-
-    await expect(page).toHaveURL(/\/contests\/week-1-qb-passing-yards\/progress\?stage=entered$/);
-    await page.getByRole('link', { name: 'Continue to Build Your Board' }).click();
-    await expect(page).toHaveURL(/\/contests\/week-1-qb-passing-yards\/lineup$/);
-    await expect(page.locator('h1').filter({ hasText: 'Build Your Board' })).toBeVisible();
-    await expect(page.locator('[data-lineup-player]')).toHaveCount(10);
-
-    const savedStore = JSON.parse(await readFile(entryStorePath, 'utf8')) as {
-      entries: Array<{
-        contestId: string;
-        userId: string;
-        lineupOrder: string[];
-        source: string;
-      }>;
-    };
-    const savedEntries = savedStore.entries.filter(
-      (entry) => entry.contestId === 'week-1-qb-passing-yards' && entry.userId === defaultE2eViewerUserId,
-    );
-    const afterCounts = await readContestCounts('week-1-qb-passing-yards');
-
-    expect(savedEntries).toHaveLength(1);
-    expect(savedEntries[0]?.lineupOrder).toEqual(demoSavedLineup);
-    expect(savedEntries[0]?.source).toBe('default_assigned');
-    expect(afterCounts.entryCount).toBe(beforeCounts.entryCount + 1);
-    expect(afterCounts.paidEntryCount).toBe(0);
-
-    await page.goto('/contests/week-1-qb-passing-yards/payment');
-    await expect(page).toHaveURL(/\/contests\/week-1-qb-passing-yards\/lineup$/);
-    const reusedCounts = await readContestCounts('week-1-qb-passing-yards');
-
-    expect(reusedCounts.entryCount).toBe(afterCounts.entryCount);
-    expect(reusedCounts.paidEntryCount).toBe(0);
-  });
+  }
 
   signedInTest('ready signed-in users can open the board builder from the protected route', async ({ page }) => {
     await seedEntryStore([
@@ -441,9 +416,9 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
     ]);
 
     await page.goto('/contests/week-1-qb-passing-yards/payment');
-    await page.getByRole('button', { name: 'Confirm Entry' }).click();
-    await expect(page).toHaveURL(/\/contests\/week-1-qb-passing-yards\?status=error/);
-    await expect(page).toHaveURL(/message=This(%20|\+)contest(%20|\+)is(%20|\+)no(%20|\+)longer(%20|\+)accepting(%20|\+)entries/);
+    await expect(page).toHaveURL('http://127.0.0.1:3000/contests/week-1-qb-passing-yards');
+    await expect(page.getByRole('button', { name: 'Contest Locked' })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Confirm Entry' })).toHaveCount(0);
   });
 
   signedInTest('ready signed-in users see the full 20-player pool on the board builder screen', async ({ page }) => {

@@ -5,7 +5,7 @@ import {
   type EligibilityStatus,
   verifyEmailToEnterContestsMessage,
 } from '@/lib/auth-profile';
-import { getEntryReviewLabel, launchMode } from '@/lib/launch-mode';
+import { getEntryReviewLabel, isBetaFreeEntryContest, launchMode } from '@/lib/launch-mode';
 
 export const contestEntryStages = ['not-entered', 'payment-review', 'entered', 'lineup'] as const;
 export const contestEntryCookieName = 'pickrank_demo_entry_state';
@@ -15,6 +15,7 @@ export type ContestEntryRoute = 'detail' | 'payment' | 'success' | 'lineup';
 
 type ContestEntryStateCopy = {
   badge: string;
+  stepLabel: string;
   title: string;
   description: string;
 };
@@ -35,24 +36,35 @@ const routeStageMap: Record<ContestEntryRoute, ContestEntryStage> = {
 const stageCopyMap: Record<ContestEntryStage, ContestEntryStateCopy> = {
   'not-entered': {
     badge: 'Step 1 of 4',
+    stepLabel: 'Step 1: Contest Detail',
     title: 'Review the contest before you enter',
     description: 'Check the contest details, review your beta entry, then build your board before lock.',
   },
   'payment-review': {
     badge: 'Step 2 of 4',
+    stepLabel: 'Step 2: Entry Review',
     title: 'Review your beta entry before you confirm',
     description: 'Confirm your Beta Pass entry, then head to your board.',
   },
   entered: {
     badge: 'Step 3 of 4',
+    stepLabel: 'Step 3: Entry Success',
     title: "You're in",
     description: 'Your entry is confirmed. Next up: Build Your Board before lock.',
   },
   lineup: {
     badge: 'Step 4 of 4',
+    stepLabel: 'Step 4: Build Your Board',
     title: 'Build Your Board',
     description: 'Rank your players and save your board until the contest locks.',
   },
+};
+
+const directEntryLineupStateCopy: ContestEntryStateCopy = {
+  badge: 'Step 2 of 2',
+  stepLabel: 'Step 2: Build Your Board',
+  title: 'Build Your Board',
+  description: 'Your free beta entry is confirmed. Rank your players and save your board until the contest locks.',
 };
 
 const contestEntryStepCopy: ContestEntryStepCopy[] = [
@@ -91,7 +103,14 @@ export function getContestEntryStage(
   return fallbackStage;
 }
 
-export function getContestEntryStateCopy(stage: ContestEntryStage) {
+export function getContestEntryStateCopy(
+  stage: ContestEntryStage,
+  { usesDirectEntryFlow = false }: { usesDirectEntryFlow?: boolean } = {},
+) {
+  if (usesDirectEntryFlow && stage === 'lineup') {
+    return directEntryLineupStateCopy;
+  }
+
   return stageCopyMap[stage];
 }
 
@@ -191,7 +210,7 @@ export function getContestDetailPrimaryAction({
   eligibilityStatus?: EligibilityStatus;
   contestStatus?: 'draft' | 'scheduled' | 'open' | 'locked' | 'canceled' | 'live' | 'finalizing' | 'final' | 'paid_out' | 'error_review';
 }) {
-  const isFreeEntryContest = entryFeeCents === 0;
+  const isFreeBetaEntryContest = isBetaFreeEntryContest(entryFeeCents ?? -1);
 
   if (contestStatus === 'final' || contestStatus === 'paid_out') {
     return {
@@ -220,7 +239,9 @@ export function getContestDetailPrimaryAction({
     };
   }
 
-  const next = getContestEntryProgressHref(contestId, 'payment-review');
+  const next = isFreeBetaEntryContest
+    ? getContestEntryHref(contestId, 'not-entered')
+    : getContestEntryProgressHref(contestId, 'payment-review');
 
   if (!isAuthenticated) {
     return {
@@ -264,7 +285,7 @@ export function getContestDetailPrimaryAction({
     };
   }
 
-  if (!isFreeEntryContest && !isEligibleForPaidEntry) {
+  if (!isFreeBetaEntryContest && !isEligibleForPaidEntry) {
     const isBlocked = eligibilityStatus === 'blocked';
 
     return {
@@ -275,7 +296,7 @@ export function getContestDetailPrimaryAction({
     };
   }
 
-  if (!isFreeEntryContest && !launchMode.paidEntryEnabled) {
+  if (!isFreeBetaEntryContest && !launchMode.paidEntryEnabled) {
     return {
       label: 'Paid Entry Coming Later',
       href: null,
@@ -285,8 +306,18 @@ export function getContestDetailPrimaryAction({
   }
 
   if (isContestOpen) {
+    if (isFreeBetaEntryContest) {
+      return {
+        label: 'Enter Free Beta Contest',
+        href: null,
+        disabled: false,
+        tone: 'default' as const,
+        submitsEntry: true as const,
+      };
+    }
+
     return {
-      label: isFreeEntryContest ? 'Enter Free Beta Contest' : `Enter Contest - ${entryFee}`,
+      label: `Enter Contest - ${entryFee}`,
       href: next,
       disabled: false,
       tone: 'default' as const,
@@ -320,12 +351,26 @@ export function getContestEntryRouteState({
   persistedStage,
   route,
   hasPersistedEntry = false,
+  usesDirectEntryFlow = false,
 }: {
   contestId: string;
   persistedStage: ContestEntryStage;
   route: ContestEntryRoute;
   hasPersistedEntry?: boolean;
+  usesDirectEntryFlow?: boolean;
 }) {
+  if (usesDirectEntryFlow) {
+    const stage: ContestEntryStage = hasPersistedEntry ? 'lineup' : 'not-entered';
+    const expectedRoute: ContestEntryRoute = hasPersistedEntry ? 'lineup' : 'detail';
+    const shouldRedirect = route !== expectedRoute;
+
+    return {
+      stage,
+      shouldRedirect,
+      redirectHref: shouldRedirect ? getContestEntryHref(contestId, stage) : null,
+    };
+  }
+
   const fallbackStage = routeStageMap[route];
   const stage = hasPersistedEntry
     ? route === 'lineup'

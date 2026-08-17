@@ -5,6 +5,7 @@ import {
   getContestEntryProgressHref,
   getContestEntryRouteState,
   getContestEntryStage,
+  getContestEntryStateCopy,
   getContestEntrySteps,
   getPersistedContestEntryStage,
   getUpdatedContestEntryCookieValue,
@@ -259,7 +260,28 @@ describe('contest entry flow state', () => {
       }),
     ).toEqual({
       label: 'Enter Free Beta Contest',
-      href: '/contests/test-week-1-no-money-entry/progress?stage=payment-review',
+      href: null,
+      disabled: false,
+      tone: 'default',
+      submitsEntry: true,
+    });
+  });
+
+  it('returns gated free beta users to Contest Detail instead of Entry Review', () => {
+    expect(
+      getContestDetailPrimaryAction({
+        contestId: 'test-week-1-no-money-entry',
+        entryFee: '$0.00',
+        entryFeeCents: 0,
+        hasEntry: false,
+        isAuthenticated: false,
+        isContestOpen: true,
+        isProfileComplete: false,
+        isEmailVerified: false,
+      }),
+    ).toEqual({
+      label: 'Sign Up / Log In to Enter',
+      href: '/auth?next=%2Fcontests%2Ftest-week-1-no-money-entry',
       disabled: false,
       tone: 'default',
     });
@@ -313,6 +335,44 @@ describe('contest entry flow state', () => {
     expect(getContestEntryProgressHref('week-1-qb-passing-yards', 'lineup')).toBe(
       '/contests/week-1-qb-passing-yards/progress?stage=lineup',
     );
+  });
+
+  it('routes free beta review and success fallbacks away from parked paid screens', () => {
+    expect(
+      getContestEntryRouteState({
+        contestId: 'week-1-qb-passing-yards',
+        persistedStage: 'payment-review',
+        route: 'payment',
+        hasPersistedEntry: false,
+        usesDirectEntryFlow: true,
+      }),
+    ).toEqual({
+      stage: 'not-entered',
+      shouldRedirect: true,
+      redirectHref: '/contests/week-1-qb-passing-yards',
+    });
+
+    expect(
+      getContestEntryRouteState({
+        contestId: 'week-1-qb-passing-yards',
+        persistedStage: 'entered',
+        route: 'success',
+        hasPersistedEntry: true,
+        usesDirectEntryFlow: true,
+      }),
+    ).toEqual({
+      stage: 'lineup',
+      shouldRedirect: true,
+      redirectHref: '/contests/week-1-qb-passing-yards/lineup',
+    });
+  });
+
+  it('uses a two-step label on the active free beta board', () => {
+    expect(getContestEntryStateCopy('lineup', { usesDirectEntryFlow: true })).toMatchObject({
+      badge: 'Step 2 of 2',
+      stepLabel: 'Step 2: Build Your Board',
+      title: 'Build Your Board',
+    });
   });
 
   it('returns numbered step copy for the full contest-entry sequence', () => {

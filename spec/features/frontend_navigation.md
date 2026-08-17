@@ -7,7 +7,7 @@ Define the MVP app screen map, navigation structure, screen access rules, user f
 Locked for MVP direction.
 
 ## Anchor
-MVP frontend uses bottom-tab navigation for Home, Contests, Leaderboard, and Profile, keeps Wallet nested under Profile, keeps How It Works highly accessible through secondary links, supports logged-out browsing, requires auth and eligibility before paid entry, routes users through contest entry/payment before lineup access, separates lineup editing from results states, and exposes admin setup screens only internally.
+MVP frontend uses bottom-tab navigation for Home, Contests, Leaderboard, and Profile, keeps Wallet nested under Profile, keeps How It Works highly accessible through secondary links, supports logged-out browsing, requires the account gates before entry, routes free beta users directly from persisted entry creation to lineup while preserving review/payment for future paid entry, separates lineup editing from results states, and exposes admin setup screens only internally.
 
 ---
 
@@ -16,7 +16,7 @@ PickRank's MVP frontend should be simple, mobile-first, and state-driven.
 
 The UI should reflect backend contest state rather than trying to infer state locally.
 
-Primary user journey:
+Future paid-contest journey:
 
 ```text
 Lobby
@@ -30,7 +30,15 @@ Lobby
 → Profile / Wallet
 ```
 
-Implementation note: the current route remains `/contests/:contest_id/payment` for compatibility, but public Early Access Beta copy labels that step as `Entry Review`.
+Active Early Access Beta journey:
+
+```text
+Contest Detail
+→ Enter free beta contest
+→ Build Your Board
+```
+
+Implementation note: `/contests/:contest_id/payment` and `/contests/:contest_id/success` remain available as parked future paid-version surfaces. Free beta entry reuses the server-authoritative persisted-entry action and skips both routes after the required account gates pass.
 
 ---
 
@@ -225,7 +233,7 @@ After auth, return user to intended action when possible.
 Example:
 
 ```text
-Contest Detail → Auth → Payment Review
+Contest Detail → Auth / Profile completion → Contest Detail
 ```
 
 ---
@@ -264,10 +272,12 @@ Authenticated.
 
 or modal/sheet from Contest Detail.
 
-Route name stays `/payment` in the current implementation, but Early Access Beta UI must label this step as `Entry Review`.
+Route name stays `/payment` in the current implementation. The active Early Access Beta path skips this route. If the parked free-entry surface is restored, label it `Entry Review` rather than `Payment Review`.
 
 ### Purpose
 Show payment breakdown before entry creation.
+
+During Early Access Beta, free contest entry skips this screen. Direct visits return to Contest Detail before entry or Build Your Board after a persisted entry exists. Keep this route for future paid contests.
 
 ### Access
 Authenticated + eligible + contest open + not already entered.
@@ -306,6 +316,8 @@ Post-payment confirmation state.
 
 ### Purpose
 Confirm entry and route to lineup builder.
+
+During Early Access Beta, successful free entry routes directly to Build Your Board. Direct visits to this screen return to Contest Detail before entry or Build Your Board after a persisted entry exists. Keep this route for future paid contests.
 
 ### Displays
 
