@@ -1,6 +1,6 @@
 # PickRank
 
-PickRank is a skill-based NFL pick-order contest app. For the MVP, users browse a weekly 15-quarterback slate, enter a contest, rank their top 10 quarterbacks by passing yards, and receive the lowest score when their rankings stay closest to the final results.
+PickRank is a skill-based NFL pick-order contest app. For the MVP, users browse a weekly 20-quarterback slate, enter a contest, rank their top 10 quarterbacks by passing yards, and receive the lowest score when their rankings stay closest to the final results.
 
 This repo is no longer a Phase 0 scaffold. It is an MVP-in-progress Next.js application with live app routes, Supabase-backed contest data, internal admin contest setup, saved final-results foundations, and internal validation tooling for provisional stats ingestion.
 
