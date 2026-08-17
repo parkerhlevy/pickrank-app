@@ -76,6 +76,8 @@ Current branch and production reality as of 2026-08-17:
 - the active free beta board now reads `Step 2 of 2` and no longer expects `Entry Review`, `Entry Success`, or `Continue to Build Your Board`; the free path still has no cash value, payouts, cash prizes, wallet movement, or paid-entry count movement
 - Slice 3 verification passes `npm run typecheck`, `npm run lint`, `npm run test` (`37` files, `219` tests), `npm run build`, focused desktop/mobile `npx playwright test tests/e2e/lineup-builder.spec.ts --workers=1` (`9` passed), and `git diff --check`; Playwright required the expected outside-sandbox Chromium and dev-server run because sandboxed Chromium failed macOS Mach port setup and sandboxed Next.js dev mode exhausted file watchers
 - Slice 3 is merged into `main` through merge commit `262c1c8` from pull request `#22` and is deployed to Vercel Production; `main` and production now contain the same Slice 3 product behavior
+- Slice 4 is a presentation-only Build Your Board cleanup, committed locally on `main` as `cb6929f` and not yet pushed: it uses `One entry per person`, removes the top assigned-order chip, the entry-step block, the redundant board-header ranked badge, and the editable-board helper subtext; it also uses clear sentence-case board, save, and player-pool labels without changing entry, selection, reorder, persistence, lock, scoring, provider, payment, eligibility, or admin behavior
+- Slice 4 verification passes `npm run typecheck`, `npm run lint`, and `npm run test` (`37` files, `219` tests); focused desktop/mobile Playwright is blocked before test execution because Chromium fails macOS Mach-port setup at `bootstrap_check_in org.chromium.Chromium.MachPortRendezvousServer: Permission denied (1100)`, including an outside-sandbox retry
 - the private MySportsFeeds read-only validation probe is integrated on `main`; it adds no Supabase writes and does not change the official typed-`FINAL` finalization path
 - the repo-wide lint cleanup removes the remaining ESLint errors and warnings without changing product behavior; `npm run lint`, `npm run typecheck`, and `npm run test` (`37` files, `216` tests) pass
 - earlier mixed local recovery work remains separated into sibling worktrees; preserve those lanes until Parker chooses whether to integrate or retire them
@@ -424,22 +426,21 @@ Current product checklist:
 1. Shared shell + static public pages: merged
 2. Contest discovery + Contest Detail: implemented in Slice 2
 3. Free beta entry flow: implemented in Slice 3
-4. Build your board: next recommended product slice
-5. Profile + Results
+4. Build your board: implemented in Slice 4
+5. Profile and Results: next recommended product slice
 ```
 
 Next recommended slice:
 
 ```text
-Continue PickRank using the repo as source of truth. Implement Slice 4 of the Early Access Beta UI cleanup for Build Your Board. Before editing, read `docs/agent-handoff.md`, `AGENTS.md`, `spec/product_spec.md`, `spec/features/frontend_navigation.md`, the lineup-builder specs and state helpers, current Git status, `app/contests/[contestId]/lineup/page.tsx`, `components/contests/lineup-builder-client.tsx`, the lineup API route, and focused unit and Playwright tests. Keep the active free beta journey as Contest Detail -> Enter Free Beta Contest -> Build Your Board. Preserve the full 20-player pool, ranked 10-player board, existing selection and reorder behavior, keyboard and pointer controls, saved-entry and lineup persistence, save feedback, lock-state read-only behavior, auth and entry gates, and parked paid-version surfaces. Do not change payments, wallet behavior, scoring, provider writes, contest lifecycle, legal terms, Supabase production data, Remotion assets, or unrelated local work. Keep Slice 4 presentation-only. Update focused tests, run typecheck, lint, the full unit suite, desktop/mobile Playwright, and `git diff --check`. Refresh this handoff and stop after Slice 4.
+Continue PickRank using the repo as source of truth. Implement the next Early Access Beta UI cleanup for Profile and Results. Before editing, read `docs/agent-handoff.md`, `AGENTS.md`, `spec/product_spec.md`, `spec/features/frontend_navigation.md`, the relevant Profile and Results files, current Git status, and focused tests. Preserve the active free beta journey as Contest Detail -> Enter Free Beta Contest -> Build Your Board, the full 20-player pool, one ranked 10-player board, saved-entry persistence, lock-state behavior, and parked paid-version surfaces. Do not change payments, wallet behavior, scoring, provider writes, contest lifecycle, legal terms, Supabase production data, Remotion assets, or unrelated local work. Keep the slice presentation-only. Update focused tests, run typecheck, lint, the full unit suite, desktop/mobile Playwright where applicable, and `git diff --check`. Refresh this handoff and stop after the slice.
 ```
 
 Definition of done:
 
-- simplify Build Your Board without changing selection, reorder, save, persistence, lock, scoring, or lifecycle behavior
+- simplify Profile and Results without changing entry, persistence, lock, scoring, or lifecycle behavior
 - preserve the two-step free beta entry path, future paid-contest surfaces, and the free-to-play Early Access Beta posture
-- keep the full 20-player pool and ranked 10-player board clear on desktop and mobile
-- update focused lineup copy/layout tests
+- update focused Profile and Results copy/layout tests
 - run `npm run typecheck`, `npm run lint`, `npm run test`, focused desktop/mobile Playwright, and `git diff --check`
 - update this handoff note again if repo reality or the next recommended move changes
 

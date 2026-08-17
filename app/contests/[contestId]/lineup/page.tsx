@@ -5,7 +5,6 @@ import { getProtectedContestEntryRedirect } from '@/lib/contest-entry-access';
 import {
   contestEntryCookieName,
   getContestEntryRouteState,
-  getContestEntryStateCopy,
   getPersistedContestEntryStage,
 } from '@/lib/contest-entry-flow';
 import {
@@ -62,9 +61,6 @@ export default async function LineupBuilderPage({
     redirect(routeState.redirectHref);
   }
 
-  const stateCopy = getContestEntryStateCopy(routeState.stage, {
-    usesDirectEntryFlow: isBetaFreeEntryContest(contest.entryFeeCents),
-  });
   const isEditable = isContestLineupEditable(contest);
 
   if (!persistedEntry) {
@@ -87,7 +83,6 @@ export default async function LineupBuilderPage({
       entryId={persistedEntry.entryId}
       initialLineupState={initialLineupState}
       isEditable={isEditable}
-      stateCopy={stateCopy}
     />
   );
 }

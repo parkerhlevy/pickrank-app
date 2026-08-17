@@ -15,7 +15,7 @@ import {
   X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Notice } from '@/components/ui/notice';
 import {
   type LineupState,
@@ -41,12 +41,6 @@ type LineupBuilderClientProps = {
   entryId: string;
   initialLineupState: LineupState;
   isEditable: boolean;
-  stateCopy: {
-    badge: string;
-    stepLabel: string;
-    title: string;
-    description: string;
-  };
 };
 
 type DragSession = {
@@ -73,7 +67,6 @@ export function LineupBuilderClient({
   entryId,
   initialLineupState,
   isEditable,
-  stateCopy,
 }: LineupBuilderClientProps) {
   const router = useRouter();
   const [lineupState, setLineupState] = useState<LineupState>(initialLineupState);
@@ -102,14 +95,14 @@ export function LineupBuilderClient({
       ? 'Unsaved changes'
       : lineupState.source === 'user_saved'
         ? 'Saved'
-        : 'Assigned order';
+        : 'Selected order';
   const saveStateDescription = !isEditable
     ? 'This saved board is locked for review.'
     : hasUnsavedChanges
       ? 'Review the ranked order below, then save before leaving.'
       : lineupState.source === 'user_saved'
         ? 'Your saved board is current.'
-        : 'This assigned board is current until you make a change.';
+        : 'Your board is current until you make a change.';
   const savePanelClassName = hasUnsavedChanges
     ? 'action-panel sticky bottom-24 z-20 sm:bottom-20'
     : 'action-panel';
@@ -457,11 +450,8 @@ export function LineupBuilderClient({
           <div className="flex items-start justify-between gap-3">
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-2">
-                <p className="eyebrow">Board Builder</p>
-                <span className="status-pill status-pill-muted shrink-0">Single Entry</span>
-                <span className={`status-pill shrink-0 ${hasUnsavedChanges ? 'border-amber-200 bg-amber-50 text-amber-800' : ''}`}>
-                  {saveStateLabel}
-                </span>
+                <p className="eyebrow">Board builder</p>
+                <span className="status-pill status-pill-muted shrink-0">One entry per person</span>
               </div>
               <h1 className="text-2xl font-black leading-tight sm:text-3xl">Build Your Board</h1>
             </div>
@@ -470,7 +460,7 @@ export function LineupBuilderClient({
             </Link>
           </div>
           <p className="text-muted-foreground">
-            Choose your top 10 quarterbacks from the full player pool, rank them, and save one board for this single contest entry before lock.
+            Choose your top 10 quarterbacks from the player pool, rank them, and save your board before the contest locks.
           </p>
           <div className="grid grid-cols-2 gap-2 text-sm">
             <div className="metric-tile">
@@ -482,7 +472,7 @@ export function LineupBuilderClient({
               <p className="numeric mt-1 font-black">{lineupState.availablePlayers.length}</p>
             </div>
             <div className="metric-tile">
-              <p className="text-xs text-muted-foreground">Save State</p>
+              <p className="text-xs text-muted-foreground">Board state</p>
               <p className="mt-1 font-black">{saveStateLabel}</p>
             </div>
             <div className="metric-tile">
@@ -490,20 +480,13 @@ export function LineupBuilderClient({
               <p className="numeric mt-1 font-black">{lockTimeLabel}</p>
             </div>
           </div>
-          <div className="section-card-muted flex flex-col gap-2 px-3 py-2.5 text-sm sm:flex-row sm:items-center sm:justify-between sm:py-3">
-            <div>
-              <p className="font-semibold">{stateCopy.stepLabel}</p>
-              <p className="text-muted-foreground">{stateCopy.description}</p>
-            </div>
-            <span className="status-pill status-pill-muted shrink-0">{stateCopy.badge}</span>
-          </div>
         </div>
 
         {showSavedBanner ? (
           <Notice
             variant="success"
             icon={CheckCircle2}
-            title="Board Saved"
+            title="Board saved"
             description="Board saved. You can edit your rankings until lock."
             badge="Saved"
           />
@@ -513,7 +496,7 @@ export function LineupBuilderClient({
           <Notice
             variant="error"
             icon={AlertTriangle}
-            title="Board Not Saved"
+            title="Board not saved"
             description={saveError}
             badge="Action needed"
           />
@@ -523,7 +506,7 @@ export function LineupBuilderClient({
           <Notice
             variant="warning"
             icon={Clock}
-            title="Board Locked"
+            title="Board locked"
             description="This contest is no longer open, so your saved board is now read-only."
             badge="Read only"
           />
@@ -533,23 +516,15 @@ export function LineupBuilderClient({
           <CardHeader className="px-4 py-4 sm:px-6 sm:py-6">
             <div className="grid gap-2 sm:flex sm:items-start sm:justify-between sm:gap-3">
               <div>
-                <CardTitle>{isEditable ? 'Your Board' : 'Locked Board'}</CardTitle>
-                <CardDescription>
-                  {isEditable
-                    ? 'Choose and rank your top 10 quarterbacks by passing yards, then use Save Your Board before contest lock.'
-                    : 'This is your saved board for the current entry. Rankings are read-only because the contest is locked.'}
-                </CardDescription>
+                <CardTitle>{isEditable ? 'Your board' : 'Locked board'}</CardTitle>
               </div>
-              <span className="numeric status-pill shrink-0">
-                {isEditable ? `${lineupState.selectedOrder.length}/10 Ranked` : 'Read Only'}
-              </span>
             </div>
           </CardHeader>
           <CardContent className="space-y-3 px-4 pb-4 sm:px-6 sm:pb-6">
             <div className="section-card-muted px-3 py-2.5 text-sm sm:py-3">
               <div className="grid gap-2 sm:flex sm:items-center sm:justify-between sm:gap-3">
                 <div>
-                  <p className="font-semibold">{isEditable ? 'Board Progress' : 'Saved Board Status'}</p>
+                  <p className="font-semibold">{isEditable ? 'Board progress' : 'Saved board status'}</p>
                   <p className="text-muted-foreground">
                     {isEditable && needsMoreSelections
                       ? `${10 - lineupState.selectedOrder.length} more quarterback${10 - lineupState.selectedOrder.length === 1 ? '' : 's'} needed before you can save.`
@@ -667,10 +642,10 @@ export function LineupBuilderClient({
               <div className="space-y-2 border-t pt-3">
                 <div className="grid gap-2 sm:flex sm:items-center sm:justify-between sm:gap-3">
                   <div>
-                    <p className="font-semibold">Available Quarterbacks</p>
+                    <p className="font-semibold">Available quarterbacks</p>
                     <p className="text-xs text-muted-foreground">Fill any open board spots from the player pool.</p>
                   </div>
-                  <span className="numeric status-pill status-pill-muted shrink-0">{lineupState.availablePlayers.length} Left in Pool</span>
+                  <span className="numeric status-pill status-pill-muted shrink-0">{lineupState.selectedOrder.length}/10 Ranked</span>
                 </div>
                 {lineupState.availablePlayers.length > 0 ? (
                   <div className="grid gap-2">
@@ -739,7 +714,7 @@ export function LineupBuilderClient({
             onClick={handleSaveLineup}
             disabled={!isEditable || !hasUnsavedChanges || isSaving || needsMoreSelections}
           >
-            {isEditable ? (isSaving ? 'Saving Board...' : 'Save Your Board') : `${contest.status} - Read Only`}
+            {isEditable ? (isSaving ? 'Saving board...' : 'Save board') : `${contest.status} - Read only`}
           </Button>
           <p className="mt-2 text-center text-xs text-muted-foreground">
             {!isEditable
@@ -748,7 +723,7 @@ export function LineupBuilderClient({
                 ? needsMoreSelections
                   ? 'Choose all 10 quarterbacks before saving your board.'
                   : 'Save your current board before leaving this screen.'
-                : 'Add or reorder quarterbacks to activate the next Save Your Board action.'}
+                : 'Add, change, or reorder players to save your board.'}
           </p>
         </div>
       </div>
@@ -770,10 +745,10 @@ export function LineupBuilderClient({
             </p>
             <div className="mt-4 space-y-2">
               <Button className="w-full" onClick={handleSaveAndLeave}>
-                Save Your Board
+                Save board
               </Button>
               <Button className="w-full" variant="secondary" onClick={handleDiscardChanges}>
-                Discard Changes
+                Discard changes
               </Button>
               <Button
                 ref={cancelLeaveButtonRef}
