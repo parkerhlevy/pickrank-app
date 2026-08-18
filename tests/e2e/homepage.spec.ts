@@ -116,12 +116,15 @@ test('public conversion routes explain the contest mechanics before entry', asyn
   await expect(page.getByText('Wallet Actions Not Available')).toHaveCount(0);
 });
 
-test('logged-out profile hides public paid-review and wallet clutter', async ({ page }) => {
+test('logged-out profile keeps account access and entry guidance compact', async ({ page }) => {
   await page.goto('/profile');
 
   await expect(page.getByRole('heading', { name: 'Create Your PickRank Account' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Entry Readiness' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Account Access' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'How It Works' })).toHaveAttribute('href', '/how-it-works');
+  await expect(page.getByRole('heading', { name: 'Entry Readiness' })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Beta Entry Readiness' })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Contest Identity' })).toHaveCount(0);
   await expect(page.getByText('Paid-entry status')).toHaveCount(0);
   await expect(page.getByText('KYC placeholder')).toHaveCount(0);
   await expect(page.getByText('Withdrawal verification')).toHaveCount(0);
@@ -274,10 +277,11 @@ test('legal terms and privacy pages are available with beta-ready details', asyn
   await expect(page.getByText(staleAgeCopyPattern)).toHaveCount(0);
 });
 
-test('logged-out leaderboard contest route stays public and final-only', async ({ page }) => {
+test('logged-out Results route stays public and waits for confirmed final scoring', async ({ page }) => {
   await page.goto('/leaderboard?contest=week-1-qb-passing-yards');
 
-  await expect(page.getByRole('heading', { name: 'Results Open After Final Scoring' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Results', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Results not ready' })).toBeVisible();
   await expect(
     page.getByText('This contest is not final yet. Final standings appear only after all games are complete').first(),
   ).toBeVisible();
