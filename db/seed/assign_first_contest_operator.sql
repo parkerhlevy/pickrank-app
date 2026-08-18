@@ -14,6 +14,7 @@ target_emails as (
     values
       ('parkerhlevy@gmail.com'),
       ('gary.levy59@gmail.com'),
+      ('thl2713@gmail.com'),
       ('glevy59@icloud.com')
   ) as seed(email)
 )
@@ -34,6 +35,7 @@ target_emails as (
     values
       ('parkerhlevy@gmail.com'),
       ('gary.levy59@gmail.com'),
+      ('thl2713@gmail.com'),
       ('glevy59@icloud.com')
   ) as seed(email)
 )
