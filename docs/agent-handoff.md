@@ -63,8 +63,10 @@ The repo is past bare Phase 0 and currently includes:
 - Vitest wired
 - Basic route smoke tests
 
-Current branch and production reality as of 2026-08-17:
+Current branch and production reality as of 2026-08-18:
 
+- the current `main` worktree is aligned with `origin/main` at `ce1fdaf` after `git fetch --prune origin`; there are no committed-but-unpushed commits
+- active main-worktree dirt is limited to `.env.example`, which reintroduces obsolete SportsDataIO replay/live validation variables removed by `f3ede64`; treat that as provider/live-validation dirt and do not commit it with unrelated work unless Parker explicitly reopens that provider lane
 - the current worktree started Slice 3 clean and aligned with `origin/main` at `57da074`
 - Slice 1 is merged through merge commit `68500ba`
 - Slice 2 simplifies Contest discovery into responsive contest cards with only status, entries, lock time, and stat category; removes Featured framing and lobby board previews; and makes Contest Detail a concise free-beta overview with a green Open state, compact scoring, and the full 20-QB player pool without a fake user board
@@ -78,8 +80,8 @@ Current branch and production reality as of 2026-08-17:
 - Slice 3 is merged into `main` through merge commit `262c1c8` from pull request `#22` and is deployed to Vercel Production; `main` and production now contain the same Slice 3 product behavior
 - Slice 4 is a presentation-only Build Your Board cleanup, published on `main` as `7d78aa4` and deployed to Vercel Production as `dpl_2kdok1mUa9XH46bqVCXRco3DShfm`: it uses `One entry per person`, removes the top assigned-order chip, the entry-step block, the redundant board-header ranked badge, and the editable-board helper subtext; it also uses clear sentence-case board, save, and player-pool labels without changing entry, selection, reorder, persistence, lock, scoring, provider, payment, eligibility, or admin behavior
 - Slice 4 verification passes `npm run typecheck`, `npm run lint`, `npm run test` (`37` files, `219` tests), and the durable Linux Chromium gate in GitHub Actions run `32009831158`; the browser gate completed all four isolated suites with `25` passed tests and `1` expected paid-preview skip
-- Slice 5 is the active presentation-only lane in `codex/early-access-beta-slice-5-profile-results`: Profile now uses Account Settings and one Profile Information surface for username, session, and entry status; Results replaces public Leaderboard wording while `/leaderboard` remains unchanged, and personal result pages read Your results
-- Slice 5 preserves all entry forms and return links, the two-step free beta journey, the 20-player pool, one ranked 10-player board, saved-entry persistence, lock state, scoring, provider behavior, payments, wallet behavior, eligibility logic, legal terms, admin behavior, and parked paid-version surfaces; it passes `npm run typecheck`, `npm run lint`, `npm run test` (`34` files, `206` tests), and `git diff --check`; focused `npm run test:e2e:ci -- tests/e2e/homepage.spec.ts tests/e2e/final-results.spec.ts` is blocked before any test executes because Chromium cannot register `org.chromium.Chromium.MachPortRendezvousServer` in the Codex desktop macOS process sandbox
+- Slice 5 is merged into `main` through merge commit `c50aa5b` from pull request `#23`: Profile now uses Account Settings and one Profile Information surface for username, session, and entry status; Results replaces public Leaderboard wording while `/leaderboard` remains unchanged, and personal result pages read Your results
+- Slice 5 preserves all entry forms and return links, the two-step free beta journey, the 20-player pool, one ranked 10-player board, saved-entry persistence, lock state, scoring, provider behavior, payments, wallet behavior, eligibility logic, legal terms, admin behavior, and parked paid-version surfaces; branch verification passed `npm run typecheck`, `npm run lint`, `npm run test` (`34` files, `206` tests), and `git diff --check`; focused `npm run test:e2e:ci -- tests/e2e/homepage.spec.ts tests/e2e/final-results.spec.ts` was blocked before any test executed because Chromium could not register `org.chromium.Chromium.MachPortRendezvousServer` in the Codex desktop macOS process sandbox
 - Provider evaluation is parked in `codex/provider-rolling-insights` at `1dd2700`. No provider work is part of Slice 5.
 - `.github/workflows/playwright.yml` now provides the verified browser gate outside the Codex desktop macOS process sandbox: it installs Playwright Chromium on Linux and runs the serialized full suite for pull requests, pushes to `main`, and manual dispatches; `docs/qa/browser-verification.md` records the failure classification and local fallback, while local Codex desktop runs can still fail before test execution at `bootstrap_check_in org.chromium.Chromium.MachPortRendezvousServer: Permission denied (1100)` because the parent application's macOS process sandbox remains in force
 - the private MySportsFeeds read-only validation probe is integrated on `main`; it adds no Supabase writes and does not change the official typed-`FINAL` finalization path
@@ -398,26 +400,27 @@ Deferred Phase 2 items:
 Current product checklist:
 
 ```text
-1. Profile and Results: active Slice 5 lane in `codex/early-access-beta-slice-5-profile-results`
+1. Profile and Results: merged into `main` through pull request `#23`
 2. Shared shell + static public pages: merged
 3. Contest discovery + Contest Detail: implemented in Slice 2
 4. Free beta entry flow: implemented in Slice 3
 5. Build your board: implemented in Slice 4
 6. Provider evaluation: parked in `codex/provider-rolling-insights`; it is not part of Slice 5
+7. Repo hygiene: `.env.example` has a local provider/live-validation edit that must be resolved before a clean new slice
 ```
 
 Next recommended slice:
 
 ```text
-Review and merge the isolated Slice 5 Profile and Results presentation changes through the normal pull-request path, then confirm the GitHub Actions Chromium gate. Keep the parked provider evaluation out of this branch. Do not change scoring, payments, wallet, eligibility, auth, public results, Supabase data, or typed FINAL finalization.
+Resolve the local `.env.example` provider/live-validation edit first. Either approve restoring it to the committed `main` version because `f3ede64` retired the obsolete SportsDataIO lane, or explicitly reopen the provider lane and keep it isolated. After the worktree is clean, choose the next product slice from current `origin/main`.
 ```
 
 Definition of done:
 
-- simplify Profile and Results without changing entry, persistence, lock, scoring, or lifecycle behavior
-- preserve the two-step free beta entry path, future paid-contest surfaces, and the free-to-play Early Access Beta posture
-- update focused Profile and Results copy/layout tests
-- run `npm run typecheck`, `npm run lint`, `npm run test`, focused desktop/mobile Playwright, and `git diff --check`
+- decide whether the `.env.example` SportsDataIO variable reintroduction should be restored to committed `main` or carried as an explicitly approved provider/live-validation lane
+- keep any provider/live-validation work isolated from free-beta UI, contest-entry, Results, legal, payment, wallet, scoring, and admin/operator slices
+- after `.env.example` is resolved, confirm `git status --short --branch` is clean before starting new product work
+- run `git diff --check`; add `npm run typecheck` and `npm run test` only if code or environment behavior changes
 - update this handoff note again if repo reality or the next recommended move changes
 
 Queued separate provider decision:
