@@ -44,7 +44,7 @@ async function renderLeaderboardPage(requestedContestId?: string) {
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="eyebrow">Results</p>
-              <h1 className="text-3xl font-black leading-tight">Final Results</h1>
+              <h1 className="text-3xl font-black leading-tight">Results</h1>
             </div>
             <span className="status-pill shrink-0 status-pill-muted">Final only</span>
           </div>
@@ -78,7 +78,7 @@ async function renderLeaderboardPage(requestedContestId?: string) {
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="eyebrow">Results</p>
-              <h1 className="text-3xl font-black leading-tight">{placeholder.title}</h1>
+              <h1 className="text-3xl font-black leading-tight">Results</h1>
             </div>
             <span className="status-pill shrink-0 status-pill-muted">{contest.status}</span>
           </div>
@@ -89,9 +89,9 @@ async function renderLeaderboardPage(requestedContestId?: string) {
           <CardHeader className="section-card-header">
             <div className="flex items-start justify-between gap-3">
               <div className="space-y-1">
-                <CardTitle>{contest.title}</CardTitle>
+                <CardTitle>Results not ready</CardTitle>
                 <CardDescription className="text-slate-300">
-                  {contest.status}. Final results stay placeholder-only until saved final scoring is confirmed.
+                  {contest.title} is {contest.status}. Results appear after final scoring is confirmed.
                 </CardDescription>
               </div>
               <span className="status-pill shrink-0 bg-white/10 text-white border-white/15">Final only</span>
@@ -123,7 +123,7 @@ async function renderLeaderboardPage(requestedContestId?: string) {
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="eyebrow">Results</p>
-            <h1 className="text-3xl font-black leading-tight">Final Results</h1>
+            <h1 className="text-3xl font-black leading-tight">Results</h1>
           </div>
         </div>
         <p className="text-muted-foreground">

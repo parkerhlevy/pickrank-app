@@ -78,6 +78,9 @@ Current branch and production reality as of 2026-08-17:
 - Slice 3 is merged into `main` through merge commit `262c1c8` from pull request `#22` and is deployed to Vercel Production; `main` and production now contain the same Slice 3 product behavior
 - Slice 4 is a presentation-only Build Your Board cleanup, published on `main` as `7d78aa4` and deployed to Vercel Production as `dpl_2kdok1mUa9XH46bqVCXRco3DShfm`: it uses `One entry per person`, removes the top assigned-order chip, the entry-step block, the redundant board-header ranked badge, and the editable-board helper subtext; it also uses clear sentence-case board, save, and player-pool labels without changing entry, selection, reorder, persistence, lock, scoring, provider, payment, eligibility, or admin behavior
 - Slice 4 verification passes `npm run typecheck`, `npm run lint`, `npm run test` (`37` files, `219` tests), and the durable Linux Chromium gate in GitHub Actions run `32009831158`; the browser gate completed all four isolated suites with `25` passed tests and `1` expected paid-preview skip
+- Slice 5 is the active presentation-only lane in `codex/early-access-beta-slice-5-profile-results`: Profile now uses Account Settings and one Profile Information surface for username, session, and entry status; Results replaces public Leaderboard wording while `/leaderboard` remains unchanged, and personal result pages read Your results
+- Slice 5 preserves all entry forms and return links, the two-step free beta journey, the 20-player pool, one ranked 10-player board, saved-entry persistence, lock state, scoring, provider behavior, payments, wallet behavior, eligibility logic, legal terms, admin behavior, and parked paid-version surfaces; it passes `npm run typecheck`, `npm run lint`, `npm run test` (`34` files, `206` tests), and `git diff --check`; focused `npm run test:e2e:ci -- tests/e2e/homepage.spec.ts tests/e2e/final-results.spec.ts` is blocked before any test executes because Chromium cannot register `org.chromium.Chromium.MachPortRendezvousServer` in the Codex desktop macOS process sandbox
+- Provider evaluation is parked in `codex/provider-rolling-insights` at `1dd2700`. No provider work is part of Slice 5.
 - `.github/workflows/playwright.yml` now provides the verified browser gate outside the Codex desktop macOS process sandbox: it installs Playwright Chromium on Linux and runs the serialized full suite for pull requests, pushes to `main`, and manual dispatches; `docs/qa/browser-verification.md` records the failure classification and local fallback, while local Codex desktop runs can still fail before test execution at `bootstrap_check_in org.chromium.Chromium.MachPortRendezvousServer: Permission denied (1100)` because the parent application's macOS process sandbox remains in force
 - the private MySportsFeeds read-only validation probe is integrated on `main`; it adds no Supabase writes and does not change the official typed-`FINAL` finalization path
 - the repo-wide lint cleanup removes the remaining ESLint errors and warnings without changing product behavior; `npm run lint`, `npm run typecheck`, and `npm run test` (`37` files, `216` tests) pass
@@ -395,18 +398,18 @@ Deferred Phase 2 items:
 Current product checklist:
 
 ```text
-1. Provider rights and cost decision: current priority
+1. Profile and Results: active Slice 5 lane in `codex/early-access-beta-slice-5-profile-results`
 2. Shared shell + static public pages: merged
 3. Contest discovery + Contest Detail: implemented in Slice 2
 4. Free beta entry flow: implemented in Slice 3
 5. Build your board: implemented in Slice 4
-6. Profile and Results: next recommended product slice after the decision lane
+6. Provider evaluation: parked in `codex/provider-rolling-insights`; it is not part of Slice 5
 ```
 
 Next recommended slice:
 
 ```text
-Continue PickRank using the repo as source of truth. Complete the private provider decision lane for the remaining licensed-provider candidates. Confirm written rights for free beta, future paid contests, public result display, storage, caching, redistribution, and commercial use. Keep probes private and read-only. Do not change scoring, payments, wallet, eligibility, auth, public results, Supabase data, or typed FINAL finalization.
+Review and merge the isolated Slice 5 Profile and Results presentation changes through the normal pull-request path, then confirm the GitHub Actions Chromium gate. Keep the parked provider evaluation out of this branch. Do not change scoring, payments, wallet, eligibility, auth, public results, Supabase data, or typed FINAL finalization.
 ```
 
 Definition of done:

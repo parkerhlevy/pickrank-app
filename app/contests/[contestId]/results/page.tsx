@@ -40,12 +40,12 @@ export default async function ContestResultsPage({
       <section className="screen-header space-y-2">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="eyebrow">Final Results</p>
-            <h1 className="text-3xl font-black leading-tight">{result.contestTitle}</h1>
+            <p className="eyebrow">Results</p>
+            <h1 className="text-3xl font-black leading-tight">Your results</h1>
           </div>
           <span className="status-pill shrink-0">Saved Final</span>
         </div>
-        <p className="text-muted-foreground">Your final finish and board breakdown now read from the saved contest results.</p>
+        <p className="text-muted-foreground">{result.contestTitle}. Your final finish and board breakdown read from saved contest results.</p>
       </section>
 
       <ContestBoardStagePanel
