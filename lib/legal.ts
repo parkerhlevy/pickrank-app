@@ -12,7 +12,7 @@ export const accountDeletionPeriod = '30 days';
 export const enforcementReviewWindow = '7 days';
 export const resultsFinalityWindow = '24 hours after the last slate game ends';
 export const betaCancellationThreshold = 'N/A during free beta with no cash prizes';
-export const officialDataProvider = 'SportsDataIO';
+export const officialDataProvider = 'the selected licensed stats provider';
 
 export const legalLinks = [
   { href: '/legal/terms', label: 'Terms' },

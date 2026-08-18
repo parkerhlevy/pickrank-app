@@ -9,9 +9,9 @@ describe('provisional stats preview', () => {
     const preview = formatProvisionalStatsPreview({
       snapshotId: 'snapshot-1',
       snapshotKind: 'provisional_order',
-      contestId: 'week-1-qb-passing-yards-replay-validation-2025',
-      providerKey: 'sportsdataio_replay',
-      providerName: 'SportsDataIO Replay',
+      contestId: 'week-1-qb-passing-yards-private-validation',
+      providerKey: 'candidate_provider',
+      providerName: 'Candidate provider',
       providerSnapshotTime: '2026-07-04T14:30:00.000Z',
       createdAt: '2026-07-04T14:31:00.000Z',
       status: 'validated',
@@ -62,7 +62,7 @@ describe('provisional stats preview', () => {
     expect(preview).toEqual(
       expect.objectContaining({
         status: 'snapshot_ready',
-        sourceLabel: 'SportsDataIO Replay provisional snapshot',
+        sourceLabel: 'Candidate provider provisional snapshot',
         gameCounts: {
           total: 10,
           scheduled: 2,
@@ -90,8 +90,8 @@ describe('provisional stats preview', () => {
   });
 
   it('returns a safe empty preview when no saved provisional snapshot is available', async () => {
-    const preview = await buildProvisionalStatsPreview('week-1-qb-passing-yards-replay-validation-2025', async () => {
-      throw new Error('Persisted provisional stat snapshot is not available yet for week-1-qb-passing-yards-replay-validation-2025.');
+    const preview = await buildProvisionalStatsPreview('week-1-qb-passing-yards-private-validation', async () => {
+      throw new Error('Persisted provisional stat snapshot is not available yet for week-1-qb-passing-yards-private-validation.');
     });
 
     expect(preview).toEqual(
@@ -108,6 +108,6 @@ describe('provisional stats preview', () => {
         },
       }),
     );
-    expect(preview.helperText).toContain('Run the internal Replay validation harness or refresh path');
+    expect(preview.helperText).toContain('Load a private provisional snapshot');
   });
 });

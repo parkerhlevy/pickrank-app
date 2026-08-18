@@ -40,7 +40,7 @@ export async function buildProvisionalStatsPreview(
     return {
       status: 'snapshot_missing',
       sourceLabel: 'No saved provisional snapshot yet',
-      helperText: `${message} Run the internal Replay validation harness or refresh path before using this preview.`,
+      helperText: `${message} Load a private provisional snapshot before using this preview.`,
       gameCounts: {
         total: 0,
         scheduled: 0,

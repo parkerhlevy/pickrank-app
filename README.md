@@ -15,7 +15,7 @@ Implemented in the repo today:
 - protected contest entry flow with payment-review placeholder, entry success, and lineup builder
 - internal `/admin/contests` workflow with operator gating, draft creation, validation, publish, and finalization surfaces
 - saved final-results and final leaderboard reads for final contests
-- Replay-backed and SportsDataIO-live provisional validation harnesses for internal stats testing
+- private provisional snapshot seams for internal stats testing
 - Supabase/Postgres migrations through `db/migrations/0012_waitlist_signups.sql`
 - unit and Playwright test coverage for the current app surfaces and core contest logic
 
@@ -39,7 +39,7 @@ Read these first before changing behavior:
 Supporting docs:
 
 - `docs/design/DESIGN.md` for current design direction
-- `docs/replay-provisional-order-foundation.md` for the provisional-stats boundary
+- `spec/features/stat_finalization.md` for the provisional-stats boundary
 - `docs/deployment.md` for deployment notes
 
 ## Stack
@@ -84,7 +84,7 @@ Bottom navigation currently includes `Home`, `Contests`, `Leaderboard`, and `Pro
 - In normal app usage, the contest repository reads and writes through Supabase/Postgres.
 - Tests and explicit fixture-driven runs can use the file-backed store under `data/` instead. This also applies when `PICKRANK_E2E_USE_FILE_STORE=1`.
 - Final saved scoring and leaderboard/results reads are separate from provisional stats snapshots.
-- Provisional stats work is split into two modes: `replay_validation` and `in_season_live`.
+- Provisional stats remain separate from official results. Provider-specific fetch work is paused until licensing and technical coverage are confirmed.
 - The human-confirmed `FINAL` publish path remains the official boundary for saved contest results.
 
 ## Local Setup
@@ -122,15 +122,8 @@ Required for trusted internal scripts and server-only writes after RLS hardening
 
 - `SUPABASE_SERVICE_ROLE_KEY`
 
-Current provisional-stats seam in `.env.example`:
+Current provider-evaluation seam in `.env.example`:
 
-- `PICKRANK_PROVISIONAL_STATS_SOURCE_MODE`
-- `PICKRANK_SPORTSDATAIO_REPLAY_API_KEY`
-- `PICKRANK_SPORTSDATAIO_REPLAY_BASE_URL`
-- `PICKRANK_SPORTSDATAIO_LIVE_API_KEY`
-- `PICKRANK_SPORTSDATAIO_LIVE_BASE_URL`
-- `PICKRANK_SPORTSDATAIO_LIVE_AUTH_MODE`
-- `PICKRANK_IN_SEASON_LIVE_CONTEST_SLUG`
 - `PICKRANK_MYSPORTSFEEDS_API_KEY`
 - `PICKRANK_MYSPORTSFEEDS_PASSWORD`
 - `PICKRANK_MYSPORTSFEEDS_BASE_URL`
@@ -138,7 +131,7 @@ Current provisional-stats seam in `.env.example`:
 - `PICKRANK_MYSPORTSFEEDS_WEEK`
 - `PICKRANK_MYSPORTSFEEDS_ACCESS_LEVEL`
 
-The active documented defaults are Replay validation on `https://replay.sportsdata.io/api/v3/nfl` and a future in-season live path on `https://api.sportsdata.io/v3/nfl`.
+Provider-specific fetch defaults are intentionally not configured. Use the private MySportsFeeds read-only probe only while provider rights remain under review.
 The MySportsFeeds variables are for read-only provider evaluation only. They do not write Supabase rows and do not change the official typed-`FINAL` finalization path.
 
 ## Useful Commands
@@ -157,9 +150,6 @@ Internal validation and simulation commands:
 
 ```bash
 npm run simulate:nfl-scoring
-npm run validate:replay-provisional
-npm run prepare:live-validation-contest
-npm run validate:live-provisional
 npm run validate:mysportsfeeds:read-only
 ```
 

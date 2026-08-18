@@ -4,7 +4,7 @@
 
 `PARTIAL`
 
-The product and local test harness proof passed. Production route availability passed. A follow-up live provider run loaded the required Supabase service-role environment and passed both provider scripts. Live preseason signoff remains partial because no useful 2026 NFL preseason game window was active, so the run still did not prove non-zero player stats or in-progress game state.
+The product and local test harness proof passed. Production route availability passed. The prior live-provider lane is retired. Live preseason signoff remains partial because the remaining provider candidates still need written rights and a private read-only technical probe.
 
 ## Scope
 
@@ -39,7 +39,6 @@ Operator: Codex local signoff pass
 
 Provider follow-up date: 2026-07-30
 Provider environment: local Codex workspace with `.env.local` plus Supabase service-role key loaded in-process from the linked Supabase project
-Provider contest slug: `week-1-qb-passing-yards-live-validation-2026`
 
 ## Signoff Checklist
 
@@ -78,15 +77,9 @@ Lock behavior: `PASS`
 Provider validation: `PARTIAL`
 
 - Unit provider coverage passed.
-- Initial `npm run prepare:live-validation-contest` and `npm run validate:live-provisional` attempts failed because `NEXT_PUBLIC_SUPABASE_URL` or `SUPABASE_SERVICE_ROLE_KEY` was missing in the local shell.
-- The 2026-07-30 follow-up loaded the required Supabase service-role key in-process from the linked Supabase project.
-- `npm run prepare:live-validation-contest` then passed and rebuilt the hidden validation contest with `15` slate players and numeric SportsDataIO player/game identifiers.
-- `npm run validate:live-provisional` then passed and saved a SportsDataIO live provisional snapshot.
-- Latest live snapshot: `12` total games, `12` scheduled, `0` in progress, `0` final.
-- Latest top provisional QB order: `T-1` Brock Purdy, `T-1` C.J. Stroud, `T-1` Dak Prescott, `T-1` Jalen Hurts, `T-1` Jared Goff, all with `0` passing yards and `scheduled` game status.
-- This proves live SportsDataIO fetch, hidden validation contest prep, and provisional snapshot persistence in the service-role environment.
-- This does not yet prove non-zero preseason stats or in-progress game state because no useful 2026 NFL preseason game window was active.
-- The next useful 2026 NFL preseason validation window begins with Panthers at Cardinals on 2026-08-06 at 8:00 PM ET. Official NFL schedule source: `https://www.nfl.com/schedules/2026/by-week/hall-of-fame-game`
+- The prior provider-specific validation lane is retired.
+- No provider credentials were used in this review.
+- Private provider evaluation remains pending licensing, commercial-use, storage/display, and technical coverage confirmation.
 
 Finalization: `PASS`
 
@@ -107,12 +100,12 @@ Paid entry remained disabled: `PASS`
 Provisional stats stayed separate from official final results: `PASS FOR TEST HARNESS`, `PARTIAL FOR LIVE PROVIDER`
 
 - Official finalization still uses reviewed manual stats plus typed `FINAL`.
-- Live provisional validation passed in the follow-up service-role environment.
+- No current provider probe or provisional persistence was run in this review.
 - Provisional snapshots are not used as official final results.
 
 Known failures or follow-ups:
 
-- Rerun `npm run validate:live-provisional` during an active preseason game window to prove non-zero stats, in-progress game state, and truthful provisional ordering.
+- Run a private read-only provider probe during an active preseason game window to prove non-zero stats, in-progress game state, and truthful provisional ordering.
 - Keep the run marked `PARTIAL` until the active-window provider proof captures non-zero player stats or in-progress game state.
 
 ## Evidence
@@ -121,7 +114,7 @@ Commands run:
 
 ```bash
 npm run typecheck
-npx vitest run tests/unit/admin-contest-creation.test.ts tests/unit/contest-entry-confirmation.test.ts tests/unit/persisted-contest-entry.test.ts tests/unit/lineup-builder-state.test.ts tests/unit/contest-entry-flow.test.ts tests/unit/provisional-stats-provider.test.ts tests/unit/in-season-live-validation.test.ts tests/unit/in-season-live-validation-prep.test.ts tests/unit/contest-finalization.test.ts tests/unit/contest-results.test.ts
+npx vitest run tests/unit/admin-contest-creation.test.ts tests/unit/contest-entry-confirmation.test.ts tests/unit/persisted-contest-entry.test.ts tests/unit/lineup-builder-state.test.ts tests/unit/contest-entry-flow.test.ts tests/unit/provisional-stats-provider.test.ts tests/unit/contest-finalization.test.ts tests/unit/contest-results.test.ts
 CI=1 npx playwright test tests/e2e/lineup-builder.spec.ts
 CI=1 npx playwright test tests/e2e/final-results.spec.ts
 curl -I https://www.pickrankgames.com/
@@ -130,8 +123,6 @@ curl -I https://www.pickrankgames.com/contests/week-1-qb-passing-yards
 curl -I https://www.pickrankgames.com/leaderboard
 curl -I https://www.pickrankgames.com/how-it-works
 curl -I https://www.pickrankgames.com/auth
-npm run prepare:live-validation-contest
-npm run validate:live-provisional
 npm run test
 ```
 
@@ -142,13 +133,9 @@ Results:
 - `CI=1 npx playwright test tests/e2e/lineup-builder.spec.ts`: `8` passed
 - `CI=1 npx playwright test tests/e2e/final-results.spec.ts`: `4` passed
 - production route HEAD checks: all six returned `HTTP/2 200`
-- `npm run prepare:live-validation-contest`: failed, missing `NEXT_PUBLIC_SUPABASE_URL` or `SUPABASE_SERVICE_ROLE_KEY`
-- `npm run validate:live-provisional`: failed, missing `NEXT_PUBLIC_SUPABASE_URL` or `SUPABASE_SERVICE_ROLE_KEY`
 - 2026-07-30 service-role env load: passed via linked Supabase project key loaded in-process
-- 2026-07-30 `npm run prepare:live-validation-contest`: passed; hidden contest `week-1-qb-passing-yards-live-validation-2026`; `15` slate players; replacements were `Derek Carr -> Tyler Shough`, `Kirk Cousins -> Michael Penix Jr.`, and `Tua Tagovailoa -> Malik Willis`
-- 2026-07-30 `npm run validate:live-provisional`: passed; snapshot time `2026-07-30T06:16:30.276Z`; `12` total, `12` scheduled, `0` in progress, `0` final; top five all `T-1` with `0` passing yards: Brock Purdy, C.J. Stroud, Dak Prescott, Jalen Hurts, Jared Goff
 - `npm run test`: `35` files passed, `189` tests passed
 
 ## Final Decision
 
-The no-money product/test harness is ready for operator rehearsal and code-level proof. Live provider credentials, hidden validation contest prep, and provisional snapshot persistence now pass with service-role env loaded. Live preseason signoff remains `PARTIAL` until the same validation is rerun during an active preseason game window and captures non-zero player stats or in-progress game state.
+The no-money product/test harness is ready for operator rehearsal and code-level proof. Live provider signoff remains `PARTIAL` until licensing is confirmed and a private read-only probe captures non-zero stats, in-progress game state, and truthful provisional ordering.

@@ -1,4 +1,4 @@
--- Add a separate provisional snapshot store for live ordering so Replay-backed
+-- Add a separate provisional snapshot store for private provisional ordering so provider-backed
 -- mid-game stats do not share storage semantics with official finalization.
 
 create table if not exists public.contest_provisional_stat_snapshots (

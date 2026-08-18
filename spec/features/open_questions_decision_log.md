@@ -234,19 +234,19 @@ Provider must support:
 - reliable API availability
 
 ### Current recommendation
-Do not treat SportsDataIO as the active near-term provider path unless its price changes materially.
+The prior $10k-per-season provider is retired from PickRank provider planning because its commercial package is not affordable for the current launch path.
 
 The current provider search priority is:
 
 - MySportsFeeds is the leading candidate if it confirms commercial free-to-play beta use, future paid-contest permission, affordable NFL CORE + STATS pricing, preseason/postseason coverage, and internal snapshot rights.
 - Rolling Insights DataFeeds is the backup candidate, especially if the Breakaway Accelerator can support PickRank's current stage and budget.
-- SportsDataIO remains technically validated in private lanes, but its quoted commercial package is a near-term launch blocker.
+- The prior provider is retired from active planning. Keep the remaining provider candidates behind written rights and technical coverage review.
 - ESPN endpoints remain human audit and research only unless ESPN/Disney grants written production permission.
 
 The repo's existing provider seams should be reused only after the new provider choice is clear. The official saved-results path still stays behind the separate typed `FINAL` confirmation flow.
 
 ### Active follow-up
-Parker contacted SportsDataIO sales/licensing in August 2026 while still on the free API trial. SportsDataIO responded with a `$10k` per-season licensing fee, which is not affordable for the current launch path unless they offer a lower startup, developer, or beta package.
+The prior provider is removed from active follow-up because its quoted `$10k` per-season commercial license is not affordable for the current launch path.
 
 Parker contacted MySportsFeeds in August 2026 to confirm:
 

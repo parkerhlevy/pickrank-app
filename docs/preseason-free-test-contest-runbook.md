@@ -45,8 +45,7 @@ Read these before running the checklist:
 
 Supporting provider notes:
 
-- `docs/replay-provisional-order-foundation.md`
-- `docs/replay-provisional-live-validation-2026-07-03.md`
+- `spec/features/stat_finalization.md`
 
 ## Current Proof Baseline
 
@@ -217,41 +216,34 @@ Pass criteria:
 
 ### 6. Provider Validation
 
-Goal: prove SportsDataIO provider paths are ready for preseason validation while keeping provisional data separate from official finalization.
+Goal: prove a candidate provider path is ready for private preseason validation while keeping provisional data separate from official finalization.
 
 Checklist:
 
-- Confirm `.env.local` or the target environment has the intended provider mode and credentials.
-- Use the hidden 2026 live validation contest for true current-season validation.
-- Run dry-run prep before any hidden-contest mutation.
-- Run the live validation harness during preseason games as the first realistic non-zero player-stat window.
-- Confirm the harness reads `ScoresByWeek` and `PlayerGameStatsByWeek`.
-- Confirm snapshots persist into provisional snapshot storage.
+- Confirm the provider agreement and read-only credentials before any probe.
+- Use a private, non-persistent probe for current-season validation.
+- Confirm the provider exposes the required player, game, passing-yard, and game-state fields.
+- Confirm any snapshot remains private and provisional.
 - Confirm the snapshot is labeled as provisional, not official final.
 - Confirm no public leaderboard/results surface reads from provisional snapshots as official results.
 
 Executable proof:
 
 ```bash
-npm run prepare:live-validation-contest:dry-run
-npm run prepare:live-validation-contest
-npm run validate:live-provisional
-npx vitest run tests/unit/provisional-stats-provider.test.ts tests/unit/in-season-live-validation.test.ts tests/unit/in-season-live-validation-prep.test.ts
+npx vitest run tests/unit/provisional-stats-provider.test.ts tests/unit/provisional-stats-preview.test.ts
 ```
 
 Pass criteria:
 
-- dry-run prep reports a 20-player pool and no guessed provider IDs
-- hidden current-season validation contest has numeric SportsDataIO player and game IDs after explicit approval to write it
-- provider request succeeds with the standard live host/header contract
-- non-zero preseason stats are captured once games are active
-- game counts and ordering are persisted as provisional snapshot rows
+- private probe reports truthful player and game IDs
+- provider request exposes non-zero preseason stats once games are active
+- provider terms permit the intended storage and display use
 - official `FINAL` publish path remains unchanged
 
 Interpretation note:
 
-- A pre-kickoff run with zero player stats can still prove credentials, schedule access, IDs, and persistence.
-- The preseason rerun is required to prove non-zero stats, in-progress game state, and truthful ordering.
+- A pre-kickoff run with zero player stats can still prove credentials, schedule access, and IDs.
+- A preseason rerun is required to prove non-zero stats, in-progress game state, and truthful ordering.
 
 ### 7. Finalization
 
@@ -348,11 +340,8 @@ Run this order for a complete preseason proof pass:
 
 ```bash
 npm run typecheck
-npx vitest run tests/unit/admin-contest-creation.test.ts tests/unit/contest-entry-confirmation.test.ts tests/unit/persisted-contest-entry.test.ts tests/unit/lineup-builder-state.test.ts tests/unit/contest-entry-flow.test.ts tests/unit/provisional-stats-provider.test.ts tests/unit/in-season-live-validation.test.ts tests/unit/in-season-live-validation-prep.test.ts tests/unit/contest-finalization.test.ts tests/unit/contest-results.test.ts
+npx vitest run tests/unit/admin-contest-creation.test.ts tests/unit/contest-entry-confirmation.test.ts tests/unit/persisted-contest-entry.test.ts tests/unit/lineup-builder-state.test.ts tests/unit/contest-entry-flow.test.ts tests/unit/provisional-stats-provider.test.ts tests/unit/contest-finalization.test.ts tests/unit/contest-results.test.ts
 npx playwright test tests/e2e/lineup-builder.spec.ts
-npm run prepare:live-validation-contest:dry-run
-npm run prepare:live-validation-contest
-npm run validate:live-provisional
 npx playwright test tests/e2e/final-results.spec.ts
 ```
 
@@ -372,7 +361,6 @@ curl -I https://www.pickrankgames.com/auth
 During the first available NFL preseason game window, rerun:
 
 ```bash
-npm run validate:live-provisional
 ```
 
 Capture:

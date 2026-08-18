@@ -159,7 +159,7 @@ Fill these before publication:
 | Physical address | Playground Sports, LLC, 5014 42nd Ave SW, Unit C, Seattle, WA 98136. | Supplied |
 | Governing law | Washington law. | Supplied |
 | Venue | King County, Washington. | Supplied |
-| `[DATA PROVIDER]` | Use SportsDataIO in site copy. Internal follow-up: review SportsDataIO terms, including the August 6 test-game use case, before treating this as fully cleared. | Supplied with internal review flag |
+| `[DATA PROVIDER]` | Use a generic selected licensed stats provider reference until provider rights are confirmed in writing. | Needs provider-rights review |
 | Results finality window | 24 hours after the last slate game ends. | Supplied |
 | Cancellation game threshold | N/A during free beta with no cash prizes. | Supplied |
 | Account deletion period | 30 days, with legal/security/fraud/dispute/compliance carveouts. | Supplied |
@@ -171,11 +171,11 @@ Current local site status:
 
 - `/legal/terms` and `/legal/privacy` now use beta-ready site copy based on Parker's supplied decisions.
 - A global legal footer now links Terms, Privacy, Beta Rules, and Responsible Play from public and account routes.
-- Beta Rules site copy names SportsDataIO as the final-stat source.
+- Beta Rules site copy uses a generic selected licensed stats provider reference.
 
 Remaining publication work:
 
-- Review SportsDataIO terms and the August 6 test-game use case before treating provider naming as fully cleared.
+- Review the selected provider terms and the August 6 test-game use case before treating provider naming as fully cleared.
 - Add an Acceptable Use page or include it in the legal page set.
 - Run `npm run typecheck`, `npm run test`, `git diff --check`, and focused homepage/profile route checks.
 

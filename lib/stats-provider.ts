@@ -4,12 +4,7 @@ import path from 'node:path';
 import { z } from 'zod';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import {
-  getSportsDataIoLiveApiKey,
-  getSportsDataIoLiveAuthMode,
-  getSportsDataIoLiveBaseUrl,
   getProvisionalStatsSnapshotFilePath,
-  getSportsDataIoReplayApiKey,
-  getSportsDataIoReplayBaseUrl,
   getStatsProviderFetchToken,
   getStatsProviderFetchUrl,
   getPersistedStatsSnapshotFilePath,
@@ -17,14 +12,7 @@ import {
   getStatsProviderMode,
   hasBrowserSupabaseConfig,
 } from './env';
-import {
-  buildProvisionalOrderRows,
-  buildProvisionalOrderSourceRows,
-  buildProviderRowKey,
-  summarizeProvisionalGames,
-  type ProvisionalGameStatus,
-  type ProvisionalOrderRow,
-} from './provisional-ordering';
+import type { ProvisionalOrderRow } from './provisional-ordering';
 import type { Database, Json } from './supabase/types';
 
 export type StatsProviderMode = 'disabled' | 'file' | 'persisted_snapshot';
@@ -74,47 +62,7 @@ type StatsProviderFetchOptions = {
   persistedSnapshotFilePath?: string;
 };
 
-export type ReplayBackedContestStatsProviderInput = ContestStatsProviderInput & {
-  season: number;
-  week: number;
-  slatePlayers: Array<
-    ContestStatsProviderPlayer & {
-      teamAbbreviation: string;
-      opponentAbbreviation: string;
-      homeAway: 'home' | 'away';
-    }
-  >;
-};
-
 export type ProvisionalStatsSnapshotStatus = z.infer<typeof persistedSnapshotStatusSchema>;
-
-export type ReplayProvisionalValidationReadinessIssue = {
-  code:
-    | 'missing_replay_api_key'
-    | 'non_numeric_provider_player_ids'
-    | 'non_numeric_provider_game_ids';
-  message: string;
-  affectedPlayerIds?: string[];
-};
-
-export type ReplayProvisionalValidationReadiness = {
-  ready: boolean;
-  issues: ReplayProvisionalValidationReadinessIssue[];
-};
-
-export type SportsDataIoLiveValidationReadinessIssue = {
-  code:
-    | 'missing_live_api_key'
-    | 'non_numeric_provider_player_ids'
-    | 'non_numeric_provider_game_ids';
-  message: string;
-  affectedPlayerIds?: string[];
-};
-
-export type SportsDataIoLiveValidationReadiness = {
-  ready: boolean;
-  issues: SportsDataIoLiveValidationReadinessIssue[];
-};
 
 export type ProvisionalContestStatSnapshot = {
   snapshotId: string;
@@ -132,18 +80,6 @@ export type ProvisionalContestStatSnapshot = {
   allGamesFinal: boolean;
   metadata?: Record<string, unknown> | null;
   rows: ProvisionalOrderRow[];
-};
-
-type ProvisionalStatsProviderFetchOptions = {
-  apiKey?: string;
-  baseUrl?: string;
-  persistedSnapshotFilePath?: string;
-  now?: string;
-  createSupabaseClient?: () => Promise<SupabaseClient>;
-};
-
-type SportsDataIoLiveProvisionalStatsProviderFetchOptions = ProvisionalStatsProviderFetchOptions & {
-  authMode?: 'header' | 'query';
 };
 
 type ContestStatSnapshotDbRow = Database['public']['Tables']['contest_stat_snapshots']['Row'];
@@ -196,11 +132,6 @@ type PersistedContestSnapshot = z.infer<typeof persistedContestSnapshotSchema>;
 type PersistedContestSnapshotStore = z.infer<typeof persistedContestSnapshotStoreSchema>;
 
 const defaultPersistedStatsSnapshotDataPath = path.join(process.cwd(), 'data', 'contest-stat-snapshots.json');
-const defaultPersistedProvisionalStatsSnapshotDataPath = path.join(
-  process.cwd(),
-  'data',
-  'contest-provisional-snapshots.json',
-);
 
 const provisionalOrderRowSchema = z.object({
   playerId: z.string().min(1),
@@ -243,8 +174,8 @@ const provisionalContestSnapshotStoreSchema = z.object({
   snapshots: z.array(provisionalContestSnapshotSchema),
 });
 
-type PersistedProvisionalContestSnapshot = z.infer<typeof provisionalContestSnapshotSchema>;
 type PersistedProvisionalContestSnapshotStore = z.infer<typeof provisionalContestSnapshotStoreSchema>;
+type PersistedProvisionalContestSnapshot = z.infer<typeof provisionalContestSnapshotSchema>;
 
 export function resolveStatsProviderAdapter(options?: StatsProviderAdapterOptions): StatsProviderAdapter {
   const providerMode = options?.providerMode ?? getStatsProviderMode();
@@ -313,274 +244,6 @@ export async function fetchAndPersistContestStatSnapshot(
   await persistContestStatSnapshot(persistedSnapshot, options?.persistedSnapshotFilePath);
 
   return persistedSnapshot;
-}
-
-export async function fetchAndPersistReplayProvisionalSnapshot(
-  contest: ReplayBackedContestStatsProviderInput,
-  options?: ProvisionalStatsProviderFetchOptions,
-): Promise<ProvisionalContestStatSnapshot> {
-  const apiKey = options?.apiKey ?? getSportsDataIoReplayApiKey();
-  const readiness = getReplayProvisionalValidationReadiness(contest, {
-    apiKey,
-  });
-
-  if (!readiness.ready) {
-    throw new Error(formatReplayReadinessIssues(readiness.issues));
-  }
-
-  const baseUrl = (options?.baseUrl ?? getSportsDataIoReplayBaseUrl()).replace(/\/$/, '');
-  const seasonKey = buildSportsDataIoSeasonKey(contest.season);
-  const [scoresPayload, playerStatsPayload] = await Promise.all([
-    fetchSportsDataIoReplayJson(
-      `${baseUrl}/stats/json/scoresbyweek/${seasonKey}/${contest.week}`,
-      apiKey,
-    ),
-    fetchSportsDataIoReplayJson(
-      `${baseUrl}/stats/json/playergamestatsbyweek/${seasonKey}/${contest.week}`,
-      apiKey,
-    ),
-  ]);
-
-  const scores = z.array(z.unknown()).parse(scoresPayload).map(parseSportsDataIoScore);
-  const playerStats = z.array(z.unknown()).parse(playerStatsPayload).map(parseSportsDataIoPlayerGameStat);
-  const scoreStatusByGameId = new Map(scores.map((score) => [score.providerGameId, score.gameStatus] as const));
-  const rowsByProviderKey = new Map<string, { passingYards: number; passingTouchdowns: number; gameStatus: ProvisionalGameStatus }>();
-
-  contest.slatePlayers.forEach((player) => {
-    const matchingPlayerStat = playerStats.find(
-      (stat) =>
-        stat.providerPlayerId === player.providerPlayerId &&
-        stat.providerGameId === player.providerGameId,
-    );
-    const gameStatus = scoreStatusByGameId.get(player.providerGameId) ?? matchingPlayerStat?.gameStatus ?? 'scheduled';
-
-    rowsByProviderKey.set(buildProviderRowKey(player.providerPlayerId, player.providerGameId), {
-      passingYards: matchingPlayerStat?.passingYards ?? 0,
-      passingTouchdowns: matchingPlayerStat?.passingTouchdowns ?? 0,
-      gameStatus,
-    });
-  });
-
-  const provisionalRows = buildProvisionalOrderRows(
-    buildProvisionalOrderSourceRows(contest.slatePlayers, rowsByProviderKey),
-  );
-  const gameSummary = summarizeProvisionalGames(provisionalRows);
-  const snapshotTimestamp = options?.now ?? new Date().toISOString();
-  const snapshot = provisionalContestSnapshotSchema.parse({
-    snapshotId: randomUUID(),
-    snapshotKind: 'provisional_order',
-    contestId: contest.id,
-    providerKey: 'sportsdataio_replay',
-    providerName: 'SportsDataIO Replay',
-    providerSnapshotTime: snapshotTimestamp,
-    createdAt: snapshotTimestamp,
-    status: 'validated',
-    gamesTotal: gameSummary.totalGames,
-    gamesScheduled: gameSummary.scheduledGames,
-    gamesInProgress: gameSummary.inProgressGames,
-    gamesFinal: gameSummary.finalGames,
-    allGamesFinal: gameSummary.allGamesFinal,
-    metadata: {
-      season: seasonKey,
-      week: contest.week,
-      endpoints: {
-        liveGames: 'stats/json/scoresbyweek',
-        livePlayerGameStats: 'stats/json/playergamestatsbyweek',
-        officialFinalizationHandoff: 'unverified_in_this_recording',
-      },
-    },
-    rows: provisionalRows,
-  });
-
-  await persistProvisionalContestStatSnapshot(
-    snapshot,
-    options?.persistedSnapshotFilePath,
-    options?.createSupabaseClient,
-  );
-
-  return snapshot;
-}
-
-export async function fetchAndPersistSportsDataIoLiveProvisionalSnapshot(
-  contest: ReplayBackedContestStatsProviderInput,
-  options?: SportsDataIoLiveProvisionalStatsProviderFetchOptions,
-): Promise<ProvisionalContestStatSnapshot> {
-  const apiKey = options?.apiKey ?? getSportsDataIoLiveApiKey();
-  const readiness = getSportsDataIoLiveValidationReadiness(contest, {
-    apiKey,
-  });
-
-  if (!readiness.ready) {
-    throw new Error(formatSportsDataIoLiveReadinessIssues(readiness.issues));
-  }
-
-  const baseUrl = (options?.baseUrl ?? getSportsDataIoLiveBaseUrl()).replace(/\/$/, '');
-  const authMode = options?.authMode ?? getSportsDataIoLiveAuthMode();
-  const seasonKey = buildSportsDataIoSeasonKey(contest.season);
-  const [scoresPayload, playerStatsPayload] = await Promise.all([
-    fetchSportsDataIoJson(
-      `${baseUrl}/scores/json/ScoresByWeek/${seasonKey}/${contest.week}`,
-      {
-        apiKey,
-        authMode,
-        providerLabel: 'SportsDataIO live',
-      },
-    ),
-    fetchSportsDataIoJson(
-      `${baseUrl}/stats/json/PlayerGameStatsByWeek/${seasonKey}/${contest.week}`,
-      {
-        apiKey,
-        authMode,
-        providerLabel: 'SportsDataIO live',
-      },
-    ),
-  ]);
-
-  const scores = z.array(z.unknown()).parse(scoresPayload).map(parseSportsDataIoScore);
-  const playerStats = z.array(z.unknown()).parse(playerStatsPayload).map(parseSportsDataIoPlayerGameStat);
-  const scoreStatusByGameId = new Map(scores.map((score) => [score.providerGameId, score.gameStatus] as const));
-  const rowsByProviderKey = new Map<string, { passingYards: number; passingTouchdowns: number; gameStatus: ProvisionalGameStatus }>();
-
-  contest.slatePlayers.forEach((player) => {
-    const matchingPlayerStat = playerStats.find(
-      (stat) =>
-        stat.providerPlayerId === player.providerPlayerId &&
-        stat.providerGameId === player.providerGameId,
-    );
-    const gameStatus = scoreStatusByGameId.get(player.providerGameId) ?? matchingPlayerStat?.gameStatus ?? 'scheduled';
-
-    rowsByProviderKey.set(buildProviderRowKey(player.providerPlayerId, player.providerGameId), {
-      passingYards: matchingPlayerStat?.passingYards ?? 0,
-      passingTouchdowns: matchingPlayerStat?.passingTouchdowns ?? 0,
-      gameStatus,
-    });
-  });
-
-  const provisionalRows = buildProvisionalOrderRows(
-    buildProvisionalOrderSourceRows(contest.slatePlayers, rowsByProviderKey),
-  );
-  const gameSummary = summarizeProvisionalGames(provisionalRows);
-  const snapshotTimestamp = options?.now ?? new Date().toISOString();
-  const snapshot = provisionalContestSnapshotSchema.parse({
-    snapshotId: randomUUID(),
-    snapshotKind: 'provisional_order',
-    contestId: contest.id,
-    providerKey: 'sportsdataio_live',
-    providerName: 'SportsDataIO Live',
-    providerSnapshotTime: snapshotTimestamp,
-    createdAt: snapshotTimestamp,
-    status: 'validated',
-    gamesTotal: gameSummary.totalGames,
-    gamesScheduled: gameSummary.scheduledGames,
-    gamesInProgress: gameSummary.inProgressGames,
-    gamesFinal: gameSummary.finalGames,
-    allGamesFinal: gameSummary.allGamesFinal,
-    metadata: {
-      season: seasonKey,
-      week: contest.week,
-      authMode,
-      endpoints: {
-        liveGames: 'scores/json/ScoresByWeek',
-        livePlayerGameStats: 'stats/json/PlayerGameStatsByWeek',
-        officialFinalizationHandoff: 'separate_final_review_path_required',
-      },
-    },
-    rows: provisionalRows,
-  });
-
-  await persistProvisionalContestStatSnapshot(
-    snapshot,
-    options?.persistedSnapshotFilePath,
-    options?.createSupabaseClient,
-  );
-
-  return snapshot;
-}
-
-export function getReplayProvisionalValidationReadiness(
-  contest: ReplayBackedContestStatsProviderInput,
-  options?: { apiKey?: string },
-): ReplayProvisionalValidationReadiness {
-  const issues: ReplayProvisionalValidationReadinessIssue[] = [];
-
-  if (!(options?.apiKey ?? getSportsDataIoReplayApiKey())) {
-    issues.push({
-      code: 'missing_replay_api_key',
-      message: 'SportsDataIO Replay API key is not configured in the active environment.',
-    });
-  }
-
-  const nonNumericProviderPlayerIds = contest.slatePlayers
-    .filter((player) => !isNumericProviderIdentifier(player.providerPlayerId))
-    .map((player) => player.playerId);
-
-  if (nonNumericProviderPlayerIds.length > 0) {
-    issues.push({
-      code: 'non_numeric_provider_player_ids',
-      message: `${contest.id} still has ${nonNumericProviderPlayerIds.length} slate players without numeric SportsDataIO PlayerID values.`,
-      affectedPlayerIds: nonNumericProviderPlayerIds,
-    });
-  }
-
-  const nonNumericProviderGameIds = contest.slatePlayers
-    .filter((player) => !isNumericProviderIdentifier(player.providerGameId))
-    .map((player) => player.playerId);
-
-  if (nonNumericProviderGameIds.length > 0) {
-    issues.push({
-      code: 'non_numeric_provider_game_ids',
-      message: `${contest.id} still has ${nonNumericProviderGameIds.length} slate players without numeric SportsDataIO ScoreID values.`,
-      affectedPlayerIds: nonNumericProviderGameIds,
-    });
-  }
-
-  return {
-    ready: issues.length === 0,
-    issues,
-  };
-}
-
-export function getSportsDataIoLiveValidationReadiness(
-  contest: ReplayBackedContestStatsProviderInput,
-  options?: { apiKey?: string },
-): SportsDataIoLiveValidationReadiness {
-  const issues: SportsDataIoLiveValidationReadinessIssue[] = [];
-
-  if (!(options?.apiKey ?? getSportsDataIoLiveApiKey())) {
-    issues.push({
-      code: 'missing_live_api_key',
-      message: 'SportsDataIO live API key is not configured in the active environment.',
-    });
-  }
-
-  const nonNumericProviderPlayerIds = contest.slatePlayers
-    .filter((player) => !isNumericProviderIdentifier(player.providerPlayerId))
-    .map((player) => player.playerId);
-
-  if (nonNumericProviderPlayerIds.length > 0) {
-    issues.push({
-      code: 'non_numeric_provider_player_ids',
-      message: `${contest.id} still has ${nonNumericProviderPlayerIds.length} slate players without numeric SportsDataIO PlayerID values.`,
-      affectedPlayerIds: nonNumericProviderPlayerIds,
-    });
-  }
-
-  const nonNumericProviderGameIds = contest.slatePlayers
-    .filter((player) => !isNumericProviderIdentifier(player.providerGameId))
-    .map((player) => player.playerId);
-
-  if (nonNumericProviderGameIds.length > 0) {
-    issues.push({
-      code: 'non_numeric_provider_game_ids',
-      message: `${contest.id} still has ${nonNumericProviderGameIds.length} slate players without numeric SportsDataIO ScoreID values.`,
-      affectedPlayerIds: nonNumericProviderGameIds,
-    });
-  }
-
-  return {
-    ready: issues.length === 0,
-    issues,
-  };
 }
 
 export async function getLatestProvisionalContestStatSnapshot(
@@ -748,24 +411,6 @@ async function writePersistedSnapshotStore(
   await rename(tempFilePath, persistedSnapshotFilePath);
 }
 
-async function persistProvisionalContestStatSnapshot(
-  snapshot: PersistedProvisionalContestSnapshot,
-  persistedSnapshotFilePath = getProvisionalStatsSnapshotFilePath(),
-  createSupabaseClientOverride?: () => Promise<SupabaseClient>,
-) {
-  if (shouldUsePersistedSnapshotFileStore(persistedSnapshotFilePath)) {
-    const store = await readProvisionalSnapshotStoreOrEmpty(persistedSnapshotFilePath);
-    const nextStore = provisionalContestSnapshotStoreSchema.parse({
-      version: 1,
-      snapshots: upsertProvisionalSnapshot(store.snapshots, snapshot),
-    });
-    await writeProvisionalSnapshotStore(nextStore, persistedSnapshotFilePath);
-    return;
-  }
-
-  await writeProvisionalSnapshotToDatabase(snapshot, createSupabaseClientOverride);
-}
-
 async function readProvisionalSnapshotFromFileStore(
   contestId: string,
   persistedSnapshotFilePath: string,
@@ -801,52 +446,6 @@ async function readProvisionalSnapshotStore(
 
     throw error;
   }
-}
-
-async function readProvisionalSnapshotStoreOrEmpty(
-  persistedSnapshotFilePath: string,
-): Promise<PersistedProvisionalContestSnapshotStore> {
-  try {
-    const fileContents = await readFile(persistedSnapshotFilePath, 'utf8');
-    return provisionalContestSnapshotStoreSchema.parse(JSON.parse(fileContents));
-  } catch (error) {
-    const notFound = (error as NodeJS.ErrnoException).code === 'ENOENT';
-
-    if (!notFound) {
-      if (error instanceof z.ZodError) {
-        throw new Error('Persisted provisional stat snapshot data is malformed.');
-      }
-
-      throw error;
-    }
-
-    return provisionalContestSnapshotStoreSchema.parse({
-      version: 1,
-      snapshots: [],
-    });
-  }
-}
-
-function upsertProvisionalSnapshot(
-  snapshots: PersistedProvisionalContestSnapshot[],
-  nextSnapshot: PersistedProvisionalContestSnapshot,
-) {
-  return [...snapshots.filter((snapshot) => snapshot.snapshotId !== nextSnapshot.snapshotId), nextSnapshot].sort((left, right) =>
-    compareSnapshotTimes(right, left),
-  );
-}
-
-async function writeProvisionalSnapshotStore(
-  store: PersistedProvisionalContestSnapshotStore,
-  persistedSnapshotFilePath = defaultPersistedProvisionalStatsSnapshotDataPath,
-) {
-  const nextStore = provisionalContestSnapshotStoreSchema.parse(store);
-  const directory = path.dirname(persistedSnapshotFilePath);
-  const tempFilePath = path.join(directory, `${path.basename(persistedSnapshotFilePath)}.${randomUUID()}.tmp`);
-
-  await mkdir(directory, { recursive: true });
-  await writeFile(tempFilePath, `${JSON.stringify(nextStore, null, 2)}\n`, 'utf8');
-  await rename(tempFilePath, persistedSnapshotFilePath);
 }
 
 function selectLatestValidatedSnapshot(
@@ -1080,75 +679,6 @@ async function readProvisionalSnapshotFromDatabase(contestSlug: string): Promise
   });
 }
 
-async function writeProvisionalSnapshotToDatabase(
-  snapshot: PersistedProvisionalContestSnapshot,
-  createSupabaseClientOverride?: () => Promise<SupabaseClient>,
-) {
-  const supabase: SupabaseClient = await (createSupabaseClientOverride ?? createSupabaseClient)();
-  const { data: contestRow, error: contestError } = await supabase
-    .from('contests')
-    .select('id')
-    .eq('slug', snapshot.contestId)
-    .maybeSingle();
-
-  if (contestError) {
-    throw new Error(`Unable to load contest for provisional snapshot persistence: ${contestError.message}`);
-  }
-
-  if (!contestRow) {
-    throw new Error('Contest not found.');
-  }
-
-  const snapshotInsert: Database['public']['Tables']['contest_provisional_stat_snapshots']['Insert'] = {
-    snapshot_id: snapshot.snapshotId,
-    contest_id: contestRow.id as string,
-    provider_key: snapshot.providerKey,
-    provider_name: snapshot.providerName,
-    provider_snapshot_time: snapshot.providerSnapshotTime,
-    created_at: snapshot.createdAt,
-    status: snapshot.status,
-    games_total: snapshot.gamesTotal,
-    games_scheduled: snapshot.gamesScheduled,
-    games_in_progress: snapshot.gamesInProgress,
-    games_final: snapshot.gamesFinal,
-    all_games_final: snapshot.allGamesFinal,
-    metadata: (snapshot.metadata ?? null) as Json | null,
-  };
-  const rowInserts: Database['public']['Tables']['contest_provisional_stat_snapshot_rows']['Insert'][] =
-    snapshot.rows.map((row) => ({
-      snapshot_id: snapshot.snapshotId,
-      player_id: row.playerId,
-      provider_player_id: row.providerPlayerId,
-      provider_game_id: row.providerGameId,
-      player_name: row.playerName,
-      team_abbreviation: row.teamAbbreviation,
-      opponent_abbreviation: row.opponentAbbreviation,
-      home_away: row.homeAway,
-      passing_yards: row.passingYards,
-      passing_touchdowns: row.passingTouchdowns,
-      game_status: row.gameStatus,
-      provisional_rank: row.provisionalRank,
-      provisional_rank_min: row.provisionalRankMin,
-      provisional_rank_max: row.provisionalRankMax,
-      provisional_rank_display: row.provisionalRankDisplay,
-      sort_order: row.sortOrder,
-    }));
-
-  const { error: snapshotError } = await supabase.from('contest_provisional_stat_snapshots').insert(snapshotInsert);
-
-  if (snapshotError) {
-    throw new Error(`Unable to save provisional stat snapshot: ${snapshotError.message}`);
-  }
-
-  if (rowInserts.length > 0) {
-    const { error: rowError } = await supabase.from('contest_provisional_stat_snapshot_rows').insert(rowInserts);
-
-    if (rowError) {
-      throw new Error(`Unable to save provisional stat snapshot rows: ${rowError.message}`);
-    }
-  }
-}
-
 function parseSnapshotMetadata(metadata: Json | null) {
   if (!metadata || Array.isArray(metadata) || typeof metadata !== 'object') {
     return null;
@@ -1187,92 +717,6 @@ function buildStatsProviderFetchHeaders(fetchToken: string) {
   return headers;
 }
 
-function buildSportsDataIoHeaders(extraHeaders?: Record<string, string>) {
-  return {
-    'content-type': 'application/json',
-    ...(extraHeaders ?? {}),
-  };
-}
-
-async function fetchSportsDataIoReplayJson(url: string, apiKey: string) {
-  return fetchSportsDataIoJson(url, {
-    apiKey,
-    authMode: 'query',
-    providerLabel: 'SportsDataIO Replay',
-  });
-}
-
-async function fetchSportsDataIoJson(
-  url: string,
-  options: {
-    apiKey: string;
-    authMode: 'header' | 'query';
-    providerLabel: string;
-  },
-) {
-  const requestUrl =
-    options.authMode === 'query' ? appendReplayApiKey(url, options.apiKey) : url;
-  const headers =
-    options.authMode === 'header'
-      ? buildSportsDataIoHeaders({ 'Ocp-Apim-Subscription-Key': options.apiKey })
-      : buildSportsDataIoHeaders();
-  const response = await fetch(requestUrl, {
-    method: 'GET',
-    headers,
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(
-      `${options.providerLabel} request failed with ${response.status}${errorText ? `: ${errorText.slice(0, 200)}` : '.'}`,
-    );
-  }
-
-  return response.json();
-}
-
-function appendReplayApiKey(url: string, apiKey: string) {
-  const requestUrl = new URL(url);
-  requestUrl.searchParams.set('key', apiKey);
-  return requestUrl.toString();
-}
-
-function buildSportsDataIoSeasonKey(season: number) {
-  return `${season}reg`;
-}
-
-function parseSportsDataIoScore(input: unknown) {
-  const row = readObject(input);
-  const providerGameId = readString(row.ScoreID ?? row.scoreId ?? row.GameID ?? row.gameId);
-
-  if (!providerGameId) {
-    throw new Error('SportsDataIO score row is missing ScoreID.');
-  }
-
-  return {
-    providerGameId,
-    gameStatus: normalizeSportsDataIoGameStatus(row),
-  };
-}
-
-function parseSportsDataIoPlayerGameStat(input: unknown) {
-  const row = readObject(input);
-  const providerPlayerId = readString(row.PlayerID ?? row.playerId);
-  const providerGameId = readString(row.ScoreID ?? row.scoreId ?? row.GameID ?? row.gameId);
-
-  if (!providerPlayerId || !providerGameId) {
-    throw new Error('SportsDataIO player stat row is missing PlayerID or ScoreID.');
-  }
-
-  return {
-    providerPlayerId,
-    providerGameId,
-    passingYards: readWholeNumber(row.PassingYards ?? row.passingYards),
-    passingTouchdowns: readWholeNumber(row.PassingTouchdowns ?? row.passingTouchdowns),
-    gameStatus: normalizeSportsDataIoGameStatus(row),
-  };
-}
-
 function safeFetchOrigin(fetchUrl: string) {
   try {
     return new URL(fetchUrl).origin;
@@ -1281,94 +725,7 @@ function safeFetchOrigin(fetchUrl: string) {
   }
 }
 
-function formatReplayReadinessIssues(issues: ReplayProvisionalValidationReadinessIssue[]) {
-  return `Replay provisional snapshot fetch is not ready: ${issues.map((issue) => issue.message).join(' ')}`;
-}
-
-function formatSportsDataIoLiveReadinessIssues(issues: SportsDataIoLiveValidationReadinessIssue[]) {
-  return `SportsDataIO live provisional snapshot fetch is not ready: ${issues.map((issue) => issue.message).join(' ')}`;
-}
-
-function isNumericProviderIdentifier(value: string) {
-  return /^\d+$/.test(value.trim());
-}
-
 async function createSupabaseClient() {
   const { createClient } = await import('@/lib/supabase/server');
   return createClient();
-}
-
-function normalizeSportsDataIoGameStatus(row: Record<string, unknown>): ProvisionalGameStatus {
-  const isClosed = typeof row.IsClosed === 'boolean' ? row.IsClosed : typeof row.isClosed === 'boolean' ? row.isClosed : null;
-
-  if (isClosed === true) {
-    return 'final';
-  }
-
-  const status = readString(row.Status ?? row.status)?.toLowerCase() ?? '';
-
-  if (
-    status.includes('final') ||
-    status === 'f' ||
-    status === 'f/ot' ||
-    status === 'closed'
-  ) {
-    return 'final';
-  }
-
-  if (
-    status.includes('in progress') ||
-    status.includes('progress') ||
-    status.includes('halftime') ||
-    status.includes('quarter') ||
-    status.includes('ot') ||
-    status.includes('delay') ||
-    status === 'live'
-  ) {
-    return 'in_progress';
-  }
-
-  const quarter = typeof row.Quarter === 'number' ? row.Quarter : typeof row.quarter === 'number' ? row.quarter : null;
-
-  if (quarter && quarter > 0) {
-    return 'in_progress';
-  }
-
-  return 'scheduled';
-}
-
-function readObject(input: unknown) {
-  if (!input || typeof input !== 'object' || Array.isArray(input)) {
-    throw new Error('SportsDataIO payload row is malformed.');
-  }
-
-  return input as Record<string, unknown>;
-}
-
-function readString(input: unknown) {
-  if (typeof input === 'string' && input.trim()) {
-    return input.trim();
-  }
-
-  if (typeof input === 'number' && Number.isFinite(input)) {
-    return String(input);
-  }
-
-  return '';
-}
-
-function readWholeNumber(input: unknown) {
-  if (typeof input === 'number' && Number.isFinite(input)) {
-    return Math.max(0, Math.trunc(input));
-  }
-
-  if (typeof input === 'string' && input.trim()) {
-    const parsed = Number.parseInt(input, 10);
-
-    if (Number.isFinite(parsed)) {
-      return Math.max(0, parsed);
-    }
-  }
-
-  return 0;
 }
