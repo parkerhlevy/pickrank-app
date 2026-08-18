@@ -280,7 +280,7 @@ test('legal terms and privacy pages are available with beta-ready details', asyn
 test('logged-out Results route stays public and waits for confirmed final scoring', async ({ page }) => {
   await page.goto('/leaderboard?contest=week-1-qb-passing-yards');
 
-  await expect(page.getByRole('heading', { name: 'Results' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Results', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Results not ready' })).toBeVisible();
   await expect(
     page.getByText('This contest is not final yet. Final standings appear only after all games are complete').first(),
