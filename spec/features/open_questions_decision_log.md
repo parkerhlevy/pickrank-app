@@ -238,7 +238,7 @@ The prior $10k-per-season provider is retired from PickRank provider planning be
 
 The current provider search priority is:
 
-- MySportsFeeds is the leading candidate if it confirms commercial free-to-play beta use, future paid-contest permission, affordable NFL CORE + STATS pricing, preseason/postseason coverage, and internal snapshot rights.
+- MySportsFeeds is the cleared provider option for the current B2C free-to-play beta. Its support team confirmed that PickRank's described use, including internal validation and storage, is allowed for that scope as long as PickRank does not place MySportsFeeds in competition. Future B2B use requires a separate agreement. Paid-contest terms remain a separate decision.
 - Rolling Insights DataFeeds is the backup candidate, especially if the Breakaway Accelerator can support PickRank's current stage and budget.
 - The prior provider is retired from active planning. Keep the remaining provider candidates behind written rights and technical coverage review.
 - ESPN endpoints remain human audit and research only unless ESPN/Disney grants written production permission.
@@ -262,7 +262,9 @@ Parker contacted MySportsFeeds in August 2026 to confirm:
 
 Parker started a 14-day MySportsFeeds trial in August 2026 with NFL CORE + STATS and live access with a 10-minute delay. Trial pricing observed in the account flow was `$158 CAD/month` for live with 10-minute delay and `$88 CAD/month` for Non-Live for the same package.
 
-The 2026-08-13 read-only MySportsFeeds preseason test against DET at CIN, `2026-preseason/week/1/game/163796`, proved auth, schedule access, `LIVE` game state, `COMPLETED_PENDING_REVIEW` post-game state, non-zero QB passing yards, provider player IDs, provider game IDs, and the private provisional snapshot row shape. The repo still needs one plain `COMPLETED` final-state check and a repeatability check on another preseason game before MySportsFeeds can be treated as technically preferred.
+On 2026-08-19, MySportsFeeds support confirmed in Slack that the described PickRank B2C use is acceptable provided it does not place MySportsFeeds in competition. They also confirmed internal validation and storage are acceptable for that scope. They stated that B2B use would require a separate agreement. Treat this as vendor confirmation for PickRank's current public B2C free-to-play beta posture, including internal validation and storage. It does not clear future B2B distribution or paid contests.
+
+The 2026-08-13 through 2026-08-15 read-only MySportsFeeds preseason checks proved auth, schedule access, live and final game-state handling, non-zero QB passing yards, provider player IDs, provider game IDs, and the private provisional snapshot row shape across four completed games. The technical validation is complete. MySportsFeeds is cleared for the current B2C beta and its internal validation/storage scope. Paid-contest and B2B terms remain separate decisions.
 
 Parker also contacted Rolling Insights about the Breakaway Accelerator in August 2026. Keep that item open until Rolling Insights confirms:
 
