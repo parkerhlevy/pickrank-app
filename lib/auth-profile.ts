@@ -50,6 +50,20 @@ export type ProfileIdentity = {
   eligibility: ProfileEligibility;
 };
 
+export type ProtectedProfileEligibilityRecord = {
+  account_status: string;
+  age_confirmed: boolean;
+  age_gate_status: string;
+  date_of_birth: string | null;
+  eligibility_checked_at: string | null;
+  eligibility_status: string;
+  jurisdiction: string | null;
+  kyc_status: string;
+  privacy_policy_accepted_at: string | null;
+  restriction_reason: string | null;
+  terms_accepted_at: string | null;
+};
+
 type ReturnStepCopy = {
   actionLabel: string;
   detail: string;
@@ -360,29 +374,49 @@ export function getReturnStepCopy(next: string): ReturnStepCopy {
   };
 }
 
-export function getProfileIdentity(user: User | null): ProfileIdentity {
+export function getProfileIdentity(
+  user: User | null,
+  protectedProfile?: ProtectedProfileEligibilityRecord | null,
+): ProfileIdentity {
   const metadata = user?.user_metadata ?? {};
+  const protectedMetadata =
+    protectedProfile === undefined
+      ? metadata
+      : {
+          ...metadata,
+          account_status: protectedProfile?.account_status,
+          age_confirmed: protectedProfile?.age_confirmed,
+          age_gate_status: protectedProfile?.age_gate_status,
+          date_of_birth: protectedProfile?.date_of_birth,
+          eligibility_checked_at: protectedProfile?.eligibility_checked_at,
+          eligibility_status: protectedProfile?.eligibility_status,
+          jurisdiction: protectedProfile?.jurisdiction,
+          kyc_status: protectedProfile?.kyc_status,
+          privacy_policy_accepted_at: protectedProfile?.privacy_policy_accepted_at,
+          restriction_reason: protectedProfile?.restriction_reason,
+          terms_accepted_at: protectedProfile?.terms_accepted_at,
+        };
   const username = typeof metadata.username === 'string' ? normalizeUsername(metadata.username) : '';
   const displayName = typeof metadata.display_name === 'string' ? metadata.display_name : username;
   const email = user?.email ?? '';
   const emailConfirmedAt = user?.email_confirmed_at ?? null;
   const dateOfBirth =
-    typeof metadata.date_of_birth === 'string' && normalizeDateOfBirth(metadata.date_of_birth)
-      ? metadata.date_of_birth
+    typeof protectedMetadata.date_of_birth === 'string' && normalizeDateOfBirth(protectedMetadata.date_of_birth)
+      ? protectedMetadata.date_of_birth
       : null;
   const isBetaAgeEligible = isDateOfBirthEligibleForBeta(dateOfBirth);
   const ageConfirmed = isBetaAgeEligible;
-  const jurisdiction = typeof metadata.jurisdiction === 'string' ? normalizeJurisdiction(metadata.jurisdiction) : '';
-  const termsAcceptedAt = typeof metadata.terms_accepted_at === 'string' ? metadata.terms_accepted_at : null;
+  const jurisdiction = typeof protectedMetadata.jurisdiction === 'string' ? normalizeJurisdiction(protectedMetadata.jurisdiction) : '';
+  const termsAcceptedAt = typeof protectedMetadata.terms_accepted_at === 'string' ? protectedMetadata.terms_accepted_at : null;
   const privacyPolicyAcceptedAt =
-    typeof metadata.privacy_policy_accepted_at === 'string' ? metadata.privacy_policy_accepted_at : null;
-  const storedAccountStatus = readMetadataStatus(metadata.account_status, ['active', 'restricted', 'suspended', 'closed'], 'active');
+    typeof protectedMetadata.privacy_policy_accepted_at === 'string' ? protectedMetadata.privacy_policy_accepted_at : null;
+  const storedAccountStatus = readMetadataStatus(protectedMetadata.account_status, ['active', 'restricted', 'suspended', 'closed'], 'active');
   const storedEligibilityStatus = readMetadataStatus(
-    metadata.eligibility_status,
+    protectedMetadata.eligibility_status,
     ['unknown', 'pending_review', 'eligible_for_internal_testing', 'eligible', 'blocked'],
     'unknown',
   );
-  const storedAgeGateStatus = readMetadataStatus(metadata.age_gate_status, ['unknown', 'confirmed', 'blocked'], 'unknown');
+  const storedAgeGateStatus = readMetadataStatus(protectedMetadata.age_gate_status, ['unknown', 'confirmed', 'blocked'], 'unknown');
   const ageGateStatus =
     dateOfBirth && !isBetaAgeEligible
       ? 'blocked'
@@ -392,7 +426,7 @@ export function getProfileIdentity(user: User | null): ProfileIdentity {
           ? 'unknown'
           : storedAgeGateStatus;
   const kycStatus = readMetadataStatus(
-    metadata.kyc_status,
+    protectedMetadata.kyc_status,
     ['not_required', 'required', 'pending', 'verified', 'failed', 'expired'],
     'not_required',
   );
@@ -402,8 +436,8 @@ export function getProfileIdentity(user: User | null): ProfileIdentity {
     'none',
   );
   const eligibilityCheckedAt =
-    typeof metadata.eligibility_checked_at === 'string' ? metadata.eligibility_checked_at : null;
-  const restrictionReason = typeof metadata.restriction_reason === 'string' ? metadata.restriction_reason : null;
+    typeof protectedMetadata.eligibility_checked_at === 'string' ? protectedMetadata.eligibility_checked_at : null;
+  const restrictionReason = typeof protectedMetadata.restriction_reason === 'string' ? protectedMetadata.restriction_reason : null;
   const isAgeOnlyRestriction = isUnder18AgeGateRestriction(restrictionReason);
   const hasResolvedAgeOnlyRestriction = Boolean(isAgeOnlyRestriction && isBetaAgeEligible);
   const accountStatus =

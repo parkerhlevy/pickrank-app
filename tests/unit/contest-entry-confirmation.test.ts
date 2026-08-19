@@ -5,6 +5,7 @@ import {
   canConfirmContestEntry,
   getControlledTestEntryEligibilityError,
   getContestEntryConfirmationError,
+  getFreeBetaContestEligibilityError,
   getPaidContestEligibilityError,
   isControlledTestEntryMode,
 } from '../../lib/contest-entry-confirmation';
@@ -39,9 +40,25 @@ describe('contest entry confirmation policy', () => {
     vi.unstubAllEnvs();
   });
 
-  it('allows zero-fee entries without payment infrastructure', () => {
-    expect(canConfirmContestEntry(0)).toBe(true);
-    expect(getContestEntryConfirmationError(0)).toBeNull();
+  it('allows an eligible 18+ account to enter zero-fee beta contests without payment infrastructure', () => {
+    expect(canConfirmContestEntry(0, { eligibility: eligibleProfile })).toBe(true);
+    expect(getContestEntryConfirmationError(0, { eligibility: eligibleProfile })).toBeNull();
+  });
+
+  it('blocks under-18 accounts from zero-fee beta entry on the server confirmation path', () => {
+    const under18Profile: ProfileEligibility = {
+      ...eligibleProfile,
+      dateOfBirth: '2010-01-01',
+      accountStatus: 'restricted',
+      eligibilityStatus: 'blocked',
+      ageGateStatus: 'blocked',
+      isEligibilityComplete: false,
+      isEligibleForPaidEntry: false,
+    };
+
+    expect(canConfirmContestEntry(0, { eligibility: under18Profile })).toBe(false);
+    expect(getFreeBetaContestEligibilityError(under18Profile)).toContain('at least 18 years old');
+    expect(getContestEntryConfirmationError(0, { eligibility: under18Profile })).toContain('at least 18 years old');
   });
 
   it('fails closed for paid entries by default', () => {

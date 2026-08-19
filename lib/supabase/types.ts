@@ -594,6 +594,7 @@ export type Database = {
           age_gate_status: string;
           created_at: string;
           date_of_birth: string | null;
+          dob_captured_at: string | null;
           display_name: string | null;
           eligibility_checked_at: string | null;
           eligibility_status: string;
@@ -614,6 +615,7 @@ export type Database = {
           age_gate_status?: string;
           created_at?: string;
           date_of_birth?: string | null;
+          dob_captured_at?: string | null;
           display_name?: string | null;
           eligibility_checked_at?: string | null;
           eligibility_status?: string;
@@ -634,6 +636,7 @@ export type Database = {
           age_gate_status?: string;
           created_at?: string;
           date_of_birth?: string | null;
+          dob_captured_at?: string | null;
           display_name?: string | null;
           eligibility_checked_at?: string | null;
           eligibility_status?: string;
@@ -831,7 +834,17 @@ export type Database = {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      capture_profile_date_of_birth: {
+        Args: { target_date_of_birth: string };
+        Returns: {
+          account_status: string;
+          age_gate_status: string;
+          date_of_birth: string;
+          eligibility_status: string;
+        }[];
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };

@@ -65,6 +65,7 @@ The repo is past bare Phase 0 and currently includes:
 
 Current branch and production reality as of 2026-08-18:
 
+- The durable DOB safeguard is in the isolated `codex/durable-dob-safeguard` worktree. Migration `0015_durable_dob_safeguard.sql` was explicitly approved and applied directly to Supabase project `jmvzdspiobcjrewndhuf` Production on 2026-08-19. Schema verification passed for `profiles.dob_captured_at`, the protected capture function, the immutable-DOB trigger, and the database free-entry trigger. Aggregate verification found `0` protected profile records and `0` DOB-change-attempt events. The database therefore fails free beta entry closed until the matching application code is merged/deployed and users capture DOB through the new server action. Do not treat the safeguard as an available production journey until that deploy occurs. `docs/analysis/durable-dob-safeguard-rollout.md` contains the migration and read-only production verification plan.
 - the current `main` worktree is aligned with `origin/main` at `ce1fdaf` after `git fetch --prune origin`; there are no committed-but-unpushed commits
 - active main-worktree dirt is limited to `.env.example`, which reintroduces obsolete SportsDataIO replay/live validation variables removed by `f3ede64`; treat that as provider/live-validation dirt and do not commit it with unrelated work unless Parker explicitly reopens that provider lane
 - the current worktree started Slice 3 clean and aligned with `origin/main` at `57da074`
