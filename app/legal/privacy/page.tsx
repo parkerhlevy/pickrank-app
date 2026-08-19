@@ -26,28 +26,28 @@ export default function PrivacyPolicyPage() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-primary" aria-hidden="true" />
-            <CardTitle>Beta Data Use</CardTitle>
+            <CardTitle>Beta data use</CardTitle>
           </div>
           <CardDescription>PickRank collects limited data to operate free beta contests.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-5 text-sm text-muted-foreground">
-          <LegalSection title="Who Operates PickRank">
+          <LegalSection title="Who operates PickRank">
             <p>PickRank is operated by {legalEntityDescription}.</p>
             <p>Privacy questions can be sent to {legalPrivacyEmail}. General support questions can be sent to {legalSupportEmail}.</p>
             <p>Mailing address: {legalPostalAddress}.</p>
           </LegalSection>
 
-          <LegalSection title="Information PickRank Collects">
+          <LegalSection title="Information PickRank collects">
             <p>PickRank collects waitlist email and consent data, account access data, public username, date of birth, state, Beta Terms acceptance, Privacy Policy acceptance, contest entries, board saves, final results activity, and basic device, log, and usage data.</p>
             <p>PickRank does not collect payment card data, bank data, withdrawal data, tax documents, government ID, or KYC documents during Early Access Beta.</p>
           </LegalSection>
 
-          <LegalSection title="How PickRank Uses Information">
+          <LegalSection title="How PickRank uses information">
             <p>PickRank uses beta data for account access, beta contest operation, support, security, analytics, legal or compliance review, email updates when users consent, and product improvement.</p>
             <p>PickRank does not use advertising or behavioral targeting cookies during Early Access Beta.</p>
           </LegalSection>
 
-          <LegalSection title="Age And Children">
+          <LegalSection title="Age and children">
             <p>PickRank Early Access Beta is for users who are at least 18 years old. PickRank uses date of birth to confirm beta age eligibility.</p>
             <p>If PickRank learns that an under-18 user submitted account information, PickRank may restrict the account and delete or de-identify account data when appropriate. Age-related privacy questions can be sent to {legalPrivacyEmail}.</p>
           </LegalSection>
@@ -57,7 +57,7 @@ export default function PrivacyPolicyPage() {
             <p>PickRank may disclose information if required for legal, security, fraud-prevention, enforcement, or compliance reasons.</p>
           </LegalSection>
 
-          <LegalSection title="Retention And Deletion">
+          <LegalSection title="Retention and deletion">
             <p>Users can request account deletion by contacting {legalPrivacyEmail}. PickRank aims to delete or de-identify account data within {accountDeletionPeriod}, unless it must keep limited records for legal, security, fraud-prevention, dispute, or compliance reasons.</p>
             <p>Waitlist users can unsubscribe from launch emails using the unsubscribe option in marketing emails once broader campaign emails begin.</p>
           </LegalSection>
@@ -89,10 +89,10 @@ function LegalLinks() {
         Review Beta Terms
       </Link>
       <Link href="/legal/beta-rules" className="inline-link">
-        Review Beta Contest Rules
+        Review beta contest rules
       </Link>
       <Link href="/legal/responsible-play" className="inline-link">
-        Review Responsible Play
+        Review responsible play
       </Link>
     </div>
   );

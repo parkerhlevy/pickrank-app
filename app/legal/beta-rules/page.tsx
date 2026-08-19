@@ -9,7 +9,7 @@ export default function BetaRulesPage() {
     <div className="space-y-6">
       <section className="screen-header space-y-2">
         <p className="eyebrow">Legal</p>
-        <h1 className="text-3xl font-black leading-tight">Beta Contest Rules</h1>
+        <h1 className="text-3xl font-black leading-tight">Beta contest rules</h1>
         <p className="text-muted-foreground">
           These rules summarize free beta contest participation.
         </p>
@@ -19,7 +19,7 @@ export default function BetaRulesPage() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <ListOrdered className="h-5 w-5 text-primary" aria-hidden="true" />
-            <CardTitle>Free Beta Contest Rules</CardTitle>
+            <CardTitle>Free beta contest rules</CardTitle>
           </div>
           <CardDescription>{launchMode.betaNoCashValueCopy}</CardDescription>
         </CardHeader>
@@ -36,7 +36,7 @@ export default function BetaRulesPage() {
           <p>PickRank can pause, cancel, correct, or rerun a beta contest if testing, data, integrity, or operational issues require it.</p>
           <div className="flex flex-wrap gap-x-4 gap-y-2">
             <Link href="/how-it-works" className="inline-link">
-              Review How It Works
+              Review how it works
             </Link>
             <Link href="/legal/terms" className="inline-link">
               Review Beta Terms

@@ -44,25 +44,25 @@ describe('auth profile helpers', () => {
 
   it('turns protected contest paths into user-facing return copy', () => {
     expect(getReturnStepCopy('/contests/week-1-qb-passing-yards/progress?stage=payment-review')).toEqual({
-      actionLabel: 'Continue to Entry Review',
-      detail: 'Entry Review for Week 1 QB Passing Yards',
+      actionLabel: 'Continue to entry review',
+      detail: 'Entry review for Week 1 QB Passing Yards',
       isContestFlow: true,
-      shortLabel: 'Entry Review',
+      shortLabel: 'Entry review',
     });
   });
 
   it('describes canonical contest routes in user-facing return copy', () => {
     expect(getReturnStepCopy('/contests/week-1-qb-passing-yards/lineup')).toEqual({
-      actionLabel: 'Continue to Build Your Board',
-      detail: 'Build Your Board for Week 1 QB Passing Yards',
+      actionLabel: 'Continue to build your board',
+      detail: 'Build your board for Week 1 QB Passing Yards',
       isContestFlow: true,
-      shortLabel: 'Build Your Board',
+      shortLabel: 'Build your board',
     });
   });
 
   it('uses profile as the default non-contest destination', () => {
     expect(getReturnStepCopy(defaultReturnPath)).toEqual({
-      actionLabel: 'Continue to Profile',
+      actionLabel: 'Continue to profile',
       detail: 'Profile',
       isContestFlow: false,
       shortLabel: 'Profile',

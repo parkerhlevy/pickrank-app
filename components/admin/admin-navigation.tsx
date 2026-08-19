@@ -8,13 +8,13 @@ import { cn } from '@/lib/utils';
 const adminNavItems = [
   {
     href: '/admin/contests',
-    label: 'Contest Operations',
+    label: 'Contest operations',
     description: 'Setup, validation, and results',
     icon: Trophy,
   },
   {
     href: '/admin/eligibility',
-    label: 'Internal Eligibility',
+    label: 'Internal eligibility',
     description: 'Controlled test accounts only',
     icon: ShieldCheck,
   },

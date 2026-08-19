@@ -442,7 +442,7 @@ test('finalizes the locked contest from admin and keeps leaderboard/results surf
   const entrantPage = await entrantContext.newPage();
 
   await entrantPage.goto(`/contests/${targetContestId}`);
-  await expect(entrantPage.getByRole('link', { name: 'View Results' })).toBeVisible();
+  await expect(entrantPage.getByRole('link', { name: 'View results' })).toBeVisible();
 
   await entrantPage.goto(`/leaderboard?contest=${targetContestId}`);
   await expect(entrantPage.getByRole('heading', { name: 'Results' })).toBeVisible();
@@ -461,10 +461,10 @@ test('finalizes the locked contest from admin and keeps leaderboard/results surf
   await entrantPage.goto(`/contests/${targetContestId}/results`);
   await expect(entrantPage.getByRole('heading', { name: 'Your results' })).toBeVisible();
   await expect(entrantPage.getByText('You finished 2')).toBeVisible();
-  await expect(entrantPage.getByText('Your Score')).toBeVisible();
+  await expect(entrantPage.getByText('Your score')).toBeVisible();
   await expect(entrantPage.getByText('8 pts')).toBeVisible();
   await expect(entrantPage.getByText('$1,050.00').first()).toBeVisible();
-  await entrantPage.getByText('View Player Breakdown').click();
+  await entrantPage.getByText('View player breakdown').click();
   await expect(entrantPage.getByText('#1 Lamar Jackson (BAL)')).toBeVisible();
   await expect(entrantPage.getByText('You: 1 | Actual: 1 | 0 pts')).toBeVisible();
 
@@ -472,7 +472,7 @@ test('finalizes the locked contest from admin and keeps leaderboard/results surf
   const nonEntrantPage = await nonEntrantContext.newPage();
 
   await nonEntrantPage.goto(`/contests/${targetContestId}`);
-  await expect(nonEntrantPage.getByRole('link', { name: 'View Results' })).toBeVisible();
+  await expect(nonEntrantPage.getByRole('link', { name: 'View results' })).toBeVisible();
   await nonEntrantPage.goto(`/contests/${targetContestId}/results`);
   await expect(nonEntrantPage).toHaveURL(`/leaderboard?contest=${targetContestId}`);
 
@@ -586,7 +586,7 @@ test('locks and finalizes the same zero-fee proof contest without paid count or 
   const entrantPage = await entrantContext.newPage();
 
   await entrantPage.goto(`/contests/${freeProofContestId}`);
-  await expect(entrantPage.getByRole('link', { name: 'View Results' })).toBeVisible();
+  await expect(entrantPage.getByRole('link', { name: 'View results' })).toBeVisible();
 
   await entrantPage.goto(`/leaderboard?contest=${freeProofContestId}`);
   await expect(entrantPage.getByRole('heading', { name: 'Results' })).toBeVisible();
@@ -674,7 +674,7 @@ test('reruns finalization after a stat correction and replaces saved rows withou
   await expect(entrantPage.getByText(`You finished ${correctedEntrantRow!.finalRankDisplay}`)).toBeVisible();
   await expect(entrantPage.getByText(`${correctedEntrantRow!.totalScore} pts`)).toBeVisible();
   await expect(entrantPage.getByText(formatUsd(correctedEntrantRow!.payoutAmountCents)).first()).toBeVisible();
-  await entrantPage.getByText('View Player Breakdown').click();
+  await entrantPage.getByText('View player breakdown').click();
   await expect(entrantPage.getByText('#1 Lamar Jackson (BAL)')).toBeVisible();
 
   await operatorContext.close();
@@ -785,7 +785,7 @@ test('renders a saved shared paid tie consistently across leaderboard cards, ran
 
   await entrantPage.goto(`/contests/${targetContestId}/results`);
   await expect(entrantPage.getByText('You finished T-3')).toBeVisible();
-  await expect(entrantPage.getByText('Your Score')).toBeVisible();
+  await expect(entrantPage.getByText('Your score')).toBeVisible();
   await expect(entrantPage.getByText('8 pts')).toBeVisible();
   await expect(entrantPage.getByText('$350.00').first()).toBeVisible();
 

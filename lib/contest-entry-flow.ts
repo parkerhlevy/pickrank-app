@@ -36,41 +36,41 @@ const routeStageMap: Record<ContestEntryRoute, ContestEntryStage> = {
 const stageCopyMap: Record<ContestEntryStage, ContestEntryStateCopy> = {
   'not-entered': {
     badge: 'Step 1 of 4',
-    stepLabel: 'Step 1: Contest Detail',
+    stepLabel: 'Step 1: Contest detail',
     title: 'Review the contest before you enter',
     description: 'Check the contest details, review your beta entry, then build your board before lock.',
   },
   'payment-review': {
     badge: 'Step 2 of 4',
-    stepLabel: 'Step 2: Entry Review',
+    stepLabel: 'Step 2: Entry review',
     title: 'Review your beta entry before you confirm',
     description: 'Confirm your Beta Pass entry, then head to your board.',
   },
   entered: {
     badge: 'Step 3 of 4',
-    stepLabel: 'Step 3: Entry Success',
+    stepLabel: 'Step 3: Entry success',
     title: "You're in",
-    description: 'Your entry is confirmed. Next up: Build Your Board before lock.',
+    description: 'Your entry is confirmed. Next up: build your board before lock.',
   },
   lineup: {
     badge: 'Step 4 of 4',
-    stepLabel: 'Step 4: Build Your Board',
-    title: 'Build Your Board',
+    stepLabel: 'Step 4: Build your board',
+    title: 'Build your board',
     description: 'Rank your players and save your board until the contest locks.',
   },
 };
 
 const directEntryLineupStateCopy: ContestEntryStateCopy = {
   badge: 'Step 2 of 2',
-  stepLabel: 'Step 2: Build Your Board',
-  title: 'Build Your Board',
+  stepLabel: 'Step 2: Build your board',
+  title: 'Build your board',
   description: 'Your free beta entry is confirmed. Rank your players and save your board until the contest locks.',
 };
 
 const contestEntryStepCopy: ContestEntryStepCopy[] = [
   {
     key: 'not-entered',
-    label: 'Contest Detail',
+    label: 'Contest detail',
     summary: 'Check the contest details, lock time, and beta results overview before you enter.',
   },
   {
@@ -80,12 +80,12 @@ const contestEntryStepCopy: ContestEntryStepCopy[] = [
   },
   {
     key: 'entered',
-    label: 'Entry Success',
+    label: 'Entry success',
     summary: 'See your confirmed entry and head straight into your board.',
   },
   {
     key: 'lineup',
-    label: 'Build Your Board',
+    label: 'Build your board',
     summary: 'Rank your players and save your board until lock.',
   },
 ];
@@ -214,7 +214,7 @@ export function getContestDetailPrimaryAction({
 
   if (contestStatus === 'final' || contestStatus === 'paid_out') {
     return {
-      label: 'View Results',
+      label: 'View results',
       href: hasEntry ? `/contests/${contestId}/results` : `/leaderboard?contest=${contestId}`,
       disabled: false,
       tone: 'default' as const,
@@ -223,7 +223,7 @@ export function getContestDetailPrimaryAction({
 
   if (hasEntry) {
     return {
-      label: isContestOpen ? 'Edit Your Board' : 'View Your Board',
+      label: isContestOpen ? 'Edit your board' : 'View your board',
       href: getContestEntryProgressHref(contestId, 'lineup'),
       disabled: false,
       tone: 'default' as const,
@@ -232,7 +232,7 @@ export function getContestDetailPrimaryAction({
 
   if (!isContestOpen) {
     return {
-      label: 'Contest Locked',
+      label: 'Contest locked',
       href: null,
       disabled: true,
       tone: 'default' as const,
@@ -245,7 +245,7 @@ export function getContestDetailPrimaryAction({
 
   if (!isAuthenticated) {
     return {
-      label: 'Sign Up / Log In to Enter',
+      label: 'Sign up / log in to enter',
       href: buildAuthHref(next),
       disabled: false,
       tone: 'default' as const,
@@ -254,7 +254,7 @@ export function getContestDetailPrimaryAction({
 
   if (!isProfileComplete) {
     return {
-      label: 'Complete Profile to Enter',
+      label: 'Complete profile to enter',
       href: buildProfileHref(next),
       disabled: false,
       tone: 'default' as const,
@@ -263,7 +263,7 @@ export function getContestDetailPrimaryAction({
 
   if (!isEmailVerified) {
     return {
-      label: 'Verify Email to Enter',
+      label: 'Verify email to enter',
       href: buildProfileHref(next, {
         status: 'error',
         message: verifyEmailToEnterContestsMessage,
@@ -275,7 +275,7 @@ export function getContestDetailPrimaryAction({
 
   if (!isEligibilityComplete) {
     return {
-      label: 'Complete Eligibility to Enter',
+      label: 'Complete eligibility to enter',
       href: buildProfileHref(next, {
         status: 'error',
         message: eligibilityToEnterContestsMessage,
@@ -289,7 +289,7 @@ export function getContestDetailPrimaryAction({
     const isBlocked = eligibilityStatus === 'blocked';
 
     return {
-      label: isBlocked ? 'Paid Entry Unavailable' : 'Eligibility Pending Review',
+      label: isBlocked ? 'Paid entry unavailable' : 'Eligibility pending review',
       href: null,
       disabled: true,
       tone: isBlocked ? 'error' as const : 'warning' as const,
@@ -298,7 +298,7 @@ export function getContestDetailPrimaryAction({
 
   if (!isFreeBetaEntryContest && !launchMode.paidEntryEnabled) {
     return {
-      label: 'Paid Entry Coming Later',
+      label: 'Paid entry coming later',
       href: null,
       disabled: true,
       tone: 'warning' as const,
@@ -308,7 +308,7 @@ export function getContestDetailPrimaryAction({
   if (isContestOpen) {
     if (isFreeBetaEntryContest) {
       return {
-        label: 'Enter Free Beta Contest',
+        label: 'Enter free beta contest',
         href: null,
         disabled: false,
         tone: 'default' as const,
@@ -317,7 +317,7 @@ export function getContestDetailPrimaryAction({
     }
 
     return {
-      label: `Enter Contest - ${entryFee}`,
+      label: `Enter contest - ${entryFee}`,
       href: next,
       disabled: false,
       tone: 'default' as const,
@@ -325,7 +325,7 @@ export function getContestDetailPrimaryAction({
   }
 
   return {
-    label: 'Contest Locked',
+    label: 'Contest locked',
     href: null,
     disabled: true,
     tone: 'default' as const,

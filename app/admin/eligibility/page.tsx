@@ -30,13 +30,13 @@ export default async function AdminEligibilityPage({
       <Button asChild variant="ghost" size="sm" className="-ml-3 justify-start">
         <Link href="/admin/contests">
           <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
-          Contest Admin
+          Contest admin
         </Link>
       </Button>
 
       <section className="screen-header space-y-2">
-        <p className="eyebrow">Internal Admin</p>
-        <h1 className="text-3xl font-black leading-tight">Eligibility Review</h1>
+        <p className="eyebrow">Internal admin</p>
+        <h1 className="text-3xl font-black leading-tight">Eligibility review</h1>
         <p className="text-muted-foreground">
           Review captured account fields for known test accounts only. This does not approve public real-money entry.
         </p>
@@ -62,7 +62,7 @@ export default async function AdminEligibilityPage({
         <CardHeader className="section-card-header">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <CardTitle>Known Test Accounts</CardTitle>
+              <CardTitle>Known test accounts</CardTitle>
               <CardDescription className="text-slate-300">
                 Internal-test eligibility is stored separately from public paid-entry eligibility and is logged as an
                 audit event. Age gate is computed from DOB; only the age-only restriction reason can resolve through
@@ -71,7 +71,7 @@ export default async function AdminEligibilityPage({
             </div>
             <span className="status-pill shrink-0 bg-white/10 text-white border-white/15">
               <ShieldCheck className="mr-1 h-3 w-3" aria-hidden="true" />
-              Internal Only
+              Internal only
             </span>
           </div>
         </CardHeader>
@@ -161,7 +161,7 @@ export default async function AdminEligibilityPage({
                       candidate.eligibility.eligibilityStatus === 'blocked'
                     }
                   >
-                    Mark Eligible for Internal Testing
+                    Mark eligible for internal testing
                   </Button>
                 </form>
 
@@ -179,7 +179,7 @@ export default async function AdminEligibilityPage({
                     />
                   </Field>
                   <Button type="submit" variant="secondary" className="w-full">
-                    Block Eligibility
+                    Block eligibility
                   </Button>
                 </form>
               </div>

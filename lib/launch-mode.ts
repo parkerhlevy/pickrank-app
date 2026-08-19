@@ -32,7 +32,7 @@ const earlyAccessBetaLaunchMode = {
 
 const paidPreviewLaunchMode = {
   mode: 'paid_preview',
-  displayName: 'Paid Contest Preview',
+  displayName: 'Paid contest preview',
   betaPassLabel: 'Beta Pass',
   betaEntryLabel: 'Paid-mode preview',
   betaNoCashValueCopy:
@@ -68,7 +68,7 @@ export function isBetaFreeEntryContest(entryFeeCents: number, mode = launchMode)
 }
 
 export function getEntryReviewLabel(entryFeeCents?: number, mode = launchMode) {
-  return entryFeeCents === 0 || isEarlyAccessBeta(mode) ? 'Entry Review' : 'Payment Review';
+  return entryFeeCents === 0 || isEarlyAccessBeta(mode) ? 'Entry review' : 'Payment review';
 }
 
 export function getNoPayoutLabel(entryFeeCents?: number, mode = launchMode) {

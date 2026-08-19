@@ -10,33 +10,33 @@ export function getLeaderboardPlaceholderState(status: ContestStatus) {
     case 'open':
     case 'locked':
       return {
-        title: 'Results Open After Final Scoring',
+        title: 'Results open after final scoring',
         description:
           'This contest is not final yet. Final standings appear only after all games are complete and saved scoring is confirmed.',
       };
     case 'live':
       return {
-        title: 'Contest Is Underway',
+        title: 'Contest is underway',
         description: 'Final results will be available after all games are complete.',
       };
     case 'finalizing':
       return {
-        title: 'Final Results Are Being Calculated',
+        title: 'Final results are being calculated',
         description: 'Saved final standings will appear here once scoring is confirmed.',
       };
     case 'canceled':
       return {
-        title: 'Contest Canceled',
+        title: 'Contest canceled',
         description: 'This contest did not run, so results remain unavailable.',
       };
     case 'error_review':
       return {
-        title: 'Results Under Review',
+        title: 'Results under review',
         description: 'Final results are under review while stats are confirmed.',
       };
     default:
       return {
-        title: 'Results Unavailable',
+        title: 'Results unavailable',
         description: 'This contest does not have public final results yet.',
       };
   }

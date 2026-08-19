@@ -300,7 +300,7 @@ export function getReturnStepCopy(next: string): ReturnStepCopy {
 
   if (normalizedNext === defaultReturnPath) {
     return {
-      actionLabel: 'Continue to Profile',
+      actionLabel: 'Continue to profile',
       detail: 'Profile',
       isContestFlow: false,
       shortLabel: 'Profile',
@@ -312,7 +312,7 @@ export function getReturnStepCopy(next: string): ReturnStepCopy {
       actionLabel: 'Continue',
       detail: normalizedNext,
       isContestFlow: false,
-      shortLabel: 'Next Step',
+      shortLabel: 'Next step',
     };
   }
 
@@ -341,7 +341,7 @@ export function getReturnStepCopy(next: string): ReturnStepCopy {
   if (stage === 'payment-review' || isPaymentPath) {
     const entryReviewLabel = getEntryReviewLabel();
     return {
-      actionLabel: `Continue to ${entryReviewLabel}`,
+      actionLabel: 'Continue to entry review',
       detail: `${entryReviewLabel} for ${contestTitle}`,
       isContestFlow: true,
       shortLabel: entryReviewLabel,
@@ -350,27 +350,27 @@ export function getReturnStepCopy(next: string): ReturnStepCopy {
 
   if (stage === 'entered' || isSuccessPath) {
     return {
-      actionLabel: 'Continue to Entry Success',
-      detail: `Entry Success for ${contestTitle}`,
+      actionLabel: 'Continue to entry success',
+      detail: `Entry success for ${contestTitle}`,
       isContestFlow: true,
-      shortLabel: 'Entry Success',
+      shortLabel: 'Entry success',
     };
   }
 
   if (stage === 'lineup' || isLineupPath) {
     return {
-      actionLabel: 'Continue to Build Your Board',
-      detail: `Build Your Board for ${contestTitle}`,
+      actionLabel: 'Continue to build your board',
+      detail: `Build your board for ${contestTitle}`,
       isContestFlow: true,
-      shortLabel: 'Build Your Board',
+      shortLabel: 'Build your board',
     };
   }
 
   return {
-    actionLabel: 'Continue to Contest Entry',
-    detail: `Contest Entry for ${contestTitle}`,
+    actionLabel: 'Continue to contest entry',
+    detail: `Contest entry for ${contestTitle}`,
     isContestFlow: true,
-    shortLabel: 'Contest Entry',
+    shortLabel: 'Contest entry',
   };
 }
 

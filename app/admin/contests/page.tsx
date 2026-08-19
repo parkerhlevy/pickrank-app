@@ -48,8 +48,8 @@ export default async function AdminContestsPage({
   return (
     <div className="space-y-6 pb-28">
       <section className="screen-header space-y-2">
-        <p className="eyebrow">Internal Admin</p>
-        <h1 className="text-3xl font-black leading-tight">Contest Setup</h1>
+        <p className="eyebrow">Internal admin</p>
+        <h1 className="text-3xl font-black leading-tight">Contest setup</h1>
         <p className="text-muted-foreground">
           Create draft contest basics here first, run validation, and publish with a deliberate operator checkpoint.
         </p>
@@ -97,14 +97,14 @@ export default async function AdminContestsPage({
           <CardHeader>
             <div className="flex items-start justify-between gap-3">
               <div>
-                <CardTitle>Create Draft Contest</CardTitle>
+                <CardTitle>Create draft contest</CardTitle>
                 <CardDescription>
                   This first pass captures draft basics only and saves them into the shared contest data layer.
                 </CardDescription>
               </div>
               <span className="status-pill shrink-0">
                 <ShieldCheck className="mr-1 h-3 w-3" aria-hidden="true" />
-                Draft Only
+                Draft only
               </span>
             </div>
           </CardHeader>
@@ -173,7 +173,7 @@ export default async function AdminContestsPage({
               </div>
 
               <Button type="submit" className="w-full">
-                Save Draft Contest
+                Save draft contest
               </Button>
             </form>
           </CardContent>
@@ -249,7 +249,7 @@ export default async function AdminContestsPage({
                       </p>
                       <div className="flex gap-2">
                         <Button type="submit" variant="secondary" className="flex-1">
-                          Save Draft Slate
+                          Save draft slate
                         </Button>
                       </div>
                     </form>
@@ -262,7 +262,7 @@ export default async function AdminContestsPage({
                     <form action={validateDraftContestAction} className="flex-1">
                       <input type="hidden" name="contestId" value={contest.id} />
                       <Button type="submit" variant="secondary" className="w-full" disabled={contest.contestStatus !== 'draft'}>
-                        Run Validation
+                        Run validation
                       </Button>
                     </form>
                     <form action={publishContestAction} className="flex-1">
@@ -272,7 +272,7 @@ export default async function AdminContestsPage({
                         className="w-full"
                         disabled={contest.contestStatus !== 'draft' || contest.validation.status !== 'passed'}
                       >
-                        Publish with Human Confirmation
+                        Publish with human confirmation
                       </Button>
                     </form>
                   </div>
@@ -280,7 +280,7 @@ export default async function AdminContestsPage({
                     <form action={lockFreeTestContestAction} className="mt-3 space-y-3 rounded-lg border border-amber-200 bg-amber-50 p-3">
                       <input type="hidden" name="contestId" value={contest.id} />
                       <div>
-                        <p className="text-sm font-semibold text-amber-950">Free/Test Proof Lock</p>
+                        <p className="text-sm font-semibold text-amber-950">Free/test proof lock</p>
                         <p className="mt-1 text-xs leading-5 text-amber-900">
                           Operator-only control for the no-money proof loop. This locks the $0 contest, blocks new
                           entries, and makes saved lineups read-only without running payment, payout, wallet, KYC, or
@@ -297,7 +297,7 @@ export default async function AdminContestsPage({
                         />
                       </div>
                       <Button type="submit" variant="secondary" className="w-full">
-                        Lock Free/Test Contest
+                        Lock free/test contest
                       </Button>
                     </form>
                   ) : null}
@@ -341,7 +341,7 @@ export default async function AdminContestsPage({
                       <input type="hidden" name="contestId" value={contest.id} />
                       <div className="flex gap-2">
                         <Button formAction={fetchContestStatSnapshotAction} type="submit" variant="ghost" className="w-full">
-                          Fetch Latest Stat Snapshot
+                          Fetch latest stat snapshot
                         </Button>
                       </div>
                       <div className="space-y-1.5">
@@ -371,7 +371,7 @@ export default async function AdminContestsPage({
                         />
                       </div>
                       <Button type="submit" variant="secondary" className="w-full">
-                        Run Final Scoring
+                        Run final scoring
                       </Button>
                     </form>
                   ) : null}
@@ -405,7 +405,7 @@ export default async function AdminContestsPage({
             <CardHeader>
               <div className="flex items-center gap-2">
                 <FileText className="h-5 w-5 text-primary" aria-hidden="true" />
-                <CardTitle>Known Follow-Up Gaps</CardTitle>
+                <CardTitle>Known follow-up gaps</CardTitle>
               </div>
             </CardHeader>
             <CardContent className="space-y-2 text-sm text-muted-foreground">
@@ -414,7 +414,7 @@ export default async function AdminContestsPage({
               <p>
                 Eligibility review for known test accounts lives at{' '}
                 <Link href="/admin/eligibility" className="font-semibold text-primary">
-                  Internal Eligibility Review
+                  Internal eligibility review
                 </Link>
                 .
               </p>
@@ -467,13 +467,13 @@ function TestEntryReadinessCard({ readiness }: { readiness: AdminTestEntryContes
           <div>
             <div className="flex items-center gap-2">
               <ListChecks className="h-5 w-5 text-primary" aria-hidden="true" />
-              <CardTitle>Test Entry Readiness</CardTitle>
+              <CardTitle>Test entry readiness</CardTitle>
             </div>
             <CardDescription>
               Read-only operator visibility for free/test entries, saved lineups, and obvious runbook blockers.
             </CardDescription>
           </div>
-          <span className="status-pill shrink-0">Read Only</span>
+          <span className="status-pill shrink-0">Read only</span>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -494,7 +494,7 @@ function TestEntryReadinessCard({ readiness }: { readiness: AdminTestEntryContes
                 </p>
               </div>
               <span className={contest.status === 'ready' ? 'status-pill bg-emerald-50 text-emerald-900' : 'status-pill'}>
-                {contest.status === 'ready' ? 'Ready' : 'Needs Review'}
+                {contest.status === 'ready' ? 'Ready' : 'Needs review'}
               </span>
             </div>
 

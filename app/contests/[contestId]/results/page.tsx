@@ -43,7 +43,7 @@ export default async function ContestResultsPage({
             <p className="eyebrow">Results</p>
             <h1 className="text-3xl font-black leading-tight">Your results</h1>
           </div>
-          <span className="status-pill shrink-0">Saved Final</span>
+          <span className="status-pill shrink-0">Saved final</span>
         </div>
         <p className="text-muted-foreground">{result.contestTitle}. Your final finish and board breakdown read from saved contest results.</p>
       </section>
@@ -55,8 +55,8 @@ export default async function ContestResultsPage({
         statCategory={contest.statCategory}
         lockTimeLabel={finalizedLabel}
         rankedCountLabel={`Rank ${result.entry.finalRankDisplay}`}
-        stateLabel="Saved Final"
-        rankedLabel="Your Result"
+        stateLabel="Saved final"
+        rankedLabel="Your result"
         rankedDetail="Final placement"
         timingLabel="Finalized"
         timingDetail="Saved final scoring"
@@ -68,7 +68,7 @@ export default async function ContestResultsPage({
         <CardHeader className="section-card-header">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-[0.02em] text-blue-200">Saved Final Summary</p>
+              <p className="text-xs font-semibold tracking-[0.02em] text-blue-200">Saved final summary</p>
               <CardTitle>
                 You finished <span className="numeric">{result.entry.finalRankDisplay}</span>
               </CardTitle>
@@ -85,20 +85,20 @@ export default async function ContestResultsPage({
         </CardHeader>
         <CardContent className="space-y-3 pt-5 text-sm">
           <div className="grid grid-cols-2 gap-3">
-            <ResultStat label="Final Rank" value={result.entry.finalRankDisplay} emphasis />
-            <ResultStat label="Your Score" value={`${result.entry.totalScore} pts`} emphasis />
+            <ResultStat label="Final rank" value={result.entry.finalRankDisplay} emphasis />
+            <ResultStat label="Your score" value={`${result.entry.totalScore} pts`} emphasis />
           </div>
           <div className="grid gap-2 sm:grid-cols-3">
             <ResultStat
-              label={contest.entryFeeCents === 0 ? 'Results' : 'Final Result'}
+              label={contest.entryFeeCents === 0 ? 'Results' : 'Final result'}
               value={result.entry.payoutAmountCents > 0 ? result.entry.payoutAmount : getLeaderboardLabel(contest.entryFeeCents)}
             />
-            <ResultStat label="Exact Picks" value={String(result.entry.exactPicks)} />
-            <ResultStat label="One-Off-Or-Better" value={String(result.entry.oneOffOrBetterPicks)} />
+            <ResultStat label="Exact picks" value={String(result.entry.exactPicks)} />
+            <ResultStat label="One-off-or-better" value={String(result.entry.oneOffOrBetterPicks)} />
           </div>
           {result.averageMissDistance !== null ? (
             <div className="section-card-muted flex items-center justify-between gap-3 px-3 py-2">
-              <p className="text-xs font-medium text-muted-foreground">Average Miss Distance</p>
+              <p className="text-xs font-medium text-muted-foreground">Average miss distance</p>
               <p className="numeric text-sm font-semibold text-slate-950">{result.averageMissDistance} spots</p>
             </div>
           ) : null}
@@ -111,7 +111,7 @@ export default async function ContestResultsPage({
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <Trophy className="h-5 w-5 text-primary" aria-hidden="true" />
-                <CardTitle>Results Snapshot</CardTitle>
+                <CardTitle>Results snapshot</CardTitle>
               </div>
               <CardDescription>This screen reflects your saved final finish, score, and beta result status.</CardDescription>
             </div>
@@ -137,7 +137,7 @@ export default async function ContestResultsPage({
       {result.bestUniquePick ? (
         <Card className="section-card">
           <CardHeader>
-            <CardTitle>Best Unique Pick</CardTitle>
+            <CardTitle>Best unique pick</CardTitle>
             <CardDescription>
               {result.bestUniquePick.playerName} delivered your strongest differentiated call against the field.
             </CardDescription>
@@ -158,13 +158,13 @@ export default async function ContestResultsPage({
 
       <Card className="section-card">
         <CardHeader>
-          <CardTitle>Board Breakdown</CardTitle>
+          <CardTitle>Board breakdown</CardTitle>
           <CardDescription>Review the saved final distances for each quarterback in your board order.</CardDescription>
         </CardHeader>
         <CardContent>
           <details>
             <summary className="section-card-muted flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-3 text-sm font-semibold">
-              <span>View Player Breakdown</span>
+              <span>View player breakdown</span>
               <span className="flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
                 <span className="numeric">{result.playerBreakdown.length} saved rows</span>
                 <ChevronDown className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
@@ -203,13 +203,13 @@ export default async function ContestResultsPage({
         <Button asChild variant="secondary">
           <Link href={`/leaderboard?contest=${contest.id}`}>
             <ListOrdered className="mr-2 h-4 w-4" aria-hidden="true" />
-            View Final Results
+            View final results
           </Link>
         </Button>
         <Button asChild>
           <Link href={nextContest ? `/contests/${nextContest.id}` : '/contests'}>
             <Trophy className="mr-2 h-4 w-4" aria-hidden="true" />
-            Enter Next Contest
+            Enter next contest
           </Link>
         </Button>
       </div>

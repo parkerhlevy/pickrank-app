@@ -122,10 +122,10 @@ const statusLabels: Record<ContestStatus, string> = {
   locked: 'Locked',
   canceled: 'Canceled',
   live: 'Underway',
-  finalizing: 'Results Pending',
+  finalizing: 'Results pending',
   final: 'Final',
   paid_out: 'Final',
-  error_review: 'Needs Review',
+  error_review: 'Needs review',
 };
 
 type ContestStore = z.infer<typeof contestStoreSchema>;

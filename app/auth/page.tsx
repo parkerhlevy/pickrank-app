@@ -32,21 +32,16 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-2">
             <p className="eyebrow">Auth</p>
-            <h1 className="text-3xl font-black leading-tight">Account Access</h1>
+            <h1 className="text-3xl font-black leading-tight">Account settings</h1>
           </div>
           <span className="status-pill shrink-0">{returnStep.isContestFlow ? 'Contest flow' : 'Account setup'}</span>
         </div>
-        <p className="text-muted-foreground">
-          {returnStep.isContestFlow
-            ? `You need to be signed in to enter beta contests. Sign in now, then finish username and beta acknowledgements before ${returnStep.shortLabel.toLowerCase()}.`
-            : 'Create your account, choose a public username, and keep beta acknowledgements and profile steps in one place.'}
-        </p>
       </section>
 
       {next !== defaultReturnPath ? (
         <Card className="section-card">
           <CardHeader>
-            <CardTitle>Before You Enter</CardTitle>
+            <CardTitle>Before you enter</CardTitle>
             <CardDescription>{returnStep.detail}</CardDescription>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
@@ -60,13 +55,8 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
         <CardHeader className="section-card-header">
           <div className="flex items-center gap-2">
             <Globe className="h-5 w-5 text-blue-300" aria-hidden="true" />
-            <CardTitle>Google Sign In</CardTitle>
+            <CardTitle>Google sign-in</CardTitle>
           </div>
-          <CardDescription className="text-slate-300">
-            {authConfigured
-              ? 'Primary low-friction sign-in path for preserving contest-entry intent.'
-              : 'Add the Supabase environment values below to turn on hosted sign-in.'}
-          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 pt-5">
           {status === 'check-email' ? (
@@ -121,7 +111,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
                 ))}
               </ul>
               <p>Local: copy `.env.example` to `.env.local` and fill in the Supabase project values.</p>
-              <p>Vercel: add the same values in Project Settings and redeploy before testing hosted auth.</p>
+              <p>Vercel: add the same values in project settings and redeploy before testing hosted auth.</p>
             </div>
           )}
         </CardContent>
@@ -131,13 +121,10 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Mail className="h-5 w-5 text-primary" aria-hidden="true" />
-            <CardTitle>Email Sign In</CardTitle>
+            <CardTitle>Email sign-in</CardTitle>
           </div>
-          <CardDescription>
-            Sign in by email if you do not want to use Google.
-          </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3 pt-5">
+        <CardContent className="space-y-3 pt-4">
           {authConfigured ? (
             <>
               <EmailSignInForm action={requestMagicLink} next={next} />
@@ -161,18 +148,22 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-primary" aria-hidden="true" />
-            <CardTitle>Before Beta Entry</CardTitle>
+            <CardTitle>How PickRank uses your information</CardTitle>
           </div>
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
           <p>
-            PickRank uses account sign-in, username setup, beta acknowledgements, and entry review so each contest step
-            feels clear and tied to one account.
+            PickRank uses account details to support sign-in, profile setup, and free beta contest entry. Review the{' '}
+            <Link className="inline-link" href="/legal/terms">
+              Beta Terms
+            </Link>{' '}
+            and{' '}
+            <Link className="inline-link" href="/legal/privacy">
+              Privacy Policy
+            </Link>{' '}
+            for details.
           </p>
-          <div className="soft-panel text-foreground">
-            Google sign-in does not provide date of birth for 18+ eligibility, state, Beta Terms acceptance, or Privacy
-            acceptance. PickRank captures those in Profile before beta contest entry. {launchMode.betaNoCashValueCopy}
-          </div>
+          <p className="soft-panel text-foreground">{launchMode.betaNoCashValueCopy}</p>
           {next !== defaultReturnPath ? (
             <div className="detail-row bg-white text-foreground">
               <span>{returnStep.actionLabel}</span>
@@ -180,7 +171,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
             </div>
           ) : null}
           <Button asChild variant="secondary" className="w-full">
-            <Link href="/how-it-works">Review How It Works</Link>
+            <Link href="/how-it-works">Review how it works</Link>
           </Button>
         </CardContent>
       </Card>

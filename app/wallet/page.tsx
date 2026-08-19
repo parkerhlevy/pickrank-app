@@ -14,7 +14,7 @@ export default function WalletPage() {
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="eyebrow">{isPaidPreview ? 'Wallet' : 'Beta Pass'}</p>
-            <h1 className="text-3xl font-black leading-tight">{isPaidPreview ? 'PickRank Wallet' : 'Beta Pass Status'}</h1>
+            <h1 className="text-3xl font-black leading-tight">{isPaidPreview ? 'PickRank wallet' : 'Beta Pass status'}</h1>
           </div>
           <span className="status-pill shrink-0">{launchMode.displayName}</span>
         </div>
@@ -25,7 +25,7 @@ export default function WalletPage() {
               : 'Beta Pass gives you free entry access during Early Access Beta. It has no cash value, cannot be withdrawn, and does not create payouts or cash prizes.'}
           </p>
           <Link href="/how-it-works" className="inline-link shrink-0">
-            How It Works
+            How it works
           </Link>
         </div>
       </section>
@@ -34,7 +34,7 @@ export default function WalletPage() {
         <CardHeader className="section-card-header">
           <div className="flex items-center gap-2">
             <WalletCards className="h-5 w-5 text-blue-300" aria-hidden="true" />
-            <CardTitle>{isPaidPreview ? 'Balance Overview' : 'Beta Pass Overview'}</CardTitle>
+            <CardTitle>{isPaidPreview ? 'Balance overview' : 'Beta Pass overview'}</CardTitle>
           </div>
           <CardDescription className="text-slate-300">
             Early Access Beta uses a Beta Pass instead of cash-like credits.
@@ -48,7 +48,7 @@ export default function WalletPage() {
           </div>
           {isPaidPreview ? (
             <div className="metric-tile">
-              <p className="text-sm text-muted-foreground">Future Paid Balances</p>
+            <p className="text-sm text-muted-foreground">Future paid balances</p>
               <p className="numeric text-2xl font-bold">$0.00</p>
               <p className="mt-1 text-xs text-muted-foreground">Not live during beta.</p>
             </div>
@@ -60,7 +60,7 @@ export default function WalletPage() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <CreditCard className="h-5 w-5 text-primary" aria-hidden="true" />
-          <CardTitle>Beta Entry Access</CardTitle>
+          <CardTitle>Beta entry access</CardTitle>
           </div>
           <CardDescription>
             {isPaidPreview
@@ -79,7 +79,7 @@ export default function WalletPage() {
           </div>
           {isPaidPreview ? (
             <div className="detail-row">
-              <span>Amount Due Today</span>
+              <span>Amount due today</span>
               <span className="text-muted-foreground">$0.00 during beta</span>
             </div>
           ) : null}
@@ -90,7 +90,7 @@ export default function WalletPage() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Info className="h-5 w-5 text-primary" aria-hidden="true" />
-            <CardTitle>Wallet Status</CardTitle>
+            <CardTitle>Wallet status</CardTitle>
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -118,7 +118,7 @@ export default function WalletPage() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-primary" aria-hidden="true" />
-            <CardTitle>Account Controls</CardTitle>
+            <CardTitle>Account controls</CardTitle>
           </div>
           <CardDescription>
             Profile remains the main account surface during Early Access Beta.
@@ -138,12 +138,12 @@ export default function WalletPage() {
           <div className="grid gap-3 sm:grid-cols-2">
             <Button asChild variant="secondary" className="w-full">
               <Link href="/profile" className="gap-2">
-                Back to Profile
+                Back to profile
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </Button>
             <Button asChild className="w-full">
-              <Link href="/contests">View Contests</Link>
+              <Link href="/contests">View contests</Link>
             </Button>
           </div>
         </CardContent>
