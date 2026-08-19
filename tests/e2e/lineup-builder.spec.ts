@@ -139,8 +139,8 @@ test('signed-out users keep the lineup auth gate while parked free beta entry ro
   await expect(page).toHaveURL(
     `http://127.0.0.1:3000/auth?next=${encodeURIComponent('/contests/week-1-qb-passing-yards/lineup')}`,
   );
-  await expect(page.getByRole('heading', { name: 'Account Access' })).toBeVisible();
-  await expect(page.getByText('Before You Enter')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Account settings' })).toBeVisible();
+  await expect(page.getByText('Before you enter')).toBeVisible();
 
   for (const route of [
     '/contests/week-1-qb-passing-yards/payment',
@@ -148,7 +148,7 @@ test('signed-out users keep the lineup auth gate while parked free beta entry ro
   ]) {
     await page.goto(route);
     await expect(page).toHaveURL('http://127.0.0.1:3000/contests/week-1-qb-passing-yards');
-    await expect(page.getByRole('link', { name: 'Sign Up / Log In to Enter' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Sign up / log in to enter' })).toBeVisible();
   }
 });
 
@@ -179,13 +179,13 @@ test('signed-in users with pending paid eligibility can start free beta entry wi
   ]);
 
   await page.goto('/contests/week-1-qb-passing-yards');
-  await expect(page.getByRole('button', { name: 'Enter Free Beta Contest' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Eligibility Pending Review' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Enter free beta contest' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Eligibility pending review' })).toHaveCount(0);
   await expect(page.getByRole('link', { name: 'Enter Contest - $5' })).toHaveCount(0);
 
   await page.goto('/contests/week-1-qb-passing-yards/payment');
   await expect(page).toHaveURL('http://127.0.0.1:3000/contests/week-1-qb-passing-yards');
-  await expect(page.getByRole('button', { name: 'Enter Free Beta Contest' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Enter free beta contest' })).toBeEnabled();
   await expect(page.getByText('Entry Review', { exact: true })).toHaveCount(0);
 });
 
@@ -240,13 +240,13 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
       await page.goto('/contests/week-1-qb-passing-yards');
       await expect(page.getByText('Entry Review', { exact: true })).toHaveCount(0);
       await expect(page.getByText('Entry Success', { exact: true })).toHaveCount(0);
-      await expect(page.getByRole('link', { name: 'Continue to Build Your Board' })).toHaveCount(0);
-      await page.getByRole('button', { name: 'Enter Free Beta Contest' }).click();
+      await expect(page.getByRole('link', { name: 'Continue to build your board' })).toHaveCount(0);
+      await page.getByRole('button', { name: 'Enter free beta contest' }).click();
 
       await expect(page).toHaveURL('http://127.0.0.1:3000/contests/week-1-qb-passing-yards/lineup');
-      await expect(page.locator('h1').filter({ hasText: 'Build Your Board' })).toBeVisible();
+      await expect(page.locator('h1').filter({ hasText: 'Build your board' })).toBeVisible();
       await expect(page.getByText('Step 2 of 2')).toHaveCount(0);
-      await expect(page.getByText('Step 2: Build Your Board')).toHaveCount(0);
+      await expect(page.getByText('Step 2: Build your board')).toHaveCount(0);
       await expect(page.locator('[data-lineup-player]')).toHaveCount(10);
 
       const savedStore = JSON.parse(await readFile(entryStorePath, 'utf8')) as {
@@ -299,7 +299,7 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
 
     await page.goto('/contests/week-1-qb-passing-yards/lineup');
 
-    await expect(page.locator('h1').filter({ hasText: 'Build Your Board' })).toBeVisible();
+    await expect(page.locator('h1').filter({ hasText: 'Build your board' })).toBeVisible();
     const rankedLineupCard = page.locator('.section-card').filter({ has: page.getByRole('heading', { name: 'Your board' }) });
     const rankedLineupCardHeader = rankedLineupCard.getByRole('heading', { name: 'Your board' }).locator('../..');
 

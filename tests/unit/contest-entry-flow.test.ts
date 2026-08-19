@@ -41,7 +41,7 @@ describe('contest entry flow state', () => {
         isEmailVerified: true,
       }),
     ).toEqual({
-      label: 'Edit Your Board',
+      label: 'Edit your board',
       href: '/contests/week-1-qb-passing-yards/progress?stage=lineup',
       disabled: false,
       tone: 'default',
@@ -60,7 +60,7 @@ describe('contest entry flow state', () => {
         isEmailVerified: true,
       }),
     ).toEqual({
-      label: 'View Your Board',
+      label: 'View your board',
       href: '/contests/week-1-qb-passing-yards/progress?stage=lineup',
       disabled: false,
       tone: 'default',
@@ -156,7 +156,7 @@ describe('contest entry flow state', () => {
         isEmailVerified: false,
       }),
     ).toEqual({
-      label: 'Sign Up / Log In to Enter',
+      label: 'Sign up / log in to enter',
       href: '/auth?next=%2Fcontests%2Fweek-1-qb-passing-yards%2Fprogress%3Fstage%3Dpayment-review',
       disabled: false,
       tone: 'default',
@@ -175,7 +175,7 @@ describe('contest entry flow state', () => {
         isEmailVerified: false,
       }),
     ).toEqual({
-      label: 'Complete Profile to Enter',
+      label: 'Complete profile to enter',
       href: '/profile?next=%2Fcontests%2Fweek-1-qb-passing-yards%2Fprogress%3Fstage%3Dpayment-review',
       disabled: false,
       tone: 'default',
@@ -194,7 +194,7 @@ describe('contest entry flow state', () => {
         isEmailVerified: false,
       }),
     ).toEqual({
-      label: 'Verify Email to Enter',
+      label: 'Verify email to enter',
       href: `/profile?${verificationGateHref}`,
       disabled: false,
       tone: 'default',
@@ -214,7 +214,7 @@ describe('contest entry flow state', () => {
         isEligibilityComplete: false,
       }),
     ).toEqual({
-      label: 'Complete Eligibility to Enter',
+      label: 'Complete eligibility to enter',
       href: `/profile?${eligibilityGateHref}`,
       disabled: false,
       tone: 'default',
@@ -236,7 +236,7 @@ describe('contest entry flow state', () => {
         eligibilityStatus: 'pending_review',
       }),
     ).toEqual({
-      label: 'Eligibility Pending Review',
+      label: 'Eligibility pending review',
       href: null,
       disabled: true,
       tone: 'warning',
@@ -259,7 +259,7 @@ describe('contest entry flow state', () => {
         eligibilityStatus: 'pending_review',
       }),
     ).toEqual({
-      label: 'Enter Free Beta Contest',
+      label: 'Enter free beta contest',
       href: null,
       disabled: false,
       tone: 'default',
@@ -280,7 +280,7 @@ describe('contest entry flow state', () => {
         isEmailVerified: false,
       }),
     ).toEqual({
-      label: 'Sign Up / Log In to Enter',
+      label: 'Sign up / log in to enter',
       href: '/auth?next=%2Fcontests%2Ftest-week-1-no-money-entry',
       disabled: false,
       tone: 'default',
@@ -302,7 +302,7 @@ describe('contest entry flow state', () => {
         eligibilityStatus: 'blocked',
       }),
     ).toEqual({
-      label: 'Paid Entry Unavailable',
+      label: 'Paid entry unavailable',
       href: null,
       disabled: true,
       tone: 'error',
@@ -321,7 +321,7 @@ describe('contest entry flow state', () => {
         isEmailVerified: true,
       }),
     ).toEqual({
-      label: 'Paid Entry Coming Later',
+      label: 'Paid entry coming later',
       href: null,
       disabled: true,
       tone: 'warning',
@@ -370,8 +370,8 @@ describe('contest entry flow state', () => {
   it('uses a two-step label on the active free beta board', () => {
     expect(getContestEntryStateCopy('lineup', { usesDirectEntryFlow: true })).toMatchObject({
       badge: 'Step 2 of 2',
-      stepLabel: 'Step 2: Build Your Board',
-      title: 'Build Your Board',
+      stepLabel: 'Step 2: Build your board',
+      title: 'Build your board',
     });
   });
 
@@ -379,28 +379,28 @@ describe('contest entry flow state', () => {
     expect(getContestEntrySteps('payment-review')).toEqual([
       {
         key: 'not-entered',
-        label: 'Contest Detail',
+        label: 'Contest detail',
         summary: 'Check the contest details, lock time, and beta results overview before you enter.',
         stepNumber: 1,
         status: 'complete',
       },
       {
         key: 'payment-review',
-        label: 'Entry Review',
+        label: 'Entry review',
         summary: 'Review your free beta entry and Beta Pass status.',
         stepNumber: 2,
         status: 'current',
       },
       {
         key: 'entered',
-        label: 'Entry Success',
+        label: 'Entry success',
         summary: 'See your confirmed entry and head straight into your board.',
         stepNumber: 3,
         status: 'upcoming',
       },
       {
         key: 'lineup',
-        label: 'Build Your Board',
+        label: 'Build your board',
         summary: 'Rank your players and save your board until lock.',
         stepNumber: 4,
         status: 'upcoming',

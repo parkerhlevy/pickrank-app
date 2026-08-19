@@ -58,7 +58,7 @@ async function renderLeaderboardPage(requestedContestId?: string) {
               Final contests and saved standings will appear here once scoring is confirmed.
             </div>
             <Button asChild className="w-full">
-              <Link href="/contests">View Open Contests</Link>
+              <Link href="/contests">View open contests</Link>
             </Button>
           </CardContent>
         </Card>
@@ -101,10 +101,10 @@ async function renderLeaderboardPage(requestedContestId?: string) {
             <div className="empty-state-card text-sm text-muted-foreground">{placeholder.description}</div>
             <div className="grid gap-3 sm:grid-cols-2">
               <Button asChild variant="secondary">
-                <Link href={`/contests/${contest.id}`}>View Contest Details</Link>
+                <Link href={`/contests/${contest.id}`}>View contest details</Link>
               </Button>
               <Button asChild>
-                <Link href="/contests">View Open Contests</Link>
+                <Link href="/contests">View open contests</Link>
               </Button>
             </div>
           </CardContent>
@@ -154,8 +154,8 @@ async function renderLeaderboardPage(requestedContestId?: string) {
             statCategory={contest.statCategory}
             lockTimeLabel={finalizedLabel}
             rankedCountLabel={`${leaderboard.rows.length} entries`}
-            stateLabel="Saved Final"
-            rankedLabel="Resolved Board"
+            stateLabel="Saved final"
+            rankedLabel="Resolved board"
             rankedDetail="Final standings"
             timingLabel="Finalized"
             timingDetail="Saved final scoring"
@@ -182,7 +182,7 @@ async function renderLeaderboardPage(requestedContestId?: string) {
                     <Medal className="h-5 w-5" aria-hidden="true" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.02em] text-muted-foreground">
+                    <p className="text-[11px] font-semibold tracking-[0.02em] text-muted-foreground">
                       Rank <span className="numeric">{row.finalRankDisplay}</span>
                     </p>
                     <p
@@ -209,7 +209,7 @@ async function renderLeaderboardPage(requestedContestId?: string) {
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     <Trophy className="h-5 w-5 text-primary" aria-hidden="true" />
-                    <CardTitle>Final Standings</CardTitle>
+                    <CardTitle>Final standings</CardTitle>
                   </div>
                   <CardDescription>
                     Saved final rows only. Lower score wins, with tied totals resolved by the locked contest tiebreakers before
@@ -247,7 +247,7 @@ async function renderLeaderboardPage(requestedContestId?: string) {
                 </div>
               )}
               <Button asChild variant="secondary" className="w-full">
-                <Link href="/contests">View Open Contests</Link>
+                <Link href="/contests">View open contests</Link>
               </Button>
             </CardContent>
           </Card>
@@ -255,12 +255,12 @@ async function renderLeaderboardPage(requestedContestId?: string) {
       ) : (
         <Card className="section-card">
           <CardHeader>
-            <CardTitle>Results Pending</CardTitle>
+            <CardTitle>Results pending</CardTitle>
             <CardDescription>This contest is marked final, but no saved leaderboard rows were found yet.</CardDescription>
           </CardHeader>
           <CardContent>
             <Button asChild className="w-full">
-              <Link href="/contests">View Open Contests</Link>
+              <Link href="/contests">View open contests</Link>
             </Button>
           </CardContent>
         </Card>

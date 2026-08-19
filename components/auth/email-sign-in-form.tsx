@@ -21,7 +21,7 @@ export function EmailSignInForm({
       </label>
       <input type="hidden" name="next" value={next} />
       <Button className="w-full" type="submit">
-        Email Me a Sign-In Link
+        Email me a sign-in link
       </Button>
     </form>
   );

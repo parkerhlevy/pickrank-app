@@ -78,27 +78,26 @@ export default async function ContestDetailPage({
             <p className="text-muted-foreground">{contest.task}</p>
           </div>
           <Link href="/how-it-works" className="inline-link shrink-0">
-            How It Works
+            How it works
           </Link>
         </div>
       </div>
 
       <Card className="section-card overflow-hidden">
         <CardHeader className="section-card-header py-4">
-          <CardTitle className="text-base">Contest Details - Free to play during beta</CardTitle>
+          <CardTitle className="text-base">Contest details - Free to play during beta</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-2 pt-4 text-sm md:grid-cols-4">
-          <DetailStat icon={Users} label="Player Pool" value={formatPlayerPoolLabel(contest.slate)} />
-          <DetailStat icon={Clock} label="Stat Category" value={contest.statCategory} />
+        <CardContent className="grid grid-cols-2 gap-2 pt-4 text-sm md:grid-cols-3">
+          <DetailStat icon={Clock} label="Stat category" value={contest.statCategory} />
           <DetailStat icon={Users} label="Entries" value={contest.entries} />
-          <DetailStat icon={Clock} label="Lock Time" value={contest.lockTime.replace('Locks ', '')} />
+          <DetailStat icon={Clock} label="Lock time" value={contest.lockTime.replace('Locks ', '')} />
           {!isBetaContest ? (
             <>
-              <DetailStat icon={Ticket} label="Entry Type" value={launchMode.betaEntryLabel} />
-              <DetailStat icon={Ticket} label="Entry Cost" value={contest.entryFee} />
+              <DetailStat icon={Ticket} label="Entry type" value={launchMode.betaEntryLabel} />
+              <DetailStat icon={Ticket} label="Entry cost" value={contest.entryFee} />
             </>
           ) : null}
-          <p className="col-span-2 border-t border-slate-200 pt-2 text-xs text-muted-foreground md:col-span-4">
+          <p className="col-span-2 border-t border-slate-200 pt-2 text-xs text-muted-foreground md:col-span-3">
             {isBetaContest
               ? 'Early access beta contests have no cash prizes, no payouts, no minimum participants, and no cost to enter.'
               : contest.minimum}
@@ -130,7 +129,7 @@ export default async function ContestDetailPage({
             </p>
           </div>
           <Button asChild variant="secondary" className="w-full">
-            <Link href="/how-it-works#rank-differential-example">See Scoring Example</Link>
+            <Link href="/how-it-works#rank-differential-example">See scoring example</Link>
           </Button>
         </CardContent>
       </Card>
@@ -138,7 +137,7 @@ export default async function ContestDetailPage({
       {!viewerIdentity.isAuthenticated ? (
         <Card className="section-card">
           <CardHeader>
-            <CardTitle>What You Can Do Now</CardTitle>
+            <CardTitle>What you can do now</CardTitle>
             <CardDescription>
               Browse the contest details now, then sign in when you&apos;re ready to continue.
             </CardDescription>
@@ -193,8 +192,4 @@ function DetailStat({ icon: Icon, label, value }: { icon: LucideIcon; label: str
       <p className="numeric text-sm font-semibold leading-tight">{value}</p>
     </div>
   );
-}
-
-function formatPlayerPoolLabel(label: string) {
-  return label.replace(/\bslate\b/gi, 'player pool');
 }

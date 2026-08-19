@@ -22,7 +22,7 @@ describe('launch mode', () => {
   it('labels zero-fee contests as free beta contests without payouts', () => {
     expect(isBetaFreeEntryContest(0)).toBe(true);
     expect(isBetaFreeEntryContest(500)).toBe(false);
-    expect(getEntryReviewLabel(0)).toBe('Entry Review');
+    expect(getEntryReviewLabel(0)).toBe('Entry review');
     expect(getNoPayoutLabel(0)).toBe('Beta contest - no payout');
   });
 
@@ -34,13 +34,13 @@ describe('launch mode', () => {
 
     expect(mode).toMatchObject({
       mode: 'paid_preview',
-      displayName: 'Paid Contest Preview',
+      displayName: 'Paid contest preview',
       paidPreviewVisible: true,
       paidEntryEnabled: false,
       realMoneyEnabled: false,
       isBetaFreeEntryEnabled: false,
     });
-    expect(getEntryReviewLabel(500, mode)).toBe('Payment Review');
+    expect(getEntryReviewLabel(500, mode)).toBe('Payment review');
     expect(getNoPayoutLabel(500, mode)).toBe('No payout');
   });
 

@@ -82,31 +82,31 @@ export default async function EntrySuccessPage({
       <Button asChild variant="ghost" size="sm" className="-ml-3 justify-start">
         <Link href={`/contests/${contest.id}`}>
           <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
-          Contest Details
+          Contest details
         </Link>
       </Button>
 
       <div className="screen-header space-y-2">
-        <p className="eyebrow">Entry Success</p>
+        <p className="eyebrow">Entry success</p>
         <h1 className="text-3xl font-black leading-tight">{contest.title}</h1>
         <p className="text-muted-foreground">
-          Your entry is confirmed. Head into Build Your Board now and keep editing until the contest locks.
+          Your entry is confirmed. Head into build your board now and keep editing until the contest locks.
         </p>
       </div>
 
       <ContestBoardStagePanel
         title={contest.title}
-        description="Your entry is confirmed for this contest board. Continue to Build Your Board and save your ranked 10 before lock."
+        description="Your entry is confirmed for this contest board. Continue to build your board and save your ranked 10 before lock."
         slateLabel={contest.slate}
         statCategory={contest.statCategory}
         lockTimeLabel={contest.lockTime.replace('Locks ', '')}
         rankedCountLabel="Board ready"
-        stateLabel="Entry Confirmed"
+        stateLabel="Entry confirmed"
       />
 
       <Card className="section-card overflow-hidden">
         <CardHeader className="border-b border-emerald-900/60 bg-[linear-gradient(180deg,hsl(151_63%_18%)_0%,hsl(160_55%_20%)_100%)] text-white">
-          <CardTitle>You&apos;re In</CardTitle>
+          <CardTitle>You&apos;re in</CardTitle>
           <CardDescription className="text-emerald-200">
             Your contest entry is confirmed and your board is ready for your rankings.
           </CardDescription>
@@ -132,7 +132,7 @@ export default async function EntrySuccessPage({
 
       <div className="action-panel">
         <Button asChild className="w-full">
-          <Link href={getContestEntryProgressHref(contest.id, 'lineup')}>Continue to Build Your Board</Link>
+          <Link href={getContestEntryProgressHref(contest.id, 'lineup')}>Continue to build your board</Link>
         </Button>
       </div>
     </div>

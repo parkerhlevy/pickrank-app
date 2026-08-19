@@ -49,15 +49,14 @@ export default function HowItWorksPage() {
   return (
     <div className="space-y-6">
       <section className="screen-header space-y-3">
-        <div className="flex items-start justify-between gap-3">
+        <div>
           <div className="space-y-3">
-            <p className="eyebrow">How It Works</p>
+            <p className="eyebrow">How it works</p>
             <h1 className="text-3xl font-black leading-tight">Skill-based ranking contests</h1>
             <p className="text-muted-foreground">
               PickRank asks one question: how well do you know players and their matchups?
             </p>
           </div>
-          <span className="status-pill shrink-0">Public Guide</span>
         </div>
       </section>
 
@@ -74,7 +73,7 @@ export default function HowItWorksPage() {
         />
         <GuideTile
           icon={ShieldCheck}
-          title={launchMode.displayName}
+          title={launchMode.mode === 'early_access_beta' ? 'Early access beta' : launchMode.displayName}
           description="Contests have no payouts or cash prizes during beta period"
         />
       </section>
@@ -94,7 +93,7 @@ export default function HowItWorksPage() {
                     <Icon className="h-5 w-5" aria-hidden="true" />
                   </div>
                   <div className="space-y-1">
-                    <p className="text-xs font-bold uppercase tracking-[0.08em] text-muted-foreground">Step {index + 1}</p>
+                    <p className="text-xs font-bold tracking-[0.08em] text-muted-foreground">Step {index + 1}</p>
                     <p className="font-semibold">{step.title}</p>
                     <p className="text-sm text-muted-foreground">{step.description}</p>
                   </div>
@@ -103,7 +102,7 @@ export default function HowItWorksPage() {
             );
           })}
           <Link href="#rank-differential-example" className="inline-link inline-flex items-center gap-1">
-            View Example
+            View example
             <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
           </Link>
         </CardContent>
@@ -132,22 +131,22 @@ export default function HowItWorksPage() {
 
       <Card className="section-card">
         <CardHeader>
-          <CardTitle>Rank Differential Example</CardTitle>
+          <CardTitle>Rank differential example</CardTitle>
           <CardDescription>Each board rank is compared to the official final rank for that stat.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <div className="overflow-hidden rounded-lg border">
             <table className="w-full text-left">
-              <thead className="bg-slate-50 text-xs font-bold uppercase text-muted-foreground">
+              <thead className="bg-slate-50 text-xs font-bold text-muted-foreground">
                 <tr>
                   <th scope="col" className="px-3 py-2">
-                    Selected Player
+                    Selected player
                   </th>
                   <th scope="col" className="px-3 py-2">
-                    Your Rank
+                    Your rank
                   </th>
                   <th scope="col" className="px-3 py-2">
-                    Final Rank
+                    Final rank
                   </th>
                   <th scope="col" className="px-3 py-2">
                     Difference

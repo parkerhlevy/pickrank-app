@@ -7,7 +7,7 @@ export default function ResponsiblePlayPage() {
     <div className="space-y-6">
       <section className="screen-header space-y-2">
         <p className="eyebrow">Legal</p>
-        <h1 className="text-3xl font-black leading-tight">Responsible Play</h1>
+        <h1 className="text-3xl font-black leading-tight">Responsible play</h1>
         <p className="text-muted-foreground">
           PickRank Early Access Beta is free to play. Responsible-play controls remain part of the future paid-contest foundation.
         </p>
@@ -17,7 +17,7 @@ export default function ResponsiblePlayPage() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-primary" aria-hidden="true" />
-            <CardTitle>Beta Boundaries</CardTitle>
+            <CardTitle>Beta boundaries</CardTitle>
           </div>
           <CardDescription>No payouts, no cash prizes, no deposits, and no withdrawals during beta.</CardDescription>
         </CardHeader>
@@ -28,7 +28,7 @@ export default function ResponsiblePlayPage() {
           <p>Future paid contests require legal, provider, payment, withdrawal, eligibility, and responsible-play review before launch.</p>
           <div className="flex flex-wrap gap-x-4 gap-y-2">
             <Link href="/legal/beta-rules" className="inline-link">
-              Review Beta Contest Rules
+              Review beta contest rules
             </Link>
             <Link href="/legal/terms" className="inline-link">
               Review Beta Terms

@@ -12,8 +12,8 @@ export default function AdminLayout({ children }: Readonly<{ children: ReactNode
         <div className="section-card-header space-y-3 px-4 py-4">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-xs font-extrabold uppercase tracking-[0.08em] text-slate-300">PickRank</p>
-              <p className="mt-1 text-lg font-black text-white">Admin Workspace</p>
+              <p className="text-xs font-extrabold tracking-[0.08em] text-slate-300">PickRank</p>
+              <p className="mt-1 text-lg font-black text-white">Admin workspace</p>
             </div>
             <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/15 bg-white/10 text-white">
               <LockKeyhole className="h-4 w-4" aria-hidden="true" />

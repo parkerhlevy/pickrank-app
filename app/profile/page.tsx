@@ -68,7 +68,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           <div>
             <p className="eyebrow">Profile</p>
             <h1 className="text-3xl font-black leading-tight">
-              {user ? 'Account Settings' : 'Create Your PickRank Account'}
+              {user ? 'Account settings' : 'Create your PickRank account'}
             </h1>
           </div>
         </div>
@@ -78,7 +78,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           </p>
         ) : null}
         <Link href="/how-it-works" className="inline-link inline-flex items-center gap-1">
-          How It Works
+          How it works
           <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
         </Link>
       </section>
@@ -88,7 +88,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           <CardHeader>
             <div className="flex items-center gap-2">
               <ShieldCheck className="h-5 w-5 text-amber-700" aria-hidden="true" />
-              <CardTitle>Account Unavailable</CardTitle>
+              <CardTitle>Account unavailable</CardTitle>
             </div>
             <CardDescription className="text-amber-900">
               {isAgeBlocked
@@ -106,7 +106,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
             </p>
             <form action={signOut}>
               <Button className="w-full" type="submit" variant="secondary">
-                Sign Out
+                Sign out
               </Button>
             </form>
           </CardContent>
@@ -118,7 +118,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           <CardHeader className="section-card-header">
             <div className="flex items-center gap-2">
               <ShieldCheck className="h-5 w-5 text-blue-300" aria-hidden="true" />
-              <CardTitle>Finish Account Setup</CardTitle>
+              <CardTitle>Finish account setup</CardTitle>
             </div>
             <CardDescription className="text-slate-300">
               Google sign-in verifies your email. PickRank still needs your public username and entry details.
@@ -142,12 +142,12 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
             />
             {needsUsername ? (
               <Button asChild className="w-full">
-                <a href="#profile-identity">Choose Username</a>
+                <a href="#profile-identity">Choose username</a>
               </Button>
             ) : null}
             {!needsUsername && needsEligibility ? (
               <Button asChild className="w-full">
-                <a href="#eligibility-details">Complete Entry Details</a>
+                <a href="#eligibility-details">Complete entry details</a>
               </Button>
             ) : null}
           </CardContent>
@@ -157,7 +157,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
       {next !== defaultReturnPath && !isAccountUnavailable ? (
         <Card className="section-card">
           <CardHeader>
-            <CardTitle>One Quick Step Left</CardTitle>
+            <CardTitle>One quick step left</CardTitle>
             <CardDescription>
               Finish any missing Profile setup here, then continue to {returnStep.detail}.
             </CardDescription>
@@ -187,7 +187,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         <CardHeader className="section-card-header">
           <div className="flex items-center gap-2">
             <UserCircle className="h-5 w-5 text-blue-300" aria-hidden="true" />
-            <CardTitle>{user ? 'Profile Information' : 'Account Access'}</CardTitle>
+            <CardTitle>{user ? 'Profile information' : 'Account settings'}</CardTitle>
           </div>
           {!user ? (
             <CardDescription className="text-slate-300">
@@ -231,7 +231,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           {authConfigured && !user ? (
             <Button asChild className="w-full">
               <Link href={buildAuthHref(next)}>
-                {next !== defaultReturnPath ? 'Create Account or Log In to Continue' : 'Create Account or Log In'}
+                {next !== defaultReturnPath ? 'Create account or log in to continue' : 'Create account or log in'}
               </Link>
             </Button>
           ) : null}
@@ -253,7 +253,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                 </div>
                 <form action={signOut}>
                   <Button className="w-full" type="submit" variant="secondary">
-                    Sign Out
+                    Sign out
                   </Button>
                 </form>
               </div>
@@ -354,7 +354,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                 </label>
                 <input type="hidden" name="next" value={next} />
                 <Button className="w-full" type="submit">
-                  Save Entry Details
+                  Save entry details
                 </Button>
               </form>
             )}
@@ -374,7 +374,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
             ) : null}
             {identity.isEmailVerified && next !== defaultReturnPath && !identity.eligibility.isEligibilityComplete ? (
               <Button asChild className="w-full">
-                <a href="#eligibility-details">Complete Entry Details</a>
+                <a href="#eligibility-details">Complete entry details</a>
               </Button>
             ) : null}
           </div>
@@ -384,7 +384,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
       {user && !isAccountUnavailable && !identity.isProfileComplete ? (
           <Card id="profile-identity" className="section-card scroll-mt-6">
             <CardHeader>
-              <CardTitle>Complete Your Profile</CardTitle>
+              <CardTitle>Complete your profile</CardTitle>
               <CardDescription>
                 Add a public username before returning to {returnStep.shortLabel.toLowerCase()}.
               </CardDescription>
@@ -411,7 +411,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                 ) : null}
                 <input type="hidden" name="next" value={next} />
                 <Button className="w-full" type="submit">
-                  Save Username
+                  Save username
                 </Button>
               </form>
             </CardContent>
@@ -425,7 +425,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <WalletCards className="h-5 w-5 text-primary" aria-hidden="true" />
-                  <CardTitle>Account Wallet</CardTitle>
+                  <CardTitle>Account wallet</CardTitle>
                 </div>
                 <CardDescription>
                   Profile keeps the wallet one tap away while {launchMode.betaPassLabel} and future paid balances stay separated.
@@ -439,7 +439,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                     <p className="mt-1 text-xs text-muted-foreground">Free beta entries. No cash value.</p>
                   </div>
                   <div className="metric-tile">
-                    <p className="text-sm text-muted-foreground">Future Paid Balances</p>
+                    <p className="text-sm text-muted-foreground">Future paid balances</p>
                     <p className="numeric text-xl font-bold">$0.00</p>
                     <p className="mt-1 text-xs text-muted-foreground">Not live during beta.</p>
                   </div>
@@ -450,7 +450,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                 </div>
                 <Button asChild variant="secondary" className="w-full">
                   <Link href="/wallet" className="gap-2">
-                    View Wallet Details
+                    View wallet details
                     <ArrowRight className="h-4 w-4" aria-hidden="true" />
                   </Link>
                 </Button>

@@ -55,22 +55,22 @@ const contestJourneyStages: {
 }[] = [
   {
     key: 'slate',
-    label: 'Player Pool',
+    label: 'Player pool',
     detail: 'Review the pool',
   },
   {
     key: 'entry-review',
-    label: 'Entry Review',
+    label: 'Entry review',
     detail: 'Confirm the contest',
   },
   {
     key: 'entry-confirmed',
-    label: 'Entry Confirmed',
+    label: 'Entry confirmed',
     detail: 'Your board is ready',
   },
   {
     key: 'build',
-    label: 'Build Board',
+    label: 'Build board',
     detail: 'Rank your 10',
   },
   {
@@ -80,7 +80,7 @@ const contestJourneyStages: {
   },
   {
     key: 'final-results',
-    label: 'Final Results',
+    label: 'Final results',
     detail: 'Saved standings',
   },
 ];
@@ -122,7 +122,7 @@ export function ContestBoardPreview({
       <div className="border-b border-slate-200 bg-slate-950 px-4 py-3 text-white">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 space-y-1">
-            <p className="text-xs font-bold uppercase text-blue-200">Contest Board</p>
+            <p className="text-xs font-bold text-blue-200">Contest board</p>
             <h3
               className={cn(
                 'font-black leading-tight',
@@ -141,7 +141,7 @@ export function ContestBoardPreview({
           ) : null}
         </div>
         {variant !== 'detail' ? (
-          <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] font-bold uppercase text-slate-300 sm:grid-cols-4">
+          <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] font-bold text-slate-300 sm:grid-cols-4">
             <span className="rounded-md bg-white/10 px-2 py-1">{playerPoolLabel}</span>
             <span className="rounded-md bg-white/10 px-2 py-1">Your board</span>
             <span className="rounded-md bg-white/10 px-2 py-1">Final order</span>
@@ -155,7 +155,7 @@ export function ContestBoardPreview({
           <div className="mb-3 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <Target className="h-4 w-4 text-blue-600" aria-hidden="true" />
-              <p className="text-sm font-black">Player Pool</p>
+              <p className="text-sm font-black">Player pool</p>
             </div>
             <span className="numeric text-xs font-bold text-slate-500">{statCategory}</span>
           </div>
@@ -188,7 +188,7 @@ export function ContestBoardPreview({
             <div className="mb-3 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <ListOrdered className="h-4 w-4 text-blue-600" aria-hidden="true" />
-                <p className="text-sm font-black">Your Board</p>
+                <p className="text-sm font-black">Your board</p>
               </div>
               <span className="numeric text-xs font-bold text-blue-700">{rankedPlayers.length}/10 ranked</span>
             </div>
@@ -235,7 +235,7 @@ export function ContestJourneyRail({ currentStage, className }: ContestJourneyRa
   return (
     <div className={cn('section-card overflow-hidden', className)}>
       <div className="border-b border-slate-200 px-4 py-3">
-        <p className="eyebrow">Contest Progression</p>
+        <p className="eyebrow">Contest progression</p>
         <p className="mt-1 text-sm text-muted-foreground">
           One skill contest moves from player-pool review to your board, lock, and saved final results.
         </p>
@@ -292,7 +292,7 @@ export function ContestBoardStagePanel({
   stateLabel,
   rankedLabel = 'Ranked 10',
   rankedDetail = 'Your board',
-  timingLabel = 'Lock Time',
+  timingLabel = 'Lock time',
   timingDetail = 'Save before lock',
   className,
 }: ContestBoardStagePanelProps) {
@@ -301,7 +301,7 @@ export function ContestBoardStagePanel({
       <div className="border-b border-slate-200 bg-slate-950 px-4 py-3 text-white">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 space-y-1">
-            <p className="text-xs font-bold uppercase text-blue-200">Contest Board</p>
+            <p className="text-xs font-bold text-blue-200">Contest board</p>
             <h2 className="text-xl font-black leading-tight">{title}</h2>
           </div>
           <span className="shrink-0 rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-[11px] font-bold text-blue-100">
@@ -314,7 +314,7 @@ export function ContestBoardStagePanel({
       <div className="grid gap-2 p-3 sm:grid-cols-2">
         <BoardStageTile
           icon={Target}
-          label="Player Pool"
+          label="Player pool"
           value={formatPlayerPoolLabel(slateLabel)}
           detail={statCategory}
         />

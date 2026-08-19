@@ -12,7 +12,7 @@ describe('leaderboard state helpers', () => {
 
   it('returns open-contest placeholder copy', () => {
     expect(getLeaderboardPlaceholderState('open')).toEqual({
-      title: 'Results Open After Final Scoring',
+      title: 'Results open after final scoring',
       description:
         'This contest is not final yet. Final standings appear only after all games are complete and saved scoring is confirmed.',
     });
@@ -20,12 +20,12 @@ describe('leaderboard state helpers', () => {
 
   it('returns live and finalizing copy from the status contract', () => {
     expect(getLeaderboardPlaceholderState('live')).toEqual({
-      title: 'Contest Is Underway',
+      title: 'Contest is underway',
       description: 'Final results will be available after all games are complete.',
     });
 
     expect(getLeaderboardPlaceholderState('finalizing')).toEqual({
-      title: 'Final Results Are Being Calculated',
+      title: 'Final results are being calculated',
       description: 'Saved final standings will appear here once scoring is confirmed.',
     });
   });

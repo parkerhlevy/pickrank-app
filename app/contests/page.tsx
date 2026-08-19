@@ -14,10 +14,10 @@ export default async function ContestsPage() {
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="eyebrow">Contests</p>
-            <h1 className="text-3xl font-black leading-tight">Open Contests</h1>
+            <h1 className="text-3xl font-black leading-tight">Open contests</h1>
           </div>
           <Link href="/how-it-works" className="inline-link">
-            How It Works
+            How it works
           </Link>
         </div>
         <p className="text-muted-foreground">
@@ -43,7 +43,7 @@ export default async function ContestsPage() {
                 <ContestStats contest={contest} />
                 <Button asChild className="mt-auto w-full">
                   <Link href={`/contests/${contest.id}`} className="gap-2">
-                    {contest.contestStatus === 'open' ? 'Enter Free Beta Contest' : 'View Contest'}
+                    {contest.contestStatus === 'open' ? 'Enter free beta contest' : 'View contest'}
                     <ArrowRight className="h-4 w-4" aria-hidden="true" />
                   </Link>
                 </Button>
@@ -69,8 +69,8 @@ function ContestStats({ contest }: { contest: ContestSummary }) {
   return (
     <div className="grid grid-cols-2 gap-3 text-sm">
       <Stat icon={Users} label="Entries" value={contest.entries} />
-      <Stat icon={Clock} label="Lock Time" value={formatLockTime(contest.lockTime)} />
-      <Stat icon={BarChart3} label="Stat Category" value={contest.statCategory} />
+      <Stat icon={Clock} label="Lock time" value={formatLockTime(contest.lockTime)} />
+      <Stat icon={BarChart3} label="Stat category" value={contest.statCategory} />
       <Stat icon={Clock} label="Status" value={contest.status} />
     </div>
   );

@@ -442,7 +442,7 @@ export function LineupBuilderClient({
         <Button asChild variant="ghost" size="sm" className="-ml-3 justify-start">
           <Link href={`/contests/${contest.id}`}>
             <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
-            Contest Details
+            Contest details
           </Link>
         </Button>
 
@@ -453,10 +453,10 @@ export function LineupBuilderClient({
                 <p className="eyebrow">Board builder</p>
                 <span className="status-pill status-pill-muted shrink-0">One entry per person</span>
               </div>
-              <h1 className="text-2xl font-black leading-tight sm:text-3xl">Build Your Board</h1>
+              <h1 className="text-2xl font-black leading-tight sm:text-3xl">Build your board</h1>
             </div>
             <Link href="/how-it-works" className="inline-link shrink-0">
-              How It Works
+              How it works
             </Link>
           </div>
           <p className="text-muted-foreground">
@@ -468,7 +468,7 @@ export function LineupBuilderClient({
               <p className="numeric mt-1 font-black">{lineupState.selectedOrder.length}/10</p>
             </div>
             <div className="metric-tile">
-              <p className="text-xs text-muted-foreground">Pool Left</p>
+              <p className="text-xs text-muted-foreground">Pool left</p>
               <p className="numeric mt-1 font-black">{lineupState.availablePlayers.length}</p>
             </div>
             <div className="metric-tile">
@@ -476,7 +476,7 @@ export function LineupBuilderClient({
               <p className="mt-1 font-black">{saveStateLabel}</p>
             </div>
             <div className="metric-tile">
-              <p className="text-xs text-muted-foreground">Lock Time</p>
+              <p className="text-xs text-muted-foreground">Lock time</p>
               <p className="numeric mt-1 font-black">{lockTimeLabel}</p>
             </div>
           </div>
@@ -533,7 +533,7 @@ export function LineupBuilderClient({
                         : 'All 10 saved board spots are locked in for this entry.'}
                   </p>
                 </div>
-                <span className="numeric status-pill shrink-0">{lineupState.selectedOrder.length}/10 Ranked</span>
+                <span className="numeric status-pill shrink-0">{lineupState.selectedOrder.length}/10 ranked</span>
               </div>
             </div>
             <div className="grid gap-4">
@@ -572,7 +572,7 @@ export function LineupBuilderClient({
                             <p className="numeric mt-0.5 truncate text-xs text-muted-foreground">{playerContext.matchupLabel}</p>
                           ) : null}
                         </div>
-                        <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[0.6875rem] font-black uppercase ${rankStateClass}`}>
+                        <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[0.6875rem] font-black ${rankStateClass}`}>
                           {rankStateLabel}
                         </span>
                       </div>
@@ -645,7 +645,7 @@ export function LineupBuilderClient({
                     <p className="font-semibold">Available quarterbacks</p>
                     <p className="text-xs text-muted-foreground">Fill any open board spots from the player pool.</p>
                   </div>
-                  <span className="numeric status-pill status-pill-muted shrink-0">{lineupState.selectedOrder.length}/10 Ranked</span>
+                  <span className="numeric status-pill status-pill-muted shrink-0">{lineupState.selectedOrder.length}/10 ranked</span>
                 </div>
                 {lineupState.availablePlayers.length > 0 ? (
                   <div className="grid gap-2">

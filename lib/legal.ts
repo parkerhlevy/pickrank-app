@@ -17,6 +17,6 @@ export const officialDataProvider = 'the selected licensed stats provider';
 export const legalLinks = [
   { href: '/legal/terms', label: 'Terms' },
   { href: '/legal/privacy', label: 'Privacy' },
-  { href: '/legal/beta-rules', label: 'Beta Rules' },
-  { href: '/legal/responsible-play', label: 'Responsible Play' },
+  { href: '/legal/beta-rules', label: 'Beta rules' },
+  { href: '/legal/responsible-play', label: 'Responsible play' },
 ] as const;

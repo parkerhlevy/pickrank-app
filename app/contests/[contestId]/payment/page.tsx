@@ -107,7 +107,7 @@ export default async function PaymentReviewPage({
       <Button asChild variant="ghost" size="sm" className="-ml-3 justify-start">
         <Link href={`/contests/${contest.id}`}>
           <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
-          Contest Details
+          Contest details
         </Link>
       </Button>
 
@@ -121,7 +121,7 @@ export default async function PaymentReviewPage({
 
       <ContestBoardStagePanel
         title={contest.title}
-        description="This entry belongs to one contest board. Confirm your Beta Pass entry first, then Build Your Board by ranking your top 10 from the player pool."
+        description="This entry belongs to one contest board. Confirm your Beta Pass entry first, then build your board by ranking your top 10 from the player pool."
         slateLabel={contest.slate}
         statCategory={contest.statCategory}
         lockTimeLabel={contest.lockTime.replace('Locks ', '')}
@@ -131,7 +131,7 @@ export default async function PaymentReviewPage({
 
       <Card className="section-card overflow-hidden">
         <CardHeader className="section-card-header">
-          <CardTitle>{isFreeEntryContest ? 'Beta Pass Summary' : 'Payment Summary'}</CardTitle>
+          <CardTitle>{isFreeEntryContest ? 'Beta Pass summary' : 'Payment summary'}</CardTitle>
           <CardDescription className="text-slate-300">
             {launchMode.betaNoCashValueCopy}
           </CardDescription>
@@ -148,13 +148,13 @@ export default async function PaymentReviewPage({
             </>
           ) : (
             <>
-              <ReviewRow label="Entry Cost" value={formatCents(breakdown.entryFeeCents)} strong />
+              <ReviewRow label="Entry cost" value={formatCents(breakdown.entryFeeCents)} strong />
               <div className="border-t border-slate-200 pt-3">
                 <ReviewRow label={launchMode.betaPassLabel} value="Active" />
-                <ReviewRow label="Cash Value" value="$0.00" />
+                <ReviewRow label="Cash value" value="$0.00" />
               </div>
               <div className="section-card-muted p-3">
-                <ReviewRow label="Amount Due Today" value={formatCents(breakdown.amountDueTodayCents)} strong />
+                <ReviewRow label="Amount due today" value={formatCents(breakdown.amountDueTodayCents)} strong />
               </div>
             </>
           )}
@@ -166,7 +166,7 @@ export default async function PaymentReviewPage({
           <div className="flex items-start justify-between gap-3">
             <div>
               <CardTitle>{stateCopy.title}</CardTitle>
-              <CardDescription>Confirm this entry, then head straight into Build Your Board for this contest.</CardDescription>
+              <CardDescription>Confirm this entry, then head straight into build your board for this contest.</CardDescription>
             </div>
             <span className="status-pill shrink-0">{stateCopy.badge}</span>
           </div>
@@ -194,11 +194,11 @@ export default async function PaymentReviewPage({
           <Notice
             variant={isFreeEntryContest ? 'success' : 'warning'}
             icon={CreditCard}
-            title={isFreeEntryContest ? 'No payment required' : 'Amount Due Today'}
+            title={isFreeEntryContest ? 'No payment required' : 'Amount due today'}
             description={
               isFreeEntryContest
                 ? 'No payment, wallet balance, payout, or cash movement is used for this beta entry.'
-                : 'If your balances do not fully cover the fee, the remaining amount stays under Amount Due Today until provider-backed payment is added.'
+                : 'If your balances do not fully cover the fee, the remaining amount stays under amount due today until provider-backed payment is added.'
             }
             badge={isFreeEntryContest ? '$0.00' : 'Placeholder-safe'}
           />
@@ -206,10 +206,10 @@ export default async function PaymentReviewPage({
             variant="success"
             icon={CheckCircle2}
             title="After confirmation"
-            description="Once you confirm, your entry is saved and you can head straight into Build Your Board."
+            description="Once you confirm, your entry is saved and you can head straight into build your board."
           />
           <div className="section-card-muted px-3 py-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Up next</p>
+            <p className="text-xs font-semibold tracking-wide text-muted-foreground">Up next</p>
             <div className="mt-2 space-y-2">
               {upcomingSteps.map((step) => (
                 <div key={step.key} className="step-row bg-white">
@@ -245,11 +245,11 @@ export default async function PaymentReviewPage({
               description={confirmationError}
             />
             <Button className="w-full" disabled>
-              Confirm Entry
+              Confirm entry
             </Button>
             {!viewerIdentity.eligibility.isEligibilityComplete ? (
               <Button asChild className="w-full" variant="secondary">
-                <Link href={profileEligibilityHref}>Complete Beta Acknowledgements</Link>
+                <Link href={profileEligibilityHref}>Complete beta acknowledgements</Link>
               </Button>
             ) : null}
           </div>
@@ -257,7 +257,7 @@ export default async function PaymentReviewPage({
           <form action={confirmContestEntryAction}>
             <input type="hidden" name="contestId" value={contest.id} />
             <Button type="submit" className="w-full">
-              Confirm Entry
+              Confirm entry
             </Button>
           </form>
         )}

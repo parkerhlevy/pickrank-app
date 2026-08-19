@@ -47,25 +47,25 @@ export default function BetaTermsPage() {
             <p>Paid contests are planned for a later launch and remain blocked until legal, provider, payment, withdrawal, and compliance review is complete.</p>
           </LegalSection>
 
-          <LegalSection title="Account Requirements">
+          <LegalSection title="Account requirements">
             <p>Users need an account, public username, date of birth, state capture, Beta Terms acceptance, and Privacy Policy acceptance before beta entry.</p>
             <p>PickRank Early Access Beta is for users who are at least 18 years old. Users under 18 may not create or use an account or enter beta contests.</p>
             <p>Each person may use one account. PickRank may restrict, suspend, or close accounts that appear duplicate, false, abusive, automated, or harmful to beta integrity.</p>
           </LegalSection>
 
-          <LegalSection title="Contest Rules">
+          <LegalSection title="Contest rules">
             <p>Beta contests use a 20-player pool. Users pick and rank 10 players before lock.</p>
             <p>Contest results use PickRank&apos;s saved final stats from {officialDataProvider} and the scoring rules shown in the Beta Contest Rules.</p>
             <p>PickRank aims to finalize beta results within {resultsFinalityWindow}.</p>
             <p>PickRank can pause, cancel, correct, or rerun a beta contest if testing, data, integrity, or operational issues require it.</p>
           </LegalSection>
 
-          <LegalSection title="Acceptable Use">
+          <LegalSection title="Acceptable use">
             <p>Users may not misuse PickRank, submit false account details, misrepresent age, use automation, exploit bugs, interfere with security, or coordinate activity that harms contest integrity.</p>
             <p>Users can ask PickRank to review an enforcement decision by contacting {legalSupportEmail}. PickRank aims to review beta enforcement requests within {enforcementReviewWindow}.</p>
           </LegalSection>
 
-          <LegalSection title="Governing Law">
+          <LegalSection title="Governing law">
             <p>These Beta Terms are governed by {legalGoverningLaw}. The venue for disputes is {legalVenue}.</p>
           </LegalSection>
 
@@ -92,10 +92,10 @@ function LegalLinks() {
         Review Privacy Policy
       </Link>
       <Link href="/legal/beta-rules" className="inline-link">
-        Review Beta Contest Rules
+        Review beta contest rules
       </Link>
       <Link href="/legal/responsible-play" className="inline-link">
-        Review Responsible Play
+        Review responsible play
       </Link>
     </div>
   );
