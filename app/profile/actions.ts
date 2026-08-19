@@ -4,7 +4,6 @@ import { redirect } from 'next/navigation';
 import {
   buildAuthHref,
   defaultReturnPath,
-  getProfileIdentity,
   normalizeDateOfBirth,
   normalizeJurisdiction,
   normalizeReturnPath,
@@ -14,6 +13,19 @@ import {
 } from '@/lib/auth-profile';
 import { hasBrowserSupabaseConfig } from '@/lib/env';
 import { createClient } from '@/lib/supabase/server';
+import { getViewerIdentity } from '@/lib/viewer-identity';
+
+type DobCaptureResult = {
+  age_gate_status: string;
+};
+
+type ProfileEligibilityUpdate = {
+  eligibility_checked_at: string;
+  jurisdiction: string;
+  kyc_status: string;
+  privacy_policy_accepted_at: string;
+  terms_accepted_at: string;
+};
 
 function buildProfileRedirect(next: string, status: 'error' | 'profile-saved', message?: string) {
   const params = new URLSearchParams({
@@ -62,7 +74,7 @@ export async function completeProfile(formData: FormData) {
     redirect(buildProfileRedirect(next, 'error', error.message));
   }
 
-  const identity = getProfileIdentity(user);
+  const identity = await getViewerIdentity();
   if (next !== defaultReturnPath && identity.isEmailVerified && identity.eligibility.isEligibilityComplete) {
     redirect(next);
   }
@@ -100,18 +112,6 @@ export async function completeEligibilityProfile(formData: FormData) {
     redirect(buildAuthHref(next));
   }
 
-  const identity = getProfileIdentity(user);
-
-  if (identity.eligibility.accountStatus !== 'active' || identity.eligibility.eligibilityStatus === 'blocked') {
-    redirect(
-      buildProfileRedirect(
-        next,
-        'error',
-        'Your account is restricted from beta entry. Contact support if you think this is a mistake.',
-      ),
-    );
-  }
-
   const now = new Date().toISOString();
   const jurisdiction = normalizeJurisdiction(jurisdictionInput);
   const dateOfBirth = normalizeDateOfBirth(dateOfBirthInput);
@@ -120,17 +120,50 @@ export async function completeEligibilityProfile(formData: FormData) {
     redirect(buildProfileRedirect(next, 'error', 'Enter a valid date of birth.'));
   }
 
-  const { error } = await supabase.auth.updateUser({
-    data: {
-      date_of_birth: dateOfBirth,
-      age_confirmed: true,
+  const dobCaptureClient = supabase as unknown as {
+    rpc: (
+      functionName: 'capture_profile_date_of_birth',
+      args: { target_date_of_birth: string },
+    ) => Promise<{ data: DobCaptureResult[] | null; error: { message: string } | null }>;
+  };
+  const profileEligibilityClient = supabase.from('profiles') as unknown as {
+    update: (values: ProfileEligibilityUpdate) => {
+      eq: (column: 'id', value: string) => Promise<{ error: { message: string } | null }>;
+    };
+  };
+  const { data: dobCapture, error: dobError } = await dobCaptureClient.rpc('capture_profile_date_of_birth', {
+    target_date_of_birth: dateOfBirth,
+  });
+
+  if (dobError) {
+    redirect(buildProfileRedirect(next, 'error', dobError.message));
+  }
+
+  if (dobCapture?.[0]?.age_gate_status === 'blocked') {
+    redirect(buildProfileRedirect(next, 'error', 'PickRank Early Access Beta is for users who are at least 18 years old.'));
+  }
+
+  const { error: profileError } = await profileEligibilityClient
+    .update({
       jurisdiction,
       terms_accepted_at: now,
       privacy_policy_accepted_at: now,
-      account_status: 'active',
+      eligibility_checked_at: now,
+      kyc_status: 'not_required',
+    })
+    .eq('id', user.id);
+
+  if (profileError) {
+    redirect(buildProfileRedirect(next, 'error', profileError.message));
+  }
+
+  const { error } = await supabase.auth.updateUser({
+    data: {
+      jurisdiction,
+      terms_accepted_at: now,
+      privacy_policy_accepted_at: now,
       eligibility_status: 'pending_review',
       eligibility_checked_at: now,
-      age_gate_status: 'confirmed',
       kyc_status: 'not_required',
       self_exclusion_status: 'none',
     },

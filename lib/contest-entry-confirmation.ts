@@ -49,6 +49,22 @@ export function getPaidContestEligibilityError(eligibility: ProfileEligibility |
   return null;
 }
 
+export function getFreeBetaContestEligibilityError(eligibility: ProfileEligibility | null | undefined) {
+  if (!eligibility?.dateOfBirth || eligibility.ageGateStatus !== 'confirmed') {
+    return 'PickRank Early Access Beta is available only to users who are at least 18 years old.';
+  }
+
+  if (eligibility.accountStatus !== 'active' || eligibility.eligibilityStatus === 'blocked') {
+    return 'Your account is restricted from beta entry. Contact support if you think this is a mistake.';
+  }
+
+  if (!eligibility.isEligibilityComplete) {
+    return 'Complete date of birth, state, Beta Terms, and Privacy acknowledgements before beta entry.';
+  }
+
+  return null;
+}
+
 export function getControlledTestEntryEligibilityError(eligibility: ProfileEligibility | null | undefined) {
   if (!eligibility?.isEligibilityComplete) {
     return 'Complete date of birth, location, Terms, and Privacy acknowledgements before test entry.';
@@ -87,7 +103,7 @@ export function getControlledTestEntryEligibilityError(eligibility: ProfileEligi
 
 export function canConfirmContestEntry(entryFeeCents: number, context: ContestEntryConfirmationContext = {}) {
   if (entryFeeCents === 0) {
-    return true;
+    return !getFreeBetaContestEligibilityError(context.eligibility);
   }
 
   if (isControlledTestEntryMode(context)) {
@@ -106,7 +122,7 @@ export function getContestEntryConfirmationError(
   context: ContestEntryConfirmationContext = {},
 ) {
   if (entryFeeCents === 0) {
-    return null;
+    return getFreeBetaContestEligibilityError(context.eligibility);
   }
 
   if (isControlledTestEntryMode(context)) {

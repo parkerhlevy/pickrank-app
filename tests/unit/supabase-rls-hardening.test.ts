@@ -21,6 +21,12 @@ const betaDobCollectionMigrationPath = path.join(
   'migrations',
   '0014_beta_dob_collection.sql',
 );
+const durableDobSafeguardMigrationPath = path.join(
+  process.cwd(),
+  'db',
+  'migrations',
+  '0015_durable_dob_safeguard.sql',
+);
 const contestResultsPath = path.join(process.cwd(), 'lib', 'contest-results.ts');
 
 describe('Supabase RLS hardening migration', () => {
@@ -91,5 +97,18 @@ describe('Supabase RLS hardening migration', () => {
     expect(sql).not.toContain('create policy');
     expect(sql).not.toContain('for insert');
     expect(sql).not.toContain('for delete');
+  });
+
+  it('protects the first DOB, audits change attempts without DOB values, and gates free entry in the database', async () => {
+    const sql = await readFile(durableDobSafeguardMigrationPath, 'utf8');
+
+    expect(sql).toContain('add column if not exists dob_captured_at timestamptz');
+    expect(sql).toContain('create or replace function public.capture_profile_date_of_birth');
+    expect(sql).toContain('create or replace function public.protect_profile_date_of_birth');
+    expect(sql).toContain("'date_of_birth_change_attempted'");
+    expect(sql).toContain("jsonb_build_object('field', 'date_of_birth')");
+    expect(sql).toContain('create trigger enforce_free_beta_entry_dob_eligibility');
+    expect(sql).toContain("profile.age_gate_status = 'confirmed'");
+    expect(sql).not.toContain("jsonb_build_object('date_of_birth'");
   });
 });

@@ -1,6 +1,11 @@
 import { Buffer } from 'node:buffer';
 import { cookies } from 'next/headers';
-import { getProfileIdentity, type EligibilityStatus, type ProfileIdentity } from '@/lib/auth-profile';
+import {
+  getProfileIdentity,
+  type EligibilityStatus,
+  type ProfileIdentity,
+  type ProtectedProfileEligibilityRecord,
+} from '@/lib/auth-profile';
 import { hasBrowserSupabaseConfig } from '@/lib/env';
 import { createClient } from '@/lib/supabase/server';
 
@@ -156,8 +161,20 @@ export async function getViewerIdentity(): Promise<ViewerIdentity> {
       return anonymousViewerIdentity;
     }
 
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select(
+        'account_status, age_confirmed, age_gate_status, date_of_birth, eligibility_checked_at, eligibility_status, jurisdiction, kyc_status, privacy_policy_accepted_at, restriction_reason, terms_accepted_at',
+      )
+      .eq('id', data.user.id)
+      .maybeSingle();
+
+    if (profileError) {
+      return anonymousViewerIdentity;
+    }
+
     return {
-      ...getProfileIdentity(data.user),
+      ...getProfileIdentity(data.user, profile as ProtectedProfileEligibilityRecord | null),
       isAuthenticated: true,
       source: 'supabase',
       userId: data.user.id,

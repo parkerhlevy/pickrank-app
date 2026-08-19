@@ -35,6 +35,16 @@ values
     '{}', now(), now()
   );
 
+insert into public.profiles (
+  id, username, display_name, date_of_birth, dob_captured_at, age_confirmed,
+  age_gate_status, account_status, eligibility_status, jurisdiction,
+  terms_accepted_at, privacy_policy_accepted_at
+)
+values (
+  '10000000-0000-0000-0000-000000000001', 'verified', 'Verified User', '1990-01-01', now(), true,
+  'confirmed', 'active', 'unknown', 'CA', now(), now()
+);
+
 insert into public.contests (
   id, title, slug, entry_fee_cents, lock_time, status, visibility_status
 )

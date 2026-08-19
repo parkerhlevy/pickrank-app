@@ -14,6 +14,7 @@ import { getMissingBrowserSupabaseKeys, hasBrowserSupabaseConfig } from '@/lib/e
 import { legalSupportEmail } from '@/lib/legal';
 import { launchMode } from '@/lib/launch-mode';
 import { createClient } from '@/lib/supabase/server';
+import { getViewerIdentity } from '@/lib/viewer-identity';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Notice } from '@/components/ui/notice';
@@ -48,7 +49,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
     }
   }
 
-  const identity = getProfileIdentity(user);
+  const identity = user ? await getViewerIdentity() : getProfileIdentity(null);
   const isAgeBlocked = Boolean(user && identity.eligibility.ageGateStatus === 'blocked');
   const isAccountRestricted = Boolean(
     user &&
@@ -290,6 +291,9 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                     </>
                   ) : null}
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  Your date of birth is captured as your account record and cannot be edited here.
+                </p>
                 {identity.eligibility.eligibilityStatus !== 'eligible' ? (
                   <Notice
                     variant="warning"
