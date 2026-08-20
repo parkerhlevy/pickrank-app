@@ -40,6 +40,7 @@ test('homepage loads as a landing page with waitlist forms and no bottom nav', a
   await expect(page.getByRole('navigation')).toHaveCount(0);
   await expect(page.getByRole('link', { name: 'Terms' })).toHaveAttribute('href', '/legal/terms');
   await expect(page.getByRole('link', { name: 'Privacy' })).toHaveAttribute('href', '/legal/privacy');
+  await expect(page.getByRole('link', { name: 'Acceptable use' })).toHaveAttribute('href', '/legal/acceptable-use');
   await expect(page.getByText('Early Access Beta is free to play. No purchase')).toBeVisible();
 });
 
@@ -279,6 +280,16 @@ test('legal terms and privacy pages are available with beta-ready details', asyn
   await expect(page.getByText('finalize beta results within 24 hours after the last slate game ends')).toBeVisible();
   await expect(page.getByText('There is no cash-prize cancellation threshold during free beta')).toBeVisible();
   await expect(page.getByText(staleAgeCopyPattern)).toHaveCount(0);
+
+  await page.goto('/legal/acceptable-use');
+
+  await expect(page.getByRole('heading', { name: 'Acceptable Use Policy' })).toBeVisible();
+  await expect(page.getByText('Free beta contest integrity')).toBeVisible();
+  await expect(page.getByText('18+ beta age gate')).toBeVisible();
+  await expect(page.getByText('You may create and use one PickRank account.')).toBeVisible();
+  await expect(page.getByText('Do not coordinate entries or share a board')).toBeVisible();
+  await expect(page.getByText(/lineup/i)).toHaveCount(0);
+  await expect(page.getByText('support@pickrankgames.com')).toBeVisible();
 
   await page.goto('/legal/privacy');
 

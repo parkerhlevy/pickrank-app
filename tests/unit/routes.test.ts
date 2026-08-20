@@ -15,6 +15,7 @@ const appRoutes = [
   { path: '/how-it-works', file: 'app/how-it-works/page.tsx' },
   { path: '/leaderboard', file: 'app/leaderboard/page.tsx' },
   { path: '/legal/beta-rules', file: 'app/legal/beta-rules/page.tsx' },
+  { path: '/legal/acceptable-use', file: 'app/legal/acceptable-use/page.tsx' },
   { path: '/legal/privacy', file: 'app/legal/privacy/page.tsx' },
   { path: '/legal/responsible-play', file: 'app/legal/responsible-play/page.tsx' },
   { path: '/legal/terms', file: 'app/legal/terms/page.tsx' },

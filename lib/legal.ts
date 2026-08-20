@@ -18,5 +18,6 @@ export const legalLinks = [
   { href: '/legal/terms', label: 'Terms' },
   { href: '/legal/privacy', label: 'Privacy' },
   { href: '/legal/beta-rules', label: 'Beta rules' },
+  { href: '/legal/acceptable-use', label: 'Acceptable use' },
   { href: '/legal/responsible-play', label: 'Responsible play' },
 ] as const;

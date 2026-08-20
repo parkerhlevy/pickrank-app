@@ -63,6 +63,9 @@ export default function BetaTermsPage() {
           <LegalSection title="Acceptable use">
             <p>Users may not misuse PickRank, submit false account details, misrepresent age, use automation, exploit bugs, interfere with security, or coordinate activity that harms contest integrity.</p>
             <p>Users can ask PickRank to review an enforcement decision by contacting {legalSupportEmail}. PickRank aims to review beta enforcement requests within {enforcementReviewWindow}.</p>
+            <Link href="/legal/acceptable-use" className="inline-link">
+              Review the full Acceptable Use Policy
+            </Link>
           </LegalSection>
 
           <LegalSection title="Governing law">
