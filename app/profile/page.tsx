@@ -82,6 +82,13 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           How it works
           <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
         </Link>
+        <p className="text-sm text-muted-foreground">
+          Need help with your account?{' '}
+          <a className="inline-link" href={`mailto:${legalSupportEmail}`}>
+            Contact account support
+          </a>
+          .
+        </p>
       </section>
 
       {isAccountUnavailable ? (
@@ -89,7 +96,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           <CardHeader>
             <div className="flex items-center gap-2">
               <ShieldCheck className="h-5 w-5 text-amber-700" aria-hidden="true" />
-              <CardTitle>Account unavailable</CardTitle>
+              <CardTitle>Account restricted</CardTitle>
             </div>
             <CardDescription className="text-amber-900">
               {isAgeBlocked
@@ -98,13 +105,28 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-amber-950">
-            <p>
-              This account cannot use PickRank or enter beta contests. If this is incorrect, contact{' '}
-              <a className="inline-link" href={`mailto:${legalSupportEmail}`}>
-                {legalSupportEmail}
-              </a>
-              .
-            </p>
+            {isAgeBlocked ? (
+              <>
+                <p>This account cannot enter Early Access Beta while this restriction is active.</p>
+                <p>
+                  PickRank may route an identified under-18 account for review. The review may result in maintaining
+                  the restriction, closing the account, or deleting or de-identifying account data when appropriate.
+                  If you or a parent or guardian need support, contact{' '}
+                  <a className="inline-link" href={`mailto:${legalSupportEmail}`}>
+                    {legalSupportEmail}
+                  </a>
+                  .
+                </p>
+              </>
+            ) : (
+              <p>
+                This account cannot enter beta contests while this restriction is active. If this is incorrect, contact{' '}
+                <a className="inline-link" href={`mailto:${legalSupportEmail}`}>
+                  {legalSupportEmail}
+                </a>
+                .
+              </p>
+            )}
             <form action={signOut}>
               <Button className="w-full" type="submit" variant="secondary">
                 Sign out
@@ -250,7 +272,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
               <div className="soft-panel space-y-3 text-sm">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="font-medium text-foreground">Signed in as {identity.email}</p>
-                  <span className="status-pill-muted">{isAccountUnavailable ? 'Unavailable' : 'Active'}</span>
+                  <span className="status-pill-muted">{isAccountUnavailable ? 'Restricted' : 'Active'}</span>
                 </div>
                 <form action={signOut}>
                   <Button className="w-full" type="submit" variant="secondary">

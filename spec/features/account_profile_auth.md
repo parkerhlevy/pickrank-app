@@ -14,7 +14,7 @@ MVP account/auth requires a verified user account before paid contest entry, use
 ## Summary
 PickRank users need an account before entering paid contests.
 
-During Early Access Beta, PickRank users need an account before entering free beta contests. They must choose a public username, supply date of birth for the 18+ beta age check, supply state/jurisdiction, accept Beta Terms, and accept the Privacy Policy before beta entry. This does not approve public real-money paid entry.
+During Early Access Beta, PickRank users need an account before entering free beta contests. Users may create an account before PickRank evaluates their date of birth. They must choose a public username, supply date of birth for the 18+ beta age check, supply state/jurisdiction, accept Beta Terms, and accept the Privacy Policy before beta entry. This does not approve public real-money paid entry.
 
 The account system supports:
 
@@ -251,7 +251,7 @@ I confirm I am at least 18 years old.
 
 Final age threshold may depend on legal review and jurisdiction.
 
-For Early Access Beta, DOB is the source of truth for the age gate. `age_gate_status` is computed from stored DOB and the current date. If an account is restricted only because of the under-18 beta age gate, use machine-readable `restriction_reason='under_18_age_gate'`. That age-only restriction can resolve when the stored DOB reaches the 18+ threshold. Other account restrictions, eligibility holds, responsible-play holds, or compliance holds must not auto-resolve because DOB later reaches 18.
+For Early Access Beta, DOB is the source of truth for the age gate. `age_gate_status` is computed from stored DOB and the current date. If an account is restricted only because of the under-18 beta age gate, use machine-readable `restriction_reason='under_18_age_gate'`. The age gate may become confirmed when the stored DOB reaches the 18+ threshold, but the account restriction remains until explicit review. Other account restrictions, eligibility holds, responsible-play holds, or compliance holds must not auto-resolve because DOB later reaches 18.
 
 ### Location / jurisdiction gate
 User eligibility may depend on state or location.

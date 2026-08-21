@@ -228,7 +228,7 @@ But some states or providers may require:
 
 The app should support configurable age thresholds by jurisdiction.
 
-For Early Access Beta, the age gate is computed from stored DOB. An age-only account hold must use `restriction_reason='under_18_age_gate'`. That reason means the hold can resolve when the stored DOB reaches the beta threshold. Any other `restriction_reason`, responsible-play hold, account restriction, or compliance block requires review and must not auto-resolve because DOB later reaches 18.
+For Early Access Beta, the age gate is computed from stored DOB. An age-only account hold must use `restriction_reason='under_18_age_gate'`. The age gate may become confirmed when the stored DOB reaches the beta threshold, but the account hold remains until explicit review. Any other `restriction_reason`, responsible-play hold, account restriction, or compliance block requires review and must not auto-resolve because DOB later reaches 18.
 
 ---
 
@@ -289,6 +289,8 @@ Recommended fields:
 - `restriction_reason`
 - `restricted_at`
 - `restriction_source`
+
+During Early Access Beta, a valid under-18 DOB may restrict the account and route it for review through the support path at `support@pickrankgames.com`. No parent-report form, case-management system, automated deletion flow, or fixed review or deletion deadline is part of this scope.
 
 ---
 

@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import {
   buildAuthHref,
+  classifyDateOfBirthForBeta,
   defaultReturnPath,
   normalizeDateOfBirth,
   normalizeJurisdiction,
@@ -88,12 +89,16 @@ export async function completeEligibilityProfile(formData: FormData) {
   const dateOfBirthInput = String(formData.get('dateOfBirth') || '');
   const termsAccepted = formData.get('termsAccepted') === 'on';
   const privacyPolicyAccepted = formData.get('privacyPolicyAccepted') === 'on';
-  const validationMessage = validateEligibilityAcknowledgements({
-    dateOfBirth: dateOfBirthInput,
-    termsAccepted,
-    privacyPolicyAccepted,
-    jurisdiction: jurisdictionInput,
-  });
+  const dateOfBirthStatus = classifyDateOfBirthForBeta(dateOfBirthInput);
+  const isUnder18Submission = dateOfBirthStatus === 'under_18';
+  const validationMessage = isUnder18Submission
+    ? null
+    : validateEligibilityAcknowledgements({
+        dateOfBirth: dateOfBirthInput,
+        termsAccepted,
+        privacyPolicyAccepted,
+        jurisdiction: jurisdictionInput,
+      });
 
   if (validationMessage) {
     redirect(buildProfileRedirect(next, 'error', validationMessage));
@@ -141,6 +146,19 @@ export async function completeEligibilityProfile(formData: FormData) {
 
   if (dobCapture?.[0]?.age_gate_status === 'blocked') {
     redirect(buildProfileRedirect(next, 'error', 'PickRank Early Access Beta is for users who are at least 18 years old.'));
+  }
+
+  if (isUnder18Submission) {
+    const existingProfileValidationMessage = validateEligibilityAcknowledgements({
+      dateOfBirth: dateOfBirthInput,
+      termsAccepted,
+      privacyPolicyAccepted,
+      jurisdiction: jurisdictionInput,
+    });
+
+    if (existingProfileValidationMessage) {
+      redirect(buildProfileRedirect(next, 'error', existingProfileValidationMessage));
+    }
   }
 
   const { error: profileError } = await profileEligibilityClient

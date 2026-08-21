@@ -21,6 +21,7 @@ export type KycStatus = 'not_required' | 'required' | 'pending' | 'verified' | '
 export type AccountStatus = 'active' | 'restricted' | 'suspended' | 'closed';
 export type SelfExclusionStatus = 'none' | 'requested' | 'active' | 'expired';
 export type RestrictionReason = typeof under18AgeGateRestrictionReason | string;
+export type BetaDateOfBirthStatus = 'invalid' | 'under_18' | 'eligible';
 
 export type ProfileEligibility = {
   ageConfirmed: boolean;
@@ -233,24 +234,30 @@ export function calculateAge(dateOfBirth: string, asOf = new Date()) {
   return asOfYear - birthYear - (hadBirthdayThisYear ? 0 : 1);
 }
 
-export function validateDateOfBirthForBeta(value: string, asOf = new Date()) {
+export function classifyDateOfBirthForBeta(value: string, asOf = new Date()): BetaDateOfBirthStatus {
   const normalizedDateOfBirth = normalizeDateOfBirth(value);
 
   if (!normalizedDateOfBirth) {
-    return 'Enter a valid date of birth.';
+    return 'invalid';
   }
 
   const age = calculateAge(normalizedDateOfBirth, asOf);
 
   if (age === null || age < 0) {
+    return 'invalid';
+  }
+
+  return age < betaMinimumAge ? 'under_18' : 'eligible';
+}
+
+export function validateDateOfBirthForBeta(value: string, asOf = new Date()) {
+  const status = classifyDateOfBirthForBeta(value, asOf);
+
+  if (status === 'invalid') {
     return 'Enter a valid date of birth.';
   }
 
-  if (age < betaMinimumAge) {
-    return betaMinimumAgeRequirementMessage;
-  }
-
-  return null;
+  return status === 'under_18' ? betaMinimumAgeRequirementMessage : null;
 }
 
 export function isDateOfBirthEligibleForBeta(value: string | null, asOf = new Date()) {
@@ -439,13 +446,8 @@ export function getProfileIdentity(
     typeof protectedMetadata.eligibility_checked_at === 'string' ? protectedMetadata.eligibility_checked_at : null;
   const restrictionReason = typeof protectedMetadata.restriction_reason === 'string' ? protectedMetadata.restriction_reason : null;
   const isAgeOnlyRestriction = isUnder18AgeGateRestriction(restrictionReason);
-  const hasResolvedAgeOnlyRestriction = Boolean(isAgeOnlyRestriction && isBetaAgeEligible);
-  const accountStatus =
-    hasResolvedAgeOnlyRestriction && storedAccountStatus === 'restricted' ? 'active' : storedAccountStatus;
-  const eligibilityStatus =
-    hasResolvedAgeOnlyRestriction && storedEligibilityStatus === 'blocked'
-      ? 'pending_review'
-      : storedEligibilityStatus;
+  const accountStatus = storedAccountStatus;
+  const eligibilityStatus = storedEligibilityStatus;
   const isEligibilityComplete = Boolean(
     ageConfirmed &&
       dateOfBirth &&

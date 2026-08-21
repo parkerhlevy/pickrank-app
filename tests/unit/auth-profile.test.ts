@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   buildAuthHref,
   buildProfileHref,
+  classifyDateOfBirthForBeta,
   defaultReturnPath,
   getReturnStepCopy,
   getProfileIdentity,
@@ -107,6 +108,11 @@ describe('auth profile helpers', () => {
   it('validates the 18+ beta date-of-birth gate', () => {
     const asOf = new Date('2026-08-11T00:00:00.000Z');
 
+    expect(classifyDateOfBirthForBeta('not-a-date', asOf)).toBe('invalid');
+    expect(classifyDateOfBirthForBeta('2027-01-01', asOf)).toBe('invalid');
+    expect(classifyDateOfBirthForBeta('2009-08-11', asOf)).toBe('under_18');
+    expect(classifyDateOfBirthForBeta('2008-08-11', asOf)).toBe('eligible');
+    expect(classifyDateOfBirthForBeta('1990-01-01', asOf)).toBe('eligible');
     expect(validateDateOfBirthForBeta('2008-08-11', asOf)).toBeNull();
     expect(validateDateOfBirthForBeta('2008-08-12', asOf)).toBe(
       'PickRank Early Access Beta is for users who are at least 18 years old.',
@@ -194,7 +200,7 @@ describe('auth profile helpers', () => {
     });
   });
 
-  it('auto-lifts an age-only restriction when stored DOB reaches 18', () => {
+  it('keeps an age-only restriction until explicit review when stored DOB reaches 18', () => {
     const identity = getProfileIdentity({
       email: 'qa-age-resolved@example.com',
       email_confirmed_at: '2026-08-11T00:00:00.000Z',
@@ -216,12 +222,12 @@ describe('auth profile helpers', () => {
 
     expect(identity.eligibility).toMatchObject({
       ageConfirmed: true,
-      accountStatus: 'active',
-      eligibilityStatus: 'pending_review',
+      accountStatus: 'restricted',
+      eligibilityStatus: 'blocked',
       ageGateStatus: 'confirmed',
       restrictionReason: under18AgeGateRestrictionReason,
       isAgeOnlyRestriction: true,
-      isEligibilityComplete: true,
+      isEligibilityComplete: false,
       isEligibleForPaidEntry: false,
     });
   });
