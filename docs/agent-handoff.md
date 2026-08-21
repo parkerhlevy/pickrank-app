@@ -419,7 +419,7 @@ Current product checklist:
 Next recommended slice:
 
 ```text
-Review the How It Works Button as a separate presentation slice. Keep the Portless pilot files, generated `next-env.d.ts`, and inaccessible `.env.example` outside that slice. Resolve the remaining local dirt one lane at a time.
+The How It Works Button presentation slice is deployed. Keep the Portless pilot files, generated `next-env.d.ts`, and inaccessible `.env.example` local and separate. Resolve the remaining local dirt one lane at a time.
 ```
 
 Definition of done:
