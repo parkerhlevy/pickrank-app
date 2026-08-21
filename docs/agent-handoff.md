@@ -66,7 +66,7 @@ The repo is past bare Phase 0 and currently includes:
 Current branch and production reality as of 2026-08-20:
 
 - the optional Portless local-development pilot is documented in `docs/local-development-portless.md` with root `portless.json`; `next.config.ts` allows the named `pickrank.localhost` and worktree subdomains, and Parker verified `https://pickrank.localhost` loads successfully; direct `127.0.0.1:3000`, Playwright, CI, OAuth defaults, and production behavior remain unchanged
-- a fresh `git fetch --prune origin` on 2026-08-20 verified `origin/main` at `6284a87`; local `main` now contains reconciliation merge commit `561cbe4` and preserves local commits `9597a31` and `54155b3` without force-push or history rewriting, so `main` is three commits ahead of `origin/main` and requires a normal push
+- a fresh `git fetch --prune origin` on 2026-08-20 verified `origin/main` at `6284a87`; local `main` contains reconciliation merge commit `561cbe4` and preserves local commits `9597a31` and `54155b3` without force-push or history rewriting, and the normal push completed at `3ec94c6`, so local `main` and `origin/main` are aligned
 - Git reports an access failure for tracked `.env.example` under the current workspace policy; its working-tree state is unverified, so do not edit, stage, discard, or bundle it with another lane until it is inspected from an allowed terminal
 - `app/contests/page.tsx` has a separate uncommitted presentation-only change that converts the How It Works link into a secondary Button with an ArrowRight icon; keep it out of the reconciliation and review it as its own UI commit
 - the optional Portless pilot remains separate working-tree dirt in `README.md`, `next.config.ts`, `docs/local-development-portless.md`, and `portless.json`; `next-env.d.ts` remains generated local noise
@@ -419,7 +419,7 @@ Current product checklist:
 Next recommended slice:
 
 ```text
-Push the three-commit `main` reconciliation normally. Keep the How It Works Button change, the Portless pilot files, generated `next-env.d.ts`, and inaccessible `.env.example` outside that push. After the push, review the How It Works Button as a separate presentation slice, then resolve the remaining local dirt one lane at a time.
+Review the How It Works Button as a separate presentation slice. Keep the Portless pilot files, generated `next-env.d.ts`, and inaccessible `.env.example` outside that slice. Resolve the remaining local dirt one lane at a time.
 ```
 
 Definition of done:
