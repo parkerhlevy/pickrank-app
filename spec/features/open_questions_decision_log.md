@@ -238,12 +238,33 @@ The prior $10k-per-season provider is retired from PickRank provider planning be
 
 The current provider search priority is:
 
-- MySportsFeeds is the leading candidate if it confirms commercial free-to-play beta use, future paid-contest permission, affordable NFL CORE + STATS pricing, preseason/postseason coverage, and internal snapshot rights.
-- Rolling Insights DataFeeds is the backup candidate, especially if the Breakaway Accelerator can support PickRank's current stage and budget.
-- The prior provider is retired from active planning. Keep the remaining provider candidates behind written rights and technical coverage review.
+- MySportsFeeds and Rolling Insights DataFeeds are the remaining candidates.
+- Rolling Insights is now the provisional front-runner for commercial fit and first-year cost. Section 12 expressly permits internal and commercial use of DataFeeds outputs, subject to its third-party display, competitive-use, and written-authorization limits. The Breakaway offer is approximately `$4,200/year` for post-game data before 80%/60%/30% year-one-through-three discounts, implying about `$840/$1,680/$2,940` if confirmed. MySportsFeeds remains the technical control and fallback because its repo proof is stronger today. Rolling's token was created and read only in memory, but its private probe was blocked by the local network policy before an API response. The shared Fathom transcript renders the base as “42 for the year”; Parker confirmed `$4,200/year`, which matches the published post-game reference.
 - ESPN endpoints remain human audit and research only unless ESPN/Disney grants written production permission.
 
 The repo's existing provider seams should be reused only after the new provider choice is clear. The official saved-results path still stays behind the separate typed `FINAL` confirmation flow.
+
+### Side-by-side cost and capability snapshot
+
+| Area | Rolling Insights DataFeeds | MySportsFeeds | Decision status |
+|---|---|---|---|
+| Published price reference | NFL pre-game `$1,200/year`, post-game `$4,200/year`, live `$7,200/year` (`$100/$350/$600` monthly) | Commercial NFL CORE + STATS starts at `$39/month` on the public pricing page; the active trial showed `$88 CAD/month` Non-Live and `$158 CAD/month` Live with a 10-minute delay | Confirmed public references. Currency, package, and tier are not apples-to-apples |
+| Breakaway Accelerator offer | Meeting notes describe a standard post-game feed at approximately `$4,200/year`, discounted 80% in year 1, 60% in year 2, and 30% in year 3. That implies about `$840/$1,680/$2,940` for the first three years if the base and discounts apply as stated. Upfront annual payment is required, then billing converts to monthly after 12 months. | 14-day trial was previously used in the repo validation lane; current account pricing showed `$88 CAD/month` Non-Live and `$158 CAD/month` Live with a 10-minute delay | Meeting notes and Parker correction. Confirm sport, tier, currency, renewal, and written rights |
+| API access | REST access is documented for all supported sports; GraphQL is documented for NFL and MLB; token setup selects API type, data availability, and sport | REST pull API with account credentials | Confirmed from vendor documentation |
+| NFL coverage | REST docs expose season, weekly, and daily schedules with game IDs, team IDs, season type, and statuses. Examples include preseason games. Live and post-game endpoints are documented; 2026 trial entitlement remains unverified | Repo probe covered 2026 preseason schedule, live and completed game states, QB passing yards, player IDs, and game IDs | Rolling account entitlement and current-season proof are still required; MySportsFeeds technical proof is partial but repeatable |
+| QB passing fields | NFL player box-score documentation includes player IDs, team IDs, QB position, `passing_yards`, and `passing_touchdowns` | Repo probe returned non-zero `passYards` and provider IDs | Confirmed from docs/probe |
+| Rate limits and latency | FAQ says no hard rate limit and recommends a 5-10 second delay; Josh described live/in-game latency as roughly 20-40 seconds, sometimes longer. Correction window and account limits need confirmation | FAQ describes subscription-frequency responses and asks clients not to poll every second; exact account limits need confirmation | Vendor questions |
+| Storage/display and paid use | Section 12 of the [Rolling Insights Terms of Service](https://rolling-insights.com/terms-of-services/) grants a limited DataFeeds licence and says outputs may be used for internal and commercial purposes. The same section prohibits distributing or displaying the Paid Services to third parties except as expressly permitted, bars use for products competitive with Rolling Insights, and requires written authorization for third-party applications. | Public pricing supports commercial use, but the website terms do not confirm public display, caching, storage, or paid-contest rights and include a site-competition restriction | Rolling has the stronger written commercial-use signal; both still need provider-specific confirmation for PickRank |
+
+### Evidence classification
+
+**Confirmed facts:** published list prices and API documentation, Parker's August 17 meeting notes, Parker's account screenshot, the [Rolling Insights Terms of Service](https://rolling-insights.com/terms-of-services/) Section 12 language, and the repo's read-only MySportsFeeds preseason checks. Section 12 expressly mentions internal and commercial use of DataFeeds outputs, but it does not expressly grant PickRank's public display, end-user redistribution, storage, caching, or paid-contest use. No Rolling Insights credential or production integration exists in the repo.
+
+**Vendor questions:** whether Section 12's commercial-output language permits PickRank to display derived rankings, player names, passing yards, game states, and other outputs to end users; whether PickRank is an authorized third-party application under Section 12; whether public free-to-play beta and future paid contests are allowed; whether storage, caching, audit snapshots, and redistribution of outputs or provider IDs are allowed; whether PickRank could be considered competitive with SportWise; whether the approximately `$4,200/year` offer covers NFL, MLB, or a selected sport; whether the discount covers the required post-game tier; renewal after year 3; upfront-payment and community requirements; preseason and historical entitlements; the conflict between current-season-only trial messaging and public claims of historical trial access; correction timing; rate limits; latency; stable player/game ID guarantees; HTTPS support for the documented REST host; and whether a trial token can include real-time data without a charge.
+
+**Assumptions:** the `$4,200/year` figure is the base post-game tier before the Accelerator discount; the stated discounts may apply only to the first three annual terms; first-year price does not establish renewal affordability; published starting prices may exclude required feeds; API access does not itself grant public display or paid-contest rights; and a private read-only probe does not prove production licensing.
+
+**Probe status (2026-08-17):** the account UI showed an NFL Post Game trial token with a 64-character RSC-token shape. The local runtime could not resolve or reach the documented HTTPS REST host, and browser mediation was blocked before the request returned. No API response, provider payload, Supabase write, or production change was produced.
 
 ### Active follow-up
 The prior provider is removed from active follow-up because its quoted `$10k` per-season commercial license is not affordable for the current launch path.
@@ -264,15 +285,21 @@ Parker started a 14-day MySportsFeeds trial in August 2026 with NFL CORE + STATS
 
 The 2026-08-13 read-only MySportsFeeds preseason test against DET at CIN, `2026-preseason/week/1/game/163796`, proved auth, schedule access, `LIVE` game state, `COMPLETED_PENDING_REVIEW` post-game state, non-zero QB passing yards, provider player IDs, provider game IDs, and the private provisional snapshot row shape. The repo still needs one plain `COMPLETED` final-state check and a repeatability check on another preseason game before MySportsFeeds can be treated as technically preferred.
 
-Parker also contacted Rolling Insights about the Breakaway Accelerator in August 2026. Keep that item open until Rolling Insights confirms:
+Parker met with Rolling Wave on August 17, 2026. The meeting notes and Parker's correction describe an approximately `$4,200/year` standard post-game feed with 80% off in year 1, 60% off in year 2, and 30% off in year 3, plus a free 30-day trial token. Keep that item open until Rolling Insights confirms:
 
 - whether the accelerator is available to PickRank
 - whether free-to-play public beta and future paid-contest use are allowed
 - whether NFL preseason, regular-season, and postseason player game stats are included
 - whether post-game QB passing yards and future skill-position stats are available at the accelerator price
 - whether internal validation, audit, provisional-results, and final-review snapshots may be stored
+- the full undiscounted renewal price and whether the discount applies to NFL live, post-game, or pre-game tiers
+- whether the quoted post-game price is per sport, per league, or a bundled Accelerator price
+- upfront annual payment, monthly conversion after 12 months, and the Discord/monthly-speaker participation requirement
+- rate limits, latency targets, historical access, player/game ID stability, and paid-contest display rights in writing
 
-Do not treat any free-trial, personal-use, Discovery Lab, or unofficial endpoint access as production-ready provider access.
+The meeting transcript adds that the trial excludes historical data, while paid access was described as reaching approximately 2018, and that live/in-game latency is roughly 20–40 seconds, sometimes longer. Treat these as vendor-conversation facts that still require account-level verification.
+
+Do not treat any free-trial, personal-use, accelerator, or unofficial endpoint access as production-ready provider access.
 
 ### Decision needed before
 External-stat beta or real-money launch.
