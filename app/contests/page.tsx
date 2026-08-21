@@ -16,9 +16,12 @@ export default async function ContestsPage() {
             <p className="eyebrow">Contests</p>
             <h1 className="text-3xl font-black leading-tight">Open contests</h1>
           </div>
-          <Link href="/how-it-works" className="inline-link">
-            How it works
-          </Link>
+          <Button asChild variant="secondary" size="sm" className="shrink-0 gap-2">
+            <Link href="/how-it-works">
+              How it works
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          </Button>
         </div>
         <p className="text-muted-foreground">
           Find and enter a contest, evaluate the 20-player pool, and build the most accurate board possible to beat the
