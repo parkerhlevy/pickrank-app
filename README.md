@@ -40,6 +40,7 @@ Supporting docs:
 
 - `docs/design/DESIGN.md` for current design direction
 - `spec/features/stat_finalization.md` for the provisional-stats boundary
+- `docs/provider-rolling-insights-meeting-2026-08-17.md` for the internal Rolling Insights meeting notes
 - `docs/deployment.md` for deployment notes
 
 ## Stack
@@ -130,9 +131,16 @@ Current provider-evaluation seam in `.env.example`:
 - `PICKRANK_MYSPORTSFEEDS_SEASON`
 - `PICKRANK_MYSPORTSFEEDS_WEEK`
 - `PICKRANK_MYSPORTSFEEDS_ACCESS_LEVEL`
+- `PICKRANK_ROLLING_INSIGHTS_RSC_TOKEN` or vendor-compatible `RSC_TOKEN` (private read-only probe only)
+- `PICKRANK_ROLLING_INSIGHTS_BASE_URL` (defaults to the HTTPS REST host)
+- `PICKRANK_ROLLING_INSIGHTS_SEASON`
+- `PICKRANK_ROLLING_INSIGHTS_DATE`
 
 Provider-specific fetch defaults are intentionally not configured. Use the private MySportsFeeds read-only probe only while provider rights remain under review.
 The MySportsFeeds variables are for read-only provider evaluation only. They do not write Supabase rows and do not change the official typed-`FINAL` finalization path.
+The Rolling Insights variable is for the GET-only probe in `scripts/rolling-insights-validation-probe.mjs`. Do not commit the RSC token or place it in a public deployment environment. The probe reports network, authentication, cache, and provider-response classes without printing request URLs. Its live request uses `Cache-Control: no-cache, no-store`, `Pragma: no-cache`, and a timestamp cache-buster as required by the vendor skill.
+
+For scheduled local checks, `scripts/validate-rolling-insights-keychain.sh` retrieves the token from the Mac Keychain service `pickrank-rolling-insights-rsc-token`, exports it only for the child probe process, and unsets it on exit. It does not print or persist the token.
 
 ## Useful Commands
 
@@ -151,6 +159,7 @@ Internal validation and simulation commands:
 ```bash
 npm run simulate:nfl-scoring
 npm run validate:mysportsfeeds:read-only
+npm run validate:rolling-insights:read-only -- --season 2026 --date 2026-08-14
 ```
 
 ## Repo Layout
