@@ -421,7 +421,7 @@ Current product checklist:
 Next recommended slice:
 
 ```text
-The How It Works Button presentation slice is deployed on the current baseline. The under-18 account-support slice is implemented locally but is not committed or deployed. Keep the Portless pilot files, generated `next-env.d.ts`, and inaccessible `.env.example` local and separate. Resolve the remaining local dirt one lane at a time. Keep legal-copy changes separate until approved.
+The How It Works Button presentation slice and the under-18 account-support slice are deployed on the current baseline. The under-18 slice is deployed from commit `13fea84` through Vercel production deployment `dpl_9SpUwQYV5G6t29vtHGZustMDJ9mz`; it adds no migration or production-data change. Keep the Portless pilot files, generated `next-env.d.ts`, and inaccessible `.env.example` local and separate. Resolve the remaining local dirt one lane at a time. Keep legal-copy changes separate until approved.
 ```
 
 Definition of done:
