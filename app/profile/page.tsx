@@ -72,16 +72,18 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
               {user ? 'Account settings' : 'Create your PickRank account'}
             </h1>
           </div>
+          <Button asChild variant="secondary" size="sm" className="shrink-0 gap-2">
+            <Link href="/how-it-works">
+              How it works
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          </Button>
         </div>
         {!user ? (
           <p className="text-muted-foreground">
             Browse contests without signing in. Create an account to enter free beta contests, save your board, and keep your place in the flow.
           </p>
         ) : null}
-        <Link href="/how-it-works" className="inline-link inline-flex items-center gap-1">
-          How it works
-          <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-        </Link>
         <p className="text-sm text-muted-foreground">
           Need help with your account?{' '}
           <a className="inline-link" href={`mailto:${legalSupportEmail}`}>

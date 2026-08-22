@@ -128,7 +128,10 @@ test('logged-out profile keeps account access and entry guidance compact', async
 
   await expect(page.getByRole('heading', { name: 'Create your PickRank account' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Account settings' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'How it works' })).toHaveAttribute('href', '/how-it-works');
+  const profileHowItWorksLink = page.getByRole('link', { name: 'How it works' });
+  await expect(profileHowItWorksLink).toHaveAttribute('href', '/how-it-works');
+  await expect(profileHowItWorksLink).toHaveClass(/h-9/);
+  await expect(profileHowItWorksLink).toHaveClass(/border-slate-200/);
   await expect(page.getByRole('link', { name: 'Contact account support' })).toHaveAttribute(
     'href',
     'mailto:support@pickrankgames.com',
