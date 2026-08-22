@@ -105,6 +105,8 @@ Local app URL:
 http://localhost:3000
 ```
 
+Optional stable local URLs for parallel worktrees are documented in [`docs/local-development-portless.md`](docs/local-development-portless.md). This does not replace the canonical localhost or Playwright workflow.
+
 ## Environment
 
 Required for normal app auth and Supabase-backed app behavior:
