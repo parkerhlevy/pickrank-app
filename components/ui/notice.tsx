@@ -6,7 +6,7 @@ type NoticeProps = {
   description: string;
   icon: LucideIcon;
   badge?: string;
-  variant?: 'success' | 'warning' | 'error' | 'muted';
+  variant?: 'success' | 'info' | 'warning' | 'error' | 'muted';
   className?: string;
 };
 

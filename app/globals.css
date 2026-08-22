@@ -172,6 +172,13 @@ body {
   --notice-accent: 155 63% 33%;
 }
 
+.notice-panel-info {
+  --notice-background: 263 100% 97%;
+  --notice-border: 262 70% 84%;
+  --notice-foreground: 263 47% 24%;
+  --notice-accent: 262 68% 52%;
+}
+
 .notice-panel-warning {
   --notice-background: 39 100% 96%;
   --notice-border: 37 90% 82%;

@@ -223,10 +223,10 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         <CardContent className="space-y-3 pt-5">
           {status === 'profile-saved' ? (
             <Notice
-              variant="success"
+              variant="info"
               icon={UserCircle}
               title="Profile saved"
-              description="Your PickRank account profile is updated for contest-entry flow."
+              description="Your account has been updated."
               badge="Saved"
             />
           ) : null}
@@ -313,18 +313,13 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                     </>
                   ) : null}
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Your date of birth is captured as your account record and cannot be edited here.
-                </p>
-                {identity.eligibility.eligibilityStatus !== 'eligible' ? (
-                  <Notice
-                    variant="warning"
-                    icon={ShieldCheck}
-                    title="Entry status"
-                    description="Your entry details are saved. Beta Pass has no cash value, no payouts, and no cash prizes."
-                    badge="Ready"
-                  />
-                ) : null}
+                <Notice
+                  variant="success"
+                  icon={ShieldCheck}
+                  title="Entry status"
+                  description="Your entry details are saved."
+                  badge="Ready"
+                />
               </div>
             ) : (
               <form className="space-y-3" action={completeEligibilityProfile}>
