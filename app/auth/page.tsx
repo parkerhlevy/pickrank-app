@@ -126,12 +126,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
         </CardHeader>
         <CardContent className="space-y-3 pt-4">
           {authConfigured ? (
-            <>
-              <EmailSignInForm action={requestMagicLink} next={next} />
-              <p className="text-sm text-muted-foreground">
-                We&apos;ll send a sign-in link to your inbox.
-              </p>
-            </>
+            <EmailSignInForm action={requestMagicLink} next={next} />
           ) : (
             <Notice
               variant="muted"
@@ -163,7 +158,11 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
             </Link>{' '}
             for details.
           </p>
-          <p className="soft-panel text-foreground">{launchMode.betaNoCashValueCopy}</p>
+          <p className="soft-panel text-foreground">
+            {launchMode.mode === 'early_access_beta'
+              ? 'No payouts or cash prizes are available during beta.'
+              : launchMode.betaNoCashValueCopy}
+          </p>
           {next !== defaultReturnPath ? (
             <div className="detail-row bg-white text-foreground">
               <span>{returnStep.actionLabel}</span>

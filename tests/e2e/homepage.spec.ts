@@ -257,6 +257,9 @@ test('auth remains available as a separate protected-flow route', async ({ page 
   await expect(page.getByRole('heading', { name: 'How PickRank uses your information' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Beta Terms' })).toHaveAttribute('href', '/legal/terms');
   await expect(page.getByRole('link', { name: 'Privacy Policy' })).toHaveAttribute('href', '/legal/privacy');
+  await expect(page.getByText("We'll send a sign-in link to your inbox.")).toHaveCount(0);
+  await expect(page.getByText('Beta Pass has no cash value.', { exact: false })).toHaveCount(0);
+  await expect(page.getByText('No payouts or cash prizes are available during beta.')).toBeVisible();
   await expect(page.getByText('Primary low-friction sign-in path for preserving contest-entry intent.')).toHaveCount(0);
   await expect(page.getByText('Sign in by email if you do not want to use Google.')).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'Before Beta Entry' })).toHaveCount(0);
