@@ -33,11 +33,11 @@ test('contest operators get a wide admin-only workspace with actionable navigati
   const adminNavigation = page.getByRole('navigation', { name: 'Admin navigation' });
 
   await expect(adminShell).toBeVisible();
-  await expect(adminNavigation.getByRole('link', { name: /Contest Operations/ })).toHaveAttribute(
+  await expect(adminNavigation.getByRole('link', { name: /Contest operations/ })).toHaveAttribute(
     'aria-current',
     'page',
   );
-  await expect(adminNavigation.getByRole('link', { name: /Internal Eligibility/ })).toHaveAttribute(
+  await expect(adminNavigation.getByRole('link', { name: /Internal eligibility/ })).toHaveAttribute(
     'href',
     '/admin/eligibility',
   );
@@ -58,7 +58,7 @@ test('contest operators get a wide admin-only workspace with actionable navigati
   await page.setViewportSize({ width: 390, height: 844 });
   await page.reload();
 
-  await expect(adminNavigation.getByRole('link', { name: /Contest Operations/ })).toBeVisible();
-  await expect(adminNavigation.getByRole('link', { name: /Internal Eligibility/ })).toBeVisible();
+  await expect(adminNavigation.getByRole('link', { name: /Contest operations/ })).toBeVisible();
+  await expect(adminNavigation.getByRole('link', { name: /Internal eligibility/ })).toBeVisible();
   await expect(page.locator('html')).toHaveJSProperty('scrollWidth', 390);
 });
