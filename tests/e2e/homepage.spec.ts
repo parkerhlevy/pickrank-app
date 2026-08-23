@@ -299,7 +299,7 @@ test('legal terms and privacy pages are available with beta-ready details', asyn
   await expect(page.getByText('You may create and use one PickRank account.')).toBeVisible();
   await expect(page.getByText('Do not coordinate entries or share a board')).toBeVisible();
   await expect(page.getByText(/lineup/i)).toHaveCount(0);
-  await expect(page.getByText('support@pickrankgames.com')).toBeVisible();
+  await expect(page.getByText('support@pickrankgames.com').first()).toBeVisible();
 
   await page.goto('/legal/privacy');
 
