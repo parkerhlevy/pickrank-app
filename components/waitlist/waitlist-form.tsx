@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
-import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, CheckCircle2, LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { joinWaitlistAction } from '@/app/waitlist/actions';
 import type { WaitlistActionState } from '@/lib/waitlist';
@@ -33,7 +33,7 @@ export function WaitlistForm({ sourcePath = '/', utm = {}, variant = 'section' }
   if (state.status === 'success') {
     return (
       <div
-        className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-4 text-left text-emerald-950"
+        className="feedback-enter rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-4 text-left text-emerald-950"
         role="status"
         aria-live="polite"
       >
@@ -68,7 +68,11 @@ export function WaitlistForm({ sourcePath = '/', utm = {}, variant = 'section' }
         />
         <Button type="submit" size="lg" className="text-sm font-bold" disabled={pending}>
           {pending ? 'Joining...' : 'Join the waitlist'}
-          <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+          {pending ? (
+            <LoaderCircle className="ml-2 h-4 w-4 animate-spin" aria-hidden="true" />
+          ) : (
+            <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+          )}
         </Button>
       </div>
       <input type="hidden" name="sourcePath" value={sourcePath} />
@@ -104,17 +108,17 @@ export function WaitlistForm({ sourcePath = '/', utm = {}, variant = 'section' }
         <span>I agree to receive PickRank Early Access Beta and product update emails. I can unsubscribe anytime.</span>
       </label>
       {state.fieldErrors?.email ? (
-        <p id={errorId} className="text-sm font-medium text-red-600" role="alert">
+        <p id={errorId} className="feedback-enter text-sm font-medium text-red-600" role="alert">
           {state.fieldErrors.email}
         </p>
       ) : null}
       {state.fieldErrors?.consent ? (
-        <p id={consentErrorId} className="text-sm font-medium text-red-600" role="alert">
+        <p id={consentErrorId} className="feedback-enter text-sm font-medium text-red-600" role="alert">
           {state.fieldErrors.consent}
         </p>
       ) : null}
       {state.status === 'error' && !state.fieldErrors?.email ? (
-        <p className="text-sm font-medium text-red-600" role="alert">
+        <p className="feedback-enter text-sm font-medium text-red-600" role="alert">
           {state.message}
         </p>
       ) : null}

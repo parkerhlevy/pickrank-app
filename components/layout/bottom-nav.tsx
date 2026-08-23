@@ -23,7 +23,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Primary navigation"
-      className="fixed inset-x-0 bottom-0 border-t border-slate-200 bg-white/95 shadow-[0_-10px_30px_rgba(15,23,42,0.08)] backdrop-blur"
+      className="app-bottom-nav fixed inset-x-0 bottom-0 border-t border-slate-200/90 bg-white/95 shadow-[0_-10px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl"
     >
       <div className="mx-auto grid max-w-md grid-cols-4 px-2 py-2.5">
         {navItems.map((item) => {
@@ -36,12 +36,27 @@ export function BottomNav() {
             <Link
               key={item.href}
               href={item.href}
+              transitionTypes={['nav-switch']}
+              aria-current={isActive ? 'page' : undefined}
               className={cn(
-                'flex min-h-14 flex-col items-center justify-center gap-1 rounded-lg px-2 text-xs font-semibold text-muted-foreground transition-[background-color,color] duration-[var(--duration-state)] ease-[var(--ease-out-ui)] hover:bg-slate-100 hover:text-foreground',
-                isActive && 'bg-primary/10 text-primary',
+                'group relative flex min-h-14 flex-col items-center justify-center gap-1 overflow-hidden rounded-lg px-2 text-xs font-semibold text-muted-foreground transition-[background-color,color,transform] duration-[var(--duration-state)] ease-[var(--ease-out-ui)] hover:bg-slate-100 hover:text-foreground active:scale-[0.97] motion-reduce:active:scale-100',
+                isActive && 'bg-primary/8 text-primary',
               )}
             >
-              <Icon className="h-5 w-5" aria-hidden="true" />
+              <span
+                className={cn(
+                  'absolute inset-x-3 top-0 h-0.5 origin-center rounded-full bg-primary transition-transform duration-[var(--duration-state)] ease-[var(--ease-out-ui)]',
+                  isActive ? 'scale-x-100' : 'scale-x-0',
+                )}
+                aria-hidden="true"
+              />
+              <Icon
+                className={cn(
+                  'h-5 w-5 transition-transform duration-[var(--duration-state)] ease-[var(--ease-out-ui)]',
+                  isActive && '-translate-y-0.5 scale-105',
+                )}
+                aria-hidden="true"
+              />
               <span>{item.label}</span>
             </Link>
           );

@@ -32,7 +32,7 @@ export default async function ContestsPage() {
       {contests.length > 0 ? (
         <section className="grid gap-4 lg:grid-cols-2" aria-label="Available contests">
           {contests.map((contest) => (
-            <Card key={contest.id} className="section-card flex flex-col overflow-hidden">
+            <Card key={contest.id} className="interactive-card section-card flex flex-col overflow-hidden">
               <CardHeader className="section-card-header">
                 <div className="flex items-start justify-between gap-3">
                   <div className="space-y-1">
@@ -45,7 +45,7 @@ export default async function ContestsPage() {
               <CardContent className="flex flex-1 flex-col gap-4 pt-4">
                 <ContestStats contest={contest} />
                 <Button asChild className="mt-auto w-full">
-                  <Link href={`/contests/${contest.id}`} className="gap-2">
+                  <Link href={`/contests/${contest.id}`} transitionTypes={['nav-forward']} className="gap-2">
                     {contest.contestStatus === 'open' ? 'Enter free beta contest' : 'View contest'}
                     <ArrowRight className="h-4 w-4" aria-hidden="true" />
                   </Link>

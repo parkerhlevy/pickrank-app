@@ -60,7 +60,7 @@ export default async function ContestDetailPage({
     <div className="space-y-5 pb-28">
       <div className="space-y-4">
         <Button asChild variant="ghost" size="sm" className="-ml-3 justify-start">
-          <Link href="/contests">
+          <Link href="/contests" transitionTypes={['nav-back']}>
             <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
             Contests
           </Link>
@@ -129,7 +129,9 @@ export default async function ContestDetailPage({
             </p>
           </div>
           <Button asChild variant="secondary" className="w-full">
-            <Link href="/how-it-works#rank-differential-example">See scoring example</Link>
+            <Link href="/how-it-works#rank-differential-example" transitionTypes={['nav-forward']}>
+              See scoring example
+            </Link>
           </Button>
         </CardContent>
       </Card>
@@ -170,7 +172,9 @@ export default async function ContestDetailPage({
           </form>
         ) : primaryAction.href ? (
           <Button asChild className="w-full">
-            <Link href={primaryAction.href}>{primaryAction.label}</Link>
+            <Link href={primaryAction.href} transitionTypes={['nav-forward']}>
+              {primaryAction.label}
+            </Link>
           </Button>
         ) : (
           <Button className={`w-full ${disabledActionClassName}`} disabled>

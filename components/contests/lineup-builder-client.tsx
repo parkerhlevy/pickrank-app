@@ -17,6 +17,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Notice } from '@/components/ui/notice';
+import { Presence } from '@/components/ui/presence';
 import {
   type LineupState,
   addLineupPlayer,
@@ -440,7 +441,7 @@ export function LineupBuilderClient({
     <>
       <div ref={pageRootRef} className="space-y-4 pb-32 sm:space-y-6 sm:pb-36" data-lineup-client-ready="false">
         <Button asChild variant="ghost" size="sm" className="-ml-3 justify-start">
-          <Link href={`/contests/${contest.id}`}>
+          <Link href={`/contests/${contest.id}`} transitionTypes={['nav-back']}>
             <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
             Contest details
           </Link>
@@ -482,7 +483,7 @@ export function LineupBuilderClient({
           </div>
         </div>
 
-        {showSavedBanner ? (
+        <Presence present={showSavedBanner} className="ui-presence-inline">
           <Notice
             variant="success"
             icon={CheckCircle2}
@@ -490,17 +491,17 @@ export function LineupBuilderClient({
             description="Board saved. You can edit your rankings until lock."
             badge="Saved"
           />
-        ) : null}
+        </Presence>
 
-        {saveError ? (
+        <Presence present={Boolean(saveError)} className="ui-presence-inline">
           <Notice
             variant="error"
             icon={AlertTriangle}
             title="Board not saved"
-            description={saveError}
+            description={saveError || ''}
             badge="Action needed"
           />
-        ) : null}
+        </Presence>
 
         {!isEditable ? (
           <Notice
@@ -728,10 +729,10 @@ export function LineupBuilderClient({
         </div>
       </div>
 
-      {showLeaveModal ? (
-        <div className="fixed inset-0 z-50 flex items-end bg-slate-950/50 p-4 sm:items-center sm:justify-center">
+      <Presence present={showLeaveModal} className="ui-presence-modal">
+        <div className="modal-backdrop fixed inset-0 z-50 flex items-end bg-slate-950/50 p-4 sm:items-center sm:justify-center">
           <div
-            className="w-full max-w-sm rounded-lg bg-white p-5 shadow-2xl"
+            className="modal-panel w-full max-w-sm rounded-lg bg-white p-5 shadow-2xl"
             role="dialog"
             aria-modal="true"
             aria-labelledby="unsaved-lineup-dialog-title"
@@ -764,7 +765,7 @@ export function LineupBuilderClient({
             </div>
           </div>
         </div>
-      ) : null}
+      </Presence>
     </>
   );
 }
