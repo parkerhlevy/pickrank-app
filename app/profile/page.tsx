@@ -5,7 +5,6 @@ import {
   betaMinimumAgeRequirementMessage,
   buildAuthHref,
   defaultReturnPath,
-  getProfileIdentity,
   getReturnStepCopy,
   jurisdictionOptions,
   normalizeReturnPath,
@@ -13,7 +12,6 @@ import {
 import { getMissingBrowserSupabaseKeys, hasBrowserSupabaseConfig } from '@/lib/env';
 import { legalSupportEmail } from '@/lib/legal';
 import { launchMode } from '@/lib/launch-mode';
-import { createClient } from '@/lib/supabase/server';
 import { getViewerIdentity } from '@/lib/viewer-identity';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -36,20 +34,8 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
   const missingKeys = getMissingBrowserSupabaseKeys();
   const status = resolvedSearchParams.status;
   const message = resolvedSearchParams.message;
-  let user = null;
-
-  if (authConfigured) {
-    try {
-      const supabase = await createClient();
-      const { data } = await supabase.auth.getUser();
-
-      user = data.user;
-    } catch {
-      user = null;
-    }
-  }
-
-  const identity = user ? await getViewerIdentity() : getProfileIdentity(null);
+  const identity = await getViewerIdentity();
+  const user = identity.isAuthenticated;
   const isAgeBlocked = Boolean(user && identity.eligibility.ageGateStatus === 'blocked');
   const isAccountRestricted = Boolean(
     user &&

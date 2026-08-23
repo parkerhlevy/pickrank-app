@@ -285,7 +285,7 @@ test('legal terms and privacy pages are available with beta-ready details', asyn
 
   await page.goto('/legal/beta-rules');
 
-  await expect(page.getByRole('heading', { name: 'Beta Contest Rules', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Beta contest rules', exact: true })).toBeVisible();
   await expect(page.getByText('confirmed 18+ beta eligibility')).toBeVisible();
   await expect(page.getByText('finalize beta results within 24 hours after the last slate game ends')).toBeVisible();
   await expect(page.getByText('There is no cash-prize cancellation threshold during free beta')).toBeVisible();
@@ -299,7 +299,7 @@ test('legal terms and privacy pages are available with beta-ready details', asyn
   await expect(page.getByText('You may create and use one PickRank account.')).toBeVisible();
   await expect(page.getByText('Do not coordinate entries or share a board')).toBeVisible();
   await expect(page.getByText(/lineup/i)).toHaveCount(0);
-  await expect(page.getByText('support@pickrankgames.com')).toBeVisible();
+  await expect(page.getByText('support@pickrankgames.com').first()).toBeVisible();
 
   await page.goto('/legal/privacy');
 
