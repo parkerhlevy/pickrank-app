@@ -77,6 +77,28 @@ describe('auth callback route', () => {
     expect(response.headers.get('location')).toBe('https://www.pickrankgames.com/profile');
     expect(response.headers.getSetCookie().join('\n')).toContain('pickrank_auth_next=');
   });
+
+  it('verifies token-hash magic links without requiring a PKCE code verifier', async () => {
+    stubSupabaseEnv();
+    const verifyOtp = vi.fn().mockResolvedValue({ error: null });
+    createClientMock.mockResolvedValue({
+      auth: {
+        verifyOtp,
+      },
+    });
+    const { GET } = await import('../../app/auth/confirm/route');
+    const response = await GET(
+      new NextRequest('https://www.pickrankgames.com/auth/confirm?token_hash=hash&type=email', {
+        headers: {
+          cookie: 'pickrank_auth_next=/contests/week-1/lineup',
+        },
+      }),
+    );
+
+    expect(verifyOtp).toHaveBeenCalledWith({ token_hash: 'hash', type: 'email' });
+    expect(response.headers.get('location')).toBe('https://www.pickrankgames.com/contests/week-1/lineup');
+    expect(response.headers.getSetCookie().join('\n')).toContain('pickrank_auth_next=');
+  });
 });
 
 function stubSupabaseEnv() {

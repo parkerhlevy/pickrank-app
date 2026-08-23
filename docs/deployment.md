@@ -129,6 +129,16 @@ Configure this in Supabase:
 5. Save the settings.
 6. Open `Authentication -> Rate Limits` and raise the email send limit to match your expected usage.
 
+Because PickRank uses Supabase's server-side rendering client with the Proof Key for Code Exchange (PKCE) flow, set the Supabase **Magic Link** email template to send the token hash to PickRank's confirmation route. This avoids losing the PKCE verifier when a mobile email app opens the link in a separate browser context:
+
+```html
+<h2>Sign in to your PickRank account</h2>
+<p>Use this link to sign in:</p>
+<p><a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email">Sign in to PickRank</a></p>
+```
+
+The app keeps `/auth/callback` for OAuth and legacy code-based callbacks. `/auth/confirm` verifies the token hash on the server and then resumes the saved return path.
+
 Business note:
 
 - Google removes sign-in dependence on auth emails for most users.

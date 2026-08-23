@@ -63,6 +63,7 @@ The repo is past bare Phase 0 and currently includes:
 - Tailwind/PostCSS configured
 - Vitest wired
 - Basic route smoke tests
+- The current auth lane adds token-hash handling for Supabase PKCE magic links in `app/auth/callback/route.ts` and exposes `/auth/confirm`; focused auth tests, `npm run typecheck`, `npm run lint`, and the full `npm test` suite pass (`35` files, `211` tests). The live Supabase Magic Link template now uses `/auth/confirm?token_hash={{ .TokenHash }}&type=email`; the matching app route remains local until the approved production deployment completes, so live magic-link verification is still pending.
 
 Current branch and production reality as of 2026-08-22:
 
@@ -423,7 +424,7 @@ Current product checklist:
 Next recommended slice:
 
 ```text
-Review or revise the untracked `spec/features/qb_player_pool_selection_framework.md` and the modified provider decision log before any implementation. Keep the framework operator-only and provider-neutral. Do not add scoring, payout, provider, or production-write behavior in that review. Keep the committed Portless pilot, generated `next-env.d.ts`, and inaccessible `.env.example` local and separate. Resolve the remaining local dirt one lane at a time. Keep legal-copy changes separate until approved.
+Deploy and verify the matching auth route for the saved Supabase Magic Link template. Use a fresh test address and confirm the token-hash link reaches `/auth/confirm`, creates the session, and resumes the saved return path. Keep this auth lane separate from the existing user dirt. After auth verification, review or revise the untracked `spec/features/qb_player_pool_selection_framework.md` and the modified provider decision log before any implementation. Keep the framework operator-only and provider-neutral. Do not add scoring, payout, provider, or production-write behavior in that review. Keep the committed Portless pilot, generated `next-env.d.ts`, and inaccessible `.env.example` local and separate. Resolve the remaining local dirt one lane at a time. Keep legal-copy changes separate until approved.
 ```
 
 Definition of done:
