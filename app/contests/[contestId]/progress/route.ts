@@ -18,6 +18,7 @@ import {
 } from '@/lib/contest-data';
 import { getViewerIdentity } from '@/lib/viewer-identity';
 import { isBetaFreeEntryContest } from '@/lib/launch-mode';
+import { getAppUrl, getRequestOrigin } from '@/lib/env';
 
 export async function GET(
   request: Request,
@@ -25,6 +26,7 @@ export async function GET(
 ) {
   const { contestId } = await params;
   const requestUrl = new URL(request.url);
+  const requestOrigin = getRequestOrigin(request.headers, getAppUrl());
   const requestedStage = requestUrl.searchParams.get('stage');
   const stage = contestEntryStages.includes(requestedStage as ContestEntryStage)
     ? (requestedStage as ContestEntryStage)
@@ -51,7 +53,7 @@ export async function GET(
       ? getContestEntryHref(contestId, 'lineup')
       : getContestEntryHref(contestId, 'not-entered');
 
-    return NextResponse.redirect(new URL(directEntryHref, request.url));
+    return NextResponse.redirect(new URL(directEntryHref, requestOrigin));
   }
 
   if (requestedProtectedFlow) {
@@ -59,7 +61,7 @@ export async function GET(
     const redirectHref = await getProtectedContestEntryRedirect(next);
 
     if (redirectHref) {
-      return NextResponse.redirect(new URL(redirectHref, request.url));
+      return NextResponse.redirect(new URL(redirectHref, requestOrigin));
     }
   }
 
@@ -79,7 +81,7 @@ export async function GET(
     currentCookieValue: cookieValue,
     stage: nextStage,
   });
-  const response = NextResponse.redirect(new URL(getContestEntryHref(contestId, nextStage), request.url));
+  const response = NextResponse.redirect(new URL(getContestEntryHref(contestId, nextStage), requestOrigin));
 
   response.cookies.set(contestEntryCookieName, updatedCookieValue, {
     httpOnly: true,

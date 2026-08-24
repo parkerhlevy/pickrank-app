@@ -32,12 +32,24 @@ describe('Playwright test contracts', () => {
     ]);
   });
 
+  it('rejects route redirects that inherit a normalized loopback host from request.url', () => {
+    const violations = findPlaywrightContractViolations(
+      'return NextResponse.redirect(new URL(redirectHref, request.url));',
+      'app/contests/[contestId]/progress/route.ts',
+    );
+
+    expect(violations.map((violation) => violation.rule)).toEqual([
+      'configured-route-redirect-origin',
+    ]);
+  });
+
   it('allows host-independent predicates, regular expressions, and scoped test ids', () => {
     const violations = findPlaywrightContractViolations(
       [
         'await expectPagePath(page, "/contests");',
         'await expect(page).toHaveURL(/status=finalized/);',
         "await expect(card.getByTestId('contest-lifecycle-status')).toHaveText('Open');",
+        'return NextResponse.redirect(new URL(redirectHref, requestOrigin));',
       ].join('\n'),
       'tests/e2e/example.spec.ts',
     );

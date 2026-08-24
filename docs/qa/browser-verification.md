@@ -34,6 +34,7 @@ The contract check enforces these repository rules:
 
 - Use `expectPagePath()` from `tests/e2e/support/navigation.ts` for literal path and query assertions. Do not compare a browser URL to a full `localhost` or `127.0.0.1` origin.
 - Use `e2eAppUrl` as the only loopback origin in test fixtures. Playwright starts Next.js on the explicit `127.0.0.1` hostname.
+- Build App Router route-handler redirects from `getRequestOrigin()` instead of `request.url`. Next.js can normalize `request.url` to another loopback host and drop host-scoped auth cookies.
 - Use scoped test IDs for lifecycle and entry status labels. Do not select repeated labels such as `Open` or `Entered` through broad exact-text locators.
 - Keep stateful browser execution on one worker. Do not re-enable full parallel execution while specs share file-backed fixtures.
 

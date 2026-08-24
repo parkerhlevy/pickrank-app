@@ -38,6 +38,12 @@ const contractRules: readonly PlaywrightContractRule[] = [
     message:
       'Use a scoped test id for lifecycle and entry status. Status copy can appear in both badges and metric tiles.',
   },
+  {
+    rule: 'configured-route-redirect-origin',
+    pattern: /new URL\([^,\n]+,\s*request\.url\s*\)/g,
+    message:
+      'Build route-handler redirects from getRequestOrigin(). Next.js can normalize request.url to a different loopback host.',
+  },
 ] as const;
 
 export function findPlaywrightContractViolations(
@@ -84,8 +90,10 @@ async function listTypeScriptFiles(directory: string): Promise<string[]> {
 
 export async function validatePlaywrightContracts(rootDirectory = process.cwd()) {
   const e2eDirectory = path.join(rootDirectory, 'tests', 'e2e');
+  const appDirectory = path.join(rootDirectory, 'app');
   const files = [
     ...(await listTypeScriptFiles(e2eDirectory)),
+    ...(await listTypeScriptFiles(appDirectory)).filter((file) => file.endsWith(`${path.sep}route.ts`)),
     path.join(rootDirectory, 'playwright.config.ts'),
   ].sort();
   const violations = (
