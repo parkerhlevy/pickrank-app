@@ -322,7 +322,7 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
 
     await editBoardLink.click();
 
-    await expect(page).toHaveURL('http://127.0.0.1:3000/contests/week-1-qb-passing-yards/lineup');
+    await expect(page).toHaveURL(/\/contests\/week-1-qb-passing-yards\/lineup$/);
 
     await expect(page.locator('h1').filter({ hasText: 'Build your board' })).toBeVisible();
     const rankedLineupCard = page.locator('.section-card').filter({ has: page.getByRole('heading', { name: 'Your board' }) });
