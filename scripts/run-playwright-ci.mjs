@@ -32,6 +32,7 @@ const executable = path.join(
   '.bin',
   process.platform === 'win32' ? 'playwright.cmd' : 'playwright',
 );
+const failedSuites = [];
 
 for (const suite of suites) {
   const result = spawnSync(
@@ -52,6 +53,11 @@ for (const suite of suites) {
   }
 
   if (result.status !== 0) {
-    process.exit(result.status ?? 1);
+    failedSuites.push(suite.name);
   }
+}
+
+if (failedSuites.length > 0) {
+  console.error(`Playwright suites failed: ${failedSuites.join(', ')}`);
+  process.exit(1);
 }

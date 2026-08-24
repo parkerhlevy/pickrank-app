@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { e2eAuthCookieName, encodeE2eAuthCookie } from '@/lib/viewer-identity';
+import { e2eAppUrl, expectPagePath } from './support/navigation';
 
-const appUrl = 'http://127.0.0.1:3000';
 const operatorCookieValue = encodeE2eAuthCookie({
   email: 'operator@pickrank.test',
   username: 'operator_user',
@@ -22,12 +22,12 @@ test('contest operators get a wide admin-only workspace with actionable navigati
     {
       name: e2eAuthCookieName,
       value: operatorCookieValue,
-      url: appUrl,
+      url: e2eAppUrl,
     },
   ]);
 
   await page.goto('/admin/contests');
-  await expect(page).toHaveURL('/admin/contests');
+  await expectPagePath(page, '/admin/contests');
 
   const adminShell = page.locator('[data-admin-shell]');
   const adminNavigation = page.getByRole('navigation', { name: 'Admin navigation' });

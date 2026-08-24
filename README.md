@@ -145,6 +145,7 @@ npm run dev
 npm run lint
 npm run typecheck
 npm run test
+npm run test:e2e:contracts
 npm run test:e2e
 ```
 
@@ -188,4 +189,4 @@ npm run typecheck
 npm run test
 ```
 
-Playwright coverage exists, but local browser runs can still be environment-limited if the dev server cannot bind to `0.0.0.0:3000`.
+Playwright uses the canonical `http://127.0.0.1:3000` test origin and one worker because browser specs share file-backed fixtures. Local browser runs can still be environment-limited if the dev server cannot bind or Chromium cannot start. Use the Linux `Browser verification` workflow as the required browser gate in that case. See `docs/qa/browser-verification.md` for the test contracts and failure classification.

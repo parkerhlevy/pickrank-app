@@ -6,8 +6,8 @@ import {
   e2eAuthCookieName,
   encodeE2eAuthCookie,
 } from '@/lib/viewer-identity';
+import { e2eAppUrl, expectPagePath } from './support/navigation';
 
-const appUrl = 'http://127.0.0.1:3000';
 const contestStorePath = path.join(process.cwd(), 'data', 'contests.json');
 const entryStorePath = path.join(process.cwd(), 'data', 'contest-entries.json');
 const resultsStorePath = path.join(process.cwd(), 'data', 'contest-results.json');
@@ -474,7 +474,7 @@ test('finalizes the locked contest from admin and keeps leaderboard/results surf
   await nonEntrantPage.goto(`/contests/${targetContestId}`);
   await expect(nonEntrantPage.getByRole('link', { name: 'View results' })).toBeVisible();
   await nonEntrantPage.goto(`/contests/${targetContestId}/results`);
-  await expect(nonEntrantPage).toHaveURL(`/leaderboard?contest=${targetContestId}`);
+  await expectPagePath(nonEntrantPage, `/leaderboard?contest=${targetContestId}`);
 
   await operatorContext.close();
   await entrantContext.close();
@@ -817,12 +817,12 @@ function buildAuthCookieValue({
 }
 
 async function createSignedInContext(browser: Browser, cookieValue: string) {
-  const context = await browser.newContext({ baseURL: appUrl });
+  const context = await browser.newContext({ baseURL: e2eAppUrl });
   await context.addCookies([
     {
       name: e2eAuthCookieName,
       value: cookieValue,
-      url: appUrl,
+      url: e2eAppUrl,
     },
   ]);
 

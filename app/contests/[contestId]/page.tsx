@@ -71,6 +71,7 @@ export default async function ContestDetailPage({
               className={`status-pill ${
                 contest.contestStatus === 'open' ? 'border-emerald-200 bg-emerald-100 text-emerald-800' : ''
               }`}
+              data-testid="contest-lifecycle-status"
             >
               {contest.status}
             </span>

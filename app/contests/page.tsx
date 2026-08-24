@@ -46,7 +46,11 @@ export default async function ContestsPage() {
               : `/contests/${contest.id}`;
 
             return (
-              <Card key={contest.id} className="interactive-card section-card flex flex-col overflow-hidden">
+              <Card
+                key={contest.id}
+                className="interactive-card section-card flex flex-col overflow-hidden"
+                data-testid={`contest-card-${contest.id}`}
+              >
                 <CardHeader className="section-card-header">
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-1">
@@ -54,9 +58,17 @@ export default async function ContestsPage() {
                       <CardDescription className="text-slate-300">{contest.task}</CardDescription>
                     </div>
                     <div className="flex shrink-0 flex-col items-end gap-1.5 sm:flex-row sm:items-center">
-                      <span className="status-pill border-white/15 bg-white/10 text-white">{contest.status}</span>
+                      <span
+                        className="status-pill border-white/15 bg-white/10 text-white"
+                        data-testid="contest-lifecycle-status"
+                      >
+                        {contest.status}
+                      </span>
                       {hasEntry ? (
-                        <span className="status-pill gap-1 border-emerald-300 bg-emerald-100 !text-emerald-800">
+                        <span
+                          className="status-pill gap-1 border-emerald-300 bg-emerald-100 !text-emerald-800"
+                          data-testid="contest-entry-status"
+                        >
                           <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
                           Entered
                         </span>
