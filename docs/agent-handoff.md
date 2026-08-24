@@ -65,10 +65,12 @@ The repo is past bare Phase 0 and currently includes:
 - Basic route smoke tests
 - The current auth lane adds token-hash handling for Supabase PKCE magic links in `app/auth/callback/route.ts` and exposes `/auth/confirm`; focused auth tests, `npm run typecheck`, `npm run lint`, and the full `npm test` suite pass (`35` files, `211` tests). The live Supabase Magic Link template now uses `/auth/confirm?token_hash={{ .TokenHash }}&type=email`, and commit `58f52ed` is deployed to Vercel Production deployment `dpl_FXP4J88XZadhmWj4YJnaTVs7d21f`. A live dummy-token check reaches `/auth` with the expected invalid-link message; a fresh-address end-to-end email test remains pending.
 
-Current branch and production reality as of 2026-08-22:
+Current branch and production reality as of 2026-08-24:
 
+- the narrow signed-in return-to-board slice is committed as `70b9dab` on branch `codex/resume-saved-board` and proposed in pull request `#26`; it is not merged or deployed. The `/contests` page now reads persisted entry ownership for the current viewer. An entered open contest shows `Open` plus `Entered`, replaces `Enter free beta contest` with a green `Edit your board` action, and routes through the existing protected lineup check directly to the saved board. Users without an entry keep the existing entry action. Entry creation, single-entry enforcement, lineup persistence, lock behavior, scoring, eligibility, payment, provider, admin, and production data are unchanged.
+- verification for the return-to-board slice passes `npm run typecheck`, focused ESLint, `npm run test` (`35` files, `212` tests), `git diff --check`, and `next build --webpack`. The default Turbopack build and local Chromium remain blocked by the Codex macOS sandbox, but the required Linux Chromium gate passed on implementation head `3a041b8` in GitHub Actions run `32699840537`. Pull request `#26` also has successful Vercel preview deployment and preview-comment checks.
 - the optional Portless local-development pilot is documented in `docs/local-development-portless.md` with root `portless.json`; `next.config.ts` allows the named `pickrank.localhost` and worktree subdomains, and Parker verified `https://pickrank.localhost` loads successfully; direct `127.0.0.1:3000`, Playwright, CI, OAuth defaults, and production behavior remain unchanged. The pilot is adopted as a single local-development tooling commit and remains opt-in; it is not part of the next product slice
-- live Git currently reports `main` at `dee354d`, matching `origin/main` at `0` ahead and `0` behind; there is no committed-but-unpushed work on `main`. This read-only pass did not refresh remote-tracking refs.
+- a fresh `git fetch --prune origin` reports `origin/main` at `c7034c6`. The primary checkout remains on local `main` at `aceb4f4`, six commits behind, with unrelated preserved user work. Do not reset, stash, stage, or bundle that primary-checkout work with this slice.
 - Git reports an access failure for tracked `.env.example` under the current workspace policy. The committed provider-neutral baseline was inspected through the Git object from an allowed terminal. The working-tree bytes remain unverified, so do not edit, stage, discard, or bundle it with another lane until direct file access is available
 - the 2026-08-20 `/contests` presentation follow-up is committed as `0877e57` and deployed to Vercel Production deployment `dpl_4eeTtzbvuJT9SXda1bKXPYoZgcHs`; it converts the How It Works link into a secondary Button with an ArrowRight icon and does not change contest, auth, entry, scoring, payment, wallet, eligibility, provider, admin, or production-data behavior
 - the Portless pilot is committed and remains opt-in. Current main-worktree dirt is lane-separated: `docs/agent-handoff.md`, `next-env.d.ts`, `spec/features/open_questions_decision_log.md`, and the untracked draft `spec/features/qb_player_pool_selection_framework.md`. `.env.example` remains access-blocked, so its working-tree bytes are unverified.
@@ -96,7 +98,7 @@ Current branch and production reality as of 2026-08-22:
 - the repo-wide lint cleanup removes the remaining ESLint errors and warnings without changing product behavior; `npm run lint`, `npm run typecheck`, and `npm run test` (`37` files, `216` tests) pass
 - earlier mixed local recovery work remains separated into preservation branches and active sibling worktrees; preserve those lanes until Parker chooses whether to integrate or retire them
 - the latest pushed product baseline includes the paid-preview launch-mode guard, the admin contest removal flow, the production 18+ DOB gate/legal alignment, and the Early Access Beta public UI cleanup; `origin/main` is the source baseline for delivery
-- the live worktree registry includes two prunable registrations whose directories no longer exist (`/private/tmp/pickrank-durable-dob-safeguard` and `/private/tmp/pickrank-provider-rolling-insights`), plus a detached worktree at `/Users/parkerlevy/.codex/worktrees/6da1/PickRank` with uncommitted edits in `app/contests/page.tsx` and `docs/agent-handoff.md`. Do not prune or clean these lanes without explicit approval.
+- the live worktree registry contains the dirty primary checkout, the preserved detached worktree at `/Users/parkerlevy/.codex/worktrees/6da1/PickRank`, and the isolated `/private/tmp/pickrank-resume-saved-board` worktree for this slice. Do not prune or clean the primary or detached lanes without explicit approval.
 - `codex/provider-mysportsfeeds-read-only` remains a source preservation branch; the integrated `main` slice is verified, but branch retirement is still Parker's decision
 - `git fetch --prune origin` and `git remote prune origin --dry-run` both completed on 2026-08-21; `main` is `0` ahead and `0` behind `origin/main`, there is no committed-but-unpushed work on `main`, and no stale remote-tracking refs were reported
 - the prior weekly maintenance claims are historical. The current registry still contains two prunable worktree registrations, so stale worktree metadata is not fully cleared. Preserve branches with unique commits and leave uncertain registrations in place.
@@ -424,7 +426,7 @@ Current product checklist:
 Next recommended slice:
 
 ```text
-Run a fresh-address end-to-end email test and confirm the token-hash link creates the session and resumes the saved return path. Keep this auth lane separate from the existing user dirt. After auth verification, review or revise the untracked `spec/features/qb_player_pool_selection_framework.md` and the modified provider decision log before any implementation. Keep the framework operator-only and provider-neutral. Do not add scoring, payout, provider, or production-write behavior in that review. Keep the committed Portless pilot, generated `next-env.d.ts`, and inaccessible `.env.example` local and separate. Resolve the remaining local dirt one lane at a time. Keep legal-copy changes separate until approved.
+Review pull request `#26`, which has a passing Linux Chromium gate and successful Vercel preview checks. Ask Parker for explicit approval before merge or production deployment. Do not merge or deploy automatically. Keep the dirty main checkout untouched. After this slice is delivered, return to the fresh-address end-to-end email test as a separate auth lane.
 ```
 
 Definition of done:
@@ -453,7 +455,13 @@ Continue PickRank using the repo as source of truth. Work only on future paid-mo
 
 ## Starter Prompt For Future Chats
 
-Use this default starter prompt pattern unless the next slice needs a tighter scoped variation:
+Use this prompt for the immediate follow-up:
+
+```text
+Continue PickRank using the repo as source of truth. Review pull request `#26` for the signed-in return-to-board slice. Its Linux Chromium gate and Vercel preview checks pass. Ask for explicit approval before merge or production deployment. Do not change entry creation, lock rules, scoring, eligibility, payments, providers, admin behavior, or production data. Keep the dirty main checkout untouched.
+```
+
+Use this default starter prompt pattern after that slice is complete:
 
 ```text
 Continue PickRank using the repo as source of truth. Use clear, short technical English. The current launch posture is free-to-play Early Access Beta with no cash value, payouts, or cash prizes. The remaining stats-provider candidates are MySportsFeeds and Rolling Insights DataFeeds. Keep provider work private and read-only until written rights and technical coverage are confirmed. Do not change scoring, payments, wallet, eligibility, auth, public results, Supabase data, or typed `FINAL` finalization without explicit approval.
