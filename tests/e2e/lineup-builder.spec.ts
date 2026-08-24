@@ -312,7 +312,7 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
     const editBoardLink = contestCard.getByRole('link', { name: 'Edit your board' });
 
     await expect(contestCard.getByText('Entered', { exact: true })).toBeVisible();
-    await expect(contestCard.getByText('Open', { exact: true })).toBeVisible();
+    await expect(contestCard.locator('.status-pill').getByText('Open', { exact: true })).toBeVisible();
     await expect(contestCard.getByRole('link', { name: 'Enter free beta contest' })).toHaveCount(0);
     await expect(editBoardLink).toHaveAttribute(
       'href',
