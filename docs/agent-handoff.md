@@ -65,10 +65,10 @@ The repo is past bare Phase 0 and currently includes:
 - Basic route smoke tests
 - The current auth lane adds token-hash handling for Supabase PKCE magic links in `app/auth/callback/route.ts` and exposes `/auth/confirm`; focused auth tests, `npm run typecheck`, `npm run lint`, and the full `npm test` suite pass (`35` files, `211` tests). The live Supabase Magic Link template now uses `/auth/confirm?token_hash={{ .TokenHash }}&type=email`, and commit `58f52ed` is deployed to Vercel Production deployment `dpl_FXP4J88XZadhmWj4YJnaTVs7d21f`. A live dummy-token check reaches `/auth` with the expected invalid-link message; a fresh-address end-to-end email test remains pending.
 
-Current branch and production reality as of 2026-08-23:
+Current branch and production reality as of 2026-08-24:
 
 - the narrow signed-in return-to-board slice is committed as `70b9dab` on branch `codex/resume-saved-board` and proposed in pull request `#26`; it is not merged or deployed. The `/contests` page now reads persisted entry ownership for the current viewer. An entered open contest shows `Open` plus `Entered`, replaces `Enter free beta contest` with a green `Edit your board` action, and routes through the existing protected lineup check directly to the saved board. Users without an entry keep the existing entry action. Entry creation, single-entry enforcement, lineup persistence, lock behavior, scoring, eligibility, payment, provider, admin, and production data are unchanged.
-- verification for the return-to-board slice passes `npm run typecheck`, focused ESLint, `npm run test` (`35` files, `212` tests), `git diff --check`, and `next build --webpack`. The default Turbopack build is blocked by the Codex macOS sandbox when its CSS worker tries to bind an internal port. The focused Chromium assertion is implemented, but local execution is blocked before the test runs by `MachPortRendezvousServer ... Permission denied (1100)`. Run the focused test in the Linux browser gate before delivery.
+- verification for the return-to-board slice passes `npm run typecheck`, focused ESLint, `npm run test` (`35` files, `212` tests), `git diff --check`, and `next build --webpack`. The default Turbopack build and local Chromium remain blocked by the Codex macOS sandbox, but the required Linux Chromium gate passed on implementation head `3a041b8` in GitHub Actions run `32699840537`. Pull request `#26` also has successful Vercel preview deployment and preview-comment checks.
 - the optional Portless local-development pilot is documented in `docs/local-development-portless.md` with root `portless.json`; `next.config.ts` allows the named `pickrank.localhost` and worktree subdomains, and Parker verified `https://pickrank.localhost` loads successfully; direct `127.0.0.1:3000`, Playwright, CI, OAuth defaults, and production behavior remain unchanged. The pilot is adopted as a single local-development tooling commit and remains opt-in; it is not part of the next product slice
 - a fresh `git fetch --prune origin` reports `origin/main` at `c7034c6`. The primary checkout remains on local `main` at `aceb4f4`, six commits behind, with unrelated preserved user work. Do not reset, stash, stage, or bundle that primary-checkout work with this slice.
 - Git reports an access failure for tracked `.env.example` under the current workspace policy. The committed provider-neutral baseline was inspected through the Git object from an allowed terminal. The working-tree bytes remain unverified, so do not edit, stage, discard, or bundle it with another lane until direct file access is available
@@ -426,7 +426,7 @@ Current product checklist:
 Next recommended slice:
 
 ```text
-Wait for pull request `#26` checks. Require the Linux Chromium gate to pass before considering merge or deployment. If all checks pass, report the final status and ask Parker for explicit merge and deployment approval. Do not merge or deploy automatically. Keep the dirty main checkout untouched. After this slice is delivered, return to the fresh-address end-to-end email test as a separate auth lane.
+Review pull request `#26`, which has a passing Linux Chromium gate and successful Vercel preview checks. Ask Parker for explicit approval before merge or production deployment. Do not merge or deploy automatically. Keep the dirty main checkout untouched. After this slice is delivered, return to the fresh-address end-to-end email test as a separate auth lane.
 ```
 
 Definition of done:
@@ -458,7 +458,7 @@ Continue PickRank using the repo as source of truth. Work only on future paid-mo
 Use this prompt for the immediate follow-up:
 
 ```text
-Continue PickRank using the repo as source of truth. Inspect pull request `#26` for the signed-in return-to-board slice and wait for its Linux Chromium gate. If all checks pass, report the result and ask for explicit approval before merge or deployment. Do not change entry creation, lock rules, scoring, eligibility, payments, providers, admin behavior, or production data. Keep the dirty main checkout untouched.
+Continue PickRank using the repo as source of truth. Review pull request `#26` for the signed-in return-to-board slice. Its Linux Chromium gate and Vercel preview checks pass. Ask for explicit approval before merge or production deployment. Do not change entry creation, lock rules, scoring, eligibility, payments, providers, admin behavior, or production data. Keep the dirty main checkout untouched.
 ```
 
 Use this default starter prompt pattern after that slice is complete:
