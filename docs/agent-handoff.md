@@ -67,7 +67,7 @@ The repo is past bare Phase 0 and currently includes:
 
 Current branch and production reality as of 2026-08-23:
 
-- the narrow signed-in return-to-board slice is implemented on branch `codex/resume-saved-board`, based on `origin/main` at `c7034c6`, and is not deployed. The `/contests` page now reads persisted entry ownership for the current viewer. An entered open contest shows `Open` plus `Entered`, replaces `Enter free beta contest` with a green `Edit your board` action, and routes through the existing protected lineup check directly to the saved board. Users without an entry keep the existing entry action. Entry creation, single-entry enforcement, lineup persistence, lock behavior, scoring, eligibility, payment, provider, admin, and production data are unchanged.
+- the narrow signed-in return-to-board slice is committed as `70b9dab` on branch `codex/resume-saved-board` and proposed in pull request `#26`; it is not merged or deployed. The `/contests` page now reads persisted entry ownership for the current viewer. An entered open contest shows `Open` plus `Entered`, replaces `Enter free beta contest` with a green `Edit your board` action, and routes through the existing protected lineup check directly to the saved board. Users without an entry keep the existing entry action. Entry creation, single-entry enforcement, lineup persistence, lock behavior, scoring, eligibility, payment, provider, admin, and production data are unchanged.
 - verification for the return-to-board slice passes `npm run typecheck`, focused ESLint, `npm run test` (`35` files, `212` tests), `git diff --check`, and `next build --webpack`. The default Turbopack build is blocked by the Codex macOS sandbox when its CSS worker tries to bind an internal port. The focused Chromium assertion is implemented, but local execution is blocked before the test runs by `MachPortRendezvousServer ... Permission denied (1100)`. Run the focused test in the Linux browser gate before delivery.
 - the optional Portless local-development pilot is documented in `docs/local-development-portless.md` with root `portless.json`; `next.config.ts` allows the named `pickrank.localhost` and worktree subdomains, and Parker verified `https://pickrank.localhost` loads successfully; direct `127.0.0.1:3000`, Playwright, CI, OAuth defaults, and production behavior remain unchanged. The pilot is adopted as a single local-development tooling commit and remains opt-in; it is not part of the next product slice
 - a fresh `git fetch --prune origin` reports `origin/main` at `c7034c6`. The primary checkout remains on local `main` at `aceb4f4`, six commits behind, with unrelated preserved user work. Do not reset, stash, stage, or bundle that primary-checkout work with this slice.
@@ -426,7 +426,7 @@ Current product checklist:
 Next recommended slice:
 
 ```text
-Review the isolated `codex/resume-saved-board` return-to-board slice. If approved, commit it, push the branch, open a pull request, and require the Linux Chromium gate before merge. Verify that an entered open contest shows `Entered`, uses the green `Edit your board` action, and returns directly to Build Your Board, while an unentered open contest still shows `Enter free beta contest`. Keep this slice separate from the dirty main checkout. Do not change entry creation, single-entry enforcement, lock rules, scoring, eligibility, payments, providers, admin behavior, or production data. After delivery, return to the fresh-address end-to-end email test as a separate auth lane.
+Wait for pull request `#26` checks. Require the Linux Chromium gate to pass before considering merge or deployment. If all checks pass, report the final status and ask Parker for explicit merge and deployment approval. Do not merge or deploy automatically. Keep the dirty main checkout untouched. After this slice is delivered, return to the fresh-address end-to-end email test as a separate auth lane.
 ```
 
 Definition of done:
@@ -458,7 +458,7 @@ Continue PickRank using the repo as source of truth. Work only on future paid-mo
 Use this prompt for the immediate follow-up:
 
 ```text
-Continue PickRank using the repo as source of truth. Review and finish the isolated return-to-board slice in `/private/tmp/pickrank-resume-saved-board` on `codex/resume-saved-board`. Confirm the signed-in `/contests` card uses persisted entry ownership, shows `Entered` plus `Open`, and routes the green `Edit your board` action directly through the protected lineup check. Confirm users without an entry still see `Enter free beta contest`. Keep the dirty main checkout untouched. Run typecheck, tests, the production build, and the Linux Chromium gate before delivery. Do not change entry creation, lock rules, scoring, eligibility, payments, providers, admin behavior, or production data.
+Continue PickRank using the repo as source of truth. Inspect pull request `#26` for the signed-in return-to-board slice and wait for its Linux Chromium gate. If all checks pass, report the result and ask for explicit approval before merge or deployment. Do not change entry creation, lock rules, scoring, eligibility, payments, providers, admin behavior, or production data. Keep the dirty main checkout untouched.
 ```
 
 Use this default starter prompt pattern after that slice is complete:
