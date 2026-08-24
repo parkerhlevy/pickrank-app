@@ -84,6 +84,60 @@ export async function getPersistedContestEntry(
   return entry;
 }
 
+export async function listPersistedContestIdsForViewer(
+  viewerId: string | null,
+  contestIds: string[],
+  options?: PersistedContestEntryOptions,
+) {
+  if (!viewerId || contestIds.length === 0) {
+    return new Set<string>();
+  }
+
+  const requestedContestIds = new Set(contestIds);
+
+  if (shouldUseFileStore(options)) {
+    const store = await readPersistedContestEntryStoreFromFile(options?.dataFilePath);
+
+    return new Set(
+      store.entries
+        .filter((entry) => entry.userId === viewerId && requestedContestIds.has(entry.contestId))
+        .map((entry) => entry.contestId),
+    );
+  }
+
+  const supabase: SupabaseClient = await createSupabaseClient();
+  const { data: contestRows, error: contestError } = await supabase
+    .from('contests')
+    .select('id, slug')
+    .in('slug', contestIds);
+
+  if (contestError) {
+    throw new Error(`Unable to load contest entry states: ${contestError.message}`);
+  }
+
+  const contestSlugById = new Map((contestRows || []).map((contest) => [contest.id, contest.slug]));
+
+  if (contestSlugById.size === 0) {
+    return new Set<string>();
+  }
+
+  const { data: entryRows, error: entryError } = await supabase
+    .from('entries')
+    .select('contest_id')
+    .eq('user_id', viewerId)
+    .in('contest_id', [...contestSlugById.keys()]);
+
+  if (entryError) {
+    throw new Error(`Unable to load contest entry states: ${entryError.message}`);
+  }
+
+  return new Set(
+    (entryRows || [])
+      .map((entry) => contestSlugById.get(entry.contest_id))
+      .filter((contestId): contestId is string => typeof contestId === 'string'),
+  );
+}
+
 export async function ensurePersistedContestEntry({
   contestId,
   viewerId,

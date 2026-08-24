@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import {
   ensurePersistedContestEntry,
   getPersistedContestEntry,
+  listPersistedContestIdsForViewer,
   removePersistedContestEntry,
   savePersistedContestEntryLineup,
 } from '../../lib/persisted-contest-entry';
@@ -129,6 +130,54 @@ describe('persisted contest entry store', () => {
     const afterCounts = await readContestCounts(contestDataFilePath, 'week-1-qb-passing-yards');
     expect(afterCounts.entryCount).toBe(beforeCounts.entryCount + 1);
     expect(afterCounts.paidEntryCount).toBe(beforeCounts.paidEntryCount);
+  });
+
+  it('lists only the requested contests entered by the current viewer', async () => {
+    const dataFilePath = await createEntryStorePath();
+    await writeFile(
+      dataFilePath,
+      `${JSON.stringify(
+        {
+          version: 1,
+          entries: [
+            {
+              entryId: 'entry-current-viewer',
+              contestId: 'week-1-qb-passing-yards',
+              userId: demoViewerId,
+              lineupOrder: demoDefaultOrder,
+              lastSavedAt: null,
+              source: 'default_assigned',
+              createdAt: '2026-06-19T10:00:00.000Z',
+              updatedAt: '2026-06-19T10:00:00.000Z',
+            },
+            {
+              entryId: 'entry-other-viewer',
+              contestId: 'week-2-qb-passing-yards',
+              userId: '00000000-0000-4000-8000-000000000999',
+              lineupOrder: demoDefaultOrder,
+              lastSavedAt: null,
+              source: 'default_assigned',
+              createdAt: '2026-06-19T10:00:00.000Z',
+              updatedAt: '2026-06-19T10:00:00.000Z',
+            },
+          ],
+        },
+        null,
+        2,
+      )}\n`,
+      'utf8',
+    );
+
+    const enteredContestIds = await listPersistedContestIdsForViewer(
+      demoViewerId,
+      ['week-1-qb-passing-yards', 'week-2-qb-passing-yards'],
+      { dataFilePath },
+    );
+
+    expect([...enteredContestIds]).toEqual(['week-1-qb-passing-yards']);
+    await expect(
+      listPersistedContestIdsForViewer(null, ['week-1-qb-passing-yards'], { dataFilePath }),
+    ).resolves.toEqual(new Set());
   });
 
   it('updates the saved lineup order for the current entry', async () => {

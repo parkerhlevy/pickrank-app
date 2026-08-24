@@ -237,6 +237,13 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
       });
       const beforeCounts = await readContestCounts('week-1-qb-passing-yards');
 
+      await page.goto('/contests');
+      const unenteredContestCard = page.locator('.section-card').filter({
+        has: page.getByRole('heading', { name: 'Week 1 QB Passing Yards' }),
+      });
+      await expect(unenteredContestCard.getByText('Entered', { exact: true })).toHaveCount(0);
+      await expect(unenteredContestCard.getByRole('link', { name: 'Enter free beta contest' })).toBeVisible();
+
       await page.goto('/contests/week-1-qb-passing-yards');
       await expect(page.getByText('Entry Review', { exact: true })).toHaveCount(0);
       await expect(page.getByText('Entry Success', { exact: true })).toHaveCount(0);
@@ -277,7 +284,7 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
     });
   }
 
-  signedInTest('ready signed-in users can open the board builder from the protected route', async ({ page }) => {
+  signedInTest('entered users can return to their editable board from the contest lobby', async ({ page }) => {
     await seedEntryStore([
       {
         entryId: 'demo-entry-open',
@@ -297,7 +304,25 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
       },
     ]);
 
-    await page.goto('/contests/week-1-qb-passing-yards/lineup');
+    await page.goto('/contests');
+
+    const contestCard = page.locator('.section-card').filter({
+      has: page.getByRole('heading', { name: 'Week 1 QB Passing Yards' }),
+    });
+    const editBoardLink = contestCard.getByRole('link', { name: 'Edit your board' });
+
+    await expect(contestCard.getByText('Entered', { exact: true })).toBeVisible();
+    await expect(contestCard.getByText('Open', { exact: true })).toBeVisible();
+    await expect(contestCard.getByRole('link', { name: 'Enter free beta contest' })).toHaveCount(0);
+    await expect(editBoardLink).toHaveAttribute(
+      'href',
+      '/contests/week-1-qb-passing-yards/progress?stage=lineup',
+    );
+    await expect(editBoardLink).toHaveClass(/bg-emerald-600/);
+
+    await editBoardLink.click();
+
+    await expect(page).toHaveURL('http://127.0.0.1:3000/contests/week-1-qb-passing-yards/lineup');
 
     await expect(page.locator('h1').filter({ hasText: 'Build your board' })).toBeVisible();
     const rankedLineupCard = page.locator('.section-card').filter({ has: page.getByRole('heading', { name: 'Your board' }) });
