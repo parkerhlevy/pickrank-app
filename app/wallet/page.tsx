@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowRight, CreditCard, Info, ShieldCheck, WalletCards } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { HowItWorksButton } from '@/components/ui/how-it-works-button';
 import { Notice } from '@/components/ui/notice';
 import { launchMode } from '@/lib/launch-mode';
 
@@ -24,9 +25,7 @@ export default function WalletPage() {
               ? 'Beta Pass status for free beta contests. Paid balances, deposits, withdrawals, payouts, and wallet actions remain disabled until provider and compliance review is complete.'
               : 'Beta Pass gives you free entry access during Early Access Beta. It has no cash value, cannot be withdrawn, and does not create payouts or cash prizes.'}
           </p>
-          <Link href="/how-it-works" className="inline-link shrink-0">
-            How it works
-          </Link>
+          <HowItWorksButton className="self-start" />
         </div>
       </section>
 
