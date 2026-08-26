@@ -86,6 +86,7 @@ Current branch and production reality as of 2026-08-25:
 - Slice 3 keeps the auth, Profile, verified-email, beta-acknowledgement, contest-open, confirmation-policy, and single-entry persistence checks before entry creation; auth and Profile completion now return free beta users to Contest Detail instead of Entry Review
 - `/contests/:contest_id/payment` and `/contests/:contest_id/success` remain intact as parked future paid-version surfaces; direct free beta visits return to Contest Detail before entry or Build Your Board after a persisted entry exists, while non-beta paid-review and success behavior remains preserved
 - the active free beta board now reads `Step 2 of 2` and no longer expects `Entry Review`, `Entry Success`, or `Continue to Build Your Board`; the free path still has no cash value, payouts, cash prizes, wallet movement, or paid-entry count movement
+- new free beta entries now persist an empty board with `0/10` ranked players; the board builder still loads legacy assigned-default boards and saved boards, and only a complete 10-player saved board enters final scoring; migration `db/migrations/0016_empty_free_entry_board.sql` updates the free-entry RPC to allow zero players at entry creation
 - Slice 3 verification passes `npm run typecheck`, `npm run lint`, `npm run test` (`37` files, `219` tests), `npm run build`, focused desktop/mobile `npx playwright test tests/e2e/lineup-builder.spec.ts --workers=1` (`9` passed), and `git diff --check`; Playwright required the expected outside-sandbox Chromium and dev-server run because sandboxed Chromium failed macOS Mach port setup and sandboxed Next.js dev mode exhausted file watchers
 - Slice 3 is merged into `main` through merge commit `262c1c8` from pull request `#22` and is deployed to Vercel Production; `main` and production now contain the same Slice 3 product behavior
 - Slice 4 is a presentation-only Build Your Board cleanup, published on `main` as `7d78aa4` and deployed to Vercel Production as `dpl_2kdok1mUa9XH46bqVCXRco3DShfm`: it uses `One entry per person`, removes the top assigned-order chip, the entry-step block, the redundant board-header ranked badge, and the editable-board helper subtext; it also uses clear sentence-case board, save, and player-pool labels without changing entry, selection, reorder, persistence, lock, scoring, provider, payment, eligibility, or admin behavior
@@ -429,7 +430,7 @@ Current product checklist:
 Next recommended slice:
 
 ```text
-Decide whether the untracked Taylor Loom audit artifacts belong in Git. Keep that decision separate from the legal, provider-planning, test-hardening, cleanup, and handoff/instruction lanes in the detached primary checkout. Do not start a new product slice there. Use a clean current-main worktree for later implementation or delivery.
+Apply `db/migrations/0016_empty_free_entry_board.sql` to the linked Supabase project after explicit approval, then run the Linux Chromium gate against the deployed empty-board behavior. Keep the untracked Taylor Loom audit artifacts separate from the legal, provider-planning, test-hardening, cleanup, and handoff/instruction lanes in the detached primary checkout.
 ```
 
 Definition of done:

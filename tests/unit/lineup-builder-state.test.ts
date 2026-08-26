@@ -61,6 +61,24 @@ describe('lineup builder state', () => {
     });
   });
 
+  it('builds an empty client board for a newly created entry', () => {
+    expect(
+      createLineupStateFromSavedOrder({
+        players: [...demoPlayers, 'Patrick Mahomes'],
+        savedOrder: [],
+        defaultSelectedOrder: demoDefaultOrder,
+        source: 'entry_created',
+        lastSavedAt: null,
+      }),
+    ).toEqual({
+      selectedOrder: [],
+      savedSelectedOrder: [],
+      availablePlayers: [...demoPlayers, 'Patrick Mahomes'],
+      source: 'entry_created',
+      lastSavedAt: null,
+    });
+  });
+
   it('adds and removes players from the ranked lineup', () => {
     expect(addLineupPlayer(['Josh Allen'], 'Joe Burrow')).toEqual(['Josh Allen', 'Joe Burrow']);
     expect(removeLineupPlayer(['Josh Allen', 'Joe Burrow'], 'Josh Allen')).toEqual(['Joe Burrow']);

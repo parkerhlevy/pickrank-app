@@ -7,7 +7,7 @@ import { updateContestEntryCounts } from '@/lib/contest-data';
 import { contestRankedPlayerCount } from '@/lib/contest-rules';
 import type { Database } from '@/lib/supabase/types';
 
-export type PersistedContestEntrySource = 'default_assigned' | 'user_saved';
+export type PersistedContestEntrySource = 'entry_created' | 'default_assigned' | 'user_saved';
 
 export type PersistedContestEntry = {
   entryId: string;
@@ -36,9 +36,9 @@ const persistedContestEntryRecordSchema = z.object({
   entryId: z.string().min(1),
   contestId: z.string().min(1),
   userId: z.string().min(1),
-  lineupOrder: z.array(z.string().min(1)).length(contestRankedPlayerCount),
+  lineupOrder: z.array(z.string().min(1)).max(contestRankedPlayerCount),
   lastSavedAt: z.string().datetime().nullable(),
-  source: z.enum(['default_assigned', 'user_saved']),
+  source: z.enum(['entry_created', 'default_assigned', 'user_saved']),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });
@@ -167,8 +167,6 @@ export async function ensurePersistedContestEntry({
     const entry = buildPersistedContestEntryRecord({
       contestId,
       viewerId,
-      players,
-      defaultSelectedOrder,
       now,
     });
 
@@ -435,23 +433,19 @@ export async function removePersistedContestEntry({
 function buildPersistedContestEntryRecord({
   contestId,
   viewerId,
-  players,
-  defaultSelectedOrder,
   now,
 }: {
   contestId: string;
   viewerId: string;
-  players: string[];
-  defaultSelectedOrder: string[];
   now: string;
 }) {
   return persistedContestEntryRecordSchema.parse({
     entryId: `entry-${randomUUID()}`,
     contestId,
     userId: viewerId,
-    lineupOrder: normalizeLineupOrder(defaultSelectedOrder, players, defaultSelectedOrder),
+    lineupOrder: [],
     lastSavedAt: null,
-    source: 'default_assigned',
+    source: 'entry_created',
     createdAt: now,
     updatedAt: now,
   });
@@ -720,7 +714,7 @@ function toPersistedContestEntry({
     contestId,
     lineupOrder: normalizedOrder,
     lastSavedAt,
-    source: lastSavedAt ? 'user_saved' : 'default_assigned',
+    source: orderedPlayers.length === 0 ? 'entry_created' : lastSavedAt ? 'user_saved' : 'default_assigned',
     createdAt: entryRow.created_at,
     updatedAt: entryRow.updated_at,
   } satisfies PersistedContestEntry;
@@ -737,6 +731,10 @@ function normalizeLineupOrder(value: unknown, players: string[], defaultSelected
 
   if (!Array.isArray(value)) {
     return [...fallbackSelectedOrder];
+  }
+
+  if (value.length === 0) {
+    return [];
   }
 
   const filteredPlayers = value.filter((item): item is string => typeof item === 'string' && players.includes(item));

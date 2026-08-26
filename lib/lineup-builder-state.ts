@@ -1,6 +1,6 @@
 import { contestRankedPlayerCount } from '@/lib/contest-rules';
 
-export type LineupSource = 'default_assigned' | 'user_saved';
+export type LineupSource = 'entry_created' | 'default_assigned' | 'user_saved';
 
 export type LineupState = {
   selectedOrder: string[];
@@ -108,6 +108,11 @@ function normalizeSelectedOrder(value: unknown, players: string[], fallbackOrder
 
   if (!Array.isArray(value)) {
     return fallbackSelectedOrder;
+  }
+
+  // New contest entries intentionally start with an empty board.
+  if (value.length === 0) {
+    return [];
   }
 
   const filteredPlayers = value.filter((item): item is string => typeof item === 'string' && players.includes(item));
