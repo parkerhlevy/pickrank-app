@@ -109,7 +109,7 @@ async function seedEntryStore(entries: Array<{
   contestId: string;
   lineupOrder: string[];
   lastSavedAt: string | null;
-  source: 'default_assigned' | 'user_saved';
+  source: 'entry_created' | 'default_assigned' | 'user_saved';
   createdAt: string;
   updatedAt: string;
 }>) {
@@ -222,7 +222,7 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
     { viewportName: 'desktop', viewport: { width: 1280, height: 900 } },
     { viewportName: 'mobile', viewport: { width: 390, height: 844 } },
   ]) {
-    signedInTest(`free beta entry creates one default board and routes directly to Build Your Board on ${viewportName}`, async ({ page }) => {
+    signedInTest(`free beta entry creates an empty board and routes directly to Build Your Board on ${viewportName}`, async ({ page }) => {
       await page.setViewportSize(viewport);
       await allowControlledTestEntry(page);
       await updateContestFixture('week-1-qb-passing-yards', {
@@ -257,7 +257,10 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
       await expect(howItWorksLink).toHaveClass(/border-slate-200/);
       await expect(page.getByText('Step 2 of 2')).toHaveCount(0);
       await expect(page.getByText('Step 2: Build your board')).toHaveCount(0);
-      await expect(page.locator('[data-lineup-player]')).toHaveCount(10);
+      await expect(page.locator('[data-lineup-player]')).toHaveCount(0);
+      await expect(page.getByText('0/10 ranked', { exact: true })).toHaveCount(2);
+      await expect(page.getByText('10 more quarterbacks needed before you can save.')).toBeVisible();
+      await expect(page.getByText('Available quarterbacks')).toBeVisible();
 
       const savedStore = JSON.parse(await readFile(entryStorePath, 'utf8')) as {
         entries: Array<{
@@ -273,13 +276,14 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
       const afterCounts = await readContestCounts('week-1-qb-passing-yards');
 
       expect(savedEntries).toHaveLength(1);
-      expect(savedEntries[0]?.lineupOrder).toEqual(demoSavedLineup);
-      expect(savedEntries[0]?.source).toBe('default_assigned');
+      expect(savedEntries[0]?.lineupOrder).toEqual([]);
+      expect(savedEntries[0]?.source).toBe('entry_created');
       expect(afterCounts.entryCount).toBe(beforeCounts.entryCount + 1);
       expect(afterCounts.paidEntryCount).toBe(0);
 
       await page.goto('/contests/week-1-qb-passing-yards/success');
       await expectPagePath(page, '/contests/week-1-qb-passing-yards/lineup');
+      await expect(page.locator('[data-lineup-player]')).toHaveCount(0);
       const reusedCounts = await readContestCounts('week-1-qb-passing-yards');
 
       expect(reusedCounts.entryCount).toBe(afterCounts.entryCount);

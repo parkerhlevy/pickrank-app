@@ -71,7 +71,7 @@ async function readContestCounts(contestDataFilePath: string, contestId: string)
 }
 
 describe('persisted contest entry store', () => {
-  it('creates a new entry with a saved default lineup order', async () => {
+  it('creates a new entry with an empty lineup order', async () => {
     const dataFilePath = await createEntryStorePath();
     const contestDataFilePath = await createContestStorePath();
     const beforeCounts = await readContestCounts(contestDataFilePath, 'week-1-qb-passing-yards');
@@ -86,8 +86,8 @@ describe('persisted contest entry store', () => {
 
     expect(result.created).toBe(true);
     expect(result.entry.contestId).toBe('week-1-qb-passing-yards');
-    expect(result.entry.lineupOrder).toEqual(demoDefaultOrder);
-    expect(result.entry.source).toBe('default_assigned');
+    expect(result.entry.lineupOrder).toEqual([]);
+    expect(result.entry.source).toBe('entry_created');
 
     const savedStore = JSON.parse(await readFile(dataFilePath, 'utf8')) as {
       version: number;
@@ -125,7 +125,8 @@ describe('persisted contest entry store', () => {
 
     expect(reused.created).toBe(false);
     expect(reused.entry.entryId).toBe(created.entry.entryId);
-    expect(reused.entry.lineupOrder).toEqual(demoDefaultOrder);
+    expect(reused.entry.lineupOrder).toEqual([]);
+    expect(reused.entry.source).toBe('entry_created');
 
     const afterCounts = await readContestCounts(contestDataFilePath, 'week-1-qb-passing-yards');
     expect(afterCounts.entryCount).toBe(beforeCounts.entryCount + 1);

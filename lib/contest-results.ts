@@ -150,7 +150,7 @@ export async function finalizeContestResults({
     includeHidden: true,
     dataFilePath: options?.contestDataFilePath,
   });
-  const entries = await listPersistedContestEntriesForContest({
+  const persistedEntries = await listPersistedContestEntriesForContest({
     contestId,
     players: contest.slatePlayers.map((player) => player.displayName),
     defaultSelectedOrder: contest.lineupPlayers,
@@ -159,6 +159,9 @@ export async function finalizeContestResults({
       contestDataFilePath: options?.contestDataFilePath,
     },
   });
+  // Entering a free beta contest does not submit a board. Exclude entries that
+  // still have fewer than 10 saved players from final scoring.
+  const entries = persistedEntries.filter((entry) => entry.lineupOrder.length === contestRankedPlayerCount);
 
   const playerResults = buildContestPlayerResults({
     slatePlayers: contest.slatePlayers,

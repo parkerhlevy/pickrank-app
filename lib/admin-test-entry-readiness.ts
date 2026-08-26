@@ -196,7 +196,12 @@ function buildEntrantReadiness(
     updatedAt: entry.updatedAt,
     lineupStatus,
     lineupStatusLabel: formatLineupStatus(lineupStatus),
-    lineupSourceLabel: entry.source === 'user_saved' ? 'User saved' : 'Assigned default',
+    lineupSourceLabel:
+      entry.source === 'user_saved'
+        ? 'User saved'
+        : entry.source === 'entry_created'
+          ? 'Entry created'
+          : 'Assigned default',
     lastSavedAt: entry.lastSavedAt,
     savedPlayerCount: entry.lineupPlayerCount,
     issues,
@@ -385,7 +390,7 @@ async function readDatabaseEntryRecordsByContestId(contests: ContestSummary[]) {
       contestId: contestSlug,
       userId: entryRow.user_id,
       entryStatus: entryRow.status,
-      source: lastSavedAt ? 'user_saved' : 'default_assigned',
+      source: lineupRows.length === 0 ? 'entry_created' : lastSavedAt ? 'user_saved' : 'default_assigned',
       lastSavedAt,
       createdAt: entryRow.created_at,
       updatedAt: entryRow.updated_at,
