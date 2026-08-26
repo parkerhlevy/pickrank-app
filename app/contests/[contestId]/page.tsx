@@ -3,6 +3,7 @@ import { AlertTriangle, ArrowLeft, Clock, Ticket, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { ContestBoardPreview } from '@/components/contests/contest-board-preview';
 import { Button } from '@/components/ui/button';
+import { HowItWorksButton } from '@/components/ui/how-it-works-button';
 import { Notice } from '@/components/ui/notice';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getContestDetailPrimaryAction } from '@/lib/contest-entry-flow';
@@ -78,9 +79,7 @@ export default async function ContestDetailPage({
             <h1 className="text-3xl font-black leading-tight">{contest.title}</h1>
             <p className="text-muted-foreground">{contest.task}</p>
           </div>
-          <Link href="/how-it-works" className="inline-link shrink-0">
-            How it works
-          </Link>
+          <HowItWorksButton />
         </div>
       </div>
 

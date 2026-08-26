@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { HowItWorksButton } from '@/components/ui/how-it-works-button';
 import { Notice } from '@/components/ui/notice';
 import { Presence } from '@/components/ui/presence';
 import {
@@ -440,7 +441,12 @@ export function LineupBuilderClient({
   return (
     <>
       <div ref={pageRootRef} className="space-y-4 pb-32 sm:space-y-6 sm:pb-36" data-lineup-client-ready="false">
-        <Button asChild variant="ghost" size="sm" className="-ml-3 justify-start">
+        <Button
+          asChild
+          variant="ghost"
+          size="sm"
+          className="justify-start border border-white/20 bg-white/10 text-white shadow-sm hover:bg-white/15 hover:text-white focus-visible:outline-white"
+        >
           <Link href={`/contests/${contest.id}`} transitionTypes={['nav-back']}>
             <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
             Contest details
@@ -456,9 +462,7 @@ export function LineupBuilderClient({
               </div>
               <h1 className="text-2xl font-black leading-tight sm:text-3xl">Build your board</h1>
             </div>
-            <Link href="/how-it-works" className="inline-link shrink-0">
-              How it works
-            </Link>
+            <HowItWorksButton />
           </div>
           <p className="text-muted-foreground">
             Choose your top 10 quarterbacks from the player pool, rank them, and save your board before the contest locks.

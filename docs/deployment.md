@@ -125,17 +125,20 @@ Configure this in Supabase:
 1. Choose a transactional email provider such as Resend, Postmark, SendGrid, or SES.
 2. Open `Authentication -> Emails -> SMTP Settings`.
 3. Turn on custom SMTP.
-4. Enter your SMTP host, port, user, password, sender email, and sender name.
+4. Enter your SMTP host, port, user, password, sender email, and sender name. Production currently sends from `PickRank <hello@pickrankgames.com>` on the verified root domain.
 5. Save the settings.
 6. Open `Authentication -> Rate Limits` and raise the email send limit to match your expected usage.
 
-Because PickRank uses Supabase's server-side rendering client with the Proof Key for Code Exchange (PKCE) flow, set the Supabase **Magic Link** email template to send the token hash to PickRank's confirmation route. This avoids losing the PKCE verifier when a mobile email app opens the link in a separate browser context:
+Because PickRank uses Supabase's server-side rendering client with the Proof Key for Code Exchange (PKCE) flow, both auth templates must send the token hash to PickRank's confirmation route. This avoids losing the PKCE verifier when a mobile email app opens the link in a separate browser context.
 
-```html
-<h2>Sign in to your PickRank account</h2>
-<p>Use this link to sign in:</p>
-<p><a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email">Sign in to PickRank</a></p>
-```
+Supabase uses **Confirm sign up** for a new email address. It uses **Magic link or OTP** for an existing confirmed account. Configure both templates with `/auth/confirm?token_hash={{ .TokenHash }}&type=email` and do not use `{{ .ConfirmationURL }}`.
+
+Use these exact branded templates:
+
+- [Confirm sign up](marketing/pickrank-auth-confirm-sign-up-supabase-template.html)
+- [Magic link or OTP](marketing/pickrank-auth-magic-link-supabase-template.html)
+
+These are transactional account emails. They intentionally do not include the marketing unsubscribe link from the waitlist welcome email.
 
 The app keeps `/auth/callback` for OAuth and legacy code-based callbacks. `/auth/confirm` verifies the token hash on the server and then resumes the saved return path.
 

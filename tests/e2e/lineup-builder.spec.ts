@@ -247,6 +247,14 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
 
       await expectPagePath(page, '/contests/week-1-qb-passing-yards/lineup');
       await expect(page.locator('h1').filter({ hasText: 'Build your board' })).toBeVisible();
+      const contestDetailsLink = page.getByRole('link', { name: 'Contest details' });
+      const howItWorksLink = page.getByRole('link', { name: 'How it works' });
+
+      await expect(contestDetailsLink).toHaveClass(/border-white\/20/);
+      await expect(contestDetailsLink).toHaveClass(/bg-white\/10/);
+      await expect(contestDetailsLink).toHaveClass(/text-white/);
+      await expect(howItWorksLink).toHaveClass(/h-9/);
+      await expect(howItWorksLink).toHaveClass(/border-slate-200/);
       await expect(page.getByText('Step 2 of 2')).toHaveCount(0);
       await expect(page.getByText('Step 2: Build your board')).toHaveCount(0);
       await expect(page.locator('[data-lineup-player]')).toHaveCount(10);

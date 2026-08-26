@@ -3,6 +3,7 @@ import { ArrowRight, BarChart3, CheckCircle2, Clock, Users } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { HowItWorksButton } from '@/components/ui/how-it-works-button';
 import { listPublicContests, type ContestSummary } from '@/lib/contest-data';
 import { getContestEntryProgressHref } from '@/lib/contest-entry-flow';
 import { listPersistedContestIdsForViewer } from '@/lib/persisted-contest-entry';
@@ -23,12 +24,7 @@ export default async function ContestsPage() {
             <p className="eyebrow">Contests</p>
             <h1 className="text-3xl font-black leading-tight">Open contests</h1>
           </div>
-          <Button asChild variant="secondary" size="sm" className="shrink-0 gap-2">
-            <Link href="/how-it-works">
-              How it works
-              <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
-          </Button>
+          <HowItWorksButton />
         </div>
         <p className="text-muted-foreground">
           Find and enter a contest, evaluate the 20-player pool, and build the most accurate board possible to beat the

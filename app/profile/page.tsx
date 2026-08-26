@@ -15,6 +15,7 @@ import { launchMode } from '@/lib/launch-mode';
 import { getViewerIdentity } from '@/lib/viewer-identity';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { HowItWorksButton } from '@/components/ui/how-it-works-button';
 import { Notice } from '@/components/ui/notice';
 import { completeEligibilityProfile, completeProfile } from './actions';
 
@@ -58,12 +59,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
               {user ? 'Account settings' : 'Create your PickRank account'}
             </h1>
           </div>
-          <Button asChild variant="secondary" size="sm" className="shrink-0 gap-2">
-            <Link href="/how-it-works">
-              How it works
-              <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
-          </Button>
+          <HowItWorksButton />
         </div>
         {!user ? (
           <p className="text-muted-foreground">
