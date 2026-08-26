@@ -611,14 +611,18 @@ test('reruns finalization after a stat correction and replaces saved rows withou
   const operatorContext = await createSignedInContext(browser, operatorCookieValue);
   const operatorPage = await operatorContext.newPage();
 
-  await operatorPage.goto('/admin/contests');
+  await operatorPage.goto('/admin/contests', { waitUntil: 'networkidle' });
   await expect(operatorPage.getByRole('heading', { name: 'Contest Setup' })).toBeVisible();
   const targetFinalizationForm = operatorPage.locator('form').filter({
     has: operatorPage.locator(`#finalStatRows-${targetContestId}`),
   });
   await expect(targetFinalizationForm.locator(`#finalStatRows-${targetContestId}`)).toHaveValue(finalStatRows);
-  await targetFinalizationForm.locator(`#finalStatRows-${targetContestId}`).fill(finalStatRows);
   await targetFinalizationForm.locator(`#confirmationText-${targetContestId}`).fill('FINAL');
+  await expect(targetFinalizationForm.locator(`#finalStatRows-${targetContestId}`)).toHaveValue(finalStatRows);
+  const submittedFinalStatRows = await targetFinalizationForm.evaluate((form) =>
+    new FormData(form as HTMLFormElement).get('finalStatRows'),
+  );
+  expect(submittedFinalStatRows).toBe(finalStatRows);
   await targetFinalizationForm.getByRole('button', { name: 'Run Final Scoring' }).click();
   await expect(operatorPage).toHaveURL(/status=finalized/, { timeout: serverActionTimeout });
 
@@ -626,11 +630,22 @@ test('reruns finalization after a stat correction and replaces saved rows withou
   const firstEntrantRow = firstSavedResults.entryResults.find((entry) => entry.userId === entrantUserId);
   expect(firstEntrantRow).toBeTruthy();
 
-  await operatorPage.goto('/admin/contests');
-  await expect(targetFinalizationForm.locator(`#finalStatRows-${targetContestId}`)).toHaveValue(finalStatRows);
-  await targetFinalizationForm.locator(`#finalStatRows-${targetContestId}`).fill(correctedFinalStatRows);
-  await targetFinalizationForm.locator(`#confirmationText-${targetContestId}`).fill('FINAL');
-  await targetFinalizationForm.getByRole('button', { name: 'Run Final Scoring' }).click();
+  await operatorPage.goto('/admin/contests', { waitUntil: 'networkidle' });
+  await expect(operatorPage.getByRole('heading', { name: 'Contest Setup' })).toBeVisible();
+  const correctedFinalizationForm = operatorPage.locator('form').filter({
+    has: operatorPage.locator(`#finalStatRows-${targetContestId}`),
+  });
+  const correctedFinalStatRowsField = correctedFinalizationForm.locator(`#finalStatRows-${targetContestId}`);
+  await expect(correctedFinalStatRowsField).toHaveValue(finalStatRows);
+  await correctedFinalStatRowsField.fill(correctedFinalStatRows);
+  await expect(correctedFinalStatRowsField).toHaveValue(correctedFinalStatRows);
+  await correctedFinalizationForm.locator(`#confirmationText-${targetContestId}`).fill('FINAL');
+  await expect(correctedFinalStatRowsField).toHaveValue(correctedFinalStatRows);
+  const submittedCorrectedFinalStatRows = await correctedFinalizationForm.evaluate((form) =>
+    new FormData(form as HTMLFormElement).get('finalStatRows'),
+  );
+  expect(submittedCorrectedFinalStatRows).toBe(correctedFinalStatRows);
+  await correctedFinalizationForm.getByRole('button', { name: 'Run Final Scoring' }).click();
 
   await expect(operatorPage).toHaveURL(/status=finalized/, { timeout: serverActionTimeout });
   await expect(
