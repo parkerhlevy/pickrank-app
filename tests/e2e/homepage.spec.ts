@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { expectPagePath } from './support/navigation';
 
 const isPaidPreview = process.env.PICKRANK_EXPERIENCE_MODE === 'paid_preview';
 
@@ -68,7 +69,8 @@ test('public conversion routes explain the contest mechanics before entry', asyn
 
   await page.goto('/contests/week-1-qb-passing-yards');
 
-  await expect(page.getByText('Open', { exact: true }).first()).toHaveClass(/bg-emerald-100/);
+  await expect(page.getByTestId('contest-lifecycle-status')).toHaveText('Open');
+  await expect(page.getByTestId('contest-lifecycle-status')).toHaveClass(/bg-emerald-100/);
   await expectHowItWorksButton(page);
   await expect(page.getByRole('heading', { name: 'Contest details - Free to play during beta' })).toBeVisible();
   await expect(page.getByText('Early access beta contests have no cash prizes, no payouts, no minimum participants, and no cost to enter.')).toBeVisible();
@@ -252,7 +254,7 @@ test('waitlist form requires consent without routing visitors to auth', async ({
   await emailInput.fill('fan@example.com');
   await page.getByRole('button', { name: 'Join the waitlist' }).first().click();
 
-  await expect(page).toHaveURL('/');
+  await expectPagePath(page, '/');
   await expect(page.getByText('You’re on the list.')).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'Account settings' })).toHaveCount(0);
   await expect(consentCheckbox).not.toBeChecked();

@@ -7,8 +7,8 @@ import {
   encodeE2eAuthCookie,
 } from '@/lib/viewer-identity';
 import { test as signedInTest } from './fixtures/protected-entry-auth';
+import { e2eAppUrl, expectPagePath } from './support/navigation';
 
-const appUrl = 'http://127.0.0.1:3000';
 const entryStorePath = path.join(process.cwd(), 'data', 'contest-entries.json');
 const contestStorePath = path.join(process.cwd(), 'data', 'contests.json');
 const demoSavedLineup = [
@@ -23,8 +23,6 @@ const demoSavedLineup = [
   'Dak Prescott',
   'Brock Purdy',
 ];
-
-test.describe.configure({ mode: 'serial' });
 
 const internalTestEligibilityCookie = encodeE2eAuthCookie({
   email: 'playwright@pickrank.test',
@@ -59,7 +57,7 @@ async function allowControlledTestEntry(page: Page) {
     {
       name: e2eAuthCookieName,
       value: internalTestEligibilityCookie,
-      url: appUrl,
+      url: e2eAppUrl,
     },
   ]);
 }
@@ -136,8 +134,9 @@ async function seedEntryStore(entries: Array<{
 test('signed-out users keep the lineup auth gate while parked free beta entry routes return to Contest Detail', async ({ page }) => {
   await page.goto('/contests/week-1-qb-passing-yards/lineup');
 
-  await expect(page).toHaveURL(
-    `http://127.0.0.1:3000/auth?next=${encodeURIComponent('/contests/week-1-qb-passing-yards/lineup')}`,
+  await expectPagePath(
+    page,
+    `/auth?next=${encodeURIComponent('/contests/week-1-qb-passing-yards/lineup')}`,
   );
   await expect(page.getByRole('heading', { name: 'Account settings' })).toBeVisible();
   await expect(page.getByText('Before you enter')).toBeVisible();
@@ -147,7 +146,7 @@ test('signed-out users keep the lineup auth gate while parked free beta entry ro
     '/contests/week-1-qb-passing-yards/success',
   ]) {
     await page.goto(route);
-    await expect(page).toHaveURL('http://127.0.0.1:3000/contests/week-1-qb-passing-yards');
+    await expectPagePath(page, '/contests/week-1-qb-passing-yards');
     await expect(page.getByRole('link', { name: 'Sign up / log in to enter' })).toBeVisible();
   }
 });
@@ -169,12 +168,12 @@ test('signed-in users with pending paid eligibility can start free beta entry wi
         privacyPolicyAcceptedAt: '2026-07-24T00:00:00.000Z',
         eligibilityStatus: 'pending_review',
       }),
-      url: appUrl,
+      url: e2eAppUrl,
     },
     {
       name: 'pickrank_demo_entry_state',
       value: JSON.stringify({ 'week-1-qb-passing-yards': 'payment-review' }),
-      url: appUrl,
+      url: e2eAppUrl,
     },
   ]);
 
@@ -184,14 +183,12 @@ test('signed-in users with pending paid eligibility can start free beta entry wi
   await expect(page.getByRole('link', { name: 'Enter Contest - $5' })).toHaveCount(0);
 
   await page.goto('/contests/week-1-qb-passing-yards/payment');
-  await expect(page).toHaveURL('http://127.0.0.1:3000/contests/week-1-qb-passing-yards');
+  await expectPagePath(page, '/contests/week-1-qb-passing-yards');
   await expect(page.getByRole('button', { name: 'Enter free beta contest' })).toBeEnabled();
   await expect(page.getByText('Entry Review', { exact: true })).toHaveCount(0);
 });
 
 signedInTest.describe('protected entry flow with signed-in auth fixture', () => {
-  signedInTest.describe.configure({ mode: 'serial' });
-
   let originalContestStore = '';
   let originalEntryStore = '';
 
@@ -213,11 +210,11 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
     await allowControlledTestEntry(page);
 
     await page.goto('/contests/week-1-qb-passing-yards/payment');
-    await expect(page).toHaveURL('http://127.0.0.1:3000/contests/week-1-qb-passing-yards');
+    await expectPagePath(page, '/contests/week-1-qb-passing-yards');
     await expect(page.getByText('Entry Review', { exact: true })).toHaveCount(0);
 
     await page.goto('/contests/week-1-qb-passing-yards/success');
-    await expect(page).toHaveURL('http://127.0.0.1:3000/contests/week-1-qb-passing-yards');
+    await expectPagePath(page, '/contests/week-1-qb-passing-yards');
     await expect(page.getByText('Entry Success', { exact: true })).toHaveCount(0);
   });
 
@@ -238,10 +235,8 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
       const beforeCounts = await readContestCounts('week-1-qb-passing-yards');
 
       await page.goto('/contests');
-      const unenteredContestCard = page.locator('.section-card').filter({
-        has: page.getByRole('heading', { name: 'Week 1 QB Passing Yards' }),
-      });
-      await expect(unenteredContestCard.getByText('Entered', { exact: true })).toHaveCount(0);
+      const unenteredContestCard = page.getByTestId('contest-card-week-1-qb-passing-yards');
+      await expect(unenteredContestCard.getByTestId('contest-entry-status')).toHaveCount(0);
       await expect(unenteredContestCard.getByRole('link', { name: 'Enter free beta contest' })).toBeVisible();
 
       await page.goto('/contests/week-1-qb-passing-yards');
@@ -250,7 +245,7 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
       await expect(page.getByRole('link', { name: 'Continue to build your board' })).toHaveCount(0);
       await page.getByRole('button', { name: 'Enter free beta contest' }).click();
 
-      await expect(page).toHaveURL('http://127.0.0.1:3000/contests/week-1-qb-passing-yards/lineup');
+      await expectPagePath(page, '/contests/week-1-qb-passing-yards/lineup');
       await expect(page.locator('h1').filter({ hasText: 'Build your board' })).toBeVisible();
       const contestDetailsLink = page.getByRole('link', { name: 'Contest details' });
       const howItWorksLink = page.getByRole('link', { name: 'How it works' });
@@ -284,7 +279,7 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
       expect(afterCounts.paidEntryCount).toBe(0);
 
       await page.goto('/contests/week-1-qb-passing-yards/success');
-      await expect(page).toHaveURL('http://127.0.0.1:3000/contests/week-1-qb-passing-yards/lineup');
+      await expectPagePath(page, '/contests/week-1-qb-passing-yards/lineup');
       const reusedCounts = await readContestCounts('week-1-qb-passing-yards');
 
       expect(reusedCounts.entryCount).toBe(afterCounts.entryCount);
@@ -308,19 +303,17 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
       {
         name: 'pickrank_demo_entry_state',
         value: JSON.stringify({ 'week-1-qb-passing-yards': 'lineup' }),
-        url: appUrl,
+        url: e2eAppUrl,
       },
     ]);
 
     await page.goto('/contests');
 
-    const contestCard = page.locator('.section-card').filter({
-      has: page.getByRole('heading', { name: 'Week 1 QB Passing Yards' }),
-    });
+    const contestCard = page.getByTestId('contest-card-week-1-qb-passing-yards');
     const editBoardLink = contestCard.getByRole('link', { name: 'Edit your board' });
 
-    await expect(contestCard.getByText('Entered', { exact: true })).toBeVisible();
-    await expect(contestCard.locator('.status-pill').getByText('Open', { exact: true })).toBeVisible();
+    await expect(contestCard.getByTestId('contest-entry-status')).toHaveText('Entered');
+    await expect(contestCard.getByTestId('contest-lifecycle-status')).toHaveText('Open');
     await expect(contestCard.getByRole('link', { name: 'Enter free beta contest' })).toHaveCount(0);
     await expect(editBoardLink).toHaveAttribute(
       'href',
@@ -330,7 +323,7 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
 
     await editBoardLink.click();
 
-    await expect(page).toHaveURL(/\/contests\/week-1-qb-passing-yards\/lineup$/);
+    await expectPagePath(page, '/contests/week-1-qb-passing-yards/lineup');
 
     await expect(page.locator('h1').filter({ hasText: 'Build your board' })).toBeVisible();
     const rankedLineupCard = page.locator('.section-card').filter({ has: page.getByRole('heading', { name: 'Your board' }) });
@@ -362,7 +355,7 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
       {
         name: 'pickrank_demo_entry_state',
         value: JSON.stringify({ 'week-1-qb-passing-yards': 'lineup' }),
-        url: appUrl,
+        url: e2eAppUrl,
       },
     ]);
 
@@ -405,7 +398,7 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
       {
         name: 'pickrank_demo_entry_state',
         value: JSON.stringify({ 'week-1-qb-passing-yards': 'lineup' }),
-        url: appUrl,
+        url: e2eAppUrl,
       },
     ]);
 
@@ -440,17 +433,17 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
       {
         name: e2eAuthCookieName,
         value: secondInternalTestEligibilityCookie,
-        url: appUrl,
+        url: e2eAppUrl,
       },
       {
         name: 'pickrank_demo_entry_state',
         value: JSON.stringify({ 'week-1-qb-passing-yards': 'payment-review' }),
-        url: appUrl,
+        url: e2eAppUrl,
       },
     ]);
 
     await page.goto('/contests/week-1-qb-passing-yards/payment');
-    await expect(page).toHaveURL('http://127.0.0.1:3000/contests/week-1-qb-passing-yards');
+    await expectPagePath(page, '/contests/week-1-qb-passing-yards');
     await expect(page.getByRole('button', { name: 'Contest Locked' })).toBeDisabled();
     await expect(page.getByRole('button', { name: 'Confirm Entry' })).toHaveCount(0);
   });
@@ -471,7 +464,7 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
       {
         name: 'pickrank_demo_entry_state',
         value: JSON.stringify({ 'week-1-qb-passing-yards': 'lineup' }),
-        url: appUrl,
+        url: e2eAppUrl,
       },
     ]);
 

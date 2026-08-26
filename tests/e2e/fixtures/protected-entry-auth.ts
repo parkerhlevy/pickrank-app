@@ -4,6 +4,7 @@ import {
   e2eAuthCookieName,
   encodeE2eAuthCookie,
 } from '@/lib/viewer-identity';
+import { e2eAppUrl } from '../support/navigation';
 
 const readyAccountCookieValue = encodeE2eAuthCookie({
   email: 'playwright@pickrank.test',
@@ -25,16 +26,15 @@ export const test = base.extend({
       throw new Error('A baseURL is required for the protected entry auth fixture.');
     }
 
+    if (baseURL !== e2eAppUrl) {
+      throw new Error(`The protected entry auth fixture requires ${e2eAppUrl}. Received ${baseURL}.`);
+    }
+
     await context.addCookies([
       {
         name: e2eAuthCookieName,
         value: readyAccountCookieValue,
-        url: baseURL,
-      },
-      {
-        name: e2eAuthCookieName,
-        value: readyAccountCookieValue,
-        url: 'http://localhost:3000',
+        url: e2eAppUrl,
       },
     ]);
 
