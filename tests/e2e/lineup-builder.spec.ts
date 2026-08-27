@@ -420,7 +420,7 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
       await page.getByRole('button', { name: 'Move Josh Allen down one rank' }).click();
 
       await expect(page.getByText('Your board is saved', { exact: true })).toHaveCount(0);
-      await expect(page.getByText('Unsaved changes', { exact: true })).toBeVisible();
+      await expect(page.locator('.action-panel').getByText('Unsaved changes', { exact: true })).toBeVisible();
       await expect(page.getByRole('button', { name: 'Save board' })).toBeEnabled();
 
       await page.getByRole('button', { name: 'Save board' }).click();
@@ -469,7 +469,7 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
 
     await expect(page.getByText('Board not saved', { exact: true })).toBeVisible();
     await expect(page.getByText('Your board is saved', { exact: true })).toHaveCount(0);
-    await expect(page.getByText('Unsaved changes', { exact: true })).toBeVisible();
+    await expect(page.locator('.action-panel').getByText('Unsaved changes', { exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Save board' })).toBeEnabled();
   });
 
