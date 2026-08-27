@@ -1,11 +1,14 @@
 import { Button } from '@/components/ui/button';
+import type { AuthSurface } from '@/lib/auth-profile';
 
 export function EmailSignInForm({
   action,
   next,
+  surface,
 }: {
   action: (formData: FormData) => Promise<void>;
   next: string;
+  surface: AuthSurface;
 }) {
   return (
     <form className="space-y-3" action={action}>
@@ -20,6 +23,7 @@ export function EmailSignInForm({
         />
       </label>
       <input type="hidden" name="next" value={next} />
+      <input type="hidden" name="authSurface" value={surface} />
       <Button className="w-full" type="submit">
         Email me a sign-in link
       </Button>

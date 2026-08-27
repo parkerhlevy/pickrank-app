@@ -165,6 +165,8 @@ MVP Profile should include:
 - basic settings
 - logout
 
+When a logged-out user opens Profile, show the same Google and email account-access methods used on the dedicated Auth route. Use `Create your account or sign in` as the heading and explain that an account is required to play before showing the sign-in choices. Keep the signed-in Profile account-management surface unchanged.
+
 Wallet balances:
 
 ```text

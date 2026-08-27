@@ -139,8 +139,16 @@ test('public conversion routes explain the contest mechanics before entry', asyn
 test('logged-out profile keeps account access and entry guidance compact', async ({ page }) => {
   await page.goto('/profile');
 
-  await expect(page.getByRole('heading', { name: 'Create your PickRank account' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Account settings' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Create your account or sign in' })).toBeVisible();
+  await expect(
+    page.getByText('You need an account to play. After sign-in, finish your profile, then enter a free contest.'),
+  ).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Account access' })).toBeVisible();
+  await expect(page.getByText('Choose Google or email. New users create an account as part of sign-in.')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Continue with Google' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Email me a sign-in link' })).toBeVisible();
+  await expect(page.locator('input[name="authSurface"][value="profile"]')).toHaveCount(2);
+  await expect(page.getByRole('heading', { name: 'Account settings' })).toHaveCount(0);
   await expectHowItWorksButton(page);
   await expect(page.getByRole('link', { name: 'Contact account support' })).toHaveAttribute(
     'href',
@@ -181,7 +189,10 @@ test('mobile beta public cleanup pages stay readable without paid clutter', asyn
 
   await page.goto('/profile');
 
-  await expect(page.getByRole('heading', { name: 'Create your PickRank account' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Create your account or sign in' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Account access' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Continue with Google' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Email me a sign-in link' })).toBeVisible();
   await expect(page.getByText('Paid-entry status')).toHaveCount(0);
   await expect(page.getByText('KYC placeholder')).toHaveCount(0);
   await expect(page.getByText('Withdrawal verification')).toHaveCount(0);
@@ -264,9 +275,11 @@ test('waitlist form requires consent without routing visitors to auth', async ({
 test('auth remains available as a separate protected-flow route', async ({ page }) => {
   await page.goto('/auth?status=signed-out&next=%2Fprofile');
 
-  await expect(page.getByRole('heading', { name: 'Account settings' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Google sign-in' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Email sign-in' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Create your account or sign in' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Account access' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Continue with Google' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Email me a sign-in link' })).toBeVisible();
+  await expect(page.locator('input[name="authSurface"][value="auth"]')).toHaveCount(2);
   await expect(page.getByRole('heading', { name: 'How PickRank uses your information' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Beta Terms' })).toHaveAttribute('href', '/legal/terms');
   await expect(page.getByRole('link', { name: 'Privacy Policy' })).toHaveAttribute('href', '/legal/privacy');

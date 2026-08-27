@@ -2,6 +2,8 @@ import type { User } from '@supabase/supabase-js';
 import { getEntryReviewLabel } from '@/lib/launch-mode';
 
 export const defaultReturnPath = '/profile';
+export type AuthSurface = 'auth' | 'profile';
+export type AuthStatus = 'check-email' | 'error' | 'signed-out';
 export const verifyEmailToEnterContestsMessage = 'Verify your email to enter contests.';
 export const eligibilityToEnterContestsMessage =
   'Complete date of birth, state, Beta Terms, and Privacy acknowledgements before beta entry.';
@@ -140,6 +142,28 @@ export function buildAuthHref(next = defaultReturnPath) {
   const normalizedNext = normalizeReturnPath(next, defaultReturnPath);
 
   return `/auth?${new URLSearchParams({ next: normalizedNext }).toString()}`;
+}
+
+export function normalizeAuthSurface(value: unknown): AuthSurface {
+  return value === 'profile' ? 'profile' : 'auth';
+}
+
+export function buildAuthStatusHref(
+  surface: AuthSurface,
+  status: AuthStatus,
+  next = defaultReturnPath,
+  message?: string,
+) {
+  const params = new URLSearchParams({
+    status,
+    next: normalizeReturnPath(next, defaultReturnPath),
+  });
+
+  if (message) {
+    params.set('message', message);
+  }
+
+  return `/${surface}?${params.toString()}`;
 }
 
 export function buildProfileHref(next = defaultReturnPath, params?: Record<string, string>) {

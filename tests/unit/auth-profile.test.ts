@@ -1,12 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildAuthHref,
+  buildAuthStatusHref,
   buildProfileHref,
   classifyDateOfBirthForBeta,
   defaultReturnPath,
   getReturnStepCopy,
   getProfileIdentity,
   normalizeReturnPath,
+  normalizeAuthSurface,
   under18AgeGateRestrictionReason,
   validateEligibilityAcknowledgements,
   validateDateOfBirthForBeta,
@@ -29,6 +31,27 @@ describe('auth profile helpers', () => {
     );
     expect(buildProfileHref('/contests/week-1-qb-passing-yards/payment')).toBe(
       '/profile?next=%2Fcontests%2Fweek-1-qb-passing-yards%2Fpayment',
+    );
+  });
+
+  it('keeps auth status redirects on an approved account-access surface', () => {
+    expect(normalizeAuthSurface('profile')).toBe('profile');
+    expect(normalizeAuthSurface('unknown')).toBe('auth');
+    expect(
+      buildAuthStatusHref(
+        'profile',
+        'error',
+        '/contests/week-1-qb-passing-yards/lineup',
+        'Try again.',
+      ),
+    ).toBe(
+      '/profile?status=error&next=%2Fcontests%2Fweek-1-qb-passing-yards%2Flineup&message=Try+again.',
+    );
+    expect(buildAuthStatusHref('auth', 'check-email', 'https://example.com')).toBe(
+      '/auth?status=check-email&next=%2Fprofile',
+    );
+    expect(buildAuthStatusHref('profile', 'signed-out')).toBe(
+      '/profile?status=signed-out&next=%2Fprofile',
     );
   });
 
