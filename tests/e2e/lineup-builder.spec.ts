@@ -261,6 +261,7 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
       await expect(page.getByText('0/10 ranked', { exact: true })).toHaveCount(2);
       await expect(page.getByText('10 more quarterbacks needed before you can save.')).toBeVisible();
       await expect(page.getByText('Available quarterbacks')).toBeVisible();
+      await expect(page.getByText('Your board is saved', { exact: true })).toHaveCount(0);
 
       const savedStore = JSON.parse(await readFile(entryStorePath, 'utf8')) as {
         entries: Array<{
@@ -379,6 +380,99 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
     await expect(page.locator('[data-lineup-player]').nth(1)).toContainText('Joe Burrow');
   });
 
+  for (const { viewportName, viewport } of [
+    { viewportName: 'desktop', viewport: { width: 1280, height: 900 } },
+    { viewportName: 'mobile', viewport: { width: 390, height: 844 } },
+  ]) {
+    signedInTest(`saved boards keep completion visible through edits, saves, and reloads on ${viewportName}`, async ({ page }) => {
+      await page.setViewportSize(viewport);
+      await seedEntryStore([
+        {
+          entryId: `demo-entry-saved-${viewportName}`,
+          contestId: 'week-1-qb-passing-yards',
+          lineupOrder: demoSavedLineup,
+          lastSavedAt: '2026-06-22T00:05:00.000Z',
+          source: 'user_saved',
+          createdAt: '2026-06-22T00:00:00.000Z',
+          updatedAt: '2026-06-22T00:05:00.000Z',
+        },
+      ]);
+      await page.context().addCookies([
+        {
+          name: 'pickrank_demo_entry_state',
+          value: JSON.stringify({ 'week-1-qb-passing-yards': 'lineup' }),
+          url: e2eAppUrl,
+        },
+      ]);
+
+      await page.goto('/contests/week-1-qb-passing-yards/lineup');
+
+      const completionStatus = page.getByRole('status').filter({
+        has: page.getByText('Your board is saved', { exact: true }),
+      });
+
+      await expect(completionStatus).toHaveAttribute('aria-live', 'polite');
+      await expect(completionStatus).toContainText("You're entered. You can edit your rankings until");
+      await expect(completionStatus).toContainText('Complete');
+      await expect(page.getByText('Board saved', { exact: true })).toBeVisible();
+      await expect(page.getByRole('button', { name: 'Save board' })).toHaveCount(0);
+
+      await page.getByRole('button', { name: 'Move Josh Allen down one rank' }).click();
+
+      await expect(page.getByText('Your board is saved', { exact: true })).toHaveCount(0);
+      await expect(page.locator('.action-panel').getByText('Unsaved changes', { exact: true })).toBeVisible();
+      await expect(page.getByRole('button', { name: 'Save board' })).toBeEnabled();
+
+      await page.getByRole('button', { name: 'Save board' }).click();
+
+      await expect(completionStatus).toBeVisible();
+      await expect(page.getByRole('button', { name: 'Save board' })).toHaveCount(0);
+      await expect(page.getByRole('link', { name: 'Back to contests' })).toHaveCount(0);
+
+      await page.reload();
+
+      await expect(completionStatus).toBeVisible();
+      await expect(page.getByRole('button', { name: 'Save board' })).toHaveCount(0);
+    });
+  }
+
+  signedInTest('save failures keep the board unsaved and never show completion', async ({ page }) => {
+    await seedEntryStore([
+      {
+        entryId: 'demo-entry-save-error',
+        contestId: 'week-1-qb-passing-yards',
+        lineupOrder: demoSavedLineup,
+        lastSavedAt: '2026-06-22T00:05:00.000Z',
+        source: 'user_saved',
+        createdAt: '2026-06-22T00:00:00.000Z',
+        updatedAt: '2026-06-22T00:05:00.000Z',
+      },
+    ]);
+    await page.context().addCookies([
+      {
+        name: 'pickrank_demo_entry_state',
+        value: JSON.stringify({ 'week-1-qb-passing-yards': 'lineup' }),
+        url: e2eAppUrl,
+      },
+    ]);
+    await page.route('**/api/contests/week-1-qb-passing-yards/lineup', async (route) => {
+      await route.fulfill({
+        status: 500,
+        contentType: 'application/json',
+        body: JSON.stringify({ message: 'Unable to save your board right now.' }),
+      });
+    });
+
+    await page.goto('/contests/week-1-qb-passing-yards/lineup');
+    await page.getByRole('button', { name: 'Move Josh Allen down one rank' }).click();
+    await page.getByRole('button', { name: 'Save board' }).click();
+
+    await expect(page.getByText('Board not saved', { exact: true })).toBeVisible();
+    await expect(page.getByText('Your board is saved', { exact: true })).toHaveCount(0);
+    await expect(page.locator('.action-panel').getByText('Unsaved changes', { exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Save board' })).toBeEnabled();
+  });
+
   signedInTest('locked zero-fee contests block new entries and board mutation while preserving the saved board', async ({ page }) => {
     await updateContestFixture('week-1-qb-passing-yards', {
       entryFeeCents: 0,
@@ -411,6 +505,7 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
     await expect(page.getByText('Board Locked')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Locked - Read Only' })).toBeDisabled();
     await expect(page.getByRole('button', { name: 'Joe Burrow board position is locked' })).toBeDisabled();
+    await expect(page.getByText('Your board is saved', { exact: true })).toHaveCount(0);
 
     const saveAttempt = await page.evaluate(async (order) => {
       const response = await fetch('/api/contests/week-1-qb-passing-yards/lineup', {

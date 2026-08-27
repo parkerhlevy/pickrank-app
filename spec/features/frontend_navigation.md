@@ -370,7 +370,11 @@ Authenticated + entered + contest open.
 ### Save behavior
 
 - Save Lineup button persists current order
-- show `Lineup Saved` confirmation
+- when the contest remains editable, the board source is `user_saved`, and the current order matches the saved order, show a persistent `Your board is saved` confirmation with a `Complete` badge
+- the persistent confirmation appears after save and when the saved board is reopened or reloaded
+- while the board is current, replace the disabled Save button with a compact green saved state
+- adding, removing, or reordering a player removes the saved confirmation and restores the sticky `Unsaved changes` state with the active Save button
+- save failures never show completion
 - user can keep editing until lock
 
 ### Disabled states
@@ -388,7 +392,7 @@ Route user to Locked Lineup View.
 ## 8. Saved Lineup Confirmation
 
 ### Route / UI Pattern
-Can be same route as lineup builder with confirmation banner or separate state.
+Use the lineup-builder route with a persistent confirmation state.
 
 ### Purpose
 Confirm lineup is saved without implying permanent lock.
@@ -398,12 +402,15 @@ Confirm lineup is saved without implying permanent lock.
 - Lineup Saved confirmation
 - current saved lineup
 - countdown to lock
-- Edit Lineup button
+- compact saved state in the bottom action panel
+- no post-save exit action
 
 ### Copy
 
 ```text
-Lineup saved. You can edit your rankings until lock.
+Your board is saved
+You're entered. You can edit your rankings until {lock time}.
+Complete
 ```
 
 ---

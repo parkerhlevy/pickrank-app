@@ -74,7 +74,6 @@ export function LineupBuilderClient({
   const [lineupState, setLineupState] = useState<LineupState>(initialLineupState);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const [showSavedBanner, setShowSavedBanner] = useState(false);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [pendingHref, setPendingHref] = useState<string | null>(null);
   const [draggingPlayer, setDraggingPlayer] = useState<string | null>(null);
@@ -90,6 +89,7 @@ export function LineupBuilderClient({
   );
 
   const hasUnsavedChanges = hasUnsavedLineupChanges(lineupState.selectedOrder, lineupState.savedSelectedOrder);
+  const isBoardComplete = isEditable && lineupState.source === 'user_saved' && !hasUnsavedChanges;
   const needsMoreSelections = lineupState.selectedOrder.length < 10;
   const saveStateLabel = !isEditable
     ? 'Read only'
@@ -121,18 +121,6 @@ export function LineupBuilderClient({
   useEffect(() => {
     pageRootRef.current?.setAttribute('data-lineup-client-ready', 'true');
   }, []);
-
-  useEffect(() => {
-    if (!showSavedBanner) {
-      return;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setShowSavedBanner(false);
-    }, 2000);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [showSavedBanner]);
 
   useEffect(() => {
     const beforeUnloadHandler = (event: BeforeUnloadEvent) => {
@@ -329,7 +317,6 @@ export function LineupBuilderClient({
       };
 
       setLineupState(nextState);
-      setShowSavedBanner(true);
 
       if (pendingSaveAndLeaveHref.current) {
         const nextHref = pendingSaveAndLeaveHref.current;
@@ -487,15 +474,17 @@ export function LineupBuilderClient({
           </div>
         </div>
 
-        <Presence present={showSavedBanner} className="ui-presence-inline">
-          <Notice
-            variant="success"
-            icon={CheckCircle2}
-            title="Board saved"
-            description="Board saved. You can edit your rankings until lock."
-            badge="Saved"
-          />
-        </Presence>
+        {isBoardComplete ? (
+          <div role="status" aria-live="polite">
+            <Notice
+              variant="success"
+              icon={CheckCircle2}
+              title="Your board is saved"
+              description={`You're entered. You can edit your rankings until ${lockTimeLabel}.`}
+              badge="Complete"
+            />
+          </div>
+        ) : null}
 
         <Presence present={Boolean(saveError)} className="ui-presence-inline">
           <Notice
@@ -706,7 +695,7 @@ export function LineupBuilderClient({
               </div>
               <div className="min-w-0">
                 <p className="font-black">{saveStateLabel}</p>
-                <p className="text-xs text-muted-foreground">{showSavedBanner ? 'Board saved just now.' : saveStateDescription}</p>
+                <p className="text-xs text-muted-foreground">{saveStateDescription}</p>
               </div>
             </div>
             <div className="flex min-h-10 items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-muted-foreground">
@@ -714,22 +703,31 @@ export function LineupBuilderClient({
               <span className="numeric">Lock: {lockTimeLabel}</span>
             </div>
           </div>
-          <Button
-            className="w-full"
-            onClick={handleSaveLineup}
-            disabled={!isEditable || !hasUnsavedChanges || isSaving || needsMoreSelections}
-          >
-            {isEditable ? (isSaving ? 'Saving board...' : 'Save board') : `${contest.status} - Read only`}
-          </Button>
-          <p className="mt-2 text-center text-xs text-muted-foreground">
-            {!isEditable
-              ? 'This contest is no longer editable.'
-              : hasUnsavedChanges
-                ? needsMoreSelections
-                  ? 'Choose all 10 quarterbacks before saving your board.'
-                  : 'Save your current board before leaving this screen.'
-                : 'Add, change, or reorder players to save your board.'}
-          </p>
+          {isBoardComplete ? (
+            <div className="flex min-h-10 items-center justify-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-black text-emerald-800">
+              <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+              Board saved
+            </div>
+          ) : (
+            <>
+              <Button
+                className="w-full"
+                onClick={handleSaveLineup}
+                disabled={!isEditable || !hasUnsavedChanges || isSaving || needsMoreSelections}
+              >
+                {isEditable ? (isSaving ? 'Saving board...' : 'Save board') : `${contest.status} - Read only`}
+              </Button>
+              <p className="mt-2 text-center text-xs text-muted-foreground">
+                {!isEditable
+                  ? 'This contest is no longer editable.'
+                  : hasUnsavedChanges
+                    ? needsMoreSelections
+                      ? 'Choose all 10 quarterbacks before saving your board.'
+                      : 'Save your current board before leaving this screen.'
+                    : 'Add, change, or reorder players to save your board.'}
+              </p>
+            </>
+          )}
         </div>
       </div>
 
