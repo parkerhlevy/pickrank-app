@@ -3,22 +3,14 @@
 import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { authReturnCookieMaxAgeSeconds, authReturnCookieName } from '@/lib/auth-return';
-import { defaultReturnPath, normalizeReturnPath } from '@/lib/auth-profile';
+import {
+  buildAuthStatusHref,
+  defaultReturnPath,
+  normalizeAuthSurface,
+  normalizeReturnPath,
+} from '@/lib/auth-profile';
 import { getAppUrl, getRequestOrigin, hasBrowserSupabaseConfig } from '@/lib/env';
 import { createClient } from '@/lib/supabase/server';
-
-function buildAuthRedirect(status: 'check-email' | 'error' | 'signed-out', next: string, message?: string) {
-  const params = new URLSearchParams({
-    status,
-    next,
-  });
-
-  if (message) {
-    params.set('message', message);
-  }
-
-  return `/auth?${params.toString()}`;
-}
 
 function getFriendlyAuthError(message: string) {
   if (message.includes('provider is not enabled')) {
@@ -43,13 +35,14 @@ async function saveAuthReturnPath(next: string) {
 export async function requestMagicLink(formData: FormData) {
   const email = String(formData.get('email') || '').trim();
   const next = normalizeReturnPath(String(formData.get('next') || defaultReturnPath), defaultReturnPath);
+  const authSurface = normalizeAuthSurface(formData.get('authSurface'));
 
   if (!email) {
-    redirect(buildAuthRedirect('error', next, 'Enter an email address to continue.'));
+    redirect(buildAuthStatusHref(authSurface, 'error', next, 'Enter an email address to continue.'));
   }
 
   if (!hasBrowserSupabaseConfig()) {
-    redirect(buildAuthRedirect('error', next, 'Add the Supabase environment values before testing auth.'));
+    redirect(buildAuthStatusHref(authSurface, 'error', next, 'Add the Supabase environment values before testing auth.'));
   }
 
   const supabase = await createClient();
@@ -64,17 +57,18 @@ export async function requestMagicLink(formData: FormData) {
   });
 
   if (error) {
-    redirect(buildAuthRedirect('error', next, getFriendlyAuthError(error.message)));
+    redirect(buildAuthStatusHref(authSurface, 'error', next, getFriendlyAuthError(error.message)));
   }
 
-  redirect(buildAuthRedirect('check-email', next));
+  redirect(buildAuthStatusHref(authSurface, 'check-email', next));
 }
 
 export async function requestGoogleSignIn(formData: FormData) {
   const next = normalizeReturnPath(String(formData.get('next') || defaultReturnPath), defaultReturnPath);
+  const authSurface = normalizeAuthSurface(formData.get('authSurface'));
 
   if (!hasBrowserSupabaseConfig()) {
-    redirect(buildAuthRedirect('error', next, 'Add the Supabase environment values before testing auth.'));
+    redirect(buildAuthStatusHref(authSurface, 'error', next, 'Add the Supabase environment values before testing auth.'));
   }
 
   const supabase = await createClient();
@@ -89,7 +83,14 @@ export async function requestGoogleSignIn(formData: FormData) {
   });
 
   if (error || !data.url) {
-    redirect(buildAuthRedirect('error', next, getFriendlyAuthError(error?.message || 'Google sign-in did not start.')));
+    redirect(
+      buildAuthStatusHref(
+        authSurface,
+        'error',
+        next,
+        getFriendlyAuthError(error?.message || 'Google sign-in did not start.'),
+      ),
+    );
   }
 
   redirect(data.url);
@@ -102,5 +103,5 @@ export async function signOut() {
     await supabase.auth.signOut();
   }
 
-  redirect('/auth?status=signed-out&next=%2Fprofile');
+  redirect(buildAuthStatusHref('profile', 'signed-out', defaultReturnPath));
 }

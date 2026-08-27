@@ -3,17 +3,16 @@ import Link from 'next/link';
 import { signOut } from '@/app/auth/actions';
 import {
   betaMinimumAgeRequirementMessage,
-  buildAuthHref,
   defaultReturnPath,
   getReturnStepCopy,
   jurisdictionOptions,
   normalizeReturnPath,
 } from '@/lib/auth-profile';
-import { getMissingBrowserSupabaseKeys, hasBrowserSupabaseConfig } from '@/lib/env';
 import { legalSupportEmail } from '@/lib/legal';
 import { launchMode } from '@/lib/launch-mode';
 import { getViewerIdentity } from '@/lib/viewer-identity';
 import { Button } from '@/components/ui/button';
+import { AccountAccessCard } from '@/components/auth/account-access-card';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { HowItWorksButton } from '@/components/ui/how-it-works-button';
 import { Notice } from '@/components/ui/notice';
@@ -31,8 +30,6 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
   const resolvedSearchParams = (await searchParams) || {};
   const next = normalizeReturnPath(resolvedSearchParams.next, defaultReturnPath);
   const returnStep = getReturnStepCopy(next);
-  const authConfigured = hasBrowserSupabaseConfig();
-  const missingKeys = getMissingBrowserSupabaseKeys();
   const status = resolvedSearchParams.status;
   const message = resolvedSearchParams.message;
   const identity = await getViewerIdentity();
@@ -56,14 +53,14 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           <div>
             <p className="eyebrow">Profile</p>
             <h1 className="text-3xl font-black leading-tight">
-              {user ? 'Account settings' : 'Create your PickRank account'}
+              {user ? 'Account settings' : 'Create your account or sign in'}
             </h1>
           </div>
           <HowItWorksButton />
         </div>
         {!user ? (
           <p className="text-muted-foreground">
-            Browse contests without signing in. Create an account to enter free beta contests, save your board, and keep your place in the flow.
+            You need an account to play. After sign-in, finish your profile, then enter a free contest.
           </p>
         ) : null}
         <p className="text-sm text-muted-foreground">
@@ -190,19 +187,15 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         </Card>
       ) : null}
 
+      {!user ? <AccountAccessCard message={message} next={next} status={status} surface="profile" /> : null}
+
+      {user ? (
       <Card className="section-card overflow-hidden">
         <CardHeader className="section-card-header">
           <div className="flex items-center gap-2">
             <UserCircle className="h-5 w-5 text-blue-300" aria-hidden="true" />
-            <CardTitle>{user ? 'Profile information' : 'Account settings'}</CardTitle>
+            <CardTitle>Profile information</CardTitle>
           </div>
-          {!user ? (
-            <CardDescription className="text-slate-300">
-              {launchMode.paidPreviewVisible
-                ? 'Create an account or log in to move from contest browsing into entry, board, and wallet views.'
-                : 'Create an account or log in to move from contest browsing into entry and board views.'}
-            </CardDescription>
-          ) : null}
         </CardHeader>
         <CardContent className="space-y-3 pt-5">
           {status === 'profile-saved' ? (
@@ -222,25 +215,6 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
               description={message || 'Profile setup is not ready yet.'}
               badge="Action needed"
             />
-          ) : null}
-          {!authConfigured ? (
-            <div className="soft-panel space-y-3 text-sm text-muted-foreground">
-              <p className="font-medium text-foreground">Add Supabase environment values before testing sign-in here.</p>
-              <ul className="space-y-2">
-                {missingKeys.map((key) => (
-                  <li key={key} className="rounded-md bg-white px-3 py-2 font-mono text-xs text-foreground">
-                    {key}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
-          {authConfigured && !user ? (
-            <Button asChild className="w-full">
-              <Link href={buildAuthHref(next)}>
-                {next !== defaultReturnPath ? 'Create account or log in to continue' : 'Create account or log in'}
-              </Link>
-            </Button>
           ) : null}
           {user ? (
             <>
@@ -341,8 +315,14 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                   <input className="mt-1 h-4 w-4" type="checkbox" name="termsAccepted" />
                   <span>
                     I accept the{' '}
-                    <Link className="inline-link" href="/legal/terms">
+                    <Link
+                      className="inline-link"
+                      href="/legal/terms"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       PickRank Beta Terms
+                      <span className="sr-only"> (opens in a new tab)</span>
                     </Link>{' '}
                     before entering beta contests.
                   </span>
@@ -351,8 +331,14 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                   <input className="mt-1 h-4 w-4" type="checkbox" name="privacyPolicyAccepted" />
                   <span>
                     I accept the{' '}
-                    <Link className="inline-link" href="/legal/privacy">
+                    <Link
+                      className="inline-link"
+                      href="/legal/privacy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       PickRank Privacy Policy
+                      <span className="sr-only"> (opens in a new tab)</span>
                     </Link>{' '}
                     before entering beta contests.
                   </span>
@@ -385,6 +371,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           </div>
         ) : null}
       </Card>
+      ) : null}
 
       {user && !isAccountUnavailable && !identity.isProfileComplete ? (
           <Card id="profile-identity" className="section-card scroll-mt-6">

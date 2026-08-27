@@ -67,13 +67,16 @@ The repo is past bare Phase 0 and currently includes:
 
 Current branch and production reality as of 2026-08-26:
 
+- `codex/profile-auth-feedback-fixes` is a pushed review lane in `/private/tmp/pickrank-profile-auth-feedback-fixes`, based on `origin/main` at `5fbb770`. Slice 1 is commit `e2fab45`, and Slice 2 is commit `3222d30`. Signed-out Profile now embeds the shared Google and email Account access card, uses the approved heading and introduction, and removes the signed-out Account settings card. `/auth` reuses the same component while keeping protected-flow guidance and sanitized `next` behavior. Auth errors and email confirmation return to the originating Profile or Auth surface, and sign-out returns to signed-out Profile with the existing notice.
+- the same Profile/Auth lane opens only the Beta Terms and Privacy Policy links inside the unfinished eligibility form in new tabs with accessible new-tab text. The original Profile tab retains unfinished browser form state when the user returns. No draft is written to browser storage, cookies, or the database, so reloads, crashes, or discarded mobile tabs can still clear unfinished values.
+- Profile/Auth lane verification passes `npm run typecheck`, `npm run lint`, `npm test` (`36` files, `218` tests), focused auth unit coverage (`14` tests), Playwright contract validation, focused Playwright discovery (`23` tests), `npx next build --webpack`, and `git diff --check`. Local Chromium remains blocked before test execution by macOS Mach port registration, including after the approved outside-sandbox retry. Vercel reports the branch preview `READY` at `https://pickrank-app-git-codex-profile-aut-d0a3c1-parker-levys-projects.vercel.app`. The hosted Linux Chromium gate remains pending a pull request or `main` push. No Supabase settings, templates, cookies, database state, provider behavior, or production data changed.
 - the narrow signed-in return-to-board slice is merged into `main` through pull request `#26` at `51f1d8f`. The `/contests` page now reads persisted entry ownership for the current viewer. An entered open contest shows `Open` plus `Entered`, replaces `Enter free beta contest` with a green `Edit your board` action, and routes through the existing protected lineup check directly to the saved board. Users without an entry keep the existing entry action. Entry creation, single-entry enforcement, lineup persistence, lock behavior, scoring, eligibility, payment, provider, admin, and production data are unchanged.
 - verification for the return-to-board slice passes `npm run typecheck`, focused ESLint, `npm run test` (`35` files, `212` tests), `git diff --check`, and `next build --webpack`. The default Turbopack build and local Chromium remain blocked by the Codex macOS sandbox, but the required Linux Chromium gate passed on implementation head `3a041b8` in GitHub Actions run `32699840537`. Pull request `#26` also has successful Vercel preview deployment and preview-comment checks.
 - pull request `#27` is merged into `main` through merge commit `ed93c24`. It adds scoped status test IDs, shared `e2eAppUrl` and `expectPagePath()` helpers, an enforced `test:e2e:contracts` source check, explicit `127.0.0.1` Next.js binding, one-worker execution, retained failure traces/screenshots, generated-report lint exclusions, and a CI runner that continues through later suites before returning a combined failure. It also builds contest-progress redirects from `getRequestOrigin()` so Next.js loopback-host normalization cannot drop the host-scoped auth cookie. Product rules and production data are unchanged.
 - local verification for pull request `#27` passes the expanded contract scan (`13` TypeScript files), the contract unit tests (`4` tests), `npm run typecheck`, `npm run lint`, `npm test` (`36` files, `216` tests), Playwright discovery (`27` tests), `next build --webpack`, and `git diff --check`. After reconciliation with current `main`, pull-request Linux Chromium run `32927016293` passed in `4m 14s`; post-merge run `32927316932` passed in `4m 9s` on `ed93c24`.
 - Vercel Production deployment `dpl_DgKCk9Ac2A9qmweBXdE4XHiAQPzL` is `READY` for `ed93c24` and serves the `www.pickrankgames.com` and `pickrankgames.com` aliases. Read-only production checks returned `200` for Home, Open Contests, and Contest Detail with the expected PickRank content and How It Works action. The one-hour Vercel runtime error scan found no errors.
 - the optional Portless local-development pilot is documented in `docs/local-development-portless.md` with root `portless.json`; `next.config.ts` allows the named `pickrank.localhost` and worktree subdomains, and Parker verified `https://pickrank.localhost` loads successfully; direct `127.0.0.1:3000`, Playwright, CI, OAuth defaults, and production behavior remain unchanged. The pilot is adopted as a single local-development tooling commit and remains opt-in; it is not part of the next product slice
-- a fresh `git fetch --prune origin` reports `origin/main` at `7c07492`, which includes the empty-board entry work through pull request `#31`. The primary checkout remains detached at `aceb4f4` with unrelated preserved user work. Do not reset, stash, stage, or bundle that primary-checkout work with another slice.
+- a fresh read-only remote check reports `origin/main` at `5fbb770`. The primary checkout remains detached at `aceb4f4`, 28 commits behind that delivery baseline, with unrelated preserved user work. Do not reset, stash, stage, or bundle that primary-checkout work with another slice.
 - tracked `.env.example` is readable again and its working-tree object hash matches the committed `aceb4f4` version. It has no local diff and is not an active provider lane.
 - the 2026-08-20 `/contests` presentation follow-up is committed as `0877e57` and deployed to Vercel Production deployment `dpl_4eeTtzbvuJT9SXda1bKXPYoZgcHs`; it converts the How It Works link into a secondary Button with an ArrowRight icon and does not change contest, auth, entry, scoring, payment, wallet, eligibility, provider, admin, or production-data behavior
 - the Portless pilot is committed and remains opt-in. Primary-checkout dirt is mixed and preserved: repo/legal guidance; legal entity copy and tracking; provider-planning documents; a workspace-cleanup audit plus two deleted empty placeholders; final-results and legal-copy browser tests; the Taylor Loom audit artifacts; and local handoff edits. Keep each lane separate. No `next-env.d.ts` noise is present.
@@ -431,16 +434,16 @@ Current product checklist:
 Next recommended slice:
 
 ```text
-Continue repo reconciliation from a clean current-main worktree. First decide whether `.codex-audits/taylor-loom-feedback-2026-08-23/` belongs in Git. Keep that decision separate from the legal, provider-planning, test-hardening, cleanup, and handoff/instruction lanes in the detached primary checkout.
+Review the pushed `codex/profile-auth-feedback-fixes` preview and the separate pushed `codex/persistent-board-save-state` preview. Production deployment requires an explicit integration decision because both branches must be merged into `main` before one production artifact can contain all three slices.
 ```
 
 Definition of done:
 
-- preserve the verified clean `.env.example` baseline and keep later provider configuration changes in an explicitly approved provider lane
-- keep any provider/live-validation work isolated from free-beta UI, contest-entry, Results, legal, payment, wallet, scoring, and admin/operator slices
-- confirm the selected current-main worktree is clean before starting new product work
-- run `git diff --check`; add `npm run typecheck` and `npm run test` only if code or environment behavior changes
-- update this handoff note again if repo reality or the next recommended move changes
+- Parker approved the signed-out Profile and `/auth` end state
+- Parker approved the legal-link new-tab behavior and documented draft-recovery limit
+- Slice 1 and Slice 2 remain separate implementation commits
+- the hosted Linux Chromium gate passes after an approved pull request or `main` push
+- production Profile/Auth checks remain read-only unless Parker gives separate approval for a disposable test account
 
 Queued separate provider decision:
 
@@ -463,7 +466,7 @@ Continue PickRank using the repo as source of truth. Work only on future paid-mo
 Use this prompt for the immediate follow-up:
 
 ```text
-Continue PickRank repo reconciliation from a clean current-main worktree. First decide whether `.codex-audits/taylor-loom-feedback-2026-08-23/` belongs in Git. Keep that decision separate from legal, provider-planning, test-hardening, cleanup, and handoff/instruction work. Preserve the detached primary checkout and all unrelated user changes. Do not reset, stash, delete, commit, or push unrelated work.
+Review the pushed PickRank Profile/Auth preview at `https://pickrank-app-git-codex-profile-aut-d0a3c1-parker-levys-projects.vercel.app`. Confirm the signed-out Profile heading, exact introduction, shared Account access card on `/profile` and `/auth`, originating-surface auth notices, sign-out return, and new-tab Beta Terms and Privacy behavior. Preserve the detached primary checkout. Do not merge to `main`, promote to production, change Supabase, or mutate production data without explicit approval.
 ```
 
 Use this default starter prompt pattern after that slice is complete:
