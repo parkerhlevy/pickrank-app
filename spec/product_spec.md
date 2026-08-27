@@ -252,8 +252,10 @@ Save Interaction
 A floating button appears when changes are made.
 Save Lineup
 When saved:
-✓ Lineup Saved
-Confirmation banner disappears after ~2 seconds.
+✓ Your board is saved
+The completion notice remains visible while the editable board matches the saved order.
+The bottom action panel shows a compact saved state instead of a disabled Save button.
+Adding, removing, or reordering a player removes the completion notice and restores the unsaved state and Save button.
 Unsaved Changes Modal
 Unsaved lineup changes
 Save before leaving?

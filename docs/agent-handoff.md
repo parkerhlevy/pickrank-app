@@ -67,13 +67,16 @@ The repo is past bare Phase 0 and currently includes:
 
 Current branch and production reality as of 2026-08-26:
 
+- `codex/persistent-board-save-state` is a local review lane in `/private/tmp/pickrank-persistent-board-save-state`, based on `origin/main` at `5fbb770` and recorded in the current branch-tip commit. An editable `user_saved` board whose current order matches its saved order now shows a persistent `Your board is saved` notice with the contest lock time and `Complete` badge. The bottom action panel shows a compact green saved state instead of a disabled Save button.
+- adding, removing, or reordering a player removes completion and restores the sticky amber `Unsaved changes` state with the active Save button. A successful save restores completion, and a reopened or reloaded saved board derives completion from persisted state. Empty boards, save errors, unsaved-leave protection, and locked boards keep their existing behavior. No post-save exit action, persistence change, schema, migration, scoring change, or production mutation was added.
+- persistent-board verification passes `npm run typecheck`, `npm run lint`, `npm test` (`36` files, `217` tests), `npx next build --webpack`, and `git diff --check`. Focused desktop/mobile Playwright coverage now includes initial saved state, edit, re-save, reload, empty board, save failure, locked board, and no added post-save exit action. Local Chromium remains blocked before test execution by macOS Mach port registration, including after the approved outside-sandbox retry. The hosted Linux Chromium gate remains pending separate push approval.
 - the narrow signed-in return-to-board slice is merged into `main` through pull request `#26` at `51f1d8f`. The `/contests` page now reads persisted entry ownership for the current viewer. An entered open contest shows `Open` plus `Entered`, replaces `Enter free beta contest` with a green `Edit your board` action, and routes through the existing protected lineup check directly to the saved board. Users without an entry keep the existing entry action. Entry creation, single-entry enforcement, lineup persistence, lock behavior, scoring, eligibility, payment, provider, admin, and production data are unchanged.
 - verification for the return-to-board slice passes `npm run typecheck`, focused ESLint, `npm run test` (`35` files, `212` tests), `git diff --check`, and `next build --webpack`. The default Turbopack build and local Chromium remain blocked by the Codex macOS sandbox, but the required Linux Chromium gate passed on implementation head `3a041b8` in GitHub Actions run `32699840537`. Pull request `#26` also has successful Vercel preview deployment and preview-comment checks.
 - pull request `#27` is merged into `main` through merge commit `ed93c24`. It adds scoped status test IDs, shared `e2eAppUrl` and `expectPagePath()` helpers, an enforced `test:e2e:contracts` source check, explicit `127.0.0.1` Next.js binding, one-worker execution, retained failure traces/screenshots, generated-report lint exclusions, and a CI runner that continues through later suites before returning a combined failure. It also builds contest-progress redirects from `getRequestOrigin()` so Next.js loopback-host normalization cannot drop the host-scoped auth cookie. Product rules and production data are unchanged.
 - local verification for pull request `#27` passes the expanded contract scan (`13` TypeScript files), the contract unit tests (`4` tests), `npm run typecheck`, `npm run lint`, `npm test` (`36` files, `216` tests), Playwright discovery (`27` tests), `next build --webpack`, and `git diff --check`. After reconciliation with current `main`, pull-request Linux Chromium run `32927016293` passed in `4m 14s`; post-merge run `32927316932` passed in `4m 9s` on `ed93c24`.
 - Vercel Production deployment `dpl_DgKCk9Ac2A9qmweBXdE4XHiAQPzL` is `READY` for `ed93c24` and serves the `www.pickrankgames.com` and `pickrankgames.com` aliases. Read-only production checks returned `200` for Home, Open Contests, and Contest Detail with the expected PickRank content and How It Works action. The one-hour Vercel runtime error scan found no errors.
 - the optional Portless local-development pilot is documented in `docs/local-development-portless.md` with root `portless.json`; `next.config.ts` allows the named `pickrank.localhost` and worktree subdomains, and Parker verified `https://pickrank.localhost` loads successfully; direct `127.0.0.1:3000`, Playwright, CI, OAuth defaults, and production behavior remain unchanged. The pilot is adopted as a single local-development tooling commit and remains opt-in; it is not part of the next product slice
-- a fresh `git fetch --prune origin` reports `origin/main` at `7c07492`, which includes the empty-board entry work through pull request `#31`. The primary checkout remains detached at `aceb4f4` with unrelated preserved user work. Do not reset, stash, stage, or bundle that primary-checkout work with another slice.
+- a fresh read-only remote check reports `origin/main` at `5fbb770`. The primary checkout remains detached at `aceb4f4`, 28 commits behind that delivery baseline, with unrelated preserved user work. Do not reset, stash, stage, or bundle that primary-checkout work with another slice.
 - tracked `.env.example` is readable again and its working-tree object hash matches the committed `aceb4f4` version. It has no local diff and is not an active provider lane.
 - the 2026-08-20 `/contests` presentation follow-up is committed as `0877e57` and deployed to Vercel Production deployment `dpl_4eeTtzbvuJT9SXda1bKXPYoZgcHs`; it converts the How It Works link into a secondary Button with an ArrowRight icon and does not change contest, auth, entry, scoring, payment, wallet, eligibility, provider, admin, or production-data behavior
 - the Portless pilot is committed and remains opt-in. Primary-checkout dirt is mixed and preserved: repo/legal guidance; legal entity copy and tracking; provider-planning documents; a workspace-cleanup audit plus two deleted empty placeholders; final-results and legal-copy browser tests; the Taylor Loom audit artifacts; and local handoff edits. Keep each lane separate. No `next-env.d.ts` noise is present.
@@ -431,16 +434,16 @@ Current product checklist:
 Next recommended slice:
 
 ```text
-Continue repo reconciliation from a clean current-main worktree. First decide whether `.codex-audits/taylor-loom-feedback-2026-08-23/` belongs in Git. Keep that decision separate from the legal, provider-planning, test-hardening, cleanup, and handoff/instruction lanes in the detached primary checkout.
+Review the two local Profile/Auth commits first, then review the separate local `codex/persistent-board-save-state` commit. Push only with separate approval, then use the hosted Linux Chromium gate as the browser delivery check.
 ```
 
 Definition of done:
 
-- preserve the verified clean `.env.example` baseline and keep later provider configuration changes in an explicitly approved provider lane
-- keep any provider/live-validation work isolated from free-beta UI, contest-entry, Results, legal, payment, wallet, scoring, and admin/operator slices
-- confirm the selected current-main worktree is clean before starting new product work
-- run `git diff --check`; add `npm run typecheck` and `npm run test` only if code or environment behavior changes
-- update this handoff note again if repo reality or the next recommended move changes
+- Parker approved Lane A and Lane B
+- the persistent saved-board notice and compact bottom saved state are recorded in one local review commit
+- the saved-board lane remains separate from Profile/Auth
+- the hosted Linux Chromium gate passes after an approved push
+- no production board is mutated without separate disposable-account approval
 
 Queued separate provider decision:
 
@@ -463,7 +466,7 @@ Continue PickRank using the repo as source of truth. Work only on future paid-mo
 Use this prompt for the immediate follow-up:
 
 ```text
-Continue PickRank repo reconciliation from a clean current-main worktree. First decide whether `.codex-audits/taylor-loom-feedback-2026-08-23/` belongs in Git. Keep that decision separate from legal, provider-planning, test-hardening, cleanup, and handoff/instruction work. Preserve the detached primary checkout and all unrelated user changes. Do not reset, stash, delete, commit, or push unrelated work.
+Review the local persistent saved-board commit in `/private/tmp/pickrank-persistent-board-save-state`. Confirm the saved notice persists after save and reload, editing restores `Unsaved changes`, re-saving restores completion, empty and locked boards do not show completion, save failures stay unsaved, and no post-save exit action was added. Preserve the detached primary checkout. Do not push, merge, deploy, or mutate a production board without explicit approval.
 ```
 
 Use this default starter prompt pattern after that slice is complete:
