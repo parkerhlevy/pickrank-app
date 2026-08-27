@@ -315,8 +315,14 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                   <input className="mt-1 h-4 w-4" type="checkbox" name="termsAccepted" />
                   <span>
                     I accept the{' '}
-                    <Link className="inline-link" href="/legal/terms">
+                    <Link
+                      className="inline-link"
+                      href="/legal/terms"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       PickRank Beta Terms
+                      <span className="sr-only"> (opens in a new tab)</span>
                     </Link>{' '}
                     before entering beta contests.
                   </span>
@@ -325,8 +331,14 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                   <input className="mt-1 h-4 w-4" type="checkbox" name="privacyPolicyAccepted" />
                   <span>
                     I accept the{' '}
-                    <Link className="inline-link" href="/legal/privacy">
+                    <Link
+                      className="inline-link"
+                      href="/legal/privacy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       PickRank Privacy Policy
+                      <span className="sr-only"> (opens in a new tab)</span>
                     </Link>{' '}
                     before entering beta contests.
                   </span>

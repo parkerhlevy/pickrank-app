@@ -167,6 +167,8 @@ MVP Profile should include:
 
 When a logged-out user opens Profile, show the same Google and email account-access methods used on the dedicated Auth route. Use `Create your account or sign in` as the heading and explain that an account is required to play before showing the sign-in choices. Keep the signed-in Profile account-management surface unchanged.
 
+When an authenticated user is completing entry details, open the Beta Terms and Privacy Policy links in a new tab so the unfinished Profile form remains in the original tab. Do not persist date of birth or other unfinished Profile fields in browser storage. A reload, browser crash, or discarded mobile tab may still clear unfinished values.
+
 Wallet balances:
 
 ```text
