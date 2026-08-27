@@ -60,7 +60,7 @@ Profile
 | Home | Yes | No | Landing shell and high-level entry point |
 | Contests | Yes | No | Logged-out users can browse |
 | Leaderboard | Partial | No for public/final boards, auth for user-centered context | MVP final leaderboards only |
-| Profile | No | Yes | Shows auth gate if logged out |
+| Profile | No | Yes | Shows embedded Google and email account access if logged out |
 
 How It Works remains a public education screen that should stay easy to reach from Home, Contests, Contest Detail, Wallet, and Auth, but it is not a bottom-nav tab in the current MVP shell.
 
@@ -580,7 +580,7 @@ Show user account and wallet basics.
 ### Access
 Authenticated.
 
-Logged out users see Auth Gate.
+Logged out users see the same Google and email account-access choices as the dedicated Auth route.
 
 ### Displays
 

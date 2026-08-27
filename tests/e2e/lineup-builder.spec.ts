@@ -138,7 +138,7 @@ test('signed-out users keep the lineup auth gate while parked free beta entry ro
     page,
     `/auth?next=${encodeURIComponent('/contests/week-1-qb-passing-yards/lineup')}`,
   );
-  await expect(page.getByRole('heading', { name: 'Account settings' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Create your account or sign in' })).toBeVisible();
   await expect(page.getByText('Before you enter')).toBeVisible();
 
   for (const route of [
