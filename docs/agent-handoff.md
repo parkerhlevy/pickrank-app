@@ -67,9 +67,9 @@ The repo is past bare Phase 0 and currently includes:
 
 Current branch and production reality as of 2026-08-26:
 
-- `codex/persistent-board-save-state` is a local review lane in `/private/tmp/pickrank-persistent-board-save-state`, based on `origin/main` at `5fbb770` and recorded in the current branch-tip commit. An editable `user_saved` board whose current order matches its saved order now shows a persistent `Your board is saved` notice with the contest lock time and `Complete` badge. The bottom action panel shows a compact green saved state instead of a disabled Save button.
+- `codex/persistent-board-save-state` is a pushed review lane in `/private/tmp/pickrank-persistent-board-save-state`, based on `origin/main` at `5fbb770`. The implementation is commit `c9488aa`. An editable `user_saved` board whose current order matches its saved order now shows a persistent `Your board is saved` notice with the contest lock time and `Complete` badge. The bottom action panel shows a compact green saved state instead of a disabled Save button.
 - adding, removing, or reordering a player removes completion and restores the sticky amber `Unsaved changes` state with the active Save button. A successful save restores completion, and a reopened or reloaded saved board derives completion from persisted state. Empty boards, save errors, unsaved-leave protection, and locked boards keep their existing behavior. No post-save exit action, persistence change, schema, migration, scoring change, or production mutation was added.
-- persistent-board verification passes `npm run typecheck`, `npm run lint`, `npm test` (`36` files, `217` tests), `npx next build --webpack`, and `git diff --check`. Focused desktop/mobile Playwright coverage now includes initial saved state, edit, re-save, reload, empty board, save failure, locked board, and no added post-save exit action. Local Chromium remains blocked before test execution by macOS Mach port registration, including after the approved outside-sandbox retry. The hosted Linux Chromium gate remains pending separate push approval.
+- persistent-board verification passes `npm run typecheck`, `npm run lint`, `npm test` (`36` files, `217` tests), `npx next build --webpack`, and `git diff --check`. Focused desktop/mobile Playwright coverage now includes initial saved state, edit, re-save, reload, empty board, save failure, locked board, and no added post-save exit action. Local Chromium remains blocked before test execution by macOS Mach port registration, including after the approved outside-sandbox retry. Vercel reports the branch preview `READY` at `https://pickrank-app-git-codex-persistent-01d4a4-parker-levys-projects.vercel.app`. The hosted Linux Chromium gate remains pending a pull request or `main` push.
 - the narrow signed-in return-to-board slice is merged into `main` through pull request `#26` at `51f1d8f`. The `/contests` page now reads persisted entry ownership for the current viewer. An entered open contest shows `Open` plus `Entered`, replaces `Enter free beta contest` with a green `Edit your board` action, and routes through the existing protected lineup check directly to the saved board. Users without an entry keep the existing entry action. Entry creation, single-entry enforcement, lineup persistence, lock behavior, scoring, eligibility, payment, provider, admin, and production data are unchanged.
 - verification for the return-to-board slice passes `npm run typecheck`, focused ESLint, `npm run test` (`35` files, `212` tests), `git diff --check`, and `next build --webpack`. The default Turbopack build and local Chromium remain blocked by the Codex macOS sandbox, but the required Linux Chromium gate passed on implementation head `3a041b8` in GitHub Actions run `32699840537`. Pull request `#26` also has successful Vercel preview deployment and preview-comment checks.
 - pull request `#27` is merged into `main` through merge commit `ed93c24`. It adds scoped status test IDs, shared `e2eAppUrl` and `expectPagePath()` helpers, an enforced `test:e2e:contracts` source check, explicit `127.0.0.1` Next.js binding, one-worker execution, retained failure traces/screenshots, generated-report lint exclusions, and a CI runner that continues through later suites before returning a combined failure. It also builds contest-progress redirects from `getRequestOrigin()` so Next.js loopback-host normalization cannot drop the host-scoped auth cookie. Product rules and production data are unchanged.
@@ -434,13 +434,13 @@ Current product checklist:
 Next recommended slice:
 
 ```text
-Review the two local Profile/Auth commits first, then review the separate local `codex/persistent-board-save-state` commit. Push only with separate approval, then use the hosted Linux Chromium gate as the browser delivery check.
+Review the pushed Profile/Auth preview first, then review the separate pushed `codex/persistent-board-save-state` preview. Production deployment requires an explicit integration decision because both branches must be merged into `main` before one production artifact can contain all three slices.
 ```
 
 Definition of done:
 
 - Parker approved Lane A and Lane B
-- the persistent saved-board notice and compact bottom saved state are recorded in one local review commit
+- the persistent saved-board notice and compact bottom saved state are recorded in one implementation commit
 - the saved-board lane remains separate from Profile/Auth
 - the hosted Linux Chromium gate passes after an approved push
 - no production board is mutated without separate disposable-account approval
@@ -466,7 +466,7 @@ Continue PickRank using the repo as source of truth. Work only on future paid-mo
 Use this prompt for the immediate follow-up:
 
 ```text
-Review the local persistent saved-board commit in `/private/tmp/pickrank-persistent-board-save-state`. Confirm the saved notice persists after save and reload, editing restores `Unsaved changes`, re-saving restores completion, empty and locked boards do not show completion, save failures stay unsaved, and no post-save exit action was added. Preserve the detached primary checkout. Do not push, merge, deploy, or mutate a production board without explicit approval.
+Review the pushed persistent saved-board preview at `https://pickrank-app-git-codex-persistent-01d4a4-parker-levys-projects.vercel.app`. Confirm the saved notice persists after save and reload, editing restores `Unsaved changes`, re-saving restores completion, empty and locked boards do not show completion, save failures stay unsaved, and no post-save exit action was added. Preserve the detached primary checkout. Do not merge to `main`, promote to production, or mutate a production board without explicit approval.
 ```
 
 Use this default starter prompt pattern after that slice is complete:
