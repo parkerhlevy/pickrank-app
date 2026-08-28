@@ -1,7 +1,8 @@
 import Link from 'next/link';
-import { AlertTriangle, ArrowLeft, Clock, Ticket, Users } from 'lucide-react';
+import { AlertTriangle, Clock, Ticket, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { ContestBoardPreview } from '@/components/contests/contest-board-preview';
+import { BackLinkButton } from '@/components/ui/back-link-button';
 import { Button } from '@/components/ui/button';
 import { HowItWorksButton } from '@/components/ui/how-it-works-button';
 import { Notice } from '@/components/ui/notice';
@@ -60,12 +61,9 @@ export default async function ContestDetailPage({
   return (
     <div className="space-y-5 pb-28">
       <div className="space-y-4">
-        <Button asChild variant="ghost" size="sm" className="-ml-3 justify-start">
-          <Link href="/contests" transitionTypes={['nav-back']}>
-            <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
-            Contests
-          </Link>
-        </Button>
+        <BackLinkButton href="/contests" transitionTypes={['nav-back']}>
+          Contests
+        </BackLinkButton>
         <div className="screen-header flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-2">
             <span

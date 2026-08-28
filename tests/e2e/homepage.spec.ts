@@ -11,6 +11,14 @@ async function expectHowItWorksButton(page: Page) {
   await expect(howItWorksLink).toHaveClass(/border-slate-200/);
 }
 
+async function expectHighContrastBackLink(page: Page, name: string) {
+  const backLink = page.getByRole('link', { name });
+
+  await expect(backLink).toHaveClass(/border-white\/20/);
+  await expect(backLink).toHaveClass(/bg-white\/10/);
+  await expect(backLink).toHaveClass(/text-white/);
+}
+
 test('homepage loads as a landing page with waitlist forms and no bottom nav', async ({ page }) => {
   await page.goto('/');
 
@@ -69,6 +77,7 @@ test('public conversion routes explain the contest mechanics before entry', asyn
 
   await page.goto('/contests/week-1-qb-passing-yards');
 
+  await expectHighContrastBackLink(page, 'Contests');
   await expect(page.getByTestId('contest-lifecycle-status')).toHaveText('Open');
   await expect(page.getByTestId('contest-lifecycle-status')).toHaveClass(/bg-emerald-100/);
   await expectHowItWorksButton(page);
@@ -175,6 +184,7 @@ test('mobile beta public cleanup pages stay readable without paid clutter', asyn
 
   await page.goto('/contests/week-1-qb-passing-yards');
 
+  await expectHighContrastBackLink(page, 'Contests');
   await expect(page.getByRole('heading', { name: 'Contest details - Free to play during beta' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Scoring' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Beta Result Status' })).toHaveCount(0);

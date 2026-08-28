@@ -1,12 +1,10 @@
 'use client';
 
-import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   AlertTriangle,
   ArrowDown,
-  ArrowLeft,
   ArrowUp,
   CheckCircle2,
   Clock,
@@ -14,6 +12,7 @@ import {
   Plus,
   X,
 } from 'lucide-react';
+import { BackLinkButton } from '@/components/ui/back-link-button';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { HowItWorksButton } from '@/components/ui/how-it-works-button';
@@ -428,17 +427,9 @@ export function LineupBuilderClient({
   return (
     <>
       <div ref={pageRootRef} className="space-y-4 pb-32 sm:space-y-6 sm:pb-36" data-lineup-client-ready="false">
-        <Button
-          asChild
-          variant="ghost"
-          size="sm"
-          className="justify-start border border-white/20 bg-white/10 text-white shadow-sm hover:bg-white/15 hover:text-white focus-visible:outline-white"
-        >
-          <Link href={`/contests/${contest.id}`} transitionTypes={['nav-back']}>
-            <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
-            Contest details
-          </Link>
-        </Button>
+        <BackLinkButton href={`/contests/${contest.id}`} transitionTypes={['nav-back']}>
+          Contest details
+        </BackLinkButton>
 
         <div className="screen-header space-y-3">
           <div className="flex items-start justify-between gap-3">

@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import { cookies } from 'next/headers';
-import { ArrowLeft, CheckCircle2, Clock, ListChecks } from 'lucide-react';
+import { CheckCircle2, Clock, ListChecks } from 'lucide-react';
 import { redirect } from 'next/navigation';
 import { ContestBoardStagePanel } from '@/components/contests/contest-board-preview';
+import { BackLinkButton } from '@/components/ui/back-link-button';
 import { Notice } from '@/components/ui/notice';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -79,12 +80,7 @@ export default async function EntrySuccessPage({
 
   return (
     <div className="space-y-5 pb-28">
-      <Button asChild variant="ghost" size="sm" className="-ml-3 justify-start">
-        <Link href={`/contests/${contest.id}`}>
-          <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
-          Contest details
-        </Link>
-      </Button>
+      <BackLinkButton href={`/contests/${contest.id}`}>Contest details</BackLinkButton>
 
       <div className="screen-header space-y-2">
         <p className="eyebrow">Entry success</p>
