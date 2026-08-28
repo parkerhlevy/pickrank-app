@@ -84,6 +84,7 @@ Current branch and production reality as of 2026-08-27:
 - tracked `.env.example` is readable again and its working-tree object hash matches the committed `aceb4f4` version. It has no local diff and is not an active provider lane.
 - the 2026-08-20 `/contests` presentation follow-up is committed as `0877e57` and deployed to Vercel Production deployment `dpl_4eeTtzbvuJT9SXda1bKXPYoZgcHs`; it converts the How It Works link into a secondary Button with an ArrowRight icon and does not change contest, auth, entry, scoring, payment, wallet, eligibility, provider, admin, or production-data behavior
 - the 2026-08-24 shared How It Works and lineup-header contrast follow-up is committed as `b050edc` and deployed to Vercel Production deployment `dpl_5JzBsDmtThbiJU2tsCHRjipmsAzu`. Linux Chromium run `32793832746` passed, the authenticated production lineup page showed the shared secondary action plus the white high-contrast Contest details control, and the production page reported no browser console errors
+- the current narrow `codex/contest-back-link-contrast` slice centralizes the white high-contrast arrow-back treatment in `BackLinkButton` and applies it to Contest Detail, Entry Review, Entry Success, Build Your Board, and admin Eligibility. The reported `Contests` link now uses the same visible border, translucent white background, white text, hover, and focus treatment as the previously corrected lineup control. A unit regression contract verifies both the component style and that it is the only arrow-back implementation across app surfaces. Typecheck, focused ESLint, `npm test` (`37` files, `220` tests), Playwright contract validation (`13` files), `next build --webpack`, and `git diff --check` pass. Focused desktop/mobile Chromium execution is blocked by the known local macOS `MachPortRendezvousServer: Permission denied (1100)` restriction, so hosted Linux Chromium remains the release gate. No product rules, route behavior, production data, or deployed production state changed.
 - the Portless pilot is committed and remains opt-in. Primary-checkout dirt is mixed and preserved: repo/legal guidance; legal entity copy and tracking; provider-planning documents; a workspace-cleanup audit plus the placeholder deletions now delivered on `main`; final-results and legal-copy browser tests; the Taylor Loom audit artifacts; and local handoff edits. Keep each lane separate. No `next-env.d.ts` noise is present.
 - the current uncommitted files are preserved user/in-progress work and are not part of a product implementation slice. Do not reset, stash, stage, or bundle them without explicit scope.
 - Slice 1 is merged through merge commit `68500ba`
@@ -439,7 +440,7 @@ Current product checklist:
 Next recommended slice:
 
 ```text
-Review the remaining Taylor and Gary feedback backlog by user impact and implementation effort. Select one bounded next slice. Keep the scoring-example change as a validation candidate until evidence supports changing it.
+After Parker approves release actions, commit and push the focused contest back-link contrast slice, open or update its pull request, require hosted Linux Chromium to pass, deploy the merged commit, and verify the Contest Detail back link on desktop and mobile production. Then return to the remaining Taylor and Gary feedback backlog.
 ```
 
 Definition of done:

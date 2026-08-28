@@ -1,7 +1,7 @@
-import Link from 'next/link';
 import type { ReactNode, TextareaHTMLAttributes } from 'react';
-import { AlertCircle, ArrowLeft, CheckCircle2, ShieldCheck, UserCheck } from 'lucide-react';
+import { AlertCircle, CheckCircle2, ShieldCheck, UserCheck } from 'lucide-react';
 import { reviewEligibilityAction } from '@/app/admin/eligibility/actions';
+import { BackLinkButton } from '@/components/ui/back-link-button';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { requireContestOperator } from '@/lib/contest-operator-access';
@@ -27,12 +27,7 @@ export default async function AdminEligibilityPage({
 
   return (
     <div className="space-y-6 pb-28">
-      <Button asChild variant="ghost" size="sm" className="-ml-3 justify-start">
-        <Link href="/admin/contests">
-          <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
-          Contest admin
-        </Link>
-      </Button>
+      <BackLinkButton href="/admin/contests">Contest admin</BackLinkButton>
 
       <section className="screen-header space-y-2">
         <p className="eyebrow">Internal admin</p>
