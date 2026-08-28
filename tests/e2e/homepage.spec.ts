@@ -12,7 +12,7 @@ async function expectHowItWorksButton(page: Page) {
 }
 
 async function expectHighContrastBackLink(page: Page, name: string) {
-  const backLink = page.getByRole('link', { name });
+  const backLink = page.getByRole('main').getByRole('link', { name });
 
   await expect(backLink).toHaveClass(/border-white\/20/);
   await expect(backLink).toHaveClass(/bg-white\/10/);
