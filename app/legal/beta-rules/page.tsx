@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ListOrdered } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { getHowItWorksHref } from '@/lib/how-it-works-navigation';
 import { betaCancellationThreshold, officialDataProvider, resultsFinalityWindow } from '@/lib/legal';
 import { launchMode } from '@/lib/launch-mode';
 
@@ -35,7 +36,7 @@ export default function BetaRulesPage() {
           <p>There is no cash-prize cancellation threshold during free beta. Current threshold: {betaCancellationThreshold}.</p>
           <p>PickRank can pause, cancel, correct, or rerun a beta contest if testing, data, integrity, or operational issues require it.</p>
           <div className="flex flex-wrap gap-x-4 gap-y-2">
-            <Link href="/how-it-works" className="inline-link">
+            <Link href={getHowItWorksHref('/legal/beta-rules')} className="inline-link">
               Review how it works
             </Link>
             <Link href="/legal/terms" className="inline-link">

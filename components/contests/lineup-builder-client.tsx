@@ -440,7 +440,7 @@ export function LineupBuilderClient({
               </div>
               <h1 className="text-2xl font-black leading-tight sm:text-3xl">Build your board</h1>
             </div>
-            <HowItWorksButton />
+            <HowItWorksButton returnTo={`/contests/${contest.id}/lineup`} />
           </div>
           <p className="text-muted-foreground">
             Choose your top 10 quarterbacks from the player pool, rank them, and save your board before the contest locks.

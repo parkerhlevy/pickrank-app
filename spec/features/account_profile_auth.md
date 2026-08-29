@@ -215,6 +215,14 @@ Treat these as self-attested or account-captured fields until legal/provider sys
 - Terms acceptance
 - Privacy acceptance
 
+When the signed-in Profile still needs entry details, explain the state field directly below the selector:
+
+```text
+PickRank uses your state to determine which contest rules apply to you.
+```
+
+This helper explains the existing field. It does not change jurisdiction rules, eligibility decisions, or submission behavior.
+
 Treat these as real verification only after an approved internal or provider-backed review has checked the account against the relevant source of truth:
 
 - supported jurisdiction approval

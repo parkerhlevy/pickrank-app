@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { ArrowRight, BarChart3, CheckCircle2, ListOrdered, ShieldCheck, Trophy } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { BackLinkButton } from '@/components/ui/back-link-button';
+import { getHowItWorksReturn } from '@/lib/how-it-works-navigation';
 import { launchMode } from '@/lib/launch-mode';
 
 const howToEnterSteps = [
@@ -45,9 +47,24 @@ const rankDifferentialExampleRows = [
   ['Patrick Mahomes', '3rd', '14th', '11'],
 ];
 
-export default function HowItWorksPage() {
+type HowItWorksPageProps = {
+  searchParams?: Promise<{
+    returnTo?: string;
+  }>;
+};
+
+export default async function HowItWorksPage({ searchParams }: HowItWorksPageProps) {
+  const resolvedSearchParams = (await searchParams) || {};
+  const returnContext = getHowItWorksReturn(resolvedSearchParams.returnTo);
+
   return (
     <div className="space-y-6">
+      {returnContext ? (
+        <BackLinkButton href={returnContext.href} transitionTypes={['nav-back']}>
+          Return to {returnContext.label}
+        </BackLinkButton>
+      ) : null}
+
       <section className="screen-header space-y-3">
         <div>
           <div className="space-y-3">
@@ -66,11 +83,7 @@ export default function HowItWorksPage() {
           title="Pick 10 from 20"
           description="Start with the player pool. Pick and rank the top 10 by the contest stat category."
         />
-        <GuideTile
-          icon={BarChart3}
-          title="Lowest score wins"
-          description="Each miss distance adds points. Exact ranks add zero."
-        />
+        <ScoringGuideTile />
         <GuideTile
           icon={ShieldCheck}
           title={launchMode.mode === 'early_access_beta' ? 'Early access beta' : launchMode.displayName}
@@ -171,6 +184,41 @@ export default function HowItWorksPage() {
           </p>
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function ScoringGuideTile() {
+  return (
+    <div className="section-card space-y-3 p-3 sm:min-h-[8rem] sm:p-4">
+      <div className="flex items-center gap-3 sm:items-start">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+          <BarChart3 className="h-4 w-4" aria-hidden="true" />
+        </div>
+        <p className="font-black leading-tight">Lowest score wins</p>
+      </div>
+      <div
+        className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-1.5"
+        role="img"
+        aria-label="Example: Your rank 2nd, final rank 5th, difference 3 points."
+      >
+        <RankExampleCell label="Your rank" value="2nd" />
+        <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+        <RankExampleCell label="Final rank" value="5th" />
+        <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+        <RankExampleCell label="Difference" value="+3" suffix="points" />
+      </div>
+      <p className="text-sm leading-6 text-muted-foreground">Exact ranks add 0. Lowest total wins.</p>
+    </div>
+  );
+}
+
+function RankExampleCell({ label, suffix, value }: { label: string; suffix?: string; value: string }) {
+  return (
+    <div className="min-w-0 rounded-md border border-slate-200 bg-slate-50 px-1.5 py-2 text-center" aria-hidden="true">
+      <p className="text-[0.625rem] font-semibold leading-tight text-muted-foreground">{label}</p>
+      <p className="numeric mt-1 text-base font-black leading-none text-primary">{value}</p>
+      {suffix ? <p className="mt-1 text-[0.625rem] font-bold leading-none text-primary">{suffix}</p> : null}
     </div>
   );
 }

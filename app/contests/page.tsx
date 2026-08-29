@@ -24,7 +24,7 @@ export default async function ContestsPage() {
             <p className="eyebrow">Contests</p>
             <h1 className="text-3xl font-black leading-tight">Open contests</h1>
           </div>
-          <HowItWorksButton />
+          <HowItWorksButton returnTo="/contests" />
         </div>
         <p className="text-muted-foreground">
           Find and enter a contest, evaluate the 20-player pool, and build the most accurate board possible to beat the

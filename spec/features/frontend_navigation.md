@@ -122,6 +122,8 @@ Help users find the active weekly contest.
 ### Access
 Public.
 
+When a known PickRank page links to How It Works, include a sanitized contextual return target. Show `Return to {origin}` above the How It Works header for Home, Account access, Contests, Contest details, Board builder, Profile, Beta Pass, and Beta Rules. Reject unknown, external, query-bearing, or fragment-bearing return targets. Direct visits keep the page unchanged and do not show a return action.
+
 ### Displays
 
 - featured contest
@@ -698,6 +700,15 @@ Under PickRank scoring, that player earns 8 points because the score is the miss
 ```
 
 Keep this example near the scoring table so users can understand the point system without opening a contest result.
+
+The first scoring summary also uses a compact visual example:
+
+```text
+Your rank 2nd -> Final rank 5th -> Difference +3 points
+Exact ranks add 0. Lowest total wins.
+```
+
+This summary illustrates the locked rank-differential rule. Keep the full worked example table and all tiebreaker copy unchanged unless a separate scoring-rule change is approved.
 
 ---
 

@@ -3,10 +3,13 @@ import { expectPagePath } from './support/navigation';
 
 const isPaidPreview = process.env.PICKRANK_EXPERIENCE_MODE === 'paid_preview';
 
-async function expectHowItWorksButton(page: Page) {
+async function expectHowItWorksButton(page: Page, returnTo: string) {
   const howItWorksLink = page.getByRole('link', { name: 'How it works' });
 
-  await expect(howItWorksLink).toHaveAttribute('href', '/how-it-works');
+  await expect(howItWorksLink).toHaveAttribute(
+    'href',
+    `/how-it-works?returnTo=${encodeURIComponent(returnTo)}`,
+  );
   await expect(howItWorksLink).toHaveClass(/h-9/);
   await expect(howItWorksLink).toHaveClass(/border-slate-200/);
 }
@@ -65,7 +68,7 @@ test('public conversion routes explain the contest mechanics before entry', asyn
   await page.goto('/contests');
 
   await expect(page.getByRole('heading', { name: 'Open contests' })).toBeVisible();
-  await expectHowItWorksButton(page);
+  await expectHowItWorksButton(page, '/contests');
   await expect(page.getByText('Find and enter a contest, evaluate the 20-player pool, and build the most accurate board possible to beat the field.')).toBeVisible();
   await expect(page.getByText('One stat', { exact: true })).toHaveCount(0);
   await expect(page.getByText('Pick 10', { exact: true })).toHaveCount(0);
@@ -80,7 +83,7 @@ test('public conversion routes explain the contest mechanics before entry', asyn
   await expectHighContrastBackLink(page, 'Contests');
   await expect(page.getByTestId('contest-lifecycle-status')).toHaveText('Open');
   await expect(page.getByTestId('contest-lifecycle-status')).toHaveClass(/bg-emerald-100/);
-  await expectHowItWorksButton(page);
+  await expectHowItWorksButton(page, '/contests/week-1-qb-passing-yards');
   await expect(page.getByRole('heading', { name: 'Contest details - Free to play during beta' })).toBeVisible();
   await expect(page.getByText('Early access beta contests have no cash prizes, no payouts, no minimum participants, and no cost to enter.')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Scoring' })).toBeVisible();
@@ -94,9 +97,13 @@ test('public conversion routes explain the contest mechanics before entry', asyn
   await expect(page.getByText('Beta contest - no payout')).toHaveCount(0);
   await expect(page.getByText('operator proof')).toHaveCount(0);
 
-  await page.goto('/how-it-works');
+  await page.getByRole('link', { name: 'How it works' }).click();
 
   await expect(page.getByText('How it works', { exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Return to Contest details' })).toHaveAttribute(
+    'href',
+    '/contests/week-1-qb-passing-yards',
+  );
   await expect(page.getByRole('heading', { name: 'Skill-based ranking contests' })).toBeVisible();
   await expect(page.getByText('Public guide', { exact: true })).toHaveCount(0);
   await expect(page.getByText('PickRank asks one question: how well do you know players and their matchups?')).toBeVisible();
@@ -107,6 +114,10 @@ test('public conversion routes explain the contest mechanics before entry', asyn
     basics.getByText('Start with the player pool. Pick and rank the top 10 by the contest stat category.'),
   ).toBeVisible();
   await expect(basics.getByText('Lowest score wins')).toBeVisible();
+  await expect(
+    basics.getByRole('img', { name: 'Example: Your rank 2nd, final rank 5th, difference 3 points.' }),
+  ).toBeVisible();
+  await expect(basics.getByText('Exact ranks add 0. Lowest total wins.')).toBeVisible();
   await expect(basics.getByText('Contests have no payouts or cash prizes during beta period')).toBeVisible();
   const howToEnter = page.getByRole('heading', { name: 'How to enter' }).locator('..').locator('..');
   await expect(howToEnter.getByText('Follow the same path from contest browsing')).toHaveCount(0);
@@ -133,12 +144,15 @@ test('public conversion routes explain the contest mechanics before entry', asyn
   await expect(exampleTable.getByRole('columnheader', { name: 'Final rank' })).toBeVisible();
   await expect(exampleTable.getByText('Patrick Mahomes')).toBeVisible();
   await expect(exampleTable.getByText('14th')).toBeVisible();
+  await expect(exampleTable.getByText('11')).toBeVisible();
+  await expect(page.getByText("Didn't rank", { exact: true })).toHaveCount(0);
+  await expect(page.getByText('4+ ranks off', { exact: true })).toHaveCount(0);
   await expect(page.getByText('Where to Go Next')).toHaveCount(0);
 
   await page.goto('/wallet');
 
   await expect(page.getByRole('heading', { name: 'Beta Pass Status' })).toBeVisible();
-  await expectHowItWorksButton(page);
+  await expectHowItWorksButton(page, '/wallet');
   await expect(page.getByText('Beta Pass gives you free entry access')).toBeVisible();
   await expect(page.getByText('Future Paid Balances')).toHaveCount(0);
   await expect(page.getByText('Amount Due Today')).toHaveCount(0);
@@ -158,7 +172,7 @@ test('logged-out profile keeps account access and entry guidance compact', async
   await expect(page.getByRole('button', { name: 'Email me a sign-in link' })).toBeVisible();
   await expect(page.locator('input[name="authSurface"][value="profile"]')).toHaveCount(2);
   await expect(page.getByRole('heading', { name: 'Account settings' })).toHaveCount(0);
-  await expectHowItWorksButton(page);
+  await expectHowItWorksButton(page, '/profile');
   await expect(page.getByRole('link', { name: 'Contact account support' })).toHaveAttribute(
     'href',
     'mailto:support@pickrankgames.com',

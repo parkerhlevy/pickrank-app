@@ -77,7 +77,7 @@ export default async function ContestDetailPage({
             <h1 className="text-3xl font-black leading-tight">{contest.title}</h1>
             <p className="text-muted-foreground">{contest.task}</p>
           </div>
-          <HowItWorksButton />
+          <HowItWorksButton returnTo={`/contests/${contest.id}`} />
         </div>
       </div>
 
