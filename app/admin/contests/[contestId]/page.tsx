@@ -1,8 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
 import { BoardTimeline, EvidenceStatus, formatAdminTimestamp } from '@/components/admin/evidence-ui';
-import { Button } from '@/components/ui/button';
+import { BackLinkButton } from '@/components/ui/back-link-button';
 import { getAdminContestEvidence } from '@/lib/admin-evidence';
 import { requireContestOperator } from '@/lib/contest-operator-access';
 
@@ -19,12 +18,7 @@ export default async function AdminContestEvidencePage({
 
   return (
     <div className="space-y-6 pb-24">
-      <Button asChild variant="ghost" size="sm" className="-ml-3 justify-start">
-        <Link href="/admin/contests">
-          <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
-          Contest operations
-        </Link>
-      </Button>
+      <BackLinkButton href="/admin/contests">Contest operations</BackLinkButton>
 
       <section className="screen-header space-y-2">
         <div className="flex flex-wrap items-center gap-3">

@@ -1,8 +1,7 @@
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, ShieldCheck } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import { EntrySummaryCard, formatAdminTimestamp } from '@/components/admin/evidence-ui';
-import { Button } from '@/components/ui/button';
+import { BackLinkButton } from '@/components/ui/back-link-button';
 import { getAdminEvidenceUser, recordAdminAuditEvent } from '@/lib/admin-evidence';
 import { requireContestOperator } from '@/lib/contest-operator-access';
 
@@ -26,12 +25,7 @@ export default async function AdminUserDetailPage({
 
   return (
     <div className="space-y-6 pb-24">
-      <Button asChild variant="ghost" size="sm" className="-ml-3 justify-start">
-        <Link href="/admin/users">
-          <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
-          User search
-        </Link>
-      </Button>
+      <BackLinkButton href="/admin/users">All users</BackLinkButton>
 
       <section className="screen-header space-y-2">
         <p className="eyebrow">User record</p>
