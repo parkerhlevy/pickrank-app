@@ -105,7 +105,7 @@ export function LineupBuilderClient({
         ? 'Your saved board is current.'
         : 'Your board is current until you make a change.';
   const savePanelClassName = hasUnsavedChanges
-    ? 'action-panel sticky bottom-24 z-20 sm:bottom-20'
+    ? 'action-panel action-panel-unsaved sticky bottom-24 z-20 sm:bottom-20'
     : 'action-panel';
 
   useEffect(() => {
@@ -426,7 +426,7 @@ export function LineupBuilderClient({
 
   return (
     <>
-      <div ref={pageRootRef} className="space-y-4 pb-32 sm:space-y-6 sm:pb-36" data-lineup-client-ready="false">
+      <div ref={pageRootRef} className="space-y-4 pb-48 sm:space-y-6 sm:pb-36" data-lineup-client-ready="false">
         <BackLinkButton href={`/contests/${contest.id}`} transitionTypes={['nav-back']}>
           Contest details
         </BackLinkButton>
@@ -543,7 +543,7 @@ export function LineupBuilderClient({
                     <div
                       key={name}
                       data-lineup-player={name}
-                      className={`section-card grid gap-2 border-l-4 border-l-primary px-2.5 py-2.5 text-sm transition-[background-color,border-color,box-shadow,scale] ${
+                      className={`section-card grid select-none gap-2 border-l-4 border-l-primary px-2.5 py-2.5 text-sm transition-[background-color,border-color,box-shadow,scale] ${
                         draggingPlayer === name ? 'scale-[0.99] border-primary bg-blue-50 shadow-md' : ''
                       }`}
                     >
@@ -608,7 +608,7 @@ export function LineupBuilderClient({
                           type="button"
                           variant="secondary"
                           size="sm"
-                          className={`h-11 min-h-11 w-full min-w-11 shrink-0 touch-none rounded-md border px-0 shadow-sm ${
+                          className={`h-11 min-h-11 w-full min-w-11 shrink-0 touch-none select-none rounded-md border px-0 shadow-sm ${
                             draggingPlayer === name
                               ? 'cursor-grabbing border-primary bg-blue-100'
                               : 'cursor-grab border-slate-300 bg-white hover:border-primary hover:bg-blue-50'
@@ -670,55 +670,88 @@ export function LineupBuilderClient({
           </CardContent>
         </Card>
 
-        <div className={savePanelClassName}>
-          <div className="mb-3 grid gap-2 text-sm sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-3">
-            <div className="flex items-start gap-3">
+        <div className={savePanelClassName} data-testid="lineup-save-panel">
+          <div
+            className={hasUnsavedChanges ? 'grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 sm:block' : ''}
+          >
+            <div
+              className={
+                hasUnsavedChanges
+                  ? 'min-w-0 text-sm sm:mb-3 sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-3'
+                  : 'mb-3 grid gap-2 text-sm sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-3'
+              }
+            >
+              <div className="flex items-start gap-3">
+                <div
+                  className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
+                    hasUnsavedChanges ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'
+                  }`}
+                >
+                  {hasUnsavedChanges ? (
+                    <AlertTriangle className="h-4 w-4" aria-hidden="true" />
+                  ) : (
+                    <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className="font-black">{saveStateLabel}</p>
+                  <p
+                    className={
+                      hasUnsavedChanges
+                        ? 'hidden text-xs text-muted-foreground sm:block'
+                        : 'text-xs text-muted-foreground'
+                    }
+                  >
+                    {saveStateDescription}
+                  </p>
+                  {hasUnsavedChanges ? (
+                    <p className="numeric text-xs text-muted-foreground sm:hidden">
+                      {lineupState.selectedOrder.length}/10 ranked
+                    </p>
+                  ) : null}
+                </div>
+              </div>
               <div
-                className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
-                  hasUnsavedChanges ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'
+                className={`min-h-10 items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-muted-foreground ${
+                  hasUnsavedChanges ? 'hidden sm:flex' : 'flex'
                 }`}
               >
-                {hasUnsavedChanges ? (
-                  <AlertTriangle className="h-4 w-4" aria-hidden="true" />
-                ) : (
-                  <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
-                )}
-              </div>
-              <div className="min-w-0">
-                <p className="font-black">{saveStateLabel}</p>
-                <p className="text-xs text-muted-foreground">{saveStateDescription}</p>
+                <Clock className="h-4 w-4 text-primary" aria-hidden="true" />
+                <span className="numeric">Lock: {lockTimeLabel}</span>
               </div>
             </div>
-            <div className="flex min-h-10 items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-muted-foreground">
-              <Clock className="h-4 w-4 text-primary" aria-hidden="true" />
-              <span className="numeric">Lock: {lockTimeLabel}</span>
-            </div>
+            {isBoardComplete ? (
+              <div className="flex min-h-10 items-center justify-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-black text-emerald-800">
+                <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                Board saved
+              </div>
+            ) : (
+              <>
+                <Button
+                  className={hasUnsavedChanges ? 'w-auto shrink-0 px-3 sm:w-full sm:px-4' : 'w-full'}
+                  onClick={handleSaveLineup}
+                  disabled={!isEditable || !hasUnsavedChanges || isSaving || needsMoreSelections}
+                >
+                  {isEditable ? (isSaving ? 'Saving board...' : 'Save board') : `${contest.status} - Read only`}
+                </Button>
+                <p
+                  className={
+                    hasUnsavedChanges
+                      ? 'mt-2 hidden text-center text-xs text-muted-foreground sm:block'
+                      : 'mt-2 text-center text-xs text-muted-foreground'
+                  }
+                >
+                  {!isEditable
+                    ? 'This contest is no longer editable.'
+                    : hasUnsavedChanges
+                      ? needsMoreSelections
+                        ? 'Choose all 10 quarterbacks before saving your board.'
+                        : 'Save your current board before leaving this screen.'
+                      : 'Add, change, or reorder players to save your board.'}
+                </p>
+              </>
+            )}
           </div>
-          {isBoardComplete ? (
-            <div className="flex min-h-10 items-center justify-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-black text-emerald-800">
-              <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
-              Board saved
-            </div>
-          ) : (
-            <>
-              <Button
-                className="w-full"
-                onClick={handleSaveLineup}
-                disabled={!isEditable || !hasUnsavedChanges || isSaving || needsMoreSelections}
-              >
-                {isEditable ? (isSaving ? 'Saving board...' : 'Save board') : `${contest.status} - Read only`}
-              </Button>
-              <p className="mt-2 text-center text-xs text-muted-foreground">
-                {!isEditable
-                  ? 'This contest is no longer editable.'
-                  : hasUnsavedChanges
-                    ? needsMoreSelections
-                      ? 'Choose all 10 quarterbacks before saving your board.'
-                      : 'Save your current board before leaving this screen.'
-                    : 'Add, change, or reorder players to save your board.'}
-              </p>
-            </>
-          )}
         </div>
       </div>
 

@@ -420,8 +420,33 @@ signedInTest.describe('protected entry flow with signed-in auth fixture', () => 
       await page.getByRole('button', { name: 'Move Josh Allen down one rank' }).click();
 
       await expect(page.getByText('Your board is saved', { exact: true })).toHaveCount(0);
-      await expect(page.locator('.action-panel').getByText('Unsaved changes', { exact: true })).toBeVisible();
+      const savePanel = page.getByTestId('lineup-save-panel');
+
+      await expect(savePanel.getByText('Unsaved changes', { exact: true })).toBeVisible();
       await expect(page.getByRole('button', { name: 'Save board' })).toBeEnabled();
+
+      if (viewportName === 'mobile') {
+        await expect(savePanel.getByText('10/10 ranked', { exact: true })).toBeVisible();
+        await expect(savePanel.getByText(/Review the ranked order below/i)).toBeHidden();
+        await expect(savePanel.getByText(/^Lock:/i)).toBeHidden();
+        await expect(savePanel).toHaveCSS('padding-top', '10px');
+        await expect(page.locator('[data-lineup-player]').first()).toHaveCSS('user-select', 'none');
+
+        const bottomNavigation = page.getByRole('navigation', { name: 'Primary navigation' });
+        const lastRankedPlayer = page.locator('[data-lineup-player]').last();
+
+        await lastRankedPlayer.scrollIntoViewIfNeeded();
+
+        const savePanelBox = await savePanel.boundingBox();
+        const bottomNavigationBox = await bottomNavigation.boundingBox();
+        const lastRankedPlayerBox = await lastRankedPlayer.boundingBox();
+
+        expect(savePanelBox).not.toBeNull();
+        expect(bottomNavigationBox).not.toBeNull();
+        expect(lastRankedPlayerBox).not.toBeNull();
+        expect(savePanelBox!.y + savePanelBox!.height).toBeLessThanOrEqual(bottomNavigationBox!.y);
+        expect(lastRankedPlayerBox!.y + lastRankedPlayerBox!.height).toBeLessThanOrEqual(savePanelBox!.y);
+      }
 
       await page.getByRole('button', { name: 'Save board' }).click();
 

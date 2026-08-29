@@ -376,6 +376,9 @@ Authenticated + entered + contest open.
 - the persistent confirmation appears after save and when the saved board is reopened or reloaded
 - while the board is current, replace the disabled Save button with a compact green saved state
 - adding, removing, or reordering a player removes the saved confirmation and restores the sticky `Unsaved changes` state with the active Save button
+- on mobile, keep the sticky unsaved action compact: show only the unsaved label, ranked count, and Save button; the lock time remains in the board header and duplicate helper copy stays hidden
+- keep enough mobile page clearance for the final ranked row to scroll fully above the sticky unsaved action and fixed bottom navigation
+- keep the active drag treatment blue and prevent text selection while users drag; preserve the keyboard-accessible move-up and move-down controls
 - save failures never show completion
 - user can keep editing until lock
 
