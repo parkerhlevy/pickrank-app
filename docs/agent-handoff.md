@@ -81,6 +81,8 @@ Current branch and production reality as of 2026-08-28:
 - Vercel Production deployment `dpl_DgKCk9Ac2A9qmweBXdE4XHiAQPzL` is `READY` for `ed93c24` and serves the `www.pickrankgames.com` and `pickrankgames.com` aliases. Read-only production checks returned `200` for Home, Open Contests, and Contest Detail with the expected PickRank content and How It Works action. The one-hour Vercel runtime error scan found no errors.
 - the optional Portless local-development pilot is documented in `docs/local-development-portless.md` with root `portless.json`; `next.config.ts` allows the named `pickrank.localhost` and worktree subdomains, and Parker verified `https://pickrank.localhost` loads successfully; direct `127.0.0.1:3000`, Playwright, CI, OAuth defaults, and production behavior remain unchanged. The pilot is adopted as a single local-development tooling commit and remains opt-in; it is not part of the next product slice
 - `origin/main` includes the Profile/Auth and persistent saved-board merges plus the production feedback deployment closeout in pull request `#34`. The primary checkout remains detached at `aceb4f4`, behind current `origin/main`, with unrelated preserved user work. Do not reset, stash, stage, or bundle that primary-checkout work with another slice.
+- the approved mobile board correction is in progress and uncommitted on clean worktree `/private/tmp/pickrank-pre-alpha-mobile-board`, branch `codex/pre-alpha-mobile-board-corrections`, based on current `origin/main` at `76ce117`. It reduces the mobile sticky unsaved action to the status, ranked count, and Save button; keeps lock and helper details on desktop; adds clearance above the fixed bottom navigation; and prevents player-row text selection while preserving the existing blue drag state and accessible move controls. Education and Trust changes remain mock-up only pending Parker's direction selection.
+- local verification for the in-progress mobile board correction passes `npm run typecheck`, `npm run lint`, `npm test` (`37` files, `220` tests), Playwright contract validation (`13` files), and `git diff --check`. Focused desktop/mobile Chromium still cannot start in the Codex desktop macOS process sandbox because Mach port registration is denied, including after an outside-sandbox retry; the new browser assertions remain unexecuted and require the hosted Linux Chromium gate after an approved push.
 - tracked `.env.example` is readable again and its working-tree object hash matches the committed `aceb4f4` version. It has no local diff and is not an active provider lane.
 - the 2026-08-20 `/contests` presentation follow-up is committed as `0877e57` and deployed to Vercel Production deployment `dpl_4eeTtzbvuJT9SXda1bKXPYoZgcHs`; it converts the How It Works link into a secondary Button with an ArrowRight icon and does not change contest, auth, entry, scoring, payment, wallet, eligibility, provider, admin, or production-data behavior
 - the 2026-08-24 shared How It Works and lineup-header contrast follow-up is committed as `b050edc` and deployed to Vercel Production deployment `dpl_5JzBsDmtThbiJU2tsCHRjipmsAzu`. Linux Chromium run `32793832746` passed, the authenticated production lineup page showed the shared secondary action plus the white high-contrast Contest details control, and the production page reported no browser console errors
@@ -442,7 +444,7 @@ Current product checklist:
 Next recommended slice:
 
 ```text
-Review `docs/analysis/alpha-ux-feedback-findings-2026-08-28.md` and approve one bounded implementation slice. Choose either the education-and-trust slice or the mobile-board-workspace slice. Do not combine them. Treat validation and policy items as unapproved follow-up work.
+Complete release verification for the approved mobile board workspace and Education and Trust branches. Keep the branches separate through review. Run hosted Linux Chromium and fix any release-blocking differences before merge.
 ```
 
 Definition of done:
@@ -474,7 +476,7 @@ Continue PickRank using the repo as source of truth. Work only on future paid-mo
 Use this prompt for the immediate follow-up:
 
 ```text
-Continue PickRank using the repo as source of truth. Read `docs/analysis/alpha-ux-feedback-findings-2026-08-28.md`, then implement only the specifically approved feedback slice. Keep education-and-trust work separate from mobile-board-workspace work. Treat validation and policy items as unapproved follow-up work. Start from current `origin/main` in a clean worktree. Preserve the detached primary checkout and do not change scoring, eligibility, auth providers, Supabase configuration, or production data without separate approval.
+Continue PickRank using the repo as source of truth. Complete release verification for `codex/pre-alpha-mobile-board-corrections` and `codex/education-trust-visual-proof`. Keep the branches separate through review. Run hosted Linux Chromium, complete visual QA, and fix any release-blocking differences before merge. Preserve scoring rules, eligibility rules, auth providers, Supabase configuration, and production data.
 ```
 
 Use this default starter prompt pattern after that slice is complete:

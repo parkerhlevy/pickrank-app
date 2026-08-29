@@ -452,6 +452,12 @@ body {
   padding: 0.875rem;
 }
 
+@media (max-width: 639px) {
+  .action-panel-unsaved {
+    padding: 0.625rem 0.75rem;
+  }
+}
+
 .inline-link {
   color: hsl(var(--primary));
   font-size: 0.875rem;
