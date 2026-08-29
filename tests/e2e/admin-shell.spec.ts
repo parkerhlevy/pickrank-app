@@ -17,7 +17,7 @@ test('signed-out admin root routes through the protected operator overview', asy
   await expect(page).toHaveURL(/\/auth\?.*next=%2Fadmin/);
 });
 
-test('contest operators get a wide admin-only workspace with actionable navigation', async ({ page }) => {
+test('contest operators get a wide admin-only workspace with actionable navigation', async ({ page }, testInfo) => {
   await page.context().addCookies([
     {
       name: e2eAuthCookieName,
@@ -31,6 +31,7 @@ test('contest operators get a wide admin-only workspace with actionable navigati
   await expect(page.getByRole('heading', { name: 'Operator overview' })).toBeVisible();
   await expect(page.getByRole('link', { name: /User data/ })).toHaveAttribute('href', '/admin/users');
   await expect(page.getByRole('link', { name: /Evidence health/ })).toHaveAttribute('href', '/admin/evidence');
+  await attachReviewScreenshot(page, testInfo, 'admin-overview-desktop');
 
   await page.goto('/admin/contests');
   await expectPagePath(page, '/admin/contests');
@@ -71,7 +72,7 @@ test('contest operators get a wide admin-only workspace with actionable navigati
   await expect(page.locator('html')).toHaveJSProperty('scrollWidth', 390);
 });
 
-test('contest operators can investigate evidence by user and contest', async ({ page }) => {
+test('contest operators can investigate evidence by user and contest', async ({ page }, testInfo) => {
   await page.context().addCookies([
     {
       name: e2eAuthCookieName,
@@ -89,11 +90,30 @@ test('contest operators can investigate evidence by user and contest', async ({ 
   await expect(page.getByLabel('Eligibility')).toHaveValue('all');
   await expect(page.getByLabel('Evidence')).toHaveValue('all');
   await expect(page.getByLabel('Sort')).toHaveValue('recent');
+  await attachReviewScreenshot(page, testInfo, 'admin-all-users-desktop');
   await page.getByRole('link', { name: 'Demo Entrant' }).click();
   await expect(page.getByRole('heading', { name: 'Demo Entrant' })).toBeVisible();
   await expect(page.getByText('Saved board history')).toBeVisible();
+  await attachReviewScreenshot(page, testInfo, 'admin-user-investigation-desktop');
 
   await page.getByRole('link', { name: 'Week 1 QB Passing Yards' }).click();
   await expect(page.getByRole('heading', { name: 'Week 1 QB Passing Yards' })).toBeVisible();
   await expect(page.getByText('Entrants and saved boards')).toBeVisible();
+  await attachReviewScreenshot(page, testInfo, 'admin-contest-investigation-desktop');
+
+  await page.goto('/admin/evidence');
+  await expectPagePath(page, '/admin/evidence');
+  await expect(page.getByRole('heading', { name: 'Evidence health' })).toBeVisible();
+  await attachReviewScreenshot(page, testInfo, 'admin-evidence-health-desktop');
 });
+
+async function attachReviewScreenshot(
+  page: import('@playwright/test').Page,
+  testInfo: import('@playwright/test').TestInfo,
+  name: string,
+) {
+  await testInfo.attach(name, {
+    body: await page.screenshot({ fullPage: true }),
+    contentType: 'image/png',
+  });
+}
