@@ -4,6 +4,7 @@ import { AccountAccessCard } from '@/components/auth/account-access-card';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { defaultReturnPath, getReturnStepCopy, normalizeReturnPath } from '@/lib/auth-profile';
+import { getHowItWorksHref } from '@/lib/how-it-works-navigation';
 import { launchMode } from '@/lib/launch-mode';
 
 type AuthPageProps = {
@@ -79,7 +80,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
             </div>
           ) : null}
           <Button asChild variant="secondary" className="w-full">
-            <Link href="/how-it-works">Review how it works</Link>
+            <Link href={getHowItWorksHref('/auth')}>Review how it works</Link>
           </Button>
         </CardContent>
       </Card>

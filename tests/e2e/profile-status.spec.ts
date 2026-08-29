@@ -39,6 +39,10 @@ for (const { viewportName, viewport } of [
     const termsLink = page.getByRole('link', { name: 'PickRank Beta Terms (opens in a new tab)' });
     const privacyLink = page.getByRole('link', { name: 'PickRank Privacy Policy (opens in a new tab)' });
 
+    await expect(jurisdiction).toHaveAttribute('aria-describedby', 'jurisdiction-purpose');
+    await expect(
+      page.getByText('PickRank uses your state to determine which contest rules apply to you.'),
+    ).toBeVisible();
     await jurisdiction.selectOption('CA');
     await dateOfBirth.fill('1990-01-01');
     await termsCheckbox.check();

@@ -56,7 +56,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
               {user ? 'Account settings' : 'Create your account or sign in'}
             </h1>
           </div>
-          <HowItWorksButton />
+          <HowItWorksButton returnTo="/profile" />
         </div>
         {!user ? (
           <p className="text-muted-foreground">
@@ -286,6 +286,7 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                   <select
                     required
                     name="jurisdiction"
+                    aria-describedby="jurisdiction-purpose"
                     defaultValue={identity.eligibility.jurisdiction}
                     className="w-full rounded-lg border bg-slate-50 px-3 py-3 text-base text-foreground outline-none ring-0 transition-[border-color] focus:border-slate-950 sm:text-sm"
                   >
@@ -296,6 +297,13 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                       </option>
                     ))}
                   </select>
+                  <span
+                    id="jurisdiction-purpose"
+                    className="flex items-start gap-2 rounded-md bg-slate-50 px-3 py-2.5 text-xs font-normal leading-5 text-muted-foreground"
+                  >
+                    <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                    <span>PickRank uses your state to determine which contest rules apply to you.</span>
+                  </span>
                 </label>
                 <label className="block space-y-2 text-sm font-medium text-foreground">
                   <span>Date of birth</span>

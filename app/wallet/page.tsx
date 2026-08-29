@@ -25,7 +25,7 @@ export default function WalletPage() {
               ? 'Beta Pass status for free beta contests. Paid balances, deposits, withdrawals, payouts, and wallet actions remain disabled until provider and compliance review is complete.'
               : 'Beta Pass gives you free entry access during Early Access Beta. It has no cash value, cannot be withdrawn, and does not create payouts or cash prizes.'}
           </p>
-          <HowItWorksButton className="self-start" />
+          <HowItWorksButton className="self-start" returnTo="/wallet" />
         </div>
       </section>
 
