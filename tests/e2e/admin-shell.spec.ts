@@ -29,8 +29,8 @@ test('contest operators get a wide admin-only workspace with actionable navigati
   await page.goto('/admin');
   await expectPagePath(page, '/admin');
   await expect(page.getByRole('heading', { name: 'Operator overview' })).toBeVisible();
-  await expect(page.getByRole('link', { name: /User data/ })).toHaveAttribute('href', '/admin/users');
-  await expect(page.getByRole('link', { name: /Evidence health/ })).toHaveAttribute('href', '/admin/evidence');
+  await expect(workspaceLink(page, 'User data')).toHaveAttribute('href', '/admin/users');
+  await expect(workspaceLink(page, 'Evidence health')).toHaveAttribute('href', '/admin/evidence');
   await attachReviewScreenshot(page, testInfo, 'admin-overview-desktop');
 
   await page.goto('/admin/contests');
@@ -116,4 +116,11 @@ async function attachReviewScreenshot(
     body: await page.screenshot({ fullPage: true }),
     contentType: 'image/png',
   });
+}
+
+function workspaceLink(page: import('@playwright/test').Page, heading: string) {
+  return page
+    .getByRole('article')
+    .filter({ has: page.getByRole('heading', { name: heading }) })
+    .getByRole('link', { name: 'Open workspace' });
 }
