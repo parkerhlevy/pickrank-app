@@ -72,7 +72,10 @@ export default async function AdminUsersPage({
           <p className="text-sm text-slate-600">{allUsers.length} total {allUsers.length === 1 ? 'user' : 'users'}</p>
         </div>
 
-        <form className="mt-4 grid gap-3 lg:grid-cols-[minmax(16rem,2fr)_repeat(4,minmax(9rem,1fr))_auto] lg:items-end" action="/admin/users">
+        <form
+          className="mt-4 grid gap-3 md:grid-cols-2 md:items-end xl:grid-cols-3 2xl:grid-cols-[minmax(14rem,2fr)_repeat(4,minmax(8rem,1fr))_auto]"
+          action="/admin/users"
+        >
           <DirectoryField label="Search" htmlFor="admin-user-search">
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
@@ -113,7 +116,7 @@ export default async function AdminUsersPage({
               <option value="entries">Most entries</option>
             </select>
           </DirectoryField>
-          <Button type="submit">Apply</Button>
+          <Button type="submit" className="w-full">Apply</Button>
         </form>
 
         {hasFilters ? (
