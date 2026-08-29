@@ -87,7 +87,7 @@ Current branch and production reality as of 2026-08-28:
 - the contest back-link contrast slice is merged into `main` through pull request `#35` at merge commit `072a6c4`. Implementation commits `a82c1e6` and `f24387a` centralize the white high-contrast arrow-back treatment in `BackLinkButton` and apply it to Contest Detail, Entry Review, Entry Success, Build Your Board, and admin Eligibility. The reported `Contests` link now uses the same visible border, translucent white background, white text, hover, and focus treatment as the previously corrected lineup control. A unit regression contract verifies both the shared style and that `BackLinkButton` is the only arrow-back implementation across app surfaces.
 - release verification passes `npm run typecheck`, `npm run lint`, `npm test` (`37` files, `220` tests), Playwright contract validation (`13` files), `npm run build -- --webpack`, and `git diff --check`. Pull-request Linux Chromium run `33152945182` passed in `4m 16s`. Vercel Production deployment `dpl_GHpGcftGXkJtQMdsih1JrvsVZm5c` is `READY` for `072a6c4` at immutable URL `https://pickrank-hf9yaltm1-parker-levys-projects.vercel.app` and serves `www.pickrankgames.com` and `pickrankgames.com`.
 - read-only production verification confirmed the Contest Detail `Contests` link on desktop and a `390 x 844` mobile viewport, the Build Your Board `Contest details` link, and the admin Eligibility `Contest admin` link. Each link was visible, used the shared high-contrast computed styles, and produced no browser console errors. Entry Review and Entry Success remain parked free-beta routes and are covered by the shared component and unit source contract. The 30-minute Vercel runtime error scan found no errors. No product rules, route behavior, provider behavior, database state, or production data changed.
-- the Portless pilot is committed and remains opt-in. Primary-checkout dirt is mixed and preserved: repo/legal guidance; legal entity copy and tracking; provider-planning documents; a workspace-cleanup audit plus the placeholder deletions now delivered on `main`; final-results and legal-copy browser tests; the Taylor Loom audit artifacts; and local handoff edits. Keep each lane separate. No `next-env.d.ts` noise is present.
+- the Portless pilot is committed and remains opt-in. Primary-checkout dirt is mixed and preserved: repo/legal guidance; legal entity copy and tracking; provider-planning documents; a workspace-cleanup audit plus the placeholder deletions now delivered on `main`; final-results and legal-copy browser tests; private Alpha feedback audit artifacts; and local handoff edits. Keep each lane separate. No `next-env.d.ts` noise is present.
 - the current uncommitted files are preserved user/in-progress work and are not part of a product implementation slice. Do not reset, stash, stage, or bundle them without explicit scope.
 - Slice 1 is merged through merge commit `68500ba`
 - Slice 2 simplifies Contest discovery into responsive contest cards with only status, entries, lock time, and stat category; removes Featured framing and lobby board previews; and makes Contest Detail a concise free-beta overview with a green Open state, compact scoring, and the full 20-QB player pool without a fake user board
@@ -442,7 +442,7 @@ Current product checklist:
 Next recommended slice:
 
 ```text
-Review the remaining Taylor and Gary feedback backlog by user impact and implementation effort. Select one bounded next slice. Keep the scoring-example change as a validation candidate until evidence supports changing it.
+Review `docs/analysis/alpha-ux-feedback-findings-2026-08-28.md` and approve one bounded implementation slice. Choose either the education-and-trust slice or the mobile-board-workspace slice. Do not combine them. Treat validation and policy items as unapproved follow-up work.
 ```
 
 Definition of done:
@@ -474,7 +474,7 @@ Continue PickRank using the repo as source of truth. Work only on future paid-mo
 Use this prompt for the immediate follow-up:
 
 ```text
-Continue PickRank using the repo as source of truth. Review the remaining Taylor and Gary feedback by user impact and implementation effort, then recommend one bounded next slice with a specific end state before changing code. Treat the scoring-example change as a validation candidate, not an approved implementation. Start from current `origin/main` in a clean worktree. Preserve the detached primary checkout and do not change scoring, eligibility, auth providers, Supabase configuration, or production data without separate approval.
+Continue PickRank using the repo as source of truth. Read `docs/analysis/alpha-ux-feedback-findings-2026-08-28.md`, then implement only the specifically approved feedback slice. Keep education-and-trust work separate from mobile-board-workspace work. Treat validation and policy items as unapproved follow-up work. Start from current `origin/main` in a clean worktree. Preserve the detached primary checkout and do not change scoring, eligibility, auth providers, Supabase configuration, or production data without separate approval.
 ```
 
 Use this default starter prompt pattern after that slice is complete:
