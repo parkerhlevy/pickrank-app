@@ -67,6 +67,7 @@ The repo is past bare Phase 0 and currently includes:
 
 Current branch and production reality as of 2026-08-29:
 
+- the approved admin evidence dashboard is implemented locally on `codex/admin-evidence-dashboard` in `/private/tmp/pickrank-admin-evidence`. It adds append-only board revisions, stable analysis subjects, contest ruleset snapshots, admin audit events, atomic board saves, lock-time evidence, operator Overview/User Data/contest evidence/Evidence Health pages, and audited pseudonymous or reason-gated identified JSON exports. User Data now opens as an explicit All users directory with search, account and eligibility filters, evidence-health filters, sorting, totals, last activity, evidence status, and 25-user pagination. Typecheck, full lint, all `37` unit test files with `222` tests, the webpack production build, and `git diff --check` pass. Parker previously reviewed the desktop admin mock-ups in the local browser and approved this directory change. The updated directory still needs a hosted preview screenshot because Codex cannot bind the local review port. Parker approved commit, push, and pull-request creation. The production migration and production deployment remain separate final approval gates. No migration, production deployment, or production data change has occurred.
 - the Profile/Auth lane is merged into `main` through pull request `#32` at merge commit `17d9d6c`. Signed-out Profile embeds the shared Google and email Account access card, uses the approved heading and introduction, and removes the signed-out Account settings card. `/auth` reuses the same component while keeping protected-flow guidance and sanitized `next` behavior. Auth errors and email confirmation return to the originating Profile or Auth surface, and sign-out returns to signed-out Profile with the existing notice.
 - Profile legal review now opens only the Beta Terms and Privacy Policy links inside the unfinished eligibility form in new tabs with accessible new-tab text. The original Profile tab retains unfinished browser form state when the user returns. No draft is written to browser storage, cookies, or the database, so reloads, crashes, or discarded mobile tabs can still clear unfinished values.
 - Profile/Auth verification passes `npm run typecheck`, `npm run lint`, `npm test` (`36` files, `218` tests), focused auth unit coverage (`14` tests), Playwright contract validation, `npx next build --webpack`, and `git diff --check`. Pull-request Linux Chromium run `33047887308` passed before merge. No Supabase settings, templates, cookies, database state, provider behavior, or production data changed.
@@ -323,6 +324,10 @@ Internal admin routes:
 /admin
 /admin/contests
 /admin/eligibility
+/admin/users
+/admin/users/[userId]
+/admin/contests/[contestId]
+/admin/evidence
 ```
 
 Admin routes use a separate desktop-first workspace and are not exposed in the public bottom navigation.
@@ -443,7 +448,7 @@ Current product checklist:
 8. Under-18 account support: implemented as a narrow free-beta restriction and support-review path
 ```
 
-Next recommended slice:
+Active implementation slice:
 
 ```text
 Return to `docs/analysis/alpha-ux-feedback-findings-2026-08-28.md` and the private tester backlog. Re-rank the remaining unimplemented findings by user impact and effort, then propose one bounded next slice before changing code. Keep the deferred intermittent entry observation out of implementation unless it repeats with technical evidence.

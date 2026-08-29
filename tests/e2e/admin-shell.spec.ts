@@ -11,10 +11,10 @@ const operatorCookieValue = encodeE2eAuthCookie({
   roleSlugs: ['contest_operator'],
 });
 
-test('signed-out admin root routes through the protected contest workspace', async ({ page }) => {
+test('signed-out admin root routes through the protected operator overview', async ({ page }) => {
   await page.goto('/admin');
 
-  await expect(page).toHaveURL(/\/auth\?.*next=%2Fadmin%2Fcontests/);
+  await expect(page).toHaveURL(/\/auth\?.*next=%2Fadmin/);
 });
 
 test('contest operators get a wide admin-only workspace with actionable navigation', async ({ page }) => {
@@ -25,6 +25,12 @@ test('contest operators get a wide admin-only workspace with actionable navigati
       url: e2eAppUrl,
     },
   ]);
+
+  await page.goto('/admin');
+  await expectPagePath(page, '/admin');
+  await expect(page.getByRole('heading', { name: 'Operator overview' })).toBeVisible();
+  await expect(page.getByRole('link', { name: /User data/ })).toHaveAttribute('href', '/admin/users');
+  await expect(page.getByRole('link', { name: /Evidence health/ })).toHaveAttribute('href', '/admin/evidence');
 
   await page.goto('/admin/contests');
   await expectPagePath(page, '/admin/contests');
@@ -41,6 +47,8 @@ test('contest operators get a wide admin-only workspace with actionable navigati
     'href',
     '/admin/eligibility',
   );
+  await expect(adminNavigation.getByRole('link', { name: /User data/ })).toHaveAttribute('href', '/admin/users');
+  await expect(adminNavigation.getByRole('link', { name: /Evidence/ })).toHaveAttribute('href', '/admin/evidence');
   await expect(page.getByRole('heading', { name: 'Test Entry Readiness' })).toBeVisible();
   await expect(page.getByText('Read-only operator visibility for free/test entries')).toBeVisible();
   await expect(page.getByText('Saved records').first()).toBeVisible();
@@ -61,4 +69,31 @@ test('contest operators get a wide admin-only workspace with actionable navigati
   await expect(adminNavigation.getByRole('link', { name: /Contest operations/ })).toBeVisible();
   await expect(adminNavigation.getByRole('link', { name: /Internal eligibility/ })).toBeVisible();
   await expect(page.locator('html')).toHaveJSProperty('scrollWidth', 390);
+});
+
+test('contest operators can investigate evidence by user and contest', async ({ page }) => {
+  await page.context().addCookies([
+    {
+      name: e2eAuthCookieName,
+      value: operatorCookieValue,
+      url: e2eAppUrl,
+    },
+  ]);
+
+  await page.goto('/admin/users');
+  await expectPagePath(page, '/admin/users');
+  await expect(page.getByRole('heading', { name: 'User data' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'All users' })).toBeVisible();
+  await expect(page.getByText('Showing 1–1 of 1 user')).toBeVisible();
+  await expect(page.getByLabel('Account')).toHaveValue('all');
+  await expect(page.getByLabel('Eligibility')).toHaveValue('all');
+  await expect(page.getByLabel('Evidence')).toHaveValue('all');
+  await expect(page.getByLabel('Sort')).toHaveValue('recent');
+  await page.getByRole('link', { name: 'Demo Entrant' }).click();
+  await expect(page.getByRole('heading', { name: 'Demo Entrant' })).toBeVisible();
+  await expect(page.getByText('Saved board history')).toBeVisible();
+
+  await page.getByRole('link', { name: 'Week 1 QB Passing Yards' }).click();
+  await expect(page.getByRole('heading', { name: 'Week 1 QB Passing Yards' })).toBeVisible();
+  await expect(page.getByText('Entrants and saved boards')).toBeVisible();
 });

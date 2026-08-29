@@ -2,10 +2,16 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShieldCheck, Trophy } from 'lucide-react';
+import { FileCheck2, LayoutDashboard, ShieldCheck, Trophy, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const adminNavItems = [
+  {
+    href: '/admin',
+    label: 'Overview',
+    description: 'Status and evidence health',
+    icon: LayoutDashboard,
+  },
   {
     href: '/admin/contests',
     label: 'Contest operations',
@@ -17,6 +23,18 @@ const adminNavItems = [
     label: 'Internal eligibility',
     description: 'Controlled test accounts only',
     icon: ShieldCheck,
+  },
+  {
+    href: '/admin/users',
+    label: 'User data',
+    description: 'Profiles, entries, and boards',
+    icon: Users,
+  },
+  {
+    href: '/admin/evidence',
+    label: 'Evidence',
+    description: 'Completeness and exports',
+    icon: FileCheck2,
   },
 ] as const;
 
@@ -30,7 +48,9 @@ export function AdminNavigation() {
     >
       {adminNavItems.map((item) => {
         const Icon = item.icon;
-        const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+        const isActive = item.href === '/admin'
+          ? pathname === '/admin'
+          : pathname === item.href || pathname.startsWith(`${item.href}/`);
 
         return (
           <Link

@@ -766,6 +766,120 @@ export type Database = {
           user_id?: string;
         };
       };
+      analytics_subjects: {
+        Row: {
+          created_at: string;
+          pseudonymized_at: string | null;
+          subject_id: string;
+          user_id: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          pseudonymized_at?: string | null;
+          subject_id?: string;
+          user_id?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          pseudonymized_at?: string | null;
+          subject_id?: string;
+          user_id?: string | null;
+        };
+      };
+      entry_board_revisions: {
+        Row: {
+          board_hash: string;
+          contest_id: string;
+          entry_id: string;
+          event_type: string;
+          idempotency_key: string | null;
+          metadata: Json;
+          previous_revision_id: string | null;
+          revision_id: string;
+          revision_number: number;
+          saved_at: string;
+          source: string;
+          subject_id: string;
+        };
+        Insert: {
+          board_hash: string;
+          contest_id: string;
+          entry_id: string;
+          event_type: string;
+          idempotency_key?: string | null;
+          metadata?: Json;
+          previous_revision_id?: string | null;
+          revision_id?: string;
+          revision_number: number;
+          saved_at?: string;
+          source?: string;
+          subject_id: string;
+        };
+        Update: Record<string, never>;
+      };
+      entry_board_revision_items: {
+        Row: {
+          rank_position: number;
+          revision_id: string;
+          slate_player_id: string;
+        };
+        Insert: {
+          rank_position: number;
+          revision_id: string;
+          slate_player_id: string;
+        };
+        Update: Record<string, never>;
+      };
+      admin_audit_events: {
+        Row: {
+          actor_user_id: string | null;
+          created_at: string;
+          event_id: string;
+          event_type: string;
+          metadata: Json;
+          reason: string | null;
+          request_id: string;
+          result: string;
+          target_id: string | null;
+          target_type: string;
+        };
+        Insert: {
+          actor_user_id?: string | null;
+          created_at?: string;
+          event_id?: string;
+          event_type: string;
+          metadata?: Json;
+          reason?: string | null;
+          request_id?: string;
+          result?: string;
+          target_id?: string | null;
+          target_type: string;
+        };
+        Update: Record<string, never>;
+      };
+      contest_ruleset_snapshots: {
+        Row: {
+          captured_at: string;
+          contest_id: string;
+          ruleset: Json;
+          ruleset_hash: string;
+          ruleset_snapshot_id: string;
+          ruleset_version: number;
+          scoring_version: string;
+          source: string;
+        };
+        Insert: {
+          captured_at?: string;
+          contest_id: string;
+          ruleset: Json;
+          ruleset_hash: string;
+          ruleset_snapshot_id?: string;
+          ruleset_version: number;
+          scoring_version: string;
+          source: string;
+        };
+        Update: Record<string, never>;
+      };
       roles: {
         Row: {
           created_at: string;
@@ -843,6 +957,24 @@ export type Database = {
           date_of_birth: string;
           eligibility_status: string;
         }[];
+      };
+      save_entry_board_revision: {
+        Args: {
+          target_entry_id: string;
+          target_slate_player_ids: string[];
+          target_idempotency_key: string;
+        };
+        Returns: {
+          revision_id: string;
+          saved_at: string;
+        }[];
+      };
+      lock_free_test_contest_with_evidence: {
+        Args: {
+          target_contest_id: string;
+          target_locked_at?: string;
+        };
+        Returns: undefined;
       };
     };
     Enums: Record<string, never>;
