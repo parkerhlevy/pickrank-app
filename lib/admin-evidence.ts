@@ -100,6 +100,16 @@ export type AdminEvidenceOverview = {
   userCount: number;
 };
 
+export function isMissingOptionalEvidenceTable(error: null | { code?: string; message: string }) {
+  return Boolean(
+    error
+    && (
+      error.code === 'PGRST205'
+      || error.message.includes('Could not find the table')
+    )
+  );
+}
+
 type EvidenceSnapshot = {
   auditEvents: AuditRow[];
   authUsers: User[];
@@ -450,13 +460,15 @@ async function loadEvidenceSnapshot(): Promise<EvidenceSnapshot> {
     subjectsResult.error,
     revisionsResult.error,
     revisionItemsResult.error,
-    scoresResult.error,
     auditResult.error,
     rulesetsResult.error,
-    playerResultsResult.error,
-    entryPlayerScoresResult.error,
-    statSnapshotsResult.error,
-    statSnapshotItemsResult.error,
+    scoresResult.error && !isMissingOptionalEvidenceTable(scoresResult.error) ? scoresResult.error : null,
+    playerResultsResult.error && !isMissingOptionalEvidenceTable(playerResultsResult.error) ? playerResultsResult.error : null,
+    entryPlayerScoresResult.error && !isMissingOptionalEvidenceTable(entryPlayerScoresResult.error) ? entryPlayerScoresResult.error : null,
+    statSnapshotsResult.error && !isMissingOptionalEvidenceTable(statSnapshotsResult.error) ? statSnapshotsResult.error : null,
+    statSnapshotItemsResult.error && !isMissingOptionalEvidenceTable(statSnapshotItemsResult.error)
+      ? statSnapshotItemsResult.error
+      : null,
   ].filter(Boolean);
 
   if (failures.length > 0) {
@@ -470,16 +482,16 @@ async function loadEvidenceSnapshot(): Promise<EvidenceSnapshot> {
     entries: entriesResult.data || [],
     lineups: lineupsResult.data || [],
     profiles: profilesResult.data || [],
-    playerResults: playerResultsResult.data || [],
+    playerResults: playerResultsResult.error ? [] : playerResultsResult.data || [],
     revisionItems: revisionItemsResult.data || [],
     revisions: revisionsResult.data || [],
     rulesets: rulesetsResult.data || [],
-    scores: scoresResult.data || [],
+    scores: scoresResult.error ? [] : scoresResult.data || [],
     slatePlayers: slateResult.data || [],
-    statSnapshotItems: statSnapshotItemsResult.data || [],
-    statSnapshots: statSnapshotsResult.data || [],
+    statSnapshotItems: statSnapshotItemsResult.error ? [] : statSnapshotItemsResult.data || [],
+    statSnapshots: statSnapshotsResult.error ? [] : statSnapshotsResult.data || [],
     subjects: subjectsResult.data || [],
-    entryPlayerScores: entryPlayerScoresResult.data || [],
+    entryPlayerScores: entryPlayerScoresResult.error ? [] : entryPlayerScoresResult.data || [],
   };
 }
 
