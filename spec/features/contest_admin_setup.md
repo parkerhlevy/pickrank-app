@@ -18,6 +18,12 @@ For MVP, this does not need to be a polished public-facing admin dashboard. It c
 
 The goal is to prevent invalid contests from reaching users.
 
+The broader operator information architecture, immutable board history, contest-lock evidence, and analysis exports are defined in:
+
+```text
+/spec/features/admin_evidence_dashboard.md
+```
+
 ---
 
 ## MVP Admin Setup Flow

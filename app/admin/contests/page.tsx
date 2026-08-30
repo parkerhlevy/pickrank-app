@@ -228,6 +228,9 @@ export default async function AdminContestsPage({
                       </span>
                     )}
                   </div>
+                  <Button asChild variant="secondary" size="sm" className="mt-3 w-full">
+                    <Link href={`/admin/contests/${contest.id}`}>Investigate entries and evidence</Link>
+                  </Button>
                   {contest.contestStatus === 'draft' ? (
                     <form action={saveContestSlateAction} className="mt-3 space-y-3">
                       <input type="hidden" name="contestId" value={contest.id} />

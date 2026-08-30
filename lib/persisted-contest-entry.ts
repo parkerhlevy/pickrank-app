@@ -52,7 +52,6 @@ const defaultContestEntryDataPath = path.join(process.cwd(), 'data', 'contest-en
 
 type EntryDbRow = Database['public']['Tables']['entries']['Row'];
 type EntryLineupDbRow = Database['public']['Tables']['entry_lineups']['Row'];
-type EntryLineupDbInsert = Database['public']['Tables']['entry_lineups']['Insert'];
 type ContestDbRow = Database['public']['Tables']['contests']['Row'];
 type ContestSlatePlayerDbRow = Database['public']['Tables']['contest_slate_players']['Row'];
 
@@ -360,7 +359,6 @@ export async function savePersistedContestEntryLineup({
     players,
     defaultSelectedOrder,
     order: normalizedOrder,
-    now,
   });
 
   return {
@@ -602,14 +600,12 @@ async function updatePersistedContestEntryLineupInDatabase({
   players,
   defaultSelectedOrder,
   order,
-  now,
 }: {
   contestId: string;
   viewerId: string;
   players: string[];
   defaultSelectedOrder: string[];
   order: string[];
-  now: string;
 }) {
   const supabase: SupabaseClient = await createSupabaseClient();
   const contestRow = await getDatabaseContestRow(contestId);
@@ -638,49 +634,38 @@ async function updatePersistedContestEntryLineupInDatabase({
   }
 
   const slateIdByName = buildSlatePlayerIdByName((slateRows || []) as ContestSlatePlayerDbRow[]);
-  const lineupInsert = order.map((playerName, index) => {
+  const slatePlayerIds = order.map((playerName) => {
     const slatePlayerId = slateIdByName.get(playerName);
 
     if (!slatePlayerId) {
       throw new Error(`Unable to save this lineup right now: missing slate player for ${playerName}.`);
     }
 
-    return {
-      entry_id: entryRow.id,
-      slate_player_id: slatePlayerId,
-      rank_position: index + 1,
-      created_at: now,
-      updated_at: now,
-    } satisfies EntryLineupDbInsert;
+    return slatePlayerId;
   });
 
-  const { error: deleteError } = await supabase.from('entry_lineups').delete().eq('entry_id', entryRow.id);
+  const { error: saveError } = await supabase.rpc('save_entry_board_revision', {
+    target_entry_id: entryRow.id,
+    target_slate_player_ids: slatePlayerIds,
+    target_idempotency_key: randomUUID(),
+  });
 
-  if (deleteError) {
-    throw new Error(`Unable to replace the saved lineup: ${deleteError.message}`);
+  if (saveError) {
+    throw new Error(`Unable to save the lineup with evidence history: ${saveError.message}`);
   }
 
-  const { error: insertError } = await supabase.from('entry_lineups').insert(lineupInsert);
-
-  if (insertError) {
-    throw new Error(`Unable to save the lineup: ${insertError.message}`);
-  }
-
-  return toPersistedContestEntry({
+  const savedEntry = await readPersistedContestEntryFromDatabase({
     contestId,
-    entryRow: entryRow as EntryDbRow,
-    lineupRows: lineupInsert.map((lineup, index) => ({
-      id: `lineup-${index + 1}`,
-      entry_id: lineup.entry_id,
-      slate_player_id: lineup.slate_player_id,
-      rank_position: lineup.rank_position,
-      created_at: lineup.created_at ?? now,
-      updated_at: lineup.updated_at ?? now,
-    })),
-    slateRows: (slateRows || []) as ContestSlatePlayerDbRow[],
+    viewerId,
     players,
     defaultSelectedOrder,
   });
+
+  if (!savedEntry) {
+    throw new Error('Unable to read the saved board after evidence capture.');
+  }
+
+  return savedEntry;
 }
 
 function toPersistedContestEntry({

@@ -77,6 +77,10 @@ Contest Admin Setup
 Weekly contests are created through an internal admin setup flow with validation before publish.
 Detailed design:
 See /spec/features/contest_admin_setup.md
+Admin Evidence Dashboard
+Internal operators can investigate users and contests, review immutable saved-board history, monitor evidence completeness, and create audited analysis exports.
+Detailed design:
+See /spec/features/admin_evidence_dashboard.md
 ---
 4. Scoring System
 Rank Differential Scoring
@@ -328,6 +332,10 @@ Contest State Event
 Contest Validation Result
 Entry
 Entry Lineup
+Analytics Subject
+Entry Board Revision
+Entry Board Revision Item
+Contest Ruleset Snapshot
 Entry Payment Breakdown
 Wallet Balance
 Wallet Ledger Transaction

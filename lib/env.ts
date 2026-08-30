@@ -44,6 +44,10 @@ export function hasBrowserSupabaseConfig() {
   return getMissingBrowserSupabaseKeys().length === 0;
 }
 
+export function hasServiceRoleSupabaseConfig() {
+  return hasBrowserSupabaseConfig() && Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY);
+}
+
 export function getAppUrl() {
   const vercelDeploymentUrl = getVercelDeploymentUrl();
 

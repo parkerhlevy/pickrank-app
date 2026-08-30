@@ -703,13 +703,10 @@ export async function lockFreeTestContestForProof(
   const currentContest = await getDatabaseContestBySlug(contestId);
   assertCanLockFreeTestContest(currentContest.record);
 
-  const { error: updateContestError } = await supabase
-    .from('contests')
-    .update({
-      status: 'locked',
-      updated_at: now,
-    } satisfies ContestDbUpdate)
-    .eq('id', currentContest.row.id);
+  const { error: updateContestError } = await supabase.rpc('lock_free_test_contest_with_evidence', {
+    target_contest_id: currentContest.row.id,
+    target_locked_at: now,
+  });
 
   if (updateContestError) {
     throw new Error(`Unable to lock free/test contest: ${updateContestError.message}`);
@@ -729,17 +726,6 @@ export async function lockFreeTestContestForProof(
       locked_by_admin_id: lockedByAdminId ?? '',
     },
   });
-
-  await insertContestStateEventRow(
-    toContestStateEventDbInsert({
-      contestId: currentContest.row.id,
-      createdAt: event.createdAt,
-      fromStatus: event.fromStatus,
-      toStatus: event.toStatus,
-      trigger: event.trigger,
-      metadata: event.metadata,
-    }),
-  );
 
   return {
     contest: toContestSummary({
