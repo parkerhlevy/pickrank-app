@@ -19,6 +19,8 @@ describe('admin empirical evidence foundation', () => {
     expect(sql).toContain('create table if not exists public.admin_audit_events');
     expect(sql).toContain('create trigger entry_board_revisions_immutable');
     expect(sql).toContain('create or replace function public.save_entry_board_revision');
+    expect(sql.match(/extensions\.digest\(/g)).toHaveLength(2);
+    expect(sql.match(/drop policy if exists "contest operators can read/g)).toHaveLength(5);
     expect(sql).toContain('create or replace function public.lock_free_test_contest_with_evidence');
     expect(sql).toContain("'legacy_current_state'");
     expect(sql).toContain("'history_available', false");

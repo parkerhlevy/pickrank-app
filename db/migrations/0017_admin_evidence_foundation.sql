@@ -114,14 +114,17 @@ alter table public.entry_board_revision_items enable row level security;
 alter table public.contest_ruleset_snapshots enable row level security;
 alter table public.admin_audit_events enable row level security;
 
+drop policy if exists "contest operators can read analytics subjects" on public.analytics_subjects;
 create policy "contest operators can read analytics subjects"
 on public.analytics_subjects for select to authenticated
 using (public.is_contest_operator());
 
+drop policy if exists "contest operators can read board revisions" on public.entry_board_revisions;
 create policy "contest operators can read board revisions"
 on public.entry_board_revisions for select to authenticated
 using (public.is_contest_operator());
 
+drop policy if exists "contest operators can read board revision items" on public.entry_board_revision_items;
 create policy "contest operators can read board revision items"
 on public.entry_board_revision_items for select to authenticated
 using (
@@ -133,10 +136,12 @@ using (
   )
 );
 
+drop policy if exists "contest operators can read admin audit events" on public.admin_audit_events;
 create policy "contest operators can read admin audit events"
 on public.admin_audit_events for select to authenticated
 using (public.is_contest_operator());
 
+drop policy if exists "contest operators can read contest ruleset snapshots" on public.contest_ruleset_snapshots;
 create policy "contest operators can read contest ruleset snapshots"
 on public.contest_ruleset_snapshots for select to authenticated
 using (public.is_contest_operator());
@@ -217,7 +222,7 @@ begin
 
   next_revision_number := coalesce(next_revision_number, 0) + 1;
   resolved_board_hash := encode(
-    digest(
+    extensions.digest(
       concat_ws(
         '|',
         target_entry_id::text,
@@ -321,7 +326,7 @@ begin
       where contest_slate_players.contest_id = target_contest_id
     ), '[]'::jsonb)
   );
-  snapshot_hash := encode(digest(snapshot_payload::text, 'sha256'), 'hex');
+  snapshot_hash := encode(extensions.digest(snapshot_payload::text, 'sha256'), 'hex');
 
   select ruleset_snapshot_id into snapshot_uuid
   from public.contest_ruleset_snapshots
