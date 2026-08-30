@@ -5,12 +5,19 @@ import {
   buildAdminEvidencePackage,
   getAdminContestEvidence,
   getAdminEvidenceOverview,
+  isMissingOptionalEvidenceTable,
   listAdminEvidenceUsers,
 } from '@/lib/admin-evidence';
 
 const migrationPath = path.join(process.cwd(), 'db', 'migrations', '0017_admin_evidence_foundation.sql');
 
 describe('admin empirical evidence foundation', () => {
+  it('treats missing optional scoring tables as empty without masking other database errors', () => {
+    expect(isMissingOptionalEvidenceTable({ code: 'PGRST205', message: 'missing relation' })).toBe(true);
+    expect(isMissingOptionalEvidenceTable({ message: "Could not find the table 'public.entry_scoring_results' in the schema cache" })).toBe(true);
+    expect(isMissingOptionalEvidenceTable({ code: '42501', message: 'permission denied' })).toBe(false);
+  });
+
   it('defines append-only board revisions, atomic saves, lock snapshots, and admin audit records', async () => {
     const sql = await readFile(migrationPath, 'utf8');
 
