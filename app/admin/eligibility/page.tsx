@@ -1,6 +1,7 @@
 import type { ReactNode, TextareaHTMLAttributes } from 'react';
 import { AlertCircle, CheckCircle2, ShieldCheck, UserCheck } from 'lucide-react';
 import { reviewEligibilityAction } from '@/app/admin/eligibility/actions';
+import { AdminDataFreshness } from '@/components/admin/admin-data-freshness';
 import { BackLinkButton } from '@/components/ui/back-link-button';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,6 +26,8 @@ export default async function AdminEligibilityPage({
     loadError = error instanceof Error ? error.message : 'Unable to load eligibility review candidates.';
   }
 
+  const loadedAt = new Date().toISOString();
+
   return (
     <div className="space-y-6 pb-28">
       <BackLinkButton href="/admin/contests">Contest admin</BackLinkButton>
@@ -35,6 +38,7 @@ export default async function AdminEligibilityPage({
         <p className="text-muted-foreground">
           Review captured account fields for known test accounts only. This does not approve public real-money entry.
         </p>
+        <AdminDataFreshness loadedAt={loadedAt} />
       </section>
 
       <Card>

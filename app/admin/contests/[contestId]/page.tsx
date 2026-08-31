@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { AdminDataFreshness } from '@/components/admin/admin-data-freshness';
 import { BoardTimeline, EvidenceStatus, formatAdminTimestamp } from '@/components/admin/evidence-ui';
 import { BackLinkButton } from '@/components/ui/back-link-button';
 import { getAdminContestEvidence } from '@/lib/admin-evidence';
@@ -15,6 +16,7 @@ export default async function AdminContestEvidencePage({
   const contest = await getAdminContestEvidence(contestId);
 
   if (!contest) notFound();
+  const loadedAt = new Date().toISOString();
 
   return (
     <div className="space-y-6 pb-24">
@@ -29,6 +31,7 @@ export default async function AdminContestEvidencePage({
         <p className="text-muted-foreground">
           {contest.status} · {contest.visibilityStatus} · Locks {formatAdminTimestamp(contest.lockTime)}
         </p>
+        <AdminDataFreshness loadedAt={loadedAt} />
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

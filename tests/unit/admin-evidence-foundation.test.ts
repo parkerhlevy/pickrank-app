@@ -10,6 +10,16 @@ import {
 } from '@/lib/admin-evidence';
 
 const migrationPath = path.join(process.cwd(), 'db', 'migrations', '0017_admin_evidence_foundation.sql');
+const freshnessComponentPath = path.join(process.cwd(), 'components', 'admin', 'admin-data-freshness.tsx');
+const freshnessPagePaths = [
+  'app/admin/page.tsx',
+  'app/admin/contests/page.tsx',
+  'app/admin/contests/[contestId]/page.tsx',
+  'app/admin/eligibility/page.tsx',
+  'app/admin/evidence/page.tsx',
+  'app/admin/users/page.tsx',
+  'app/admin/users/[userId]/page.tsx',
+];
 
 describe('admin empirical evidence foundation', () => {
   it('treats missing optional scoring tables as empty without masking other database errors', () => {
@@ -56,6 +66,19 @@ describe('admin empirical evidence foundation', () => {
     expect(overview.missingRevisionCount).toBe(0);
     expect(contest?.entries).toHaveLength(1);
     expect(contest?.entries[0]?.currentBoard).toHaveLength(10);
+  });
+
+  it('shows request-time freshness and a router refresh control on every admin workspace page', async () => {
+    const freshnessComponent = await readFile(freshnessComponentPath, 'utf8');
+
+    expect(freshnessComponent).toContain('Data loaded');
+    expect(freshnessComponent).toContain('router.refresh()');
+    expect(freshnessComponent).toContain("isRefreshing ? 'Refreshing data' : 'Refresh data'");
+
+    for (const pagePath of freshnessPagePaths) {
+      const pageSource = await readFile(path.join(process.cwd(), pagePath), 'utf8');
+      expect(pageSource).toContain('<AdminDataFreshness loadedAt={loadedAt} />');
+    }
   });
 
   it('omits direct identity from the default evidence package', async () => {
