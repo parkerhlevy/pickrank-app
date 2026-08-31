@@ -165,9 +165,19 @@ MVP Profile should include:
 - basic settings
 - logout
 
-When a logged-out user opens Profile, show the same Google and email account-access methods used on the dedicated Auth route. Use `Create your account or sign in` as the heading and explain that an account is required to play before showing the sign-in choices. Keep the signed-in Profile account-management surface unchanged.
+Use `Profile` as the consistent user-facing name for the `/profile` destination, its navigation label, its setup flow, and cross-page references to that destination. Reserve `account` for authentication, account access, and account-status concepts rather than using it as a competing screen name.
+
+When a logged-out user opens Profile, show the same Google and email account-access methods used on the dedicated Auth route. Use `Create your account or sign in` as the heading and explain that an account is required to play before showing the sign-in choices.
+
+After authentication, route a returning user with a complete Profile to the sanitized intended destination. When sign-in started directly from Profile, use Contests as the default destination. Route a user with missing Profile fields to Profile first and preserve the sanitized intended destination for completion.
+
+When username and beta-entry details are both missing, show them in one `Finish your Profile` form and use one submission. When only one group is missing, show only that group. Keep field-level validation on the same page and preserve unfinished values in page state after a validation response. Do not persist unfinished values in browser storage, cookies, or the database.
+
+Successful Profile completion continues to the sanitized intended destination. When the default destination is Contests, show `Profile complete` and `You're ready to play. Choose a contest to enter.` on arrival.
 
 When an authenticated user is completing entry details, open the Beta Terms and Privacy Policy links in a new tab so the unfinished Profile form remains in the original tab. Do not persist date of birth or other unfinished Profile fields in browser storage. A reload, browser crash, or discarded mobile tab may still clear unfinished values.
+
+Keep the Beta Terms and Privacy Policy as separate explicit acknowledgements. Do not replace them with implicit `By continuing` acceptance without separate legal review.
 
 Wallet balances:
 

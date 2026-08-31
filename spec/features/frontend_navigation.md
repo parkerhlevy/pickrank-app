@@ -224,13 +224,17 @@ Public.
 ### Displays
 
 - email auth method
-- username setup for new users
-- terms/privacy acceptance
-- age confirmation placeholder
-- email verification prompt if needed
+- Google auth method
+- protected-flow destination guidance when applicable
+- email verification prompt after a link is requested
 
 ### Return behavior
-After auth, return user to intended action when possible.
+After auth, resolve the next route from the authenticated Profile state:
+
+- a complete returning Profile continues to the sanitized intended destination
+- direct Profile sign-in defaults a complete returning Profile to Contests
+- an incomplete Profile goes to one Profile setup form before the intended destination
+- successful Profile completion resumes the intended destination
 
 Example:
 
@@ -586,6 +590,10 @@ Show user account and wallet basics.
 Authenticated.
 
 Logged out users see the same Google and email account-access choices as the dedicated Auth route.
+
+Use `Profile` consistently for the screen, navigation label, setup flow, and cross-page destination copy. Do not use `Account settings` or `My account` as alternate names for this screen. `Account access` remains the sign-in card label because it describes authentication rather than the Profile destination.
+
+An incomplete authenticated user sees one `Finish your Profile` form. The form contains all missing username and beta-entry fields, preserves entered values after validation, keeps explicit Beta Terms and Privacy Policy acknowledgements, and submits once. A complete returning user does not see sign-in methods or setup fields.
 
 ### Displays
 

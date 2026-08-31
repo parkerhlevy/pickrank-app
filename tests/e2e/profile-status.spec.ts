@@ -7,10 +7,52 @@ test('profile status notices use distinct tones and beta-safe copy', async ({ pa
   await page.goto('/profile?status=profile-saved');
 
   await expect(page.locator('.notice-panel-info')).toContainText('Profile saved');
-  await expect(page.locator('.notice-panel-info')).toContainText('Your account has been updated.');
+  await expect(page.locator('.notice-panel-info')).toContainText('Your Profile has been updated.');
   await expect(page.locator('.notice-panel-success')).toContainText('Entry status');
   await expect(page.locator('.notice-panel-success')).toContainText('Your entry details are saved.');
   await expect(page.getByText('Beta Pass has no cash value.', { exact: false })).toHaveCount(0);
+});
+
+test('a first-time player completes all missing Profile fields in one form', async ({ context, page }) => {
+  await context.addCookies([
+    {
+      name: e2eAuthCookieName,
+      value: encodeE2eAuthCookie({
+        email: 'new-player@pickrank.test',
+        username: '',
+        emailConfirmedAt: '2026-08-29T00:00:00.000Z',
+      }),
+      url: e2eAppUrl,
+    },
+  ]);
+  await page.goto('/profile?next=%2Fcontests');
+
+  await expect(page.getByRole('heading', { name: 'Profile', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Finish your Profile' })).toBeVisible();
+  await expect(page.getByText('Complete the missing fields once, then continue to Contests.')).toBeVisible();
+  await expect(page.getByLabel('Username')).toBeVisible();
+  await expect(page.getByLabel('State / jurisdiction')).toBeVisible();
+  await expect(page.getByLabel('Date of birth')).toBeVisible();
+  await expect(page.getByRole('checkbox', { name: /PickRank Beta Terms/ })).toBeVisible();
+  await expect(page.getByRole('checkbox', { name: /PickRank Privacy Policy/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Complete Profile' })).toHaveCount(1);
+  await expect(page.getByRole('heading', { name: 'Finish account setup' })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Complete your profile' })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Account settings' })).toHaveCount(0);
+});
+
+test('a complete returning player continues from Profile sign-in to Contests', async ({ page }) => {
+  await page.goto('/auth/continue?next=%2Fprofile');
+
+  await expect(page).toHaveURL(/\/contests$/);
+  await expect(page.getByRole('heading', { name: 'Open contests' })).toBeVisible();
+});
+
+test('Profile completion shows a clear ready-to-play confirmation on Contests', async ({ page }) => {
+  await page.goto('/contests?status=profile-complete');
+
+  await expect(page.locator('.notice-panel-success')).toContainText('Profile complete');
+  await expect(page.locator('.notice-panel-success')).toContainText("You're ready to play. Choose a contest to enter.");
 });
 
 for (const { viewportName, viewport } of [

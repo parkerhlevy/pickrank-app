@@ -164,7 +164,7 @@ test('logged-out profile keeps account access and entry guidance compact', async
 
   await expect(page.getByRole('heading', { name: 'Create your account or sign in' })).toBeVisible();
   await expect(
-    page.getByText('You need an account to play. After sign-in, finish your profile, then enter a free contest.'),
+    page.getByText('You need an account to play. After sign-in, finish your Profile, then enter a free contest.'),
   ).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Account access' })).toBeVisible();
   await expect(page.getByText('Choose Google or email. New users create an account as part of sign-in.')).toBeVisible();
@@ -173,7 +173,7 @@ test('logged-out profile keeps account access and entry guidance compact', async
   await expect(page.locator('input[name="authSurface"][value="profile"]')).toHaveCount(2);
   await expect(page.getByRole('heading', { name: 'Account settings' })).toHaveCount(0);
   await expectHowItWorksButton(page, '/profile');
-  await expect(page.getByRole('link', { name: 'Contact account support' })).toHaveAttribute(
+  await expect(page.getByRole('link', { name: 'Contact support' })).toHaveAttribute(
     'href',
     'mailto:support@pickrankgames.com',
   );
@@ -234,7 +234,7 @@ test('paid preview keeps future wallet surfaces available outside production', a
 
   await page.goto('/profile');
 
-  await expect(page.getByRole('heading', { name: 'Account Wallet' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Profile wallet' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'View Wallet Details' })).toBeVisible();
 });
 
