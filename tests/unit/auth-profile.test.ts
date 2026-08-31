@@ -2,10 +2,12 @@ import { describe, expect, it } from 'vitest';
 import {
   buildAuthHref,
   buildAuthStatusHref,
+  buildProfileCompletionDestination,
   buildProfileHref,
   classifyDateOfBirthForBeta,
   defaultReturnPath,
   getReturnStepCopy,
+  getPostAuthDestination,
   getProfileIdentity,
   normalizeReturnPath,
   normalizeAuthSurface,
@@ -90,6 +92,44 @@ describe('auth profile helpers', () => {
       detail: 'Profile',
       isContestFlow: false,
       shortLabel: 'Profile',
+    });
+  });
+
+  it('uses Contests as the signed-in default and sends incomplete users through Profile first', () => {
+    expect(
+      getPostAuthDestination(defaultReturnPath, {
+        isProfileComplete: true,
+        isEligibilityComplete: true,
+      }),
+    ).toBe('/contests');
+    expect(
+      getPostAuthDestination(defaultReturnPath, {
+        isProfileComplete: false,
+        isEligibilityComplete: false,
+      }),
+    ).toBe('/profile?next=%2Fcontests');
+    expect(
+      getPostAuthDestination('/contests/week-1-qb-passing-yards', {
+        isProfileComplete: false,
+        isEligibilityComplete: true,
+      }),
+    ).toBe('/profile?next=%2Fcontests%2Fweek-1-qb-passing-yards');
+  });
+
+  it('adds a completion notice only to the default Contests destination', () => {
+    expect(buildProfileCompletionDestination()).toBe('/contests?status=profile-complete');
+    expect(buildProfileCompletionDestination('/contests')).toBe('/contests?status=profile-complete');
+    expect(buildProfileCompletionDestination('/contests/week-1-qb-passing-yards')).toBe(
+      '/contests/week-1-qb-passing-yards',
+    );
+  });
+
+  it('describes the Contests hub as a named Profile return step', () => {
+    expect(getReturnStepCopy('/contests')).toEqual({
+      actionLabel: 'Continue to contests',
+      detail: 'Contests',
+      isContestFlow: false,
+      shortLabel: 'Contests',
     });
   });
 

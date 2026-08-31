@@ -37,7 +37,11 @@ export function AccountAccessCard({ message, next, status, surface }: AccountAcc
             variant="success"
             icon={CheckCircle2}
             title="Check your email"
-            description={`Check your email for the PickRank sign-in link. After sign-in, you'll resume ${returnStep.shortLabel.toLowerCase()}.`}
+            description={
+              next === defaultReturnPath
+                ? 'Check your email for the PickRank sign-in link. Returning players continue to Contests. New players finish their Profile first.'
+                : `Check your email for the PickRank sign-in link. After sign-in, you'll resume ${returnStep.shortLabel.toLowerCase()}.`
+            }
             badge="Sign-in link sent"
           />
         ) : null}

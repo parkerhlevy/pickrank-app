@@ -3,18 +3,33 @@
 import { redirect } from 'next/navigation';
 import {
   buildAuthHref,
+  buildProfileCompletionDestination,
   classifyDateOfBirthForBeta,
   defaultReturnPath,
   normalizeDateOfBirth,
   normalizeJurisdiction,
   normalizeReturnPath,
   normalizeUsername,
-  validateEligibilityAcknowledgements,
+  validateDateOfBirthForBeta,
+  validateJurisdiction,
   validateUsername,
 } from '@/lib/auth-profile';
 import { hasBrowserSupabaseConfig } from '@/lib/env';
 import { createClient } from '@/lib/supabase/server';
 import { getViewerIdentity } from '@/lib/viewer-identity';
+
+type ProfileSetupField =
+  | 'username'
+  | 'jurisdiction'
+  | 'dateOfBirth'
+  | 'termsAccepted'
+  | 'privacyPolicyAccepted';
+
+export type ProfileSetupActionState = {
+  status: 'idle' | 'error';
+  message?: string;
+  fieldErrors?: Partial<Record<ProfileSetupField, string>>;
+};
 
 type DobCaptureResult = {
   age_gate_status: string;
@@ -41,71 +56,30 @@ function buildProfileRedirect(next: string, status: 'error' | 'profile-saved', m
   return `/profile?${params.toString()}`;
 }
 
-export async function completeProfile(formData: FormData) {
-  const usernameInput = String(formData.get('username') || '');
-  const next = normalizeReturnPath(String(formData.get('next') || defaultReturnPath), defaultReturnPath);
-  const validationMessage = validateUsername(usernameInput);
-
-  if (validationMessage) {
-    redirect(buildProfileRedirect(next, 'error', validationMessage));
-  }
-
-  if (!hasBrowserSupabaseConfig()) {
-    redirect(buildProfileRedirect(next, 'error', 'Add the Supabase environment values before testing profile completion.'));
-  }
-
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect(buildAuthHref(next));
-  }
-
-  const username = normalizeUsername(usernameInput);
-  const { error } = await supabase.auth.updateUser({
-    data: {
-      username,
-      display_name: username,
-    },
-  });
-
-  if (error) {
-    redirect(buildProfileRedirect(next, 'error', error.message));
-  }
-
-  const identity = await getViewerIdentity();
-  if (next !== defaultReturnPath && identity.isEmailVerified && identity.eligibility.isEligibilityComplete) {
-    redirect(next);
-  }
-
-  redirect(buildProfileRedirect(next, 'profile-saved'));
+function setupError(
+  message: string,
+  fieldErrors?: ProfileSetupActionState['fieldErrors'],
+): ProfileSetupActionState {
+  return {
+    status: 'error',
+    message,
+    fieldErrors,
+  };
 }
 
-export async function completeEligibilityProfile(formData: FormData) {
+export async function completeProfileSetup(
+  _previousState: ProfileSetupActionState,
+  formData: FormData,
+): Promise<ProfileSetupActionState> {
   const next = normalizeReturnPath(String(formData.get('next') || defaultReturnPath), defaultReturnPath);
+  const usernameInput = String(formData.get('username') || '');
   const jurisdictionInput = String(formData.get('jurisdiction') || '');
   const dateOfBirthInput = String(formData.get('dateOfBirth') || '');
   const termsAccepted = formData.get('termsAccepted') === 'on';
   const privacyPolicyAccepted = formData.get('privacyPolicyAccepted') === 'on';
-  const dateOfBirthStatus = classifyDateOfBirthForBeta(dateOfBirthInput);
-  const isUnder18Submission = dateOfBirthStatus === 'under_18';
-  const validationMessage = isUnder18Submission
-    ? null
-    : validateEligibilityAcknowledgements({
-        dateOfBirth: dateOfBirthInput,
-        termsAccepted,
-        privacyPolicyAccepted,
-        jurisdiction: jurisdictionInput,
-      });
-
-  if (validationMessage) {
-    redirect(buildProfileRedirect(next, 'error', validationMessage));
-  }
 
   if (!hasBrowserSupabaseConfig()) {
-    redirect(buildProfileRedirect(next, 'error', 'Add the Supabase environment values before testing eligibility capture.'));
+    return setupError('Profile setup is temporarily unavailable. Try again in a few minutes.');
   }
 
   const supabase = await createClient();
@@ -117,66 +91,140 @@ export async function completeEligibilityProfile(formData: FormData) {
     redirect(buildAuthHref(next));
   }
 
-  const now = new Date().toISOString();
-  const jurisdiction = normalizeJurisdiction(jurisdictionInput);
-  const dateOfBirth = normalizeDateOfBirth(dateOfBirthInput);
+  const identity = await getViewerIdentity();
 
-  if (!dateOfBirth) {
-    redirect(buildProfileRedirect(next, 'error', 'Enter a valid date of birth.'));
+  if (!identity.isAuthenticated) {
+    return setupError('PickRank could not load your Profile. Refresh the page and try again.');
   }
 
+  const needsUsername = !identity.isProfileComplete;
+  const needsEligibility = !identity.eligibility.isEligibilityComplete;
+
+  if (!needsUsername && !needsEligibility) {
+    redirect(buildProfileCompletionDestination(next));
+  }
+
+  const dateOfBirthStatus = needsEligibility ? classifyDateOfBirthForBeta(dateOfBirthInput) : 'eligible';
+  const isUnder18Submission = needsEligibility && dateOfBirthStatus === 'under_18';
   const dobCaptureClient = supabase as unknown as {
     rpc: (
       functionName: 'capture_profile_date_of_birth',
       args: { target_date_of_birth: string },
     ) => Promise<{ data: DobCaptureResult[] | null; error: { message: string } | null }>;
   };
-  const profileEligibilityClient = supabase.from('profiles') as unknown as {
-    update: (values: ProfileEligibilityUpdate) => {
-      eq: (column: 'id', value: string) => Promise<{ error: { message: string } | null }>;
-    };
-  };
-  const { data: dobCapture, error: dobError } = await dobCaptureClient.rpc('capture_profile_date_of_birth', {
-    target_date_of_birth: dateOfBirth,
-  });
-
-  if (dobError) {
-    redirect(buildProfileRedirect(next, 'error', dobError.message));
-  }
-
-  if (dobCapture?.[0]?.age_gate_status === 'blocked') {
-    redirect(buildProfileRedirect(next, 'error', 'PickRank Early Access Beta is for users who are at least 18 years old.'));
-  }
 
   if (isUnder18Submission) {
-    const existingProfileValidationMessage = validateEligibilityAcknowledgements({
-      dateOfBirth: dateOfBirthInput,
-      termsAccepted,
-      privacyPolicyAccepted,
-      jurisdiction: jurisdictionInput,
+    const { data: dobCapture, error: dobError } = await dobCaptureClient.rpc('capture_profile_date_of_birth', {
+      target_date_of_birth: dateOfBirthInput,
     });
 
-    if (existingProfileValidationMessage) {
-      redirect(buildProfileRedirect(next, 'error', existingProfileValidationMessage));
+    if (dobError) {
+      return setupError(dobError.message, { dateOfBirth: dobError.message });
+    }
+
+    if (dobCapture?.[0]?.age_gate_status === 'blocked') {
+      redirect(
+        buildProfileRedirect(
+          next,
+          'error',
+          'PickRank Early Access Beta is for users who are at least 18 years old.',
+        ),
+      );
     }
   }
 
-  const { error: profileError } = await profileEligibilityClient
-    .update({
-      jurisdiction,
-      terms_accepted_at: now,
-      privacy_policy_accepted_at: now,
-      eligibility_checked_at: now,
-      kyc_status: 'not_required',
-    })
-    .eq('id', user.id);
+  const fieldErrors: NonNullable<ProfileSetupActionState['fieldErrors']> = {};
 
-  if (profileError) {
-    redirect(buildProfileRedirect(next, 'error', profileError.message));
+  if (needsUsername) {
+    const usernameMessage = validateUsername(usernameInput);
+
+    if (usernameMessage) {
+      fieldErrors.username = usernameMessage;
+    }
   }
 
-  const { error } = await supabase.auth.updateUser({
-    data: {
+  if (needsEligibility) {
+    const jurisdictionMessage = validateJurisdiction(jurisdictionInput);
+    const dateOfBirthMessage = validateDateOfBirthForBeta(dateOfBirthInput);
+
+    if (jurisdictionMessage) {
+      fieldErrors.jurisdiction = jurisdictionMessage;
+    }
+
+    if (dateOfBirthMessage) {
+      fieldErrors.dateOfBirth = dateOfBirthMessage;
+    }
+
+    if (!termsAccepted) {
+      fieldErrors.termsAccepted = 'Accept the Beta Terms before beta entry.';
+    }
+
+    if (!privacyPolicyAccepted) {
+      fieldErrors.privacyPolicyAccepted = 'Accept the Privacy Policy before beta entry.';
+    }
+  }
+
+  if (Object.keys(fieldErrors).length > 0) {
+    return setupError('Correct the highlighted Profile fields and try again.', fieldErrors);
+  }
+
+  const now = new Date().toISOString();
+  const authMetadata: Record<string, string> = {};
+
+  if (needsUsername) {
+    const username = normalizeUsername(usernameInput);
+    authMetadata.username = username;
+    authMetadata.display_name = username;
+  }
+
+  if (needsEligibility) {
+    const jurisdiction = normalizeJurisdiction(jurisdictionInput);
+    const dateOfBirth = normalizeDateOfBirth(dateOfBirthInput);
+
+    if (!dateOfBirth) {
+      return setupError('Enter a valid date of birth.', {
+        dateOfBirth: 'Enter a valid date of birth.',
+      });
+    }
+
+    const { data: dobCapture, error: dobError } = await dobCaptureClient.rpc('capture_profile_date_of_birth', {
+      target_date_of_birth: dateOfBirth,
+    });
+
+    if (dobError) {
+      return setupError(dobError.message, { dateOfBirth: dobError.message });
+    }
+
+    if (dobCapture?.[0]?.age_gate_status === 'blocked') {
+      redirect(
+        buildProfileRedirect(
+          next,
+          'error',
+          'PickRank Early Access Beta is for users who are at least 18 years old.',
+        ),
+      );
+    }
+
+    const profileEligibilityClient = supabase.from('profiles') as unknown as {
+      update: (values: ProfileEligibilityUpdate) => {
+        eq: (column: 'id', value: string) => Promise<{ error: { message: string } | null }>;
+      };
+    };
+    const { error: profileError } = await profileEligibilityClient
+      .update({
+        jurisdiction,
+        terms_accepted_at: now,
+        privacy_policy_accepted_at: now,
+        eligibility_checked_at: now,
+        kyc_status: 'not_required',
+      })
+      .eq('id', user.id);
+
+    if (profileError) {
+      return setupError(profileError.message);
+    }
+
+    Object.assign(authMetadata, {
       jurisdiction,
       terms_accepted_at: now,
       privacy_policy_accepted_at: now,
@@ -184,11 +232,17 @@ export async function completeEligibilityProfile(formData: FormData) {
       eligibility_checked_at: now,
       kyc_status: 'not_required',
       self_exclusion_status: 'none',
-    },
-  });
+    });
+  }
+
+  const { error } = await supabase.auth.updateUser({ data: authMetadata });
 
   if (error) {
-    redirect(buildProfileRedirect(next, 'error', error.message));
+    return setupError(error.message, needsUsername ? { username: error.message } : undefined);
+  }
+
+  if (identity.isEmailVerified) {
+    redirect(buildProfileCompletionDestination(next));
   }
 
   redirect(buildProfileRedirect(next, 'profile-saved'));

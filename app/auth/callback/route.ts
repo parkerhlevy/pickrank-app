@@ -62,7 +62,9 @@ export async function GET(request: NextRequest) {
     return response;
   }
 
-  const response = NextResponse.redirect(new URL(next, requestOrigin));
+  const continueUrl = new URL('/auth/continue', requestOrigin);
+  continueUrl.searchParams.set('next', next);
+  const response = NextResponse.redirect(continueUrl);
   response.cookies.delete(authReturnCookieName);
 
   return response;

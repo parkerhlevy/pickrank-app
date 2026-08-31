@@ -2,6 +2,7 @@ import type { User } from '@supabase/supabase-js';
 import { getEntryReviewLabel } from '@/lib/launch-mode';
 
 export const defaultReturnPath = '/profile';
+export const defaultSignedInReturnPath = '/contests';
 export type AuthSurface = 'auth' | 'profile';
 export type AuthStatus = 'check-email' | 'error' | 'signed-out';
 export const verifyEmailToEnterContestsMessage = 'Verify your email to enter contests.';
@@ -179,6 +180,34 @@ export function buildProfileHref(next = defaultReturnPath, params?: Record<strin
   return `/profile?${searchParams.toString()}`;
 }
 
+export function getPostAuthDestination(
+  next: string,
+  profile: {
+    isProfileComplete: boolean;
+    isEligibilityComplete: boolean;
+  },
+) {
+  const normalizedNext = normalizeReturnPath(next, defaultReturnPath);
+  const destination = normalizedNext === defaultReturnPath ? defaultSignedInReturnPath : normalizedNext;
+
+  if (!profile.isProfileComplete || !profile.isEligibilityComplete) {
+    return buildProfileHref(destination);
+  }
+
+  return destination;
+}
+
+export function buildProfileCompletionDestination(next = defaultReturnPath) {
+  const normalizedNext = normalizeReturnPath(next, defaultReturnPath);
+  const destination = normalizedNext === defaultReturnPath ? defaultSignedInReturnPath : normalizedNext;
+
+  if (destination === defaultSignedInReturnPath) {
+    return `${defaultSignedInReturnPath}?${new URLSearchParams({ status: 'profile-complete' }).toString()}`;
+  }
+
+  return destination;
+}
+
 export function normalizeUsername(value: string) {
   return value.trim().toLowerCase();
 }
@@ -335,6 +364,15 @@ export function getReturnStepCopy(next: string): ReturnStepCopy {
       detail: 'Profile',
       isContestFlow: false,
       shortLabel: 'Profile',
+    };
+  }
+
+  if (normalizedNext === defaultSignedInReturnPath) {
+    return {
+      actionLabel: 'Continue to contests',
+      detail: 'Contests',
+      isContestFlow: false,
+      shortLabel: 'Contests',
     };
   }
 

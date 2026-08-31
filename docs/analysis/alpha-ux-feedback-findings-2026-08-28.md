@@ -96,13 +96,6 @@ These items are worth retaining, but they are not approved implementation work.
 - Scope: Injuries, inactive players, trades, replacements, entrant communication, contest validity, and scoring can affect multiple product rules.
 - Decision: Handle this as a separate contest-lifecycle and operator-policy slice. Do not solve it through player-card copy alone.
 
-### Unified post-auth setup
-
-- Evidence: `W1`, `W2`, and current separate Profile forms
-- Confidence: Medium
-- Current state: Username and entry details use separate forms and server actions.
-- Next proof: Validate the fragmented-setup concern with more walkthrough evidence before changing the submission and validation model.
-
 ## Resolved Or Partly Mitigated Findings
 
 Do not carry these forward as confirmed open defects without fresh evidence:
@@ -112,6 +105,15 @@ Do not carry these forward as confirmed open defects without fresh evidence:
 - Saved boards show persistent completion and return to an unsaved state after edits.
 - Production email confirmation and returning-user magic-link flows are verified.
 - Dragging now prevents body text selection, disables touch scrolling during the active drag, and shows a moving state. Retest on mobile before adding more drag behavior.
+
+## Approved Implementation Pending Review
+
+### Unified Profile setup and post-auth routing
+
+- Evidence: `W1`, `W2`, follow-up written feedback, and current separate Profile forms
+- Approved direction: Use one `Finish your Profile` form for every missing username and beta-entry field, preserve explicit legal acknowledgements, keep field errors on the form, send complete returning users to their intended destination, and use Contests as the default after direct Profile sign-in.
+- Current branch: `codex/account-onboarding-consolidation`
+- Boundary: Preserve auth providers, sanitized return paths, eligibility rules, durable under-18 capture, legal acknowledgement timestamps, Supabase configuration, and production data.
 
 ## Recommended Decision
 

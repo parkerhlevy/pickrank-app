@@ -74,7 +74,9 @@ describe('auth callback route', () => {
       new NextRequest('https://www.pickrankgames.com/auth/callback?code=abc&next=//attacker.example'),
     );
 
-    expect(response.headers.get('location')).toBe('https://www.pickrankgames.com/profile');
+    expect(response.headers.get('location')).toBe(
+      'https://www.pickrankgames.com/auth/continue?next=%2Fprofile',
+    );
     expect(response.headers.getSetCookie().join('\n')).toContain('pickrank_auth_next=');
   });
 
@@ -96,7 +98,9 @@ describe('auth callback route', () => {
     );
 
     expect(verifyOtp).toHaveBeenCalledWith({ token_hash: 'hash', type: 'email' });
-    expect(response.headers.get('location')).toBe('https://www.pickrankgames.com/contests/week-1/lineup');
+    expect(response.headers.get('location')).toBe(
+      'https://www.pickrankgames.com/auth/continue?next=%2Fcontests%2Fweek-1%2Flineup',
+    );
     expect(response.headers.getSetCookie().join('\n')).toContain('pickrank_auth_next=');
   });
 });

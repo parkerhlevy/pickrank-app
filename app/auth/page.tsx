@@ -30,7 +30,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
             <p className="eyebrow">Auth</p>
             <h1 className="text-3xl font-black leading-tight">Create your account or sign in</h1>
           </div>
-          <span className="status-pill shrink-0">{returnStep.isContestFlow ? 'Contest flow' : 'Account setup'}</span>
+          {returnStep.isContestFlow ? <span className="status-pill shrink-0">Contest flow</span> : null}
         </div>
       </section>
 

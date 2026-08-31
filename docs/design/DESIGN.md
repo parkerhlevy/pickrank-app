@@ -44,6 +44,7 @@ Avoid using `contest`, `slate`, `lineup`, `rankings`, and `picks` interchangeabl
 - Keep PickRank framed as a skill-based contest product, not a sportsbook.
 - Do not use betting, wagering, casino, odds, parlay, or risk-free language.
 - Keep bottom navigation as `Home`, `Contests`, `Leaderboard`, `Profile`.
+- Use `Profile` as the user-facing name for the `/profile` destination, its setup flow, and references to that destination on other pages. Do not alternate between `Profile`, `Account settings`, and `My account`. Reserve `account` for sign-in, account access, and account-status concepts.
 - Keep `How It Works` easy to reach from major screens without replacing bottom-nav items.
 - Do not show capped entry counts such as `87/100` unless a future spec explicitly adds contest caps.
 - Do not use `Live` for pre-lock enterable contests. Prefer lifecycle-accurate labels such as `Open`, `Locks soon`, `Final`, or `Canceled`.

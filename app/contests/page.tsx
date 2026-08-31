@@ -4,12 +4,18 @@ import type { LucideIcon } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { HowItWorksButton } from '@/components/ui/how-it-works-button';
+import { Notice } from '@/components/ui/notice';
 import { listPublicContests, type ContestSummary } from '@/lib/contest-data';
 import { getContestEntryProgressHref } from '@/lib/contest-entry-flow';
 import { listPersistedContestIdsForViewer } from '@/lib/persisted-contest-entry';
 import { getViewerIdentity } from '@/lib/viewer-identity';
 
-export default async function ContestsPage() {
+export default async function ContestsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ status?: string }>;
+}) {
+  const resolvedSearchParams = (await searchParams) || {};
   const [contests, viewerIdentity] = await Promise.all([listPublicContests(), getViewerIdentity()]);
   const enteredContestIds = await listPersistedContestIdsForViewer(
     viewerIdentity.userId,
@@ -31,6 +37,16 @@ export default async function ContestsPage() {
           field.
         </p>
       </div>
+
+      {resolvedSearchParams.status === 'profile-complete' ? (
+        <Notice
+          variant="success"
+          icon={CheckCircle2}
+          title="Profile complete"
+          description="You're ready to play. Choose a contest to enter."
+          badge="Complete"
+        />
+      ) : null}
 
       {contests.length > 0 ? (
         <section className="grid gap-4 lg:grid-cols-2" aria-label="Available contests">
