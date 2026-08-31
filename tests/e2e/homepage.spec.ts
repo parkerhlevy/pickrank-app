@@ -299,6 +299,8 @@ test('waitlist form requires consent without routing visitors to auth', async ({
 test('auth remains available as a separate protected-flow route', async ({ page }) => {
   await page.goto('/auth?status=signed-out&next=%2Fprofile');
 
+  await expect(page.getByText('Account', { exact: true })).toBeVisible();
+  await expect(page.getByText('Auth', { exact: true })).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'Create your account or sign in' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Account access' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Continue with Google' })).toBeVisible();
