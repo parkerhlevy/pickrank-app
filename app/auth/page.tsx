@@ -27,7 +27,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
       <section className="screen-header space-y-2">
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-2">
-            <p className="eyebrow">Auth</p>
+            <p className="eyebrow">Account</p>
             <h1 className="text-3xl font-black leading-tight">Create your account or sign in</h1>
           </div>
           {returnStep.isContestFlow ? <span className="status-pill shrink-0">Contest flow</span> : null}
