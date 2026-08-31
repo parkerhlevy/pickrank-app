@@ -29,6 +29,18 @@ User Data opens as an All users directory. Operators can browse without entering
 
 The first release is evidence and visibility focused. Broad user editing, entry deletion, payment, wallet, KYC, paid-entry eligibility, and live legal skill claims are out of scope.
 
+## Data Freshness and Scale Trigger
+
+Every admin workspace page reads current server data when the route loads or refreshes. Show the UTC load time and a Refresh data control. Do not add background polling or a scheduled synchronization process for the first release.
+
+The current broad request-time snapshot is acceptable during alpha. Schedule database-level filtering, pagination, and aggregate queries when any one of these triggers occurs:
+
+- 500 registered accounts
+- 25,000 immutable board revisions
+- a seven-day admin-route p95 response time above two seconds
+
+Complete the change before 1,000 registered accounts because the current Supabase Auth request reads one page of at most 1,000 users. The scaled design must paginate Supabase Auth users, move filtering and pagination into database queries, and calculate overview counts with database aggregates instead of loading full datasets into application memory.
+
 ## Immutable Board Evidence
 
 Create one append-only board revision for:
@@ -130,6 +142,7 @@ The admin dashboard shows sample size and completeness only. Public, regulatory,
 - Lock creates one evidence snapshot per entry.
 - Operators can reach the same entry from a contest and from a user.
 - User Data shows all users by default and supports search, status and evidence filters, sorting, totals, and pagination.
+- Every admin workspace shows its UTC data-load time and can request fresh server data without a full browser reload.
 - Non-operators cannot read admin evidence or exports.
 - Default exports omit direct identity and include a checksum.
 - Identified exports require a reason and create an audit event.

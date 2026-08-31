@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, Search, UserRound } from 'lucide-react';
+import { AdminDataFreshness } from '@/components/admin/admin-data-freshness';
 import { Button } from '@/components/ui/button';
 import { listAdminEvidenceUsers, recordAdminAuditEvent, type AdminEvidenceUser } from '@/lib/admin-evidence';
 import { requireContestOperator } from '@/lib/contest-operator-access';
@@ -53,6 +54,8 @@ export default async function AdminUsersPage({
     });
   }
 
+  const loadedAt = new Date().toISOString();
+
   return (
     <div className="space-y-6 pb-24">
       <section className="screen-header space-y-2">
@@ -61,6 +64,7 @@ export default async function AdminUsersPage({
         <p className="text-muted-foreground">
           Review every user, then follow an account through contests, saved board versions, and final results.
         </p>
+        <AdminDataFreshness loadedAt={loadedAt} />
       </section>
 
       <section className="rounded-xl border bg-white p-4 shadow-sm" aria-labelledby="user-directory-heading">

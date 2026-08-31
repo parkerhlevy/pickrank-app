@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { AlertTriangle, ArrowRight, Database, FileCheck2, Trophy, Users } from 'lucide-react';
+import { AdminDataFreshness } from '@/components/admin/admin-data-freshness';
 import { AdminMetric, EvidenceStatus, formatAdminTimestamp } from '@/components/admin/evidence-ui';
 import { Button } from '@/components/ui/button';
 import { getAdminEvidenceOverview } from '@/lib/admin-evidence';
@@ -8,6 +9,7 @@ import { requireContestOperator } from '@/lib/contest-operator-access';
 export default async function AdminPage() {
   const access = await requireContestOperator('/admin');
   const overview = await getAdminEvidenceOverview();
+  const loadedAt = new Date().toISOString();
 
   return (
     <div className="space-y-6 pb-24">
@@ -18,6 +20,7 @@ export default async function AdminPage() {
           Review PickRank operations and confirm that every contest entry has an analysis-ready evidence trail.
         </p>
         <p className="text-xs text-slate-500">Signed in as {access.user?.email || 'contest operator'}</p>
+        <AdminDataFreshness loadedAt={loadedAt} />
       </section>
 
       {overview.missingRevisionCount > 0 ? (

@@ -11,6 +11,7 @@ import {
   saveContestSlateAction,
   validateDraftContestAction,
 } from '@/app/admin/contests/actions';
+import { AdminDataFreshness } from '@/components/admin/admin-data-freshness';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { canFinalizeContestStatus } from '@/lib/contest-finalization';
@@ -44,6 +45,7 @@ export default async function AdminContestsPage({
   const message = resolvedSearchParams?.message;
   const activeContestPreviews = contestsWithStatPreview.filter(({ contest }) => !isRemovedContest(contest));
   const removedContestPreviews = contestsWithStatPreview.filter(({ contest }) => isRemovedContest(contest));
+  const loadedAt = new Date().toISOString();
 
   return (
     <div className="space-y-6 pb-28">
@@ -53,6 +55,7 @@ export default async function AdminContestsPage({
         <p className="text-muted-foreground">
           Create draft contest basics here first, run validation, and publish with a deliberate operator checkpoint.
         </p>
+        <AdminDataFreshness loadedAt={loadedAt} />
       </section>
 
       <Card>

@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { ShieldCheck } from 'lucide-react';
+import { AdminDataFreshness } from '@/components/admin/admin-data-freshness';
 import { EntrySummaryCard, formatAdminTimestamp } from '@/components/admin/evidence-ui';
 import { BackLinkButton } from '@/components/ui/back-link-button';
 import { getAdminEvidenceUser, recordAdminAuditEvent } from '@/lib/admin-evidence';
@@ -22,6 +23,7 @@ export default async function AdminUserDetailPage({
     targetId: userId,
     targetType: 'user',
   });
+  const loadedAt = new Date().toISOString();
 
   return (
     <div className="space-y-6 pb-24">
@@ -32,6 +34,7 @@ export default async function AdminUserDetailPage({
         <h1 className="text-3xl font-black leading-tight">{user.displayName}</h1>
         <p className="text-muted-foreground">@{user.username} · {user.email}</p>
         <p className="break-all text-xs text-slate-500">{user.userId}</p>
+        <AdminDataFreshness loadedAt={loadedAt} />
       </section>
 
       <section className="rounded-xl border bg-white p-5 shadow-sm">

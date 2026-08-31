@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Download, FileCheck2, ShieldAlert } from 'lucide-react';
+import { AdminDataFreshness } from '@/components/admin/admin-data-freshness';
 import { AdminMetric, EvidenceStatus, formatAdminTimestamp } from '@/components/admin/evidence-ui';
 import { Button } from '@/components/ui/button';
 import { getAdminEvidenceOverview } from '@/lib/admin-evidence';
@@ -9,6 +10,7 @@ export default async function AdminEvidencePage() {
   await requireContestOperator('/admin/evidence');
   const overview = await getAdminEvidenceOverview();
   const complete = overview.missingRevisionCount === 0;
+  const loadedAt = new Date().toISOString();
 
   return (
     <div className="space-y-6 pb-24">
@@ -21,6 +23,7 @@ export default async function AdminEvidencePage() {
         <p className="text-muted-foreground">
           Confirm data completeness and create reproducible packages for independent analysis.
         </p>
+        <AdminDataFreshness loadedAt={loadedAt} />
       </section>
 
       <div className="flex items-start gap-3 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-950">
