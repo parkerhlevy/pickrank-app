@@ -1,0 +1,212 @@
+# MySportsFeeds Week 1 End-to-End Setup
+
+Date: 2026-09-01
+
+Status: Local non-production setup complete. Live browser execution is blocked by this host's localhost bind restriction.
+
+## Scope and safety boundary
+
+This slice used the PickRank repo as the source of truth. It read the current handoff, product spec, contest admin spec, stat finalization spec, provider adapter, contest data layer, admin actions, public contest routes, entry persistence, scoring, and results code.
+
+All provider calls were GET-only. The MySportsFeeds key stayed in the existing `PICKRANK_MYSPORTSFEEDS_API_KEY` environment-variable path. The key was not printed, stored in a repo file, hard-coded, or committed.
+
+The Week 1 contest was created only in `/private/tmp/pickrank-mysportsfeeds-week1`, a detached clean worktree based on `origin/main` at `24f239c`. The setup used the file-backed contest store. It did not use Supabase. It did not change production data. Nothing was deployed, purchased, published to production, committed, or pushed.
+
+The primary checkout at `/Users/parkerlevy/Documents/PickRank` was left unchanged because it contains unrelated in-progress work.
+
+## Provider account and feed coverage
+
+The MySportsFeeds account page showed an active commercial NFL Non-Live subscription with STATS access. CORE is included automatically. The account page showed the next charge date as 2027-08-31. No purchase or subscription change was made.
+
+Official MySportsFeeds material describes the relevant coverage as follows:
+
+- [Sports Data API](https://www.mysportsfeeds.com/data-feeds): CORE includes schedules and game status. STATS includes player game logs and statistics.
+- [Feed pricing and add-ons](https://www.mysportsfeeds.com/feed-pricing/): DETAILED is a separate add-on for Players, Game Lineups, and Injuries.
+- [FAQ](https://www.mysportsfeeds.com/faq/): Non-Live access can return no content before the relevant post-game data is available.
+
+Current CORE + STATS access is enough for schedules, provider game IDs, completed-game quarterback player IDs, passing yards, passing touchdowns, and game completion state. It does not provide the DETAILED player directory, game lineups, injuries, or a provider-native pregame starter confirmation path.
+
+## Read-only provider validation
+
+### Completed-game check
+
+The read-only probe checked 2026 preseason Week 1 game `163800`, Denver at Atlanta, at provider snapshot time `2026-09-01T04:42:47.649Z`.
+
+Confirmed results:
+
+- Authentication passed.
+- Schedule access passed.
+- Provider game ID parsing passed.
+- Player ID parsing passed.
+- QB passing-yard parsing passed.
+- Provisional snapshot shape passed.
+- `playedStatus=COMPLETED` and `scheduleStatus=NORMAL` mapped to provisional `final`.
+- Five QB passing-stat rows were returned.
+- The leading passing-yard rows were Jarrett Stidham 148, Sam Ehlinger 67, Cooper Rush 62, Jack Strand 50, and Tua Tagovailoa 22.
+
+The probe did not persist data and did not call PickRank's official final-results path.
+
+### Final-stat behavior
+
+Provider status and PickRank official finality remain separate:
+
+- `COMPLETED_PENDING_REVIEW` maps to provisional `in_progress`.
+- Plain `COMPLETED` maps to provisional `final`.
+- Neither status publishes official PickRank results by itself.
+- Official PickRank finalization still requires an eligible contest state, operator review of the final stat rows, and typed `FINAL` confirmation.
+
+This preserves the human review boundary in `spec/features/stat_finalization.md` and the existing results implementation.
+
+### Reliability observation
+
+One completed preseason Week 3 request returned a truncated response and failed JSON parsing with `Unexpected end of JSON input`. Other requests succeeded. Production readiness needs bounded retry, backoff, response-size logging that excludes credentials, and a clear malformed-response error before automated ingestion is enabled.
+
+## 2026 regular-season Week 1 schedule
+
+The schedule-only probe ran at `2026-09-01T04:46:01.328Z`. It returned 16 scheduled games. The selected contest pool uses these 10 games:
+
+| Provider game ID | Matchup | Start time UTC |
+| --- | --- | --- |
+| 163543 | CHI at CAR | 2026-09-13T17:00:00.000Z |
+| 163544 | TB at CIN | 2026-09-13T17:00:00.000Z |
+| 163545 | NO at DET | 2026-09-13T17:00:00.000Z |
+| 163546 | BUF at HOU | 2026-09-13T17:00:00.000Z |
+| 163547 | BAL at IND | 2026-09-13T17:00:00.000Z |
+| 163548 | CLE at JAX | 2026-09-13T17:00:00.000Z |
+| 163550 | NYJ at TEN | 2026-09-13T17:00:00.000Z |
+| 163553 | GB at MIN | 2026-09-13T20:25:00.000Z |
+| 163554 | WAS at PHI | 2026-09-13T20:25:00.000Z |
+| 163555 | DAL at NYG | 2026-09-14T00:20:00.000Z |
+
+The pool excludes the Thursday and Friday games. It also excludes Denver at Kansas City because the current public depth-chart source listed Patrick Mahomes as questionable, and it excludes Atlanta at Pittsburgh because the Atlanta starter was not sufficiently settled for this non-production proof.
+
+## Week 1 quarterback pool
+
+All provider player IDs below were confirmed from completed MySportsFeeds QB stat rows. Pregame starter status was checked manually against the current [PFN NFL depth-chart index](https://www.profootballnetwork.com/nfl-hq/depth-charts). Cleveland and Minnesota also had team-source confirmation for [Deshaun Watson](https://www.clevelandbrowns.com/news/deshaun-watson-named-browns-starting-quarterback) and [Kyler Murray](https://www.vikings.com/news/kyler-murray-quarterback-starting-2026-nfl-season).
+
+| Order | Player | Provider player ID | Provider game ID | Team | Opponent | Home/away |
+| ---: | --- | ---: | ---: | --- | --- | --- |
+| 1 | Caleb Williams | 133835 | 163543 | CHI | CAR | away |
+| 2 | Bryce Young | 79739 | 163543 | CAR | CHI | home |
+| 3 | Baker Mayfield | 14492 | 163544 | TB | CIN | away |
+| 4 | Joe Burrow | 18577 | 163544 | CIN | TB | home |
+| 5 | Tyler Shough | 166710 | 163545 | NO | DET | away |
+| 6 | Jared Goff | 9919 | 163545 | DET | NO | home |
+| 7 | Josh Allen | 14498 | 163546 | BUF | HOU | away |
+| 8 | C.J. Stroud | 79740 | 163546 | HOU | BUF | home |
+| 9 | Lamar Jackson | 14523 | 163547 | BAL | IND | away |
+| 10 | Daniel Jones | 16603 | 163547 | IND | BAL | home |
+| 11 | Deshaun Watson | 13027 | 163548 | CLE | JAX | away |
+| 12 | Trevor Lawrence | 30425 | 163548 | JAX | CLE | home |
+| 13 | Geno Smith | 19276 | 163550 | NYJ | TEN | away |
+| 14 | Cam Ward | 166676 | 163550 | TEN | NYJ | home |
+| 15 | Jordan Love | 18607 | 163553 | GB | MIN | away |
+| 16 | Kyler Murray | 16226 | 163553 | MIN | GB | home |
+| 17 | Jayden Daniels | 133836 | 163554 | WAS | PHI | away |
+| 18 | Jalen Hurts | 18668 | 163554 | PHI | WAS | home |
+| 19 | Dak Prescott | 9845 | 163555 | DAL | NYG | away |
+| 20 | Jaxson Dart | 166640 | 163555 | NYG | DAL | home |
+
+Pool checks:
+
+- 20 unique quarterbacks.
+- 20 numeric MySportsFeeds player IDs.
+- 10 unique provider game IDs.
+- Two quarterbacks per selected game.
+- 10 home quarterbacks and 10 away quarterbacks.
+- All game start times are at or after the contest lock time.
+- One supported stat category: `qb_passing_yards`.
+- Users rank 10 players from the full 20-player pool.
+- Scoring stays `rank_differential_v2` against the full-pool final order.
+
+This is a non-production pool. Recheck every starter, injury, roster, game status, kickoff time, and provider ID before any production publish decision.
+
+## Admin flow and local setup
+
+The traced admin path is:
+
+1. `createDraftContestAction` validates title, instruction, season, week, $0 entry fee, entry-open time, and lock time.
+2. `createDraftContest` creates a hidden `draft` with `qb_passing_yards` and a 20-player pool requirement.
+3. `saveContestSlateAction` parses the pipe-delimited operator rows.
+4. `saveContestSlate` saves provider player IDs, provider game IDs, matchups, kickoff times, QB position, and active status.
+5. `validateDraftContestAction` runs the 20-player, uniqueness, stat-category, time, and default-board checks.
+6. `publishContestAction` requires a passed validation and a human operator action.
+7. `publishContest` changes only the isolated file record to visible `open` for this proof.
+
+The guarded command used for the setup was:
+
+```bash
+npm run setup:mysportsfeeds:week1:nonprod -- --confirm-isolated-file-store --data-file data/contests.json
+```
+
+The generated local contest state is:
+
+- Contest ID: `week-1-qb-passing-yards-msf-validation`
+- Status: `open`
+- Visibility: `visible`
+- Entry fee: `$0.00`
+- Entry opens: `2026-09-01T00:00:00.000Z`
+- Lock time: `2026-09-13T17:00:00.000Z`
+- Stat category: Passing yards
+- Player pool: 20
+- Ranked board: 10
+- Validation: passed
+- Public contest list lookup: passed
+
+The script refuses to run without the explicit isolated-file-store confirmation and an explicit file path inside the current worktree `data` directory. It does not contain or read the MySportsFeeds key.
+
+## Verification report
+
+Story: A PickRank operator validates MySportsFeeds schedule and QB data, creates a free Week 1 passing-yards contest with provider-native IDs, validates and publishes it in an isolated file store, and an eligible user finds the contest, enters, ranks 10 of 20 quarterbacks, and saves the board.
+
+| Boundary | Status | Evidence |
+| --- | --- | --- |
+| Provider authentication | Passed | GET-only completed-game and schedule probes passed |
+| Provider schedule to game IDs | Passed | 16 Week 1 games returned; 10 selected IDs saved |
+| Provider QB rows to player IDs | Passed | 20 selected IDs confirmed from completed stat rows |
+| Provider final state to provisional rows | Passed | `COMPLETED` mapped to provisional `final` with passing yards |
+| Admin draft to saved slate | Passed | Local setup command saved 20 rows |
+| Admin validation | Passed | No validation errors |
+| Local publish to public list | Passed | Visible `open` contest returned by `listPublicContests` |
+| Public route and entry browser execution | Blocked on this host | Next dev failed to bind `127.0.0.1:3101` with `listen EPERM` in both normal and approved elevated runs. A temporary verified Ubuntu Lima VM reached disk creation but its local SSH control port failed with the same bind restriction. |
+| Browser test contract | Passed | The focused admin, contest detail, entry, 10-player selection, save, and persistence spec passed contract validation |
+| Official Week 1 final results | Pending future games | Week 1 has not been played; no final result was fabricated or published |
+
+Verification commands that passed:
+
+- `npx vitest run tests/unit/mysportsfeeds-validation.test.ts tests/unit/admin-contest-creation.test.ts`: 17 tests.
+- Focused finalization, results, scoring, ingestion, provisional, and leaderboard run: 25 tests.
+- Full `npx vitest run --maxWorkers=1`: 40 files and 239 tests.
+- `npm run typecheck`.
+- Full `npm run lint` and focused ESLint on the changed provider, setup, unit, and browser-test files.
+- `npm run test:e2e:contracts`: 16 Playwright files passed contract validation.
+- `git diff --check`.
+
+The browser test is `tests/e2e/mysportsfeeds-week1-flow.spec.ts`. It is ready for a host that permits localhost browser execution. The repo's durable fallback is the GitHub Actions `Browser verification` workflow, but that workflow can test this uncommitted slice only after separate commit and push approval. Do not report the browser flow as passed until the test runs successfully in Chromium.
+
+## Legal, commercial, and production-readiness gaps
+
+The repo records a MySportsFeeds support confirmation that the described PickRank business-to-consumer free-to-play beta, internal validation, and storage are acceptable if PickRank does not place MySportsFeeds in competition. That record does not authorize paid contests, business-to-business use, or any new product category.
+
+Before production use, obtain or reconfirm written answers for:
+
+- Public display and redistribution rights for schedules, player names, provider IDs, and stat values.
+- Cache duration, historical retention, correction handling, and deletion obligations.
+- Required attribution and trademark wording.
+- Rate limits, retry rules, request concurrency, and expected post-game publication latency.
+- Whether the current free-to-play beta still fits the approved business-to-consumer scope.
+- Separate terms for paid contests or business-to-business use.
+
+Technical production gaps:
+
+- CORE + STATS does not prove pregame starters, active rosters, lineups, or injuries. DETAILED access or a written approved alternate process is still required for provider-only automation.
+- The Week 1 player pool uses manual public depth-chart confirmation. It needs a same-day and pre-lock operator recheck.
+- The adapter needs bounded retry and malformed-response handling.
+- A complete browser run is still required on a permitted local or continuous integration host.
+- Week 1 final-stat and correction behavior can only be checked after the games finish.
+- The existing data model still labels contests `public_paid` even when the free-beta entry fee is zero. This did not activate payment behavior, but the naming remains a product-data cleanup gap.
+- Production Supabase contest creation, provider snapshot persistence, scheduled refreshes, and public result publication remain untested and approval-gated.
+
+## Recommended next action
+
+Choose one browser-gate path: run the focused Chromium test from a normal local Terminal session, or separately approve a narrow commit and push so GitHub Actions can test the exact slice. If the test passes, review the exact 20-player pool and written MySportsFeeds rights with Parker. Do not publish the Week 1 contest to production until both reviews are complete.

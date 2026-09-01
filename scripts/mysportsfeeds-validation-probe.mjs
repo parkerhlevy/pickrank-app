@@ -10,6 +10,9 @@ main().catch((error) => {
 async function main() {
   const env = await loadEnvFile(path.join(process.cwd(), '.env.local'));
   const args = parseArgs(process.argv.slice(2));
+  const requestedPlayerNames = args.players
+    ? new Set(args.players.split(',').map((name) => name.trim()).filter(Boolean))
+    : null;
   const season =
     args.season ||
     process.env.PICKRANK_MYSPORTSFEEDS_SEASON ||
@@ -34,6 +37,8 @@ async function main() {
     gameId: args.game || process.env.PICKRANK_MYSPORTSFEEDS_GAME_ID || env.PICKRANK_MYSPORTSFEEDS_GAME_ID,
     teamAbbreviation:
       args.team || process.env.PICKRANK_MYSPORTSFEEDS_TEAM || env.PICKRANK_MYSPORTSFEEDS_TEAM,
+    scheduleOnly: args.scheduleOnly,
+    allWeekGames: args.allWeekGames,
   });
 
   console.log(
@@ -51,9 +56,13 @@ async function main() {
         gamesInProgress: result.gamesInProgress,
         gamesFinal: result.gamesFinal,
         allGamesFinal: result.allGamesFinal,
+        games: result.games,
         selectedGame: result.selectedGame,
         statRowsFound: result.statRowsFound,
         topFive: result.topFive,
+        rows: args.includeRows || requestedPlayerNames
+          ? result.rows.filter((row) => !requestedPlayerNames || requestedPlayerNames.has(row.playerName))
+          : undefined,
         notes: result.notes,
       },
       null,
@@ -104,6 +113,15 @@ function parseArgs(args) {
       index += 1;
     } else if (arg === '--team') {
       parsed.team = args[index + 1];
+      index += 1;
+    } else if (arg === '--schedule-only') {
+      parsed.scheduleOnly = true;
+    } else if (arg === '--all-week-games') {
+      parsed.allWeekGames = true;
+    } else if (arg === '--include-rows') {
+      parsed.includeRows = true;
+    } else if (arg === '--players') {
+      parsed.players = args[index + 1];
       index += 1;
     }
   }

@@ -96,6 +96,14 @@ describe('mysportsfeeds read-only validation', () => {
         gamesScheduled: 1,
         gamesInProgress: 0,
         gamesFinal: 0,
+        games: [
+          expect.objectContaining({
+            providerGameId: '163541',
+            awayTeam: 'NE',
+            homeTeam: 'SEA',
+            gameStatus: 'scheduled',
+          }),
+        ],
         statRowsFound: 0,
         selectedGame: expect.objectContaining({
           providerGameId: '163541',
@@ -122,6 +130,40 @@ describe('mysportsfeeds read-only validation', () => {
         method: 'GET',
       }),
     );
+  });
+
+  it('supports a schedule-only Week 1 check without requesting unavailable pregame stats', async () => {
+    const fetchImpl = vi.fn().mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        games: [
+          {
+            schedule: {
+              id: 163541,
+              startTime: '2026-09-10T00:20:00.000Z',
+              awayTeam: { abbreviation: 'NE' },
+              homeTeam: { abbreviation: 'SEA' },
+              scheduleStatus: 'NORMAL',
+              playedStatus: 'UNPLAYED',
+            },
+          },
+        ],
+      }),
+    });
+
+    const result = await runMySportsFeedsReadOnlyValidation({
+      apiKey: 'secret-key',
+      season: '2026-regular',
+      week: 1,
+      scheduleOnly: true,
+      fetchImpl: fetchImpl as unknown as typeof fetch,
+    });
+
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    expect(result.games).toHaveLength(1);
+    expect(result.checks.qbPassYards).toBe('pending_completed_game');
+    expect(result.notes).toContain('Schedule-only mode skipped the player gamelog request.');
   });
 
   it('builds provisional rows from completed QB gamelogs without persisting anything', async () => {
