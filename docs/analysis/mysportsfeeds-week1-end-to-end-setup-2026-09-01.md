@@ -2,7 +2,7 @@
 
 Date: 2026-09-01
 
-Status: Local non-production setup complete. Live browser execution is blocked by this host's localhost bind restriction.
+Status: Non-production setup and the durable Linux Chromium browser gate are complete.
 
 ## Scope and safety boundary
 
@@ -168,7 +168,7 @@ Story: A PickRank operator validates MySportsFeeds schedule and QB data, creates
 | Admin draft to saved slate | Passed | Local setup command saved 20 rows |
 | Admin validation | Passed | No validation errors |
 | Local publish to public list | Passed | Visible `open` contest returned by `listPublicContests` |
-| Public route and entry browser execution | Blocked on this host | Next dev failed to bind `127.0.0.1:3101` with `listen EPERM` in both normal and approved elevated runs. A temporary verified Ubuntu Lima VM reached disk creation but its local SSH control port failed with the same bind restriction. |
+| Public route and entry browser execution | Passed in GitHub Actions | GitHub Actions run `33474643826` passed the complete Chromium workflow on branch `codex/mysportsfeeds-week1-nonprod-proof`, including the focused admin, contest detail, entry, 10-player selection, save, and persistence flow. Local Next dev still cannot bind on this host. |
 | Browser test contract | Passed | The focused admin, contest detail, entry, 10-player selection, save, and persistence spec passed contract validation |
 | Official Week 1 final results | Pending future games | Week 1 has not been played; no final result was fabricated or published |
 
@@ -180,9 +180,10 @@ Verification commands that passed:
 - `npm run typecheck`.
 - Full `npm run lint` and focused ESLint on the changed provider, setup, unit, and browser-test files.
 - `npm run test:e2e:contracts`: 16 Playwright files passed contract validation.
+- GitHub Actions `Browser verification` run `33474643826`: the complete Linux Chromium workflow passed in 4 minutes 22 seconds.
 - `git diff --check`.
 
-The browser test is `tests/e2e/mysportsfeeds-week1-flow.spec.ts`. It is ready for a host that permits localhost browser execution. The repo's durable fallback is the GitHub Actions `Browser verification` workflow, but that workflow can test this uncommitted slice only after separate commit and push approval. Do not report the browser flow as passed until the test runs successfully in Chromium.
+The browser test is `tests/e2e/mysportsfeeds-week1-flow.spec.ts`. The first GitHub Actions run exposed an existing global button locator that became ambiguous when this proof added a second open free contest. The locator was scoped to the exact contest form. GitHub Actions run `33474643826` then passed the complete `Browser verification` workflow in Chromium.
 
 ## Legal, commercial, and production-readiness gaps
 
@@ -202,11 +203,10 @@ Technical production gaps:
 - CORE + STATS does not prove pregame starters, active rosters, lineups, or injuries. DETAILED access or a written approved alternate process is still required for provider-only automation.
 - The Week 1 player pool uses manual public depth-chart confirmation. It needs a same-day and pre-lock operator recheck.
 - The adapter needs bounded retry and malformed-response handling.
-- A complete browser run is still required on a permitted local or continuous integration host.
 - Week 1 final-stat and correction behavior can only be checked after the games finish.
 - The existing data model still labels contests `public_paid` even when the free-beta entry fee is zero. This did not activate payment behavior, but the naming remains a product-data cleanup gap.
 - Production Supabase contest creation, provider snapshot persistence, scheduled refreshes, and public result publication remain untested and approval-gated.
 
 ## Recommended next action
 
-Choose one browser-gate path: run the focused Chromium test from a normal local Terminal session, or separately approve a narrow commit and push so GitHub Actions can test the exact slice. If the test passes, review the exact 20-player pool and written MySportsFeeds rights with Parker. Do not publish the Week 1 contest to production until both reviews are complete.
+Review the exact 20-player pool and written MySportsFeeds rights with Parker. Recheck starters, injuries, rosters, kickoff times, and provider IDs before any production decision. Do not publish the Week 1 contest to production until both reviews are complete.
