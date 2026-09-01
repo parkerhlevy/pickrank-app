@@ -498,9 +498,12 @@ test('locks and finalizes the same zero-fee proof contest without paid count or 
 
   await operatorPage.goto('/admin/contests');
   await expect(operatorPage.getByRole('heading', { name: 'Contest Setup' })).toBeVisible();
-  await expect(operatorPage.locator(`#lockConfirmationText-${freeProofContestId}`)).toBeVisible();
-  await operatorPage.locator(`#lockConfirmationText-${freeProofContestId}`).fill('LOCK TEST');
-  await operatorPage.getByRole('button', { name: 'Lock Free/Test Contest' }).click();
+  const freeProofLockForm = operatorPage.locator('form').filter({
+    has: operatorPage.locator(`#lockConfirmationText-${freeProofContestId}`),
+  });
+  await expect(freeProofLockForm.locator(`#lockConfirmationText-${freeProofContestId}`)).toBeVisible();
+  await freeProofLockForm.locator(`#lockConfirmationText-${freeProofContestId}`).fill('LOCK TEST');
+  await freeProofLockForm.getByRole('button', { name: 'Lock Free/Test Contest' }).click();
 
   await expect(operatorPage).toHaveURL(/status=locked/, { timeout: serverActionTimeout });
   await expect(
