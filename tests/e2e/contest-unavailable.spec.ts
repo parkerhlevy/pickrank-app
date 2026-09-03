@@ -71,6 +71,6 @@ test('known visible contest detail URLs still render normally', async ({ page })
   const response = await page.goto('/contests/week-1-qb-passing-yards');
 
   expect(response?.status()).toBe(200);
-  await expect(page.getByRole('heading', { name: 'Week 1 QB Passing Yards' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Week 1 QB Passing Yards', level: 1 })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'This contest is not available' })).toHaveCount(0);
 });
