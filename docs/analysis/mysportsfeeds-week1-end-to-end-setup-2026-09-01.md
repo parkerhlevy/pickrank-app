@@ -201,7 +201,7 @@ The production admin now contains one replacement contest:
 - Player pool: the reviewed 20-player MySportsFeeds slate from the non-production proof.
 - Validation: `passed` in the production admin.
 
-The replacement remains hidden and unpublished. No code was deployed or merged.
+The replacement remains hidden and unpublished.
 
 Parker explicitly approved permanent deletion of stale production contest `week-1-qb-passing-yards`, ID `a95512b2-2dd8-4095-a0c5-e70be4bc2bd4`. A guarded transaction required the exact reviewed counts and a validated hidden replacement before deletion. It removed the contest and its cascading ordinary records: 20 slate players, 9 free entries, 90 lineup rows, 1 validation row, and 3 state events. It removed no paid entries because the contest had none.
 
@@ -209,11 +209,11 @@ The transaction retained the append-only evidence that does not cascade with the
 
 Post-delete database checks returned zero rows for the stale contest, slate players, entries, validation records, and state events. The replacement still returned one hidden draft, 20 slate players, and one passed validation. Public `/contests` showed no available contests and exposed neither slug.
 
-Direct visits to both the deleted slug and the hidden replacement slug returned a generic server-error page instead of a clean unavailable or not-found response. Resolve and deploy that route behavior before publishing the replacement.
+Pull request `#48` merged the route-safety fix into `main` at `6bd8b3c`. Public contest lookup no longer substitutes the first visible contest for an unknown slug. Deleted and hidden contest pages call the Next.js not-found boundary and render one contest-specific unavailable page. The contest progress and lineup API handlers return JSON `404` responses. The same public lookup guard applies to detail, payment, success, lineup, results, and requested leaderboard routes. Admin calls can still request hidden contests explicitly.
 
-An uncommitted route-safety fix is now prepared on `codex/mysportsfeeds-week1-nonprod-proof`. Public contest lookup no longer substitutes the first visible contest for an unknown slug. Deleted and hidden contest pages call the Next.js not-found boundary and render one contest-specific unavailable page. The contest progress and lineup API handlers return JSON `404` responses. The same public lookup guard applies to detail, payment, success, lineup, results, and requested leaderboard routes. Admin calls can still request hidden contests explicitly.
+Focused lookup coverage passes with 5 unit tests. The full Vitest suite passes with 40 files and 240 tests. Typecheck, full lint, Playwright contract validation for 17 files, the webpack production build, and `git diff --check` pass. Local browser execution is blocked before the application starts by the host `listen EPERM` restriction, including an elevated retry. Hosted Chromium passed on implementation run `33721107914`, reconciled branch-head run `33721983393`, pull-request run `33722003852`, and post-merge `main` run `33723976335`.
 
-Focused lookup coverage passes with 5 unit tests. The full Vitest suite passes with 40 files and 240 tests. Typecheck, full lint, Playwright contract validation for 17 files, the webpack production build, and `git diff --check` pass. Local browser execution is blocked before the application starts by the host `listen EPERM` restriction, including an elevated retry. Commits `cd23d98`, `da9bb2c`, and `e08f376` are pushed. Run `33718470053` exposed that the explicit CI suite list validated without executing the new browser file. Run `33718937096` then passed the deleted, hidden, and JSON-handler cases but found an ambiguous visible-title test locator. Final GitHub Actions run `33721107914` passed the complete hosted Chromium gate in 4 minutes 42 seconds. Its unavailable-contest group passed all 3 cases in 8.6 seconds. No deployment, publication, or production-data change was made for this route fix.
+Vercel Production deployment `dpl_vtV6YbqpvoEEwcvfMPuChmRK4JDv` is `READY` for `6bd8b3c` at `https://pickrank-f87uhdpis-parker-levys-projects.vercel.app` and serves `www.pickrankgames.com`. Live browser checks confirmed that the public lobby contains no contests, both deleted and hidden detail URLs return HTTP `404` with `This contest is not available`, and the hidden title is not exposed. Both progress endpoints return JSON `404` with `Contest not found.`. Authenticated admin review confirmed the replacement remains a validated hidden draft and is not in the lobby. The deployment's 30-minute runtime-error view reported no errors. No contest was published and no production data changed during deployment verification.
 
 ## Legal, commercial, and production-readiness gaps
 
@@ -238,8 +238,8 @@ Technical production gaps:
 - Week 1 final-stat and correction behavior can only be checked after the games finish.
 - The existing data model still labels contests `public_paid` even when the free-beta entry fee is zero. This did not activate payment behavior, but the naming remains a product-data cleanup gap.
 - Production Supabase draft creation and admin validation now pass. Provider snapshot persistence, scheduled refreshes, and public result publication remain untested and approval-gated.
-- Production direct deleted or hidden contest URLs continue to return a generic server-error page until the prepared local route fix passes hosted Chromium and receives separate commit, deployment, and publish approvals.
+- The production route blocker is resolved. Publication still requires the close-to-publish roster and kickoff review plus Parker's separate explicit approval.
 
 ## Recommended next action
 
-Review the pushed Week 1 production candidate through `e08f376`. If approved, integrate and deploy only after Parker gives separate approval. Verify the deleted and hidden URLs in production after deployment. Then recheck starters, injuries, rosters, kickoff times, and provider IDs close to publish time. Keep the replacement hidden until Parker gives a separate explicit publish approval.
+Keep the replacement hidden. Close to publication, recheck starters, injuries, rosters, kickoff times, opponent mappings, and provider IDs. Report any change, rerun validation after approved edits, and present the exact final candidate for Parker's separate explicit publish approval.
