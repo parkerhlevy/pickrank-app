@@ -9,6 +9,7 @@ const suites = explicitArguments.length
       { name: 'homepage', arguments: ['tests/e2e/homepage.spec.ts'] },
       { name: 'contest-unavailable', arguments: ['tests/e2e/contest-unavailable.spec.ts'] },
       { name: 'profile-status', arguments: ['tests/e2e/profile-status.spec.ts'] },
+      { name: 'profile-stats', arguments: ['tests/e2e/profile-stats.spec.ts'] },
       { name: 'lineup-builder', arguments: ['tests/e2e/lineup-builder.spec.ts'] },
       {
         name: 'final-results-publish',

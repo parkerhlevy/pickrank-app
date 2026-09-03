@@ -65,7 +65,11 @@ The repo is past bare Phase 0 and currently includes:
 - Basic route smoke tests
 - The current auth lane adds token-hash handling for Supabase PKCE email links in `app/auth/callback/route.ts` and exposes `/auth/confirm`; focused auth tests, `npm run typecheck`, `npm run lint`, and the full `npm test` suite pass (`35` files, `212` tests). Commit `58f52ed` is deployed to Vercel Production deployment `dpl_FXP4J88XZadhmWj4YJnaTVs7d21f`. On 2026-08-24, live Supabase Auth logs identified the remaining send failure as an SMTP sender on the removed `auth.pickrankgames.com` domain. Custom SMTP now sends from `PickRank <hello@pickrankgames.com>` on the verified root domain. Both **Confirm sign up** and **Magic link or OTP** now use branded PickRank templates with `/auth/confirm?token_hash={{ .TokenHash }}&type=email`. After the Auth configuration reload, a fresh-address confirmation email and a returning-user magic link each rendered only the branded template, completed token-hash verification, and landed on `/profile` with an authenticated session. No app code or Vercel deployment was required for the live SMTP and template changes.
 
-Current branch and production reality as of 2026-09-01:
+Current branch and production reality as of 2026-09-03:
+
+- `codex/profile-my-stats` is the focused implementation branch based on current `origin/main` at `56e00da`. It adds the private `My Stats` section to `/profile` for active players with a complete Profile. The section reads the signed-in viewer's existing saved final results, shows completed contests, best finish, top-three finishes, exact-pick rate, within-one-spot rate, and the five most recent results, and keeps Profile information, support, sign-out, entry status, and paid-preview wallet content below it. A required return-to-contest action stays ahead of stats.
+- the Profile stats query is internal and server-only in use. It accepts only the authenticated viewer user ID from the server-rendered Profile page. It reads existing visible `final` or `paid_out` contest results, derives field size and pick denominators from saved scoring rows, excludes ineligible and incomplete records, and returns typed `ready`, `empty`, or `unavailable` states. This slice adds no route, public API, public profile, database migration, Row Level Security policy, cache, backfill, or production-data mutation.
+- local verification for the Profile stats slice passes `npm run typecheck`, `npm run lint`, `npm test` (`41` files and `249` tests), Playwright contract validation (`18` files), `npm run build -- --webpack`, and `git diff --check`. The requested local Profile/auth browser matrix cannot execute in the Codex desktop macOS sandbox: Next.js fails to bind `127.0.0.1:3000` with `listen EPERM`, and Chromium fails before test execution at `MachPortRendezvousServer` with permission denied. The same failures remained after the permitted retry. Release verification must use the established pull-request Linux Chromium workflow. Production is unchanged.
 
 - the narrow admin data-freshness follow-up is merged into `main` through pull request `#43` at merge commit `28bd0fc` and is live in Vercel Production deployment `dpl_6nDA3wTVaWWWMqj3d1YyZiFAJWgR`. Every admin workspace page now shows one shared UTC `Data loaded` label and `Refresh data` control. Authenticated production review confirmed the Overview timestamp changed after refresh, the User data route showed all `19` users by default with search as a filter, and the exact deployment had no error or fatal runtime logs. The first hosted Chromium run passed the admin suite but failed all `12` unrelated lineup-builder cases; one approved rerun passed the complete gate in `3m58s`. Typecheck, lint, all `229` unit tests, Playwright contract validation for `14` files, the webpack production build, and `git diff --check` also pass. The repo and `Admin dashboard needs` Notion page record the scale trigger: schedule database-level filtering, pagination, and aggregates at 500 accounts, 25,000 immutable board revisions, or a seven-day admin-route p95 above two seconds, and complete it before the current 1,000-account Supabase Auth page limit.
 - the admin evidence dashboard is merged into `main` through pull request `#37` at merge commit `36b68ba`. Production migration `0017_admin_evidence_foundation.sql` is applied to Supabase project `jmvzdspiobcjrewndhuf`; commit `3554c6d` qualifies the pgcrypto digest calls through the Supabase `extensions` schema and makes the five evidence read policies safe to rerun after a partial apply. Read-only database verification confirmed five row-level-security evidence tables, five evidence read policies, save and lock RPCs, eight stable analysis subjects, eight append-only board revisions, 80 ordered revision items, and five ruleset snapshots. The backfill labels the eight reconstructed boards `legacy_current_state`; it does not claim historical board states that were not captured before this release.
@@ -465,19 +469,24 @@ Current product checklist:
 Active implementation slice:
 
 ```text
-Keep `2026-week-1-qb-passing-yards` hidden. Close to publication, recheck the 20-player Week 1 pool, starters, injuries, kickoff times, and provider IDs against approved sources. Rerun draft validation after any approved roster change. Present the exact final candidate and request Parker's separate explicit publish approval. Do not change scoring, eligibility, payments, the official typed-`FINAL` path, or provider access.
+Finish the approved private Profile My Stats V1 release from `codex/profile-my-stats`. Commit and push the focused diff, then use the pull-request Linux Chromium workflow to run the Profile stats, Profile status, and homepage/auth browser matrix at desktop and mobile sizes. Complete visual comparison against the supplied HaloTracker hierarchy while retaining PickRank's design system. Merge and deploy after the browser gate passes. Do not create test contests or modify production records.
 ```
 
 Definition of done:
 
-- the focused Week 1 proof has clear provider, admin, and browser evidence with a defined production boundary
-- the implementation remains one reviewable slice
-- product rules, scoring, eligibility, auth providers, and production data remain unchanged unless Parker separately approves them
-- the focused Week 1 Chromium flow passes on a permitted host
-- the direct unavailable-contest route returns a clean result in production before the replacement is published
-- the reviewed 20-player pool receives a close-to-publish starter, injury, roster, kickoff-time, and provider-ID recheck
-- the hidden replacement is published only after Parker gives separate explicit approval
-- `docs/agent-handoff.md` records the delivered result and next move
+- the private stats query and all three states remain scoped to the signed-in viewer
+- lifetime metrics and recent rows use only visible saved final results and actual saved-pick denominators
+- signed-out, incomplete-Profile, restricted-account, and return-to-contest flows retain their required priority
+- Profile stats and existing Profile/auth Chromium coverage pass on Linux at `1280 x 900` and `390 x 844`
+- visual review confirms no overflow, no color-only meaning, keyboard-accessible result links, and account controls below stats
+- no database migration, backfill, public API, test contest, or production-data mutation is introduced
+- `docs/agent-handoff.md` records the final verification and release state
+
+Queued separate Week 1 publication slice:
+
+```text
+Keep `2026-week-1-qb-passing-yards` hidden. Close to publication, recheck the 20-player Week 1 pool, starters, injuries, kickoff times, and provider IDs against approved sources. Rerun draft validation after any approved roster change. Present the exact final candidate and request Parker's separate explicit publish approval. Do not change scoring, eligibility, payments, the official typed-`FINAL` path, or provider access.
+```
 
 Queued separate provider decision:
 
@@ -500,7 +509,7 @@ Continue PickRank using the repo as source of truth. Work only on future paid-mo
 Use this prompt for the immediate follow-up:
 
 ```text
-Continue PickRank using the repo as source of truth. Start from `docs/agent-handoff.md` and `docs/analysis/mysportsfeeds-week1-end-to-end-setup-2026-09-01.md`. Work only on the close-to-publish review of hidden production draft `2026-week-1-qb-passing-yards`. Recheck all 20 quarterbacks, starters, injuries, roster status, kickoff times, opponent mappings, and MySportsFeeds player and game IDs against approved sources. Report any change before editing the draft. Keep the contest hidden and request Parker's separate explicit approval before publishing. Do not change scoring, eligibility, payments, provider access, or the typed `FINAL` operator gate.
+Continue PickRank using the repo as source of truth. Work only on completing the approved private Profile My Stats V1 release in `codex/profile-my-stats`. Review and publish the exact focused diff while preserving the detached dirty primary checkout and unrelated worktrees. Use the pull-request Linux Chromium workflow to run the focused Profile stats, Profile status, and homepage/auth browser matrix at desktop and mobile sizes. Compare the implementation with the supplied HaloTracker hierarchy while retaining PickRank's design system. Merge and deploy after the browser gate passes. Do not create test contests or modify production records.
 ```
 
 Use this default starter prompt pattern after that slice is complete:

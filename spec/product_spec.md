@@ -126,10 +126,11 @@ See /spec/features/frontend_navigation.md
 ---
 6. Account + Authentication
 Users must have a verified account before entering paid contests.
-MVP uses Supabase-backed authentication with currently supported Google and magic-link email sign-in, unique username/display name, basic Profile screen, account status, wallet access, and eligibility hooks for age, jurisdiction, and KYC/provider verification.
+MVP uses Supabase-backed authentication with currently supported Google and magic-link email sign-in, unique username/display name, a private Profile performance summary derived from saved final contest results, account status, wallet access, and eligibility hooks for age, jurisdiction, and KYC/provider verification.
 During Early Access Beta, users may create an account before PickRank evaluates their date of birth. They must choose a public username, supply date of birth for the 18+ beta age check, supply state/jurisdiction, accept Beta Terms, and accept the Privacy Policy before free beta entry. These beta acknowledgements are not public real-money eligibility approval. A valid under-18 DOB must restrict beta access and route the account for review.
 Detailed design:
 See /spec/features/account_profile_auth.md
+See /spec/features/profile_performance_stats.md
 ---
 7. Compliance + Eligibility
 Paid contest entry must be blocked unless the user is eligible by account status, age, jurisdiction, verification status, and responsible play restrictions.

@@ -6,6 +6,7 @@ import { e2eAppUrl } from './support/navigation';
 test('profile status notices use distinct tones and beta-safe copy', async ({ page }) => {
   await page.goto('/profile?status=profile-saved');
 
+  await expect(page.getByRole('heading', { name: 'My Stats' })).toBeVisible();
   await expect(page.locator('.notice-panel-info')).toContainText('Profile saved');
   await expect(page.locator('.notice-panel-info')).toContainText('Your Profile has been updated.');
   await expect(page.locator('.notice-panel-success')).toContainText('Entry status');
@@ -39,6 +40,7 @@ test('a first-time player completes all missing Profile fields in one form', asy
   await expect(page.getByRole('heading', { name: 'Finish account setup' })).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'Complete your profile' })).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'Account settings' })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'My Stats' })).toHaveCount(0);
 });
 
 test('a complete returning player continues from Profile sign-in to Contests', async ({ page }) => {

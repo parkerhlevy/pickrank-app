@@ -160,6 +160,7 @@ MVP Profile should include:
 
 - username/display name
 - email address
+- private performance stats from saved final contest results
 - wallet balances
 - account status
 - basic settings
@@ -178,6 +179,10 @@ Successful Profile completion continues to the sanitized intended destination. W
 When an authenticated user is completing entry details, open the Beta Terms and Privacy Policy links in a new tab so the unfinished Profile form remains in the original tab. Do not persist date of birth or other unfinished Profile fields in browser storage. A reload, browser crash, or discarded mobile tab may still clear unfinished values.
 
 Keep the Beta Terms and Privacy Policy as separate explicit acknowledgements. Do not replace them with implicit `By continuing` acceptance without separate legal review.
+
+For an active signed-in user with a complete Profile, show `My Stats` before Profile information and account controls. The V1 summary includes completed contests, best finish, top-three finishes, exact-pick rate, within-one-spot rate, and the five most recent finalized contest results. Use only the authenticated viewer's saved final results. Do not expose another player's stats through a URL or browser-supplied identifier.
+
+Keep signed-out access, incomplete-Profile setup, restricted-account guidance, and return-to-contest behavior unchanged and ahead of stats when action is required. Show an empty state before the first eligible result. If stats cannot load, keep all Profile and account controls usable. See `/spec/features/profile_performance_stats.md` for the metric and result-eligibility definitions.
 
 Wallet balances:
 
@@ -411,6 +416,7 @@ Publicly visible:
 Not publicly visible:
 
 - email
+- private Profile performance stats and recent personal result history
 - cash balance
 - site credit balance
 - payment method
@@ -518,6 +524,7 @@ Build for MVP:
 - email verification before paid entry
 - unique username/display name
 - basic Profile screen
+- private finalized performance summary on Profile
 - wallet balance access from Profile
 - account status field
 - age gate placeholder
