@@ -26,15 +26,17 @@ export default function BetaRulesPage() {
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
           <p>Participation requires a PickRank account that has confirmed 18+ beta eligibility.</p>
-          <p>Each MVP beta contest uses a 20-quarterback player pool and asks users to pick and rank 10 quarterbacks by passing yards.</p>
+          <p>Each beta contest uses a 20-quarterback player pool and asks users to pick and rank 10 quarterbacks by passing yards.</p>
           <p>Actual rank is measured against the full 20-player pool, not only against the 10 quarterbacks on your board.</p>
           <p>If quarterbacks tie in the final stat, they share an actual rank range. PickRank does not break player-stat ties with completions, attempts, interceptions, touchdowns, alphabetical order, or manual judgment.</p>
           <p>Entries lock at the contest lock time. You can edit and save your board until lock. Your latest saved board is final after lock.</p>
+          <p>PickRank uses NFL statistical data supplied by {officialDataProvider} as its designated source for contest scoring. References to {officialDataProvider} identify the source of statistical data only. {officialDataProvider} does not sponsor, endorse, administer, or assume responsibility for PickRank or any PickRank contest.</p>
           <p>Final results use saved final stats from {officialDataProvider}, rank-differential scoring, and the locked PickRank tiebreakers: exact picks, one-off-or-better picks, closest placement of actual QB1, then passing-touchdown checks for the user&apos;s selected QB1 through QB5.</p>
           <p>PickRank aims to finalize beta results within {resultsFinalityWindow}.</p>
           <p>Lower total score wins the beta leaderboard. Beta standings do not create cash prizes, payouts, or withdrawable balances.</p>
           <p>There is no cash-prize cancellation threshold during free beta. Current threshold: {betaCancellationThreshold}.</p>
-          <p>PickRank can pause, cancel, correct, or rerun a beta contest if testing, data, integrity, or operational issues require it.</p>
+          <p>PickRank scores each contest using the provider data saved and approved by PickRank after the final contest game ends.</p>
+          <p>PickRank may delay finalization or correct, rerun, or cancel results when provider data is unavailable, incomplete, inconsistent, or corrected. PickRank will resolve data discrepancies in good faith under these Rules.</p>
           <div className="flex flex-wrap gap-x-4 gap-y-2">
             <Link href={getHowItWorksHref('/legal/beta-rules')} className="inline-link">
               Review how it works
