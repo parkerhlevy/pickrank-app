@@ -29,6 +29,8 @@ export type MySportsFeedsReadOnlyValidationOptions = {
   week: number;
   gameId?: string;
   teamAbbreviation?: string;
+  scheduleOnly?: boolean;
+  allWeekGames?: boolean;
   now?: string;
   fetchImpl?: typeof fetch;
 };
@@ -66,6 +68,7 @@ export type MySportsFeedsReadOnlyValidationResult = {
   gamesInProgress: number;
   gamesFinal: number;
   allGamesFinal: boolean;
+  games: MySportsFeedsGameSummary[];
   selectedGame: MySportsFeedsGameSummary | null;
   statRowsFound: number;
   topFive: Array<{
@@ -137,24 +140,30 @@ export async function runMySportsFeedsReadOnlyValidation(
   const weeklyPlayerGamelogsPath = buildWeeklyPlayerGamelogsPath({
     season,
     week: options.week,
-    gameId: selectedGame?.providerGameId,
+    gameId: options.allWeekGames ? undefined : selectedGame?.providerGameId,
     teamAbbreviation: options.teamAbbreviation,
   });
   const notes: string[] = [];
-  const weeklyPlayerGamelogs = await fetchMySportsFeedsJson({
-    baseUrl,
-    path: weeklyPlayerGamelogsPath,
-    apiKey,
-    password: options.password,
-    fetchImpl,
-    allowEmpty: true,
-  });
-  const gamelogs =
-    weeklyPlayerGamelogs.status === 'empty'
-      ? []
-      : parseMySportsFeedsPlayerGamelogs(weeklyPlayerGamelogs.body, selectedGame);
+  let gamelogs: MySportsFeedsPlayerGamelogRow[] = [];
 
-  if (gamelogs.length === 0) {
+  if (options.scheduleOnly) {
+    notes.push('Schedule-only mode skipped the player gamelog request.');
+  } else {
+    const weeklyPlayerGamelogs = await fetchMySportsFeedsJson({
+      baseUrl,
+      path: weeklyPlayerGamelogsPath,
+      apiKey,
+      password: options.password,
+      fetchImpl,
+      allowEmpty: true,
+    });
+    gamelogs =
+      weeklyPlayerGamelogs.status === 'empty'
+      ? []
+        : parseMySportsFeedsPlayerGamelogs(weeklyPlayerGamelogs.body, games);
+  }
+
+  if (gamelogs.length === 0 && !options.scheduleOnly) {
     notes.push(
       'Weekly QB gamelog feed returned no stat rows. This is expected for future or fully unplayed games, but a completed preseason game is still required to prove non-zero passYards.',
     );
@@ -213,7 +222,7 @@ export async function runMySportsFeedsReadOnlyValidation(
     week: options.week,
     endpoints: {
       weeklyGames: weeklyGames.url,
-      weeklyPlayerGamelogs: weeklyPlayerGamelogs.url,
+      weeklyPlayerGamelogs: `${baseUrl}/${weeklyPlayerGamelogsPath}`,
       officialFinalizationHandoff: 'separate_final_review_path_required',
     },
     checks: {
@@ -228,6 +237,7 @@ export async function runMySportsFeedsReadOnlyValidation(
     gamesInProgress: gameSummary.inProgressGames,
     gamesFinal: gameSummary.finalGames,
     allGamesFinal: gameSummary.allGamesFinal,
+    games,
     selectedGame,
     statRowsFound: rows.length,
     topFive: rows.slice(0, 5).map((row) => ({
@@ -424,7 +434,7 @@ function buildWeeklyPlayerGamelogsPath(input: {
 
 function parseMySportsFeedsPlayerGamelogs(
   payload: unknown,
-  selectedGame: MySportsFeedsGameSummary | null,
+  games: MySportsFeedsGameSummary[],
 ): MySportsFeedsPlayerGamelogRow[] {
   const payloadRecord = readRecord(payload, 'MySportsFeeds player gamelogs payload');
   const gamelogs = findArray(payloadRecord, ['gamelogs', 'gamelog', 'playerGamelogs']);
@@ -435,16 +445,17 @@ function parseMySportsFeedsPlayerGamelogs(
     const team = readRecord(record.team, `MySportsFeeds player gamelog ${index + 1} team`);
     const game = record.game ? readRecord(record.game, `MySportsFeeds player gamelog ${index + 1} game`) : null;
     const providerGameId = readRequiredString(
-      game?.id ?? selectedGame?.providerGameId,
+      game?.id ?? games[0]?.providerGameId,
       `MySportsFeeds player gamelog ${index + 1} game id`,
     );
     const teamAbbreviation = readRequiredString(
       team.abbreviation,
       `MySportsFeeds player gamelog ${index + 1} team abbreviation`,
     );
-    const gameStatus = selectedGame?.providerGameId === providerGameId ? selectedGame.gameStatus : 'final';
-    const awayTeam = selectedGame?.awayTeam ?? teamAbbreviation;
-    const homeTeam = selectedGame?.homeTeam ?? teamAbbreviation;
+    const matchingGame = games.find((candidate) => candidate.providerGameId === providerGameId);
+    const gameStatus = matchingGame?.gameStatus ?? 'final';
+    const awayTeam = matchingGame?.awayTeam ?? teamAbbreviation;
+    const homeTeam = matchingGame?.homeTeam ?? teamAbbreviation;
     const homeAway = teamAbbreviation === homeTeam ? 'home' : 'away';
 
     return {

@@ -1,10 +1,10 @@
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { ChevronDown, ListOrdered, Trophy } from 'lucide-react';
 import { ContestBoardStagePanel, ContestJourneyRail } from '@/components/contests/contest-board-preview';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { getContestById, listPublicContests } from '@/lib/contest-data';
+import { findContestById, listPublicContests } from '@/lib/contest-data';
 import { getContestResultForUser } from '@/lib/contest-results';
 import { getNoPayoutLabel } from '@/lib/launch-mode';
 import { getViewerIdentity } from '@/lib/viewer-identity';
@@ -15,7 +15,10 @@ export default async function ContestResultsPage({
   params: Promise<{ contestId: string }>;
 }) {
   const { contestId } = await params;
-  const contest = await getContestById(contestId);
+  const contest = await findContestById(contestId);
+  if (!contest) {
+    notFound();
+  }
   const viewerIdentity = await getViewerIdentity();
 
   if (!viewerIdentity.isAuthenticated || !viewerIdentity.userId) {

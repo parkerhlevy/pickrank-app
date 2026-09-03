@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { AlertTriangle, Clock, Ticket, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { notFound } from 'next/navigation';
 import { ContestBoardPreview } from '@/components/contests/contest-board-preview';
 import { BackLinkButton } from '@/components/ui/back-link-button';
 import { Button } from '@/components/ui/button';
@@ -9,7 +10,7 @@ import { Notice } from '@/components/ui/notice';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getContestDetailPrimaryAction } from '@/lib/contest-entry-flow';
 import {
-  getContestById,
+  findContestById,
   getContestDefaultLineupOrder,
   getContestSelectablePlayers,
   isContestOpenForEntry,
@@ -28,7 +29,10 @@ export default async function ContestDetailPage({
 }) {
   const { contestId } = await params;
   const resolvedSearchParams = (await searchParams) || {};
-  const contest = await getContestById(contestId);
+  const contest = await findContestById(contestId);
+  if (!contest) {
+    notFound();
+  }
   const viewerIdentity = await getViewerIdentity();
   const selectablePlayers = getContestSelectablePlayers(contest);
   const defaultLineupOrder = getContestDefaultLineupOrder(contest);

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { AlertTriangle, CheckCircle2, CreditCard, ShieldCheck } from 'lucide-react';
-import { redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { ContestBoardStagePanel } from '@/components/contests/contest-board-preview';
 import { BackLinkButton } from '@/components/ui/back-link-button';
 import { Notice } from '@/components/ui/notice';
@@ -19,7 +19,7 @@ import {
 } from '@/lib/contest-entry-flow';
 import {
   formatCents,
-  getContestById,
+  findContestById,
   getContestDefaultLineupOrder,
   getContestSelectablePlayers,
   getPaymentReviewBreakdown,
@@ -42,7 +42,10 @@ export default async function PaymentReviewPage({
 }) {
   const { contestId } = await params;
   const resolvedSearchParams = (await searchParams) || {};
-  const contest = await getContestById(contestId);
+  const contest = await findContestById(contestId);
+  if (!contest) {
+    notFound();
+  }
   const isFreeEntryContest = isBetaFreeEntryContest(contest.entryFeeCents);
 
   if (isFreeEntryContest) {

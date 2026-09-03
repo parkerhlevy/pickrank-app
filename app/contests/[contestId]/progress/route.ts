@@ -11,7 +11,7 @@ import {
 import { getPersistedContestEntry } from '@/lib/persisted-contest-entry';
 import { getProtectedContestEntryRedirect } from '@/lib/contest-entry-access';
 import {
-  getContestById,
+  findContestById,
   getContestDefaultLineupOrder,
   getContestSelectablePlayers,
   isContestOpenForEntry,
@@ -31,7 +31,10 @@ export async function GET(
   const stage = contestEntryStages.includes(requestedStage as ContestEntryStage)
     ? (requestedStage as ContestEntryStage)
     : 'not-entered';
-  const contest = await getContestById(contestId);
+  const contest = await findContestById(contestId);
+  if (!contest) {
+    return NextResponse.json({ message: 'Contest not found.' }, { status: 404 });
+  }
   const cookieStore = await cookies();
   const cookieValue = cookieStore.get(contestEntryCookieName)?.value;
   const requestedLineupAccess = stage === 'lineup';
