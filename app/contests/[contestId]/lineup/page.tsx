@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { LineupBuilderClient } from '@/components/contests/lineup-builder-client';
 import { getProtectedContestEntryRedirect } from '@/lib/contest-entry-access';
 import {
@@ -13,7 +13,7 @@ import {
 } from '@/lib/lineup-builder-state';
 import { getPersistedContestEntry } from '@/lib/persisted-contest-entry';
 import {
-  getContestById,
+  findContestById,
   getContestDefaultLineupOrder,
   getContestSelectablePlayers,
   isContestLineupEditable,
@@ -27,7 +27,10 @@ export default async function LineupBuilderPage({
   params: Promise<{ contestId: string }>;
 }) {
   const { contestId } = await params;
-  const contest = await getContestById(contestId);
+  const contest = await findContestById(contestId);
+  if (!contest) {
+    notFound();
+  }
   const next = `/contests/${contest.id}/lineup`;
   const protectedRedirect = await getProtectedContestEntryRedirect(next);
 

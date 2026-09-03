@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import { Medal, Trophy } from 'lucide-react';
-import { redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { ContestBoardStagePanel, ContestJourneyRail } from '@/components/contests/contest-board-preview';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { getContestById, listPublicFinalContests } from '@/lib/contest-data';
+import { findContestById, listPublicFinalContests } from '@/lib/contest-data';
 import { getContestLeaderboard } from '@/lib/contest-results';
 import { getLeaderboardPlaceholderState, hasPublishedContestResults } from '@/lib/leaderboard-state';
 import { getNoPayoutLabel } from '@/lib/launch-mode';
@@ -65,7 +65,10 @@ async function renderLeaderboardPage(requestedContestId?: string) {
       </div>
     );
   }
-  const contest = await getContestById(contestId);
+  const contest = await findContestById(contestId);
+  if (!contest) {
+    notFound();
+  }
   const hasPublishedResults = hasPublishedContestResults(contest.contestStatus);
   const leaderboard = hasPublishedResults ? await getContestLeaderboard(contestId) : null;
 

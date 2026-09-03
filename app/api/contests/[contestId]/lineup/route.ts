@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import {
-  getContestById,
+  findContestById,
   getContestDefaultLineupOrder,
   getContestSelectablePlayers,
   isContestLineupEditable,
@@ -15,7 +15,10 @@ export async function POST(
   { params }: { params: Promise<{ contestId: string }> },
 ) {
   const { contestId } = await params;
-  const contest = await getContestById(contestId);
+  const contest = await findContestById(contestId);
+  if (!contest) {
+    return NextResponse.json({ message: 'Contest not found.' }, { status: 404 });
+  }
   const selectablePlayers = getContestSelectablePlayers(contest);
   const defaultSelectedOrder = getContestDefaultLineupOrder(contest);
 
