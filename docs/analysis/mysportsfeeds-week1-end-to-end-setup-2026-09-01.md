@@ -2,7 +2,7 @@
 
 Date: 2026-09-01
 
-Status: Non-production setup and the durable Linux Chromium browser gate are complete.
+Status: Non-production proof is complete. A validated production draft now exists, and the stale public contest has been removed. The replacement is hidden and unpublished.
 
 ## Scope and safety boundary
 
@@ -10,7 +10,7 @@ This slice used the PickRank repo as the source of truth. It read the current ha
 
 All provider calls were GET-only. The MySportsFeeds key stayed in the existing `PICKRANK_MYSPORTSFEEDS_API_KEY` environment-variable path. The key was not printed, stored in a repo file, hard-coded, or committed.
 
-The Week 1 contest was created only in `/private/tmp/pickrank-mysportsfeeds-week1`, a detached clean worktree based on `origin/main` at `24f239c`. The setup used the file-backed contest store. It did not use Supabase. It did not change production data. Nothing was deployed, purchased, published to production, committed, or pushed.
+The initial Week 1 proof was created only in `/private/tmp/pickrank-mysportsfeeds-week1`, a detached clean worktree based on `origin/main` at `24f239c`. The proof used the file-backed contest store. It did not use Supabase or change production data. The later approved production preparation is recorded below.
 
 The primary checkout at `/Users/parkerlevy/Documents/PickRank` was left unchanged because it contains unrelated in-progress work.
 
@@ -185,11 +185,43 @@ Verification commands that passed:
 
 The browser test is `tests/e2e/mysportsfeeds-week1-flow.spec.ts`. The first GitHub Actions run exposed an existing global button locator that became ambiguous when this proof added a second open free contest. The locator was scoped to the exact contest form. GitHub Actions run `33474643826` then passed the complete `Browser verification` workflow in Chromium.
 
+## Approved production preparation on 2026-09-02
+
+Parker reviewed the player list, games, and contest logic. Parker also confirmed that the written MySportsFeeds approval is sufficient for the current business-to-consumer, non-competing, text-only use. This is a project decision, not legal advice. Paid contests, business-to-business use, images, and new product categories remain outside this approval.
+
+The production admin now contains one replacement contest:
+
+- Title: `2026 Week 1 QB Passing Yards`.
+- Slug: `2026-week-1-qb-passing-yards`.
+- State: hidden `draft`.
+- Entry fee: `$0.00`.
+- Entry open time: `2026-09-01T00:00:00.000Z`.
+- Lock time: `2026-09-13T17:00:00.000Z`, or Sunday, September 13 at 1:00 PM Eastern Time.
+- Stat category: `qb_passing_yards` through the existing draft default.
+- Player pool: the reviewed 20-player MySportsFeeds slate from the non-production proof.
+- Validation: `passed` in the production admin.
+
+The replacement remains hidden and unpublished. No code was deployed or merged.
+
+Parker explicitly approved permanent deletion of stale production contest `week-1-qb-passing-yards`, ID `a95512b2-2dd8-4095-a0c5-e70be4bc2bd4`. A guarded transaction required the exact reviewed counts and a validated hidden replacement before deletion. It removed the contest and its cascading ordinary records: 20 slate players, 9 free entries, 90 lineup rows, 1 validation row, and 3 state events. It removed no paid entries because the contest had none.
+
+The transaction retained the append-only evidence that does not cascade with the contest: 14 board revisions, 140 revision items, and 1 ruleset snapshot. It also wrote one persistent `production_contest_hard_delete` admin audit event with the approved reason and row counts.
+
+Post-delete database checks returned zero rows for the stale contest, slate players, entries, validation records, and state events. The replacement still returned one hidden draft, 20 slate players, and one passed validation. Public `/contests` showed no available contests and exposed neither slug.
+
+Direct visits to both the deleted slug and the hidden replacement slug returned a generic server-error page instead of a clean unavailable or not-found response. Resolve and deploy that route behavior before publishing the replacement.
+
+An uncommitted route-safety fix is now prepared on `codex/mysportsfeeds-week1-nonprod-proof`. Public contest lookup no longer substitutes the first visible contest for an unknown slug. Deleted and hidden contest pages call the Next.js not-found boundary and render one contest-specific unavailable page. The contest progress and lineup API handlers return JSON `404` responses. The same public lookup guard applies to detail, payment, success, lineup, results, and requested leaderboard routes. Admin calls can still request hidden contests explicitly.
+
+Focused lookup coverage passes with 5 unit tests. The full Vitest suite passes with 40 files and 240 tests. Typecheck, full lint, Playwright contract validation for 17 files, the webpack production build, and `git diff --check` pass. Local browser execution is blocked before the application starts by the host `listen EPERM` restriction, including an elevated retry. Hosted Chromium remains required before deployment. No commit, push, deployment, publication, or production-data change was made for this route fix.
+
 ## Legal, commercial, and production-readiness gaps
 
 The repo records a MySportsFeeds support confirmation that the described PickRank business-to-consumer free-to-play beta, internal validation, and storage are acceptable if PickRank does not place MySportsFeeds in competition. That record does not authorize paid contests, business-to-business use, or any new product category.
 
-Before production use, obtain or reconfirm written answers for:
+Keep the written approval with the provider record. Confirm any required attribution, retention, correction, and deletion terms when the contract or product use changes. Obtain separate written terms before paid contests, business-to-business use, images, or a new product category.
+
+Previously identified contract questions included:
 
 - Public display and redistribution rights for schedules, player names, provider IDs, and stat values.
 - Cache duration, historical retention, correction handling, and deletion obligations.
@@ -205,8 +237,9 @@ Technical production gaps:
 - The adapter needs bounded retry and malformed-response handling.
 - Week 1 final-stat and correction behavior can only be checked after the games finish.
 - The existing data model still labels contests `public_paid` even when the free-beta entry fee is zero. This did not activate payment behavior, but the naming remains a product-data cleanup gap.
-- Production Supabase contest creation, provider snapshot persistence, scheduled refreshes, and public result publication remain untested and approval-gated.
+- Production Supabase draft creation and admin validation now pass. Provider snapshot persistence, scheduled refreshes, and public result publication remain untested and approval-gated.
+- Production direct deleted or hidden contest URLs continue to return a generic server-error page until the prepared local route fix passes hosted Chromium and receives separate commit, deployment, and publish approvals.
 
 ## Recommended next action
 
-Review the exact 20-player pool and written MySportsFeeds rights with Parker. Recheck starters, injuries, rosters, kickoff times, and provider IDs before any production decision. Do not publish the Week 1 contest to production until both reviews are complete.
+Review the prepared route fix. If approved, commit and push it so hosted Chromium can run. Deploy only after that browser gate passes and Parker gives separate deployment approval. Then recheck starters, injuries, rosters, kickoff times, and provider IDs close to publish time. Keep the replacement hidden until Parker gives a separate explicit publish approval.

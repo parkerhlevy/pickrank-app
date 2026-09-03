@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { CheckCircle2, Clock, ListChecks } from 'lucide-react';
-import { redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { ContestBoardStagePanel } from '@/components/contests/contest-board-preview';
 import { BackLinkButton } from '@/components/ui/back-link-button';
 import { Notice } from '@/components/ui/notice';
@@ -17,7 +17,7 @@ import {
   getPersistedContestEntryStage,
 } from '@/lib/contest-entry-flow';
 import {
-  getContestById,
+  findContestById,
   getContestDefaultLineupOrder,
   getContestSelectablePlayers,
 } from '@/lib/contest-data';
@@ -31,7 +31,10 @@ export default async function EntrySuccessPage({
   params: Promise<{ contestId: string }>;
 }) {
   const { contestId } = await params;
-  const contest = await getContestById(contestId);
+  const contest = await findContestById(contestId);
+  if (!contest) {
+    notFound();
+  }
 
   if (isBetaFreeEntryContest(contest.entryFeeCents)) {
     const viewerIdentity = await getViewerIdentity();

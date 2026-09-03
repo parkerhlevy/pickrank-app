@@ -245,19 +245,24 @@ export async function listAdminContests(options?: ContestDataOptions) {
   return [...store.contests].sort(compareContestRecords).map(toContestSummary);
 }
 
-export async function getContestById(contestId: string, options?: ContestLookupOptions) {
+export async function findContestById(contestId: string, options?: ContestLookupOptions) {
   const store = await readContestStore(options);
   const contests = options?.includeHidden
     ? store.contests
     : store.contests.filter((contest) => contest.visibilityStatus === 'visible');
+  const contest = contests.find((item) => item.id === contestId);
 
-  const contest = contests.find((item) => item.id === contestId) ?? contests[0];
+  return contest ? toContestSummary(contest) : null;
+}
+
+export async function getContestById(contestId: string, options?: ContestLookupOptions) {
+  const contest = await findContestById(contestId, options);
 
   if (!contest) {
-    throw new Error('No contests are available.');
+    throw new Error('Contest not found.');
   }
 
-  return toContestSummary(contest);
+  return contest;
 }
 
 export async function createDraftContest(input: CreateDraftContestInput, options?: ContestDataOptions) {
