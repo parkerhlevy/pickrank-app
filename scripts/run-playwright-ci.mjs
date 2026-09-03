@@ -7,6 +7,7 @@ const suites = explicitArguments.length
   : [
       { name: 'admin-shell', arguments: ['tests/e2e/admin-shell.spec.ts'] },
       { name: 'homepage', arguments: ['tests/e2e/homepage.spec.ts'] },
+      { name: 'contest-unavailable', arguments: ['tests/e2e/contest-unavailable.spec.ts'] },
       { name: 'profile-status', arguments: ['tests/e2e/profile-status.spec.ts'] },
       { name: 'lineup-builder', arguments: ['tests/e2e/lineup-builder.spec.ts'] },
       {

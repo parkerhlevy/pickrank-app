@@ -213,7 +213,7 @@ Direct visits to both the deleted slug and the hidden replacement slug returned 
 
 An uncommitted route-safety fix is now prepared on `codex/mysportsfeeds-week1-nonprod-proof`. Public contest lookup no longer substitutes the first visible contest for an unknown slug. Deleted and hidden contest pages call the Next.js not-found boundary and render one contest-specific unavailable page. The contest progress and lineup API handlers return JSON `404` responses. The same public lookup guard applies to detail, payment, success, lineup, results, and requested leaderboard routes. Admin calls can still request hidden contests explicitly.
 
-Focused lookup coverage passes with 5 unit tests. The full Vitest suite passes with 40 files and 240 tests. Typecheck, full lint, Playwright contract validation for 17 files, the webpack production build, and `git diff --check` pass. Local browser execution is blocked before the application starts by the host `listen EPERM` restriction, including an elevated retry. Hosted Chromium remains required before deployment. No commit, push, deployment, publication, or production-data change was made for this route fix.
+Focused lookup coverage passes with 5 unit tests. The full Vitest suite passes with 40 files and 240 tests. Typecheck, full lint, Playwright contract validation for 17 files, the webpack production build, and `git diff --check` pass. Local browser execution is blocked before the application starts by the host `listen EPERM` restriction, including an elevated retry. Commit `cd23d98` is pushed. GitHub Actions run `33718470053` passed but exposed that the explicit CI suite list validated without executing the new browser file. A focused follow-up adds that file to the runner and requires one clean hosted rerun before deployment. No deployment, publication, or production-data change was made for this route fix.
 
 ## Legal, commercial, and production-readiness gaps
 
@@ -242,4 +242,4 @@ Technical production gaps:
 
 ## Recommended next action
 
-Review the prepared route fix. If approved, commit and push it so hosted Chromium can run. Deploy only after that browser gate passes and Parker gives separate deployment approval. Then recheck starters, injuries, rosters, kickoff times, and provider IDs close to publish time. Keep the replacement hidden until Parker gives a separate explicit publish approval.
+Complete the hosted Chromium rerun with the unavailable-contest browser file included. If it passes, review the route fix for deployment. Deploy only after Parker gives separate deployment approval. Then recheck starters, injuries, rosters, kickoff times, and provider IDs close to publish time. Keep the replacement hidden until Parker gives a separate explicit publish approval.
