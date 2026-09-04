@@ -59,7 +59,7 @@ test('active Profile shows private lifetime stats before account settings on des
     await expect(page.getByText('Best finish')).toBeVisible();
     await expect(page.getByText('Top-3 finishes')).toBeVisible();
     await expect(page.getByText('Exact pick rate')).toBeVisible();
-    await expect(page.getByText('1 of 4')).toBeVisible();
+    await expect(page.getByText('1 of 4', { exact: true })).toBeVisible();
     await expect(page.getByText('30%')).toBeVisible();
     await expect(page.getByText('60%')).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Recent results' })).toBeVisible();
