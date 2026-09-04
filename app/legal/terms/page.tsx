@@ -60,6 +60,11 @@ export default function BetaTermsPage() {
             <p>PickRank can pause, cancel, correct, or rerun a beta contest if testing, data, integrity, or operational issues require it.</p>
           </LegalSection>
 
+          <LegalSection title="Third-party sports data">
+            <p>PickRank may rely on independent sports-data providers to operate and score contests.</p>
+            <p>Provider data may be delayed, unavailable, incomplete, or corrected. PickRank may take the corrective actions described in the applicable Contest Rules.</p>
+          </LegalSection>
+
           <LegalSection title="Acceptable use">
             <p>Users may not misuse PickRank, submit false account details, misrepresent age, use automation, exploit bugs, interfere with security, or coordinate activity that harms contest integrity.</p>
             <p>Users can ask PickRank to review an enforcement decision by contacting {legalSupportEmail}. PickRank aims to review beta enforcement requests within {enforcementReviewWindow}.</p>
