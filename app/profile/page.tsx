@@ -2,6 +2,7 @@ import { ArrowRight, CheckCircle2, MapPin, ShieldCheck, UserCircle, WalletCards 
 import Link from 'next/link';
 import { signOut } from '@/app/auth/actions';
 import { AccountAccessCard } from '@/components/auth/account-access-card';
+import { ProfilePerformanceStatsCard } from '@/components/profile/profile-performance-stats';
 import { ProfileSetupForm } from '@/components/profile/profile-setup-form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,6 +16,7 @@ import {
 } from '@/lib/auth-profile';
 import { legalSupportEmail } from '@/lib/legal';
 import { launchMode } from '@/lib/launch-mode';
+import { getProfilePerformanceStats } from '@/lib/profile-performance-stats';
 import { getViewerIdentity } from '@/lib/viewer-identity';
 
 type ProfilePageProps = {
@@ -43,6 +45,10 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
   const needsUsername = Boolean(user && !isAccountUnavailable && !identity.isProfileComplete);
   const needsEligibility = Boolean(user && !isAccountUnavailable && !identity.eligibility.isEligibilityComplete);
   const needsProfileSetup = needsUsername || needsEligibility;
+  const profileStats =
+    user && identity.userId && !isAccountUnavailable && !needsProfileSetup
+      ? await getProfilePerformanceStats(identity.userId)
+      : null;
   const todayDateInput = new Date().toISOString().slice(0, 10);
 
   return (
@@ -59,13 +65,15 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
             You need an account to play. After sign-in, finish your Profile, then enter a free contest.
           </p>
         ) : null}
-        <p className="text-sm text-muted-foreground">
-          Need help?{' '}
-          <a className="inline-link" href={`mailto:${legalSupportEmail}`}>
-            Contact support
-          </a>
-          .
-        </p>
+        {!profileStats ? (
+          <p className="text-sm text-muted-foreground">
+            Need help?{' '}
+            <a className="inline-link" href={`mailto:${legalSupportEmail}`}>
+              Contact support
+            </a>
+            .
+          </p>
+        ) : null}
       </section>
 
       {isAccountUnavailable ? (
@@ -163,6 +171,14 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
         </Card>
       ) : null}
 
+      {profileStats && next !== defaultReturnPath ? (
+        <Button asChild className="w-full">
+          <Link href={next}>{returnStep.actionLabel}</Link>
+        </Button>
+      ) : null}
+
+      {profileStats ? <ProfilePerformanceStatsCard stats={profileStats} /> : null}
+
       {user && !isAccountUnavailable && !needsProfileSetup ? (
         <Card className="section-card overflow-hidden">
           <CardHeader className="section-card-header">
@@ -198,6 +214,13 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
                   Sign out
                 </Button>
               </form>
+              <p className="text-muted-foreground">
+                Need help?{' '}
+                <a className="inline-link" href={`mailto:${legalSupportEmail}`}>
+                  Contact support
+                </a>
+                .
+              </p>
             </div>
           </CardContent>
           <div className="space-y-3 border-t border-slate-200 px-6 py-5 text-sm">
@@ -243,11 +266,6 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
               description="Your entry details are saved."
               badge="Ready"
             />
-            {next !== defaultReturnPath ? (
-              <Button asChild className="w-full">
-                <Link href={next}>{returnStep.actionLabel}</Link>
-              </Button>
-            ) : null}
           </div>
         </Card>
       ) : null}

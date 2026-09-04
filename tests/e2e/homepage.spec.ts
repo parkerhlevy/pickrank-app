@@ -172,6 +172,7 @@ test('logged-out profile keeps account access and entry guidance compact', async
   await expect(page.getByRole('button', { name: 'Email me a sign-in link' })).toBeVisible();
   await expect(page.locator('input[name="authSurface"][value="profile"]')).toHaveCount(2);
   await expect(page.getByRole('heading', { name: 'Account settings' })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'My Stats' })).toHaveCount(0);
   await expectHowItWorksButton(page, '/profile');
   await expect(page.getByRole('link', { name: 'Contact support' })).toHaveAttribute(
     'href',
