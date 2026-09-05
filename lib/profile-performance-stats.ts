@@ -126,6 +126,13 @@ type PlayerScoreRow = Pick<
   'entry_id'
 >;
 
+type OptionalProfileStatsTable = 'entry_player_scores' | 'entry_scoring_results';
+
+type SupabaseQueryError = {
+  code?: string;
+  message: string;
+};
+
 export async function getProfilePerformanceStats(
   viewerUserId: string,
   options?: ProfilePerformanceStatsOptions,
@@ -296,6 +303,10 @@ async function readProfilePerformanceRecordsFromDatabase(viewerUserId: string) {
     .eq('user_id', viewerUserId);
 
   if (userResultsError) {
+    if (isMissingOptionalProfileStatsTable(userResultsError, 'entry_scoring_results')) {
+      return [];
+    }
+
     throw new Error(`Unable to read Profile scoring results: ${userResultsError.message}`);
   }
 
@@ -323,10 +334,18 @@ async function readProfilePerformanceRecordsFromDatabase(viewerUserId: string) {
   }
 
   if (fieldResponse.error) {
+    if (isMissingOptionalProfileStatsTable(fieldResponse.error, 'entry_scoring_results')) {
+      return [];
+    }
+
     throw new Error(`Unable to read Profile field sizes: ${fieldResponse.error.message}`);
   }
 
   if (playerScoreResponse.error) {
+    if (isMissingOptionalProfileStatsTable(playerScoreResponse.error, 'entry_player_scores')) {
+      return [];
+    }
+
     throw new Error(`Unable to read Profile pick totals: ${playerScoreResponse.error.message}`);
   }
 
@@ -366,6 +385,21 @@ async function readProfilePerformanceRecordsFromDatabase(viewerUserId: string) {
       } satisfies ProfilePerformanceRecord,
     ];
   });
+}
+
+function isMissingOptionalProfileStatsTable(
+  error: SupabaseQueryError,
+  table: OptionalProfileStatsTable,
+) {
+  return (
+    error.code === 'PGRST205'
+    || error.code === '42P01'
+    || (
+      error.message.includes('Could not find the table')
+      && error.message.includes(`public.${table}`)
+      && error.message.includes('schema cache')
+    )
+  );
 }
 
 function countBy(values: string[]) {

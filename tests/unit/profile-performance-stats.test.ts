@@ -1,7 +1,7 @@
 import { mkdtemp, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   buildProfilePerformanceStats,
   getProfilePerformanceStats,
@@ -9,6 +9,15 @@ import {
 } from '../../lib/profile-performance-stats';
 
 const viewerUserId = '00000000-0000-4000-8000-000000000001';
+const createSupabaseClient = vi.hoisted(() => vi.fn());
+
+vi.mock('@/lib/env', () => ({ hasBrowserSupabaseConfig: () => true }));
+vi.mock('@/lib/supabase/server', () => ({ createClient: createSupabaseClient }));
+
+afterEach(() => {
+  createSupabaseClient.mockReset();
+  vi.unstubAllEnvs();
+});
 
 function buildRecord(overrides: Partial<ProfilePerformanceRecord> = {}): ProfilePerformanceRecord {
   return {
@@ -232,6 +241,108 @@ describe('Profile performance stats', () => {
     await expect(getProfilePerformanceStats(viewerUserId, { resultsDataFilePath })).resolves.toEqual({
       status: 'unavailable',
     });
+    expect(consoleError).toHaveBeenCalledOnce();
+    consoleError.mockRestore();
+  });
+
+  it('treats an absent optional scoring table as the first-contest empty state without logging an error', async () => {
+    vi.stubEnv('NODE_ENV', 'production');
+    vi.stubEnv('VITEST', 'false');
+    vi.stubEnv('PICKRANK_E2E_USE_FILE_STORE', '0');
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const query = {
+      select: vi.fn(),
+      eq: vi.fn().mockResolvedValue({
+        data: null,
+        error: {
+          message: "Could not find the table 'public.entry_scoring_results' in the schema cache",
+        },
+      }),
+    };
+    query.select.mockReturnValue(query);
+    createSupabaseClient.mockResolvedValue({ from: vi.fn().mockReturnValue(query) });
+
+    await expect(getProfilePerformanceStats(viewerUserId)).resolves.toEqual({ status: 'empty' });
+    expect(consoleError).not.toHaveBeenCalled();
+    consoleError.mockRestore();
+  });
+
+  it('returns the empty state when saved results exist but the optional pick-score table is absent', async () => {
+    vi.stubEnv('NODE_ENV', 'production');
+    vi.stubEnv('VITEST', 'false');
+    vi.stubEnv('PICKRANK_E2E_USE_FILE_STORE', '0');
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const userResultsQuery = {
+      select: vi.fn(),
+      eq: vi.fn().mockResolvedValue({
+        data: [{
+          contest_id: 'contest-1',
+          entry_id: 'entry-1',
+          exact_picks: 2,
+          final_rank: 1,
+          final_rank_display: '1',
+          one_off_or_better_picks: 5,
+          score_finalized_at: '2026-09-10T00:00:00.000Z',
+          total_score: 10,
+        }],
+        error: null,
+      }),
+    };
+    const contestQuery = {
+      select: vi.fn(),
+      in: vi.fn(),
+      eq: vi.fn(),
+    };
+    const fieldQuery = { select: vi.fn(), in: vi.fn() };
+    const playerScoreQuery = { select: vi.fn(), in: vi.fn() };
+    userResultsQuery.select.mockReturnValue(userResultsQuery);
+    contestQuery.select.mockReturnValue(contestQuery);
+    contestQuery.in
+      .mockReturnValueOnce(contestQuery)
+      .mockResolvedValueOnce({ data: [{
+        id: 'contest-1',
+        slug: 'contest-1',
+        status: 'final',
+        title: 'Week 1',
+        visibility_status: 'visible',
+      }], error: null });
+    contestQuery.eq.mockReturnValue(contestQuery);
+    fieldQuery.select.mockReturnValue(fieldQuery);
+    fieldQuery.in.mockResolvedValue({ data: [{ contest_id: 'contest-1' }], error: null });
+    playerScoreQuery.select.mockReturnValue(playerScoreQuery);
+    playerScoreQuery.in.mockResolvedValue({
+      data: null,
+      error: { code: 'PGRST205', message: 'missing relation' },
+    });
+    createSupabaseClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === 'contests') return contestQuery;
+        if (table === 'entry_player_scores') return playerScoreQuery;
+        return userResultsQuery.eq.mock.calls.length === 0 ? userResultsQuery : fieldQuery;
+      }),
+    });
+
+    await expect(getProfilePerformanceStats(viewerUserId)).resolves.toEqual({ status: 'empty' });
+    expect(consoleError).not.toHaveBeenCalled();
+    consoleError.mockRestore();
+  });
+
+  it('keeps unexpected scoring-table read failures unavailable and logged', async () => {
+    vi.stubEnv('NODE_ENV', 'production');
+    vi.stubEnv('VITEST', 'false');
+    vi.stubEnv('PICKRANK_E2E_USE_FILE_STORE', '0');
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const query = {
+      select: vi.fn(),
+      eq: vi.fn().mockResolvedValue({
+        data: null,
+        error: { code: '42501', message: 'permission denied for table entry_scoring_results' },
+      }),
+    };
+    query.select.mockReturnValue(query);
+    createSupabaseClient.mockResolvedValue({ from: vi.fn().mockReturnValue(query) });
+
+    await expect(getProfilePerformanceStats(viewerUserId)).resolves.toEqual({ status: 'unavailable' });
     expect(consoleError).toHaveBeenCalledOnce();
     consoleError.mockRestore();
   });
